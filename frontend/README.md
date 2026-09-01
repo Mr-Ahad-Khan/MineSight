@@ -79,3 +79,13 @@ src/
 **Built for Smart India Hackathon 2026**  
 Ministry of Coal | Coal India Limited
 ```
+
+# Deployment configuration
+
+For Vercel production deployments, set `BACKEND_URL` to the public origin of
+the backend service (for example, `https://your-api.onrender.com`). The Vercel
+function at `/api/proxy` forwards same-origin `/api/*` requests to that URL.
+
+`VITE_API_URL` is optional and is intended only for an explicitly configured
+client API endpoint. When it is omitted, development uses
+`http://localhost:5000/api` and production uses the Vercel proxy.
