@@ -83,8 +83,10 @@ Ministry of Coal | Coal India Limited
 # Deployment configuration
 
 For Vercel production deployments, set `BACKEND_URL` to the public origin of
-the backend service (for example, `https://your-api.onrender.com`). The Vercel
-function at `/api/proxy` forwards same-origin `/api/*` requests to that URL.
+the backend service (for example, `https://your-api.onrender.com`). Do not set
+it to the frontend URL (`https://mine-sight.vercel.app`), which would make the
+API call itself recursively. The Vercel catch-all function at `/api/*` forwards
+same-origin API traffic to that backend URL.
 
 `VITE_API_URL` is optional and is intended only for an explicitly configured
 client API endpoint. When it is omitted, development uses
