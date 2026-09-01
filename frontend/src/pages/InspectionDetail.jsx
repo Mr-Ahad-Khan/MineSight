@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, MapPin, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft, MapPin, CheckCircle, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getInspection, updateInspection, closeViolation } from '../services/api'
 import { format } from 'date-fns'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import { useLanguageStore } from '../store/themeStore'
+import { translations } from '../i18n/translations'
 
 const severityBadge = {
   low: 'badge-low',
@@ -16,6 +18,8 @@ const severityBadge = {
 export default function InspectionDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { language } = useLanguageStore()
+  const t = translations[language]
   const [inspection, setInspection] = useState(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
@@ -30,7 +34,7 @@ export default function InspectionDetail() {
       setInspection(res.data.data)
     } catch (error) {
       toast.error('Inspection not found')
-      navigate('/inspections')
+      navigate('/app/inspections')
     } finally {
       setLoading(false)
     }
@@ -41,9 +45,9 @@ export default function InspectionDetail() {
     try {
       const res = await updateInspection(id, { status })
       setInspection(res.data.data)
-      toast.success(`Status updated to ${status}`)
+      toast.success(`${t.statusUpdated} ${status}`)
     } catch (error) {
-      toast.error('Failed to update')
+      toast.error(t.failedUpdate)
     } finally {
       setUpdating(false)
     }
@@ -53,9 +57,9 @@ export default function InspectionDetail() {
     try {
       const res = await closeViolation(id, violationId)
       setInspection(res.data.data)
-      toast.success('Violation closed')
+      toast.success(t.violationClosed)
     } catch (error) {
-      toast.error('Failed to close violation')
+      toast.error(t.failedClose)
     }
   }
 
@@ -98,7 +102,7 @@ export default function InspectionDetail() {
             inspection.riskScore >= 35 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30' :
             'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30'
           }`}>
-            <p className="text-xs font-medium">Risk Score</p>
+            <p className="text-xs font-medium">{t.riskScore}</p>
             <p className="text-2xl font-bold">{inspection.riskScore}</p>
           </div>
         </div>
@@ -108,34 +112,34 @@ export default function InspectionDetail() {
         {/* Main info */}
         <div className="lg:col-span-2 space-y-6">
           <div className="card p-5 space-y-4">
-            <h2 className="font-semibold">Details</h2>
+            <h2 className="font-semibold">{t.detailTitle}</h2>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-slate-500">Type</p>
+                <p className="text-slate-500">{t.type}</p>
                 <p className="font-medium capitalize">{inspection.type}</p>
               </div>
               <div>
-                <p className="text-slate-500">Status</p>
+                <p className="text-slate-500">{t.status}</p>
                 <p className="font-medium capitalize">{inspection.status?.replace('_', ' ')}</p>
               </div>
               <div>
-                <p className="text-slate-500">Inspector</p>
+                <p className="text-slate-500">{t.inspector}</p>
                 <p className="font-medium">{inspection.inspectorId?.name || '—'}</p>
               </div>
               <div>
-                <p className="text-slate-500">Mine Code</p>
+                <p className="text-slate-500">{t.mineCode}</p>
                 <p className="font-medium">{inspection.mineId?.code || '—'}</p>
               </div>
             </div>
             {inspection.description && (
               <div>
-                <p className="text-slate-500 text-sm">Description</p>
+                <p className="text-slate-500 text-sm">{t.description}</p>
                 <p className="mt-1">{inspection.description}</p>
               </div>
             )}
             {inspection.observations && (
               <div>
-                <p className="text-slate-500 text-sm">Observations</p>
+                <p className="text-slate-500 text-sm">{t.observations}</p>
                 <p className="mt-1">{inspection.observations}</p>
               </div>
             )}
@@ -144,10 +148,10 @@ export default function InspectionDetail() {
           {/* Violations */}
           <div className="card p-5">
             <h2 className="font-semibold mb-4">
-              Violations ({inspection.violations?.length || 0})
+              {t.violationCount} ({inspection.violations?.length || 0})
             </h2>
             {(!inspection.violations || inspection.violations.length === 0) ? (
-              <p className="text-slate-400 text-sm">No violations recorded</p>
+              <p className="text-slate-400 text-sm">{t.noViolations}</p>
             ) : (
               <div className="space-y-3">
                 {inspection.violations.map((v) => (
@@ -160,7 +164,7 @@ export default function InspectionDetail() {
                         </p>
                         {v.correctiveAction && (
                           <p className="text-sm mt-2 text-slate-600 dark:text-slate-300">
-                            <strong>Action:</strong> {v.correctiveAction}
+                            <strong>{t.actionLabel}:</strong> {v.correctiveAction}
                           </p>
                         )}
                       </div>
@@ -169,10 +173,10 @@ export default function InspectionDetail() {
                           onClick={() => handleCloseViolation(v._id)}
                           className="btn-secondary text-xs flex items-center gap-1 shrink-0"
                         >
-                          <CheckCircle className="w-3.5 h-3.5" /> Close
+                          <CheckCircle className="w-3.5 h-3.5" /> {t.close}
                         </button>
                       ) : (
-                        <span className="badge badge-low">Closed</span>
+                        <span className="badge badge-low">{t.closed}</span>
                       )}
                     </div>
                   </div>
@@ -186,7 +190,7 @@ export default function InspectionDetail() {
         <div className="space-y-6">
           {/* Actions */}
           <div className="card p-5 space-y-3">
-            <h2 className="font-semibold">Actions</h2>
+            <h2 className="font-semibold">{t.actions}</h2>
             {inspection.status !== 'closed' && (
               <>
                 <button
@@ -194,27 +198,27 @@ export default function InspectionDetail() {
                   disabled={updating || inspection.status === 'in_progress'}
                   className="btn-secondary w-full text-sm"
                 >
-                  Mark In Progress
+                  {t.markInProgress}
                 </button>
                 <button
                   onClick={() => handleStatusChange('escalated')}
                   disabled={updating}
                   className="btn-secondary w-full text-sm text-orange-600"
                 >
-                  Escalate
+                  {t.escalate}
                 </button>
                 <button
                   onClick={() => handleStatusChange('closed')}
                   disabled={updating}
                   className="btn-primary w-full text-sm"
                 >
-                  Close Inspection
+                  {t.closeInspection}
                 </button>
               </>
             )}
             {inspection.status === 'closed' && (
               <p className="text-sm text-emerald-600 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" /> Inspection Closed
+                <CheckCircle className="w-4 h-4" /> {t.inspectionClosed}
               </p>
             )}
           </div>
@@ -224,7 +228,7 @@ export default function InspectionDetail() {
             <div className="card p-5">
               <div className="flex items-center gap-2 mb-3">
                 <MapPin className="w-4 h-4 text-primary-600" />
-                <h2 className="font-semibold">Location</h2>
+                <h2 className="font-semibold">{t.location}</h2>
               </div>
               <div className="h-48 rounded-lg overflow-hidden">
                 <MapContainer center={coords} zoom={14} style={{ height: '100%', width: '100%' }}>

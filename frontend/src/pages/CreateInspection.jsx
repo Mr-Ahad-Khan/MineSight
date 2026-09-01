@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapPin, Camera, Loader2, Plus, Trash2 } from 'lucide-react'
+import { MapPin, Loader2, Plus, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { createInspection, getMines } from '../services/api'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
+import { useLanguageStore } from '../store/themeStore'
+import { translations } from '../i18n/translations'
 
 // Fix leaflet marker icon
 delete L.Icon.Default.prototype._getIconUrl
@@ -25,6 +27,8 @@ function LocationPicker({ position, setPosition }) {
 
 export default function CreateInspection() {
   const navigate = useNavigate()
+  const { language } = useLanguageStore()
+  const t = translations[language]
   const [mines, setMines] = useState([])
   const [loading, setLoading] = useState(false)
   const [position, setPosition] = useState([24.12, 82.45]) // Default Singrauli area
@@ -59,7 +63,7 @@ export default function CreateInspection() {
   }, [])
 
   const addViolation = () => {
-    if (!violation.description) return toast.error('Violation description required')
+    if (!violation.description) return toast.error(t.violationDescriptionRequired)
     setForm({
       ...form,
       violations: [...form.violations, { ...violation }],
@@ -77,7 +81,7 @@ export default function CreateInspection() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.mineId || !form.title) {
-      return toast.error('Mine and Title are required')
+      return toast.error(t.mineAndTitle)
     }
 
     setLoading(true)
@@ -87,10 +91,10 @@ export default function CreateInspection() {
         coordinates: [position[1], position[0]], // [lng, lat]
       }
       const res = await createInspection(payload)
-      toast.success(`Inspection created! Risk Score: ${res.data.data.riskScore}`)
+      toast.success(`${t.inspectionCreated} ${res.data.data.riskScore}`)
       navigate(`/inspections/${res.data.data._id}`)
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create inspection')
+      toast.error(error.response?.data?.message || t.failedToCreate)
     } finally {
       setLoading(false)
     }
@@ -99,91 +103,91 @@ export default function CreateInspection() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">New Inspection</h1>
-        <p className="text-sm text-slate-500 mt-1">Create geo-tagged field inspection report</p>
+        <h1 className="text-2xl font-bold">{t.createInspectionTitle}</h1>
+        <p className="text-sm text-slate-500 mt-1">{t.createInspectionSubtitle}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Info */}
         <div className="card p-5 space-y-4">
-          <h2 className="font-semibold">Basic Information</h2>
+          <h2 className="font-semibold">{t.basicInformation}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="label">Mine *</label>
+              <label className="label">{t.mineRequired}</label>
               <select
                 value={form.mineId}
                 onChange={(e) => setForm({ ...form, mineId: e.target.value })}
                 className="input-field"
                 required
               >
-                <option value="">Select Mine</option>
+                <option value="">{t.selectMine}</option>
                 {mines.map((m) => (
                   <option key={m._id} value={m._id}>{m.name} ({m.code})</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="label">Inspection Type</label>
+              <label className="label">{t.inspectionType}</label>
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
                 className="input-field"
               >
-                <option value="scheduled">Scheduled</option>
-                <option value="safety">Safety</option>
-                <option value="environment">Environment</option>
-                <option value="surprise">Surprise</option>
-                <option value="incident">Incident</option>
+                <option value="scheduled">{t.scheduled}</option>
+                <option value="safety">{t.safety}</option>
+                <option value="environment">{t.environment}</option>
+                <option value="surprise">{t.surprise}</option>
+                <option value="incident">{t.incident}</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="label">Title *</label>
+            <label className="label">{t.titleRequired}</label>
             <input
               type="text"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               className="input-field"
-              placeholder="e.g. Haul Road Safety Inspection"
+              placeholder={t.titlePlaceholder}
               required
             />
           </div>
 
           <div>
-            <label className="label">Description</label>
+            <label className="label">{t.description}</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               className="input-field"
               rows={2}
-              placeholder="Brief description of the inspection"
+              placeholder={t.descriptionPlaceholder}
             />
           </div>
 
           <div>
-            <label className="label">Observations</label>
+            <label className="label">{t.observations}</label>
             <textarea
               value={form.observations}
               onChange={(e) => setForm({ ...form, observations: e.target.value })}
               className="input-field"
               rows={3}
-              placeholder="Field observations..."
+              placeholder={t.observationsPlaceholder}
             />
           </div>
 
           <div>
-            <label className="label">Severity</label>
+            <label className="label">{t.severity}</label>
             <select
               value={form.severity}
               onChange={(e) => setForm({ ...form, severity: e.target.value })}
               className="input-field w-auto"
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
+              <option value="low">{t.low}</option>
+              <option value="medium">{t.medium}</option>
+              <option value="high">{t.high}</option>
+              <option value="critical">{t.criticalLabel}</option>
             </select>
           </div>
         </div>
@@ -192,9 +196,9 @@ export default function CreateInspection() {
         <div className="card p-5 space-y-4">
           <div className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-primary-600" />
-            <h2 className="font-semibold">Geo-tagged Location</h2>
+            <h2 className="font-semibold">{t.geoLocation}</h2>
           </div>
-          <p className="text-sm text-slate-500">Click on the map to set inspection location</p>
+          <p className="text-sm text-slate-500">{t.clickMap}</p>
           
           <div className="h-64 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
             <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -206,13 +210,13 @@ export default function CreateInspection() {
             </MapContainer>
           </div>
           <p className="text-xs text-slate-500">
-            Coordinates: {position[0].toFixed(5)}, {position[1].toFixed(5)}
+            {t.coordinates}: {position[0].toFixed(5)}, {position[1].toFixed(5)}
           </p>
         </div>
 
         {/* Violations */}
         <div className="card p-5 space-y-4">
-          <h2 className="font-semibold">Violations Found</h2>
+          <h2 className="font-semibold">{t.violationsFound}</h2>
           
           {form.violations.length > 0 && (
             <div className="space-y-2">

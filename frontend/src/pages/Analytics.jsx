@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { getAnalytics } from '../services/api'
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
+import { useLanguageStore } from '../store/themeStore'
+import { translations } from '../i18n/translations'
 
 const COLORS = ['#10b981', '#f59e0b', '#f97316', '#ef4444']
 
 export default function Analytics() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const { language } = useLanguageStore()
+  const t = translations[language]
 
   useEffect(() => {
     getAnalytics()
@@ -40,16 +43,16 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">AI Analytics</h1>
-        <p className="text-sm text-slate-500 mt-1">Risk insights, recurring violations & trends</p>
+        <h1 className="text-2xl font-bold">{t.analytics}</h1>
+        <p className="text-sm text-slate-500 mt-1">{t.insightSubtitle}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recurring Violations */}
         <div className="card p-5">
-          <h2 className="font-semibold mb-4">Recurring Violations (Last 90 days)</h2>
+          <h2 className="font-semibold mb-4">{t.recurringViolations}</h2>
           {recurringData.length === 0 ? (
-            <p className="text-slate-400 text-sm">No data available</p>
+            <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
           ) : (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={recurringData}>
@@ -65,9 +68,9 @@ export default function Analytics() {
 
         {/* Monthly Trend */}
         <div className="card p-5">
-          <h2 className="font-semibold mb-4">Inspection Trend (6 months)</h2>
+          <h2 className="font-semibold mb-4">{t.inspectionTrend}</h2>
           {trendData.length === 0 ? (
-            <p className="text-slate-400 text-sm">No data available</p>
+            <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
           ) : (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={trendData}>
@@ -84,7 +87,7 @@ export default function Analytics() {
 
       {/* High Risk List */}
       <div className="card p-5">
-        <h2 className="font-semibold mb-4">High Risk Inspections</h2>
+        <h2 className="font-semibold mb-4">{t.highRiskInspections}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800/50 text-left">
@@ -106,7 +109,7 @@ export default function Analytics() {
               ))}
               {(!data?.highRiskInspections || data.highRiskInspections.length === 0) && (
                 <tr>
-                  <td colSpan="4" className="px-4 py-8 text-center text-slate-400">No high risk inspections</td>
+                  <td colSpan="4" className="px-4 py-8 text-center text-slate-400">{t.noHighRisk}</td>
                 </tr>
               )}
             </tbody>

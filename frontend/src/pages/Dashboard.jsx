@@ -9,11 +9,15 @@ import StatCard from '../components/dashboard/StatCard'
 import RiskDistribution from '../components/dashboard/RiskDistribution'
 import RecentAlerts from '../components/dashboard/RecentAlerts'
 import HighRiskList from '../components/dashboard/HighRiskList'
+import { useLanguageStore } from '../store/themeStore'
+import { translations } from '../i18n/translations'
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null)
   const [analytics, setAnalytics] = useState(null)
   const [loading, setLoading] = useState(true)
+  const { language } = useLanguageStore()
+  const t = translations[language]
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,38 +50,38 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-1">Real-time governance & compliance overview</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t.dashboardTitle}</h1>
+          <p className="text-sm text-slate-500 mt-1">{t.dashboardSubtitle}</p>
         </div>
-        <Link to="/inspections/new" className="btn-primary inline-flex items-center gap-2 self-start">
+        <Link to="/app/inspections/new" className="btn-primary inline-flex items-center gap-2 self-start">
           <ClipboardList className="w-4 h-4" />
-          New Inspection
+          {t.newInspection}
         </Link>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Mines"
+          title={t.totalMines}
           value={summary?.totalMines || 0}
           icon={Building2}
           color="blue"
         />
         <StatCard
-          title="Open Inspections"
+          title={t.openInspections}
           value={summary?.openInspections || 0}
           icon={ClipboardList}
           color="amber"
-          subtitle={`${summary?.criticalInspections || 0} critical`}
+          subtitle={`${summary?.criticalInspections || 0} ${t.critical}`}
         />
         <StatCard
-          title="Overdue Compliances"
+          title={t.overdueCompliances}
           value={summary?.overdueCompliances || 0}
           icon={ShieldAlert}
           color="red"
         />
         <StatCard
-          title="Avg Compliance Score"
+          title={t.avgComplianceScore}
           value={`${summary?.avgComplianceScore || 0}%`}
           icon={TrendingUp}
           color="green"
@@ -91,9 +95,9 @@ export default function Dashboard() {
           {/* Risk Distribution */}
           <div className="card p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-lg">Mine Risk Distribution</h2>
-              <Link to="/analytics" className="text-sm text-primary-600 hover:underline flex items-center gap-1">
-                View Analytics <ArrowRight className="w-3 h-3" />
+              <h2 className="font-semibold text-lg">{t.mineRiskDistribution}</h2>
+              <Link to="/app/analytics" className="text-sm text-primary-600 hover:underline flex items-center gap-1">
+                {t.viewAnalytics} <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
             <RiskDistribution data={summary?.riskDistribution} />
@@ -102,9 +106,9 @@ export default function Dashboard() {
           {/* High Risk Inspections */}
           <div className="card p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-lg">High Risk Inspections</h2>
-              <Link to="/inspections?severity=high" className="text-sm text-primary-600 hover:underline">
-                View all
+              <h2 className="font-semibold text-lg">{t.highRiskInspections}</h2>
+              <Link to="/app/inspections?severity=high" className="text-sm text-primary-600 hover:underline">
+                {t.viewAll}
               </Link>
             </div>
             <HighRiskList inspections={analytics?.highRiskInspections || []} />
@@ -115,26 +119,26 @@ export default function Dashboard() {
         <div className="space-y-6">
           {/* Quick Stats */}
           <div className="card p-5">
-            <h2 className="font-semibold text-lg mb-4">Quick Stats</h2>
+            <h2 className="font-semibold text-lg mb-4">{t.quickStats}</h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                 <div className="flex items-center gap-3">
                   <Users className="w-5 h-5 text-primary-600" />
-                  <span className="text-sm">Active Contractors</span>
+                  <span className="text-sm">{t.activeContractors}</span>
                 </div>
                 <span className="font-semibold">{summary?.activeContractors || 0}</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                 <div className="flex items-center gap-3">
                   <Bell className="w-5 h-5 text-amber-500" />
-                  <span className="text-sm">Unread Alerts</span>
+                  <span className="text-sm">{t.unreadAlerts}</span>
                 </div>
                 <span className="font-semibold">{summary?.unreadAlerts || 0}</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                 <div className="flex items-center gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-500" />
-                  <span className="text-sm">Critical Inspections</span>
+                  <span className="text-sm">{t.criticalInspections}</span>
                 </div>
                 <span className="font-semibold">{summary?.criticalInspections || 0}</span>
               </div>
@@ -144,9 +148,9 @@ export default function Dashboard() {
           {/* Recent Alerts */}
           <div className="card p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-lg">Recent Alerts</h2>
-              <Link to="/alerts" className="text-sm text-primary-600 hover:underline">
-                View all
+              <h2 className="font-semibold text-lg">{t.recentAlerts}</h2>
+              <Link to="/app/alerts" className="text-sm text-primary-600 hover:underline">
+                {t.viewAll}
               </Link>
             </div>
             <RecentAlerts />

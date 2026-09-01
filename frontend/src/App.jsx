@@ -3,8 +3,15 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import useAuthStore from './store/authStore'
 import useThemeStore from './store/themeStore'
 
+function PublicHomeRoute() {
+  const { token } = useAuthStore()
+  return token ? <Navigate to="/app" replace /> : <HomePage />
+}
+
 import Layout from './components/layout/Layout'
+import HomePage from './pages/HomePage'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Inspections from './pages/Inspections'
 import CreateInspection from './pages/CreateInspection'
@@ -29,9 +36,11 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/" element={<PublicHomeRoute />} />
       <Route path="/login" element={<Login />} />
-      
-      <Route path="/" element={
+      <Route path="/register" element={<Register />} />
+
+      <Route path="/app" element={
         <PrivateRoute>
           <Layout />
         </PrivateRoute>

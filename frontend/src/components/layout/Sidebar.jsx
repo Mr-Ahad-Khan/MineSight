@@ -4,19 +4,23 @@ import {
   Users, Bell, BarChart3, X, Building2
 } from 'lucide-react'
 import useAuthStore from '../../store/authStore'
-
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Inspections', href: '/inspections', icon: ClipboardList },
-  { name: 'Compliances', href: '/compliances', icon: ShieldCheck },
-  { name: 'Mines', href: '/mines', icon: MapPin },
-  { name: 'Contractors', href: '/contractors', icon: Users },
-  { name: 'Alerts', href: '/alerts', icon: Bell },
-  { name: 'AI Analytics', href: '/analytics', icon: BarChart3 },
-]
+import { useLanguageStore } from '../../store/themeStore'
+import { translations } from '../../i18n/translations'
 
 export default function Sidebar({ open, setOpen }) {
   const { user } = useAuthStore()
+  const { language } = useLanguageStore()
+  const t = translations[language]
+
+  const navigation = [
+    { name: t.dashboard, href: '/app', icon: LayoutDashboard },
+    { name: t.inspections, href: '/app/inspections', icon: ClipboardList },
+    { name: t.compliances, href: '/app/compliances', icon: ShieldCheck },
+    { name: t.mines, href: '/app/mines', icon: MapPin },
+    { name: t.contractors, href: '/app/contractors', icon: Users },
+    { name: t.alerts, href: '/app/alerts', icon: Bell },
+    { name: t.analytics, href: '/app/analytics', icon: BarChart3 },
+  ]
 
   return (
     <>
@@ -61,7 +65,7 @@ export default function Sidebar({ open, setOpen }) {
             <NavLink
               key={item.name}
               to={item.href}
-              end={item.href === '/'}
+              end={item.href === '/app'}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${

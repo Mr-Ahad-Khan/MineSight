@@ -1,12 +1,15 @@
-import { Menu, Moon, Sun, LogOut, Bell } from 'lucide-react'
+import { Menu, Moon, Sun, LogOut, Bell, Languages } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
-import useThemeStore from '../../store/themeStore'
+import useThemeStore, { useLanguageStore } from '../../store/themeStore'
+import { translations } from '../../i18n/translations'
 
 export default function Navbar({ onMenuClick }) {
   const { user, logout } = useAuthStore()
   const { darkMode, toggleDarkMode } = useThemeStore()
+  const { language, setLanguage } = useLanguageStore()
   const navigate = useNavigate()
+  const t = translations[language]
 
   const handleLogout = () => {
     logout()
@@ -24,15 +27,24 @@ export default function Navbar({ onMenuClick }) {
         </button>
         <div className="hidden sm:block">
           <h1 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-            Smart Governance Platform
+            {language === 'en' ? 'Smart Governance Platform' : 'स्मार्ट गवर्नेंस प्लेटफॉर्म'}
           </h1>
-          <p className="text-xs text-slate-500">Ministry of Coal | Coal India Limited</p>
+          <p className="text-xs text-slate-500">{language === 'en' ? 'Ministry of Coal | Coal India Limited' : 'कोयला मंत्रालय | कोल इंडिया लिमिटेड'}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <button
-          onClick={() => navigate('/alerts')}
+          type="button"
+          onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+          title="Toggle language"
+        >
+          <Languages className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+        </button>
+
+        <button
+          onClick={() => navigate('/app/alerts')}
           className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
         >
           <Bell className="w-5 h-5 text-slate-600 dark:text-slate-300" />

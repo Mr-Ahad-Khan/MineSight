@@ -3,6 +3,8 @@ import { getAlerts, markAlertRead, markAllAlertsRead } from '../services/api'
 import { Bell, CheckCheck } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
+import { useLanguageStore } from '../store/themeStore'
+import { translations } from '../i18n/translations'
 
 const severityColor = {
   info: 'border-blue-500 bg-blue-50 dark:bg-blue-900/10',
@@ -13,6 +15,8 @@ const severityColor = {
 export default function Alerts() {
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)
+  const { language } = useLanguageStore()
+  const t = translations[language]
 
   const fetchAlerts = () => {
     getAlerts()
@@ -40,11 +44,11 @@ export default function Alerts() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Alerts</h1>
-          <p className="text-sm text-slate-500 mt-1">System notifications & escalations</p>
+          <h1 className="text-2xl font-bold">{t.alertTitle}</h1>
+          <p className="text-sm text-slate-500 mt-1">{t.alertSubtitle}</p>
         </div>
         <button onClick={handleMarkAll} className="btn-secondary flex items-center gap-2 text-sm">
-          <CheckCheck className="w-4 h-4" /> Mark all read
+          <CheckCheck className="w-4 h-4" /> {t.markAllRead}
         </button>
       </div>
 
@@ -78,7 +82,7 @@ export default function Alerts() {
                     onClick={() => handleMarkRead(alert._id)}
                     className="text-xs text-primary-600 hover:underline shrink-0"
                   >
-                    Mark read
+                    {t.markRead}
                   </button>
                 )}
               </div>

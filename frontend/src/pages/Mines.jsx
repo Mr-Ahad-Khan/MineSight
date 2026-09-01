@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { getMines } from '../services/api'
 import { MapPin } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { useLanguageStore } from '../store/themeStore'
+import { translations } from '../i18n/translations'
 
 const riskBadge = {
   low: 'badge-low',
@@ -13,6 +15,8 @@ const riskBadge = {
 export default function Mines() {
   const [mines, setMines] = useState([])
   const [loading, setLoading] = useState(true)
+  const { language } = useLanguageStore()
+  const t = translations[language]
 
   useEffect(() => {
     getMines()
@@ -28,8 +32,8 @@ export default function Mines() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Mines</h1>
-        <p className="text-sm text-slate-500 mt-1">All registered coal mines</p>
+        <h1 className="text-2xl font-bold">{t.minesTitle}</h1>
+        <p className="text-sm text-slate-500 mt-1">{t.minesSubtitle}</p>
       </div>
 
       {/* Map */}
@@ -57,7 +61,7 @@ export default function Mines() {
       {/* List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
-          <p className="text-slate-400">Loading...</p>
+          <p className="text-slate-400">{t.loading}</p>
         ) : (
           mines.map((mine) => (
             <div key={mine._id} className="card p-5">
@@ -70,7 +74,7 @@ export default function Mines() {
               </div>
               <p className="text-sm text-slate-500 mb-2">{mine.code} • {mine.subsidiary}</p>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500">Compliance Score</span>
+                <span className="text-slate-500">{t.complianceScore}</span>
                 <span className="font-bold text-lg">{mine.complianceScore}%</span>
               </div>
               <div className="mt-2 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">

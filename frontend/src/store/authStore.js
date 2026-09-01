@@ -1,8 +1,17 @@
 import { create } from 'zustand'
-import { login as loginApi, getMe } from '../services/api'
+import { login as loginApi, register as registerApi, getMe } from '../services/api'
+
+const getStoredUser = () => {
+  try {
+    const raw = localStorage.getItem('user')
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
 
 const useAuthStore = create((set) => ({
-  user: JSON.parse(localStorage.getItem('user')) || null,
+  user: getStoredUser(),
   token: localStorage.getItem('token') || null,
   isLoading: false,
 
@@ -10,15 +19,38 @@ const useAuthStore = create((set) => ({
     set({ isLoading: true })
     try {
       const { data } = await loginApi({ email, password })
-      localStorage.setItem('token', data.data.token)
-      localStorage.setItem('user', JSON.stringify(data.data))
-      set({ user: data.data, token: data.data.token, isLoading: false })
+      const authUser = data?.data || data
+      const token = authUser?.token
+
+      if (!token) {
+        throw new Error('Authentication token missing from server response')
+      }
+
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(authUser))
+      set({ user: authUser, token, isLoading: false })
       return { success: true }
     } catch (error) {
       set({ isLoading: false })
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+        message: error.response?.data?.message || error.message || 'Login failed' 
+      }
+    }
+  },
+
+  register: async (userData) => {
+    set({ isLoading: true })
+    try {
+      const { data } = await registerApi(userData)
+      const authUser = data?.data || data
+      set({ user: authUser, token: authUser?.token || null, isLoading: false })
+      return { success: true, user: authUser }
+    } catch (error) {
+      set({ isLoading: false })
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Registration failed'
       }
     }
   },
