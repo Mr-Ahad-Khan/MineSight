@@ -46,7 +46,17 @@ app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/alerts', require('./routes/alertRoutes'));
 app.use('/api/contractors', require('./routes/contractorRoutes'));
 
-// Health check
+// Root and health endpoints
+// Render opens the service URL at `/` by default. Keep this endpoint public so
+// the deployment can be checked without needing an API route or auth token.
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Coal Governance API is running',
+    health: '/api/health',
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Coal Governance API is running' });
 });
