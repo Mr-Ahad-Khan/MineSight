@@ -57,7 +57,8 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error('Please provide email and password');
   }
 
-  const user = await User.findOne({ email }).select('+password');
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
   if (user && (await user.matchPassword(password))) {
     // Update last login

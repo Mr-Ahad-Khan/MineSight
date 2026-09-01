@@ -8,7 +8,13 @@
     "dev": "nodemon server.js",
     "seed": "node seed.js"
   },
-  "keywords": ["sih", "coal", "governance", "compliance", "mern"],
+  "keywords": [
+    "sih",
+    "coal",
+    "governance",
+    "compliance",
+    "mern"
+  ],
   "author": "SIH Team",
   "license": "MIT",
   "dependencies": {
@@ -22,7 +28,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "socket.io": "^4.7.5",
-    "uuid": "^10.0.0"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
