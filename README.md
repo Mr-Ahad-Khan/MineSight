@@ -12,8 +12,8 @@ cd MineSight
 ```bash
 cd backend
 npm install
-# configure your .env file (see backend/README.md)
 npm run dev
+# configure your .env file (see backend/README.md)
 ```
 
 **Frontend**
