@@ -54,9 +54,14 @@ export default api;
 // Resolve media stored by the API without ever falling back to localhost in a
 // deployed build. This keeps voice notes and inspection photos usable on Vercel.
 export const getMediaUrl = (mediaPath) => {
-  if (!mediaPath || mediaPath.startsWith("http")) return mediaPath || null;
+  if (!mediaPath) return null;
+
+  const path = typeof mediaPath === "string" ? mediaPath : mediaPath.url || mediaPath.path;
+  if (!path || typeof path !== "string") return null;
+  if (/^https?:\/\//i.test(path)) return path;
+
   const origin = apiBaseUrl.replace(/\/api\/?$/, "");
-  return `${origin}${mediaPath.startsWith("/") ? mediaPath : `/${mediaPath}`}`;
+  return `${origin}${path.startsWith("/") ? path : `/${path}`}`;
 };
 
 // Auth

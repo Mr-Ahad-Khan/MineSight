@@ -59,11 +59,6 @@ export default function Inspections() {
     }
   }
 
-  const getAudioUrl = (audioPath) => {
-    if (!audioPath) return null
-    return getMediaUrl(audioPath)
-  }
-
   return (
     <div className="min-h-[calc(100vh-72px)] bg-[#f3eadb] px-4 pb-10 pt-3 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1600px]">
@@ -128,7 +123,7 @@ export default function Inspections() {
                   </tr>
                 ) : (
                   inspections.map((insp) => {
-                    const audioUrl = getAudioUrl(insp.audio)
+                    const audioUrl = getMediaUrl(insp.audio)
 
                     return (
                       <tr key={insp._id} className="border-t border-[#d7c8b0] bg-[#f7f3ed] hover:bg-[#f1eadf]">
@@ -152,9 +147,12 @@ export default function Inspections() {
                                 {insp.photos.slice(0, 3).map((photo, idx) => (
                                   <img
                                     key={`${photo}-${idx}`}
-                                    src={getAudioUrl(photo)}
+                                    src={getMediaUrl(photo)}
                                     alt="Inspection preview"
                                     className="h-9 w-9 rounded-md border border-[#d9c7a7] object-cover shadow-sm transition-transform duration-200 hover:scale-110"
+                                    onError={(event) => {
+                                      event.currentTarget.style.display = 'none'
+                                    }}
                                   />
                                 ))}
                                 {insp.photos.length > 3 ? (
@@ -190,7 +188,7 @@ export default function Inspections() {
                         </td>
 
                         <td className="px-4 py-4 align-middle text-[#474747]">
-                          {format(new Date(insp.createdAt), 'dd MMM yyyy')}
+                          {insp.createdAt ? format(new Date(insp.createdAt), 'dd MMM yyyy') : '—'}
                         </td>
 
                         <td className="px-4 py-4 align-middle">

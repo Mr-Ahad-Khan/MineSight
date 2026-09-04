@@ -11,11 +11,6 @@ const getMines = asyncHandler(async (req, res) => {
 
   let query = {};
 
-  // Mine officials can only see their own mine
-  if (req.user.role === 'mine_official' && req.user.mineId) {
-    query._id = req.user.mineId;
-  }
-
   if (req.query.subsidiary) {
     query.subsidiary = req.query.subsidiary;
   }

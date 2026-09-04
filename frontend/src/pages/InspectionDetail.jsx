@@ -184,6 +184,9 @@ export default function InspectionDetail() {
                           src={photoSrc}
                           alt={`Inspection site ${index + 1}`}
                           className="h-28 w-full object-cover transition-transform duration-200 group-hover:scale-110 group-focus:scale-110"
+                          onError={(event) => {
+                            event.currentTarget.closest('button').style.display = 'none'
+                          }}
                         />
                       </button>
                     )
