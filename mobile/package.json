@@ -1,0 +1,17 @@
+{
+  "name": "minesight-mobile",
+  "version": "1.0.0",
+  "scripts": {
+    "build:android": "cd ../frontend && npm run build && cd ../mobile && npx cap sync android",
+    "build:apk": "cd android && gradlew assembleDebug",
+    "install:android": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+    "dev:android": "npm run build:android && npm run build:apk && npm run install:android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}

@@ -2,13 +2,16 @@ import axios from "axios";
 
 // 1. Resolve and sanitize the base URL to prevent double slashes or broken paths
 const rawBackendUrl =
-  import.meta.env.VITE_BACKEND_URI || import.meta.env.VITE_API_URL;
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_BACKEND_URI ||
+  import.meta.env.VITE_API_URL;
 
 // Strip trailing slashes and normalize the endpoint
 let apiBaseUrl = "";
 
 if (rawBackendUrl) {
   const cleanUrl = rawBackendUrl.replace(/\/+$/, "");
+  // If the URL already ends with /api, use it as-is, otherwise append /api
   apiBaseUrl = cleanUrl.endsWith("/api") ? cleanUrl : `${cleanUrl}/api`;
 } else {
   // Fallbacks: Development uses localhost, Production points directly to Render

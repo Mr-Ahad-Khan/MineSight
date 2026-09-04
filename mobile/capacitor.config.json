@@ -1,0 +1,5 @@
+{
+  "appId": "com.yourcompany.minesight",
+  "appName": "MineSight",
+  "webDir": "../frontend/dist"
+}
