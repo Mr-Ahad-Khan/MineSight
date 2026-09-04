@@ -92,7 +92,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-30 border-b border-[#d7c7ab] bg-[#e8dfcf] shadow-[0_2px_8px_rgba(74,54,32,0.08)] dark:border-slate-700 dark:bg-[#111c24] dark:shadow-none">
       <div className="flex h-14 min-w-0 items-center sm:h-16 lg:h-[72px]">
-        <div className="flex h-full min-w-0 shrink-0 items-center bg-white px-3 sm:px-5 xl:pr-8">
+        <div className="flex h-full min-w-0 shrink-0 items-center bg-white px-3 sm:px-5 dark:bg-[#171b22] xl:pr-8">
           <BrandLogo imageClassName="h-12 w-36 sm:h-14 sm:w-44" />
         </div>
 

@@ -58,7 +58,7 @@ export default function Login() {
         <div className="relative z-10 flex w-full flex-col justify-between p-12">
           <div>
             <div className="mb-12 flex items-center justify-between gap-3">
-              <BrandLogo imageClassName="h-16 w-48 rounded bg-white px-2" />
+              <BrandLogo imageClassName="h-16 w-48 rounded" />
 
               <button
                 type="button"
@@ -155,7 +155,7 @@ export default function Login() {
             }}
           >
             <div className="absolute inset-0 flex items-center gap-3 px-5 text-white">
-              <BrandLogo imageClassName="h-12 w-40 rounded bg-white px-2" />
+              <BrandLogo imageClassName="h-12 w-40 rounded" />
             </div>
           </div>
 

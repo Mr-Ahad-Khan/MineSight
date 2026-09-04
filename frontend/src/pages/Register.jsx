@@ -126,7 +126,7 @@ export default function Register() {
         <div className="relative z-10 flex w-full flex-col justify-between p-12">
           <div>
             <div className="mb-12">
-              <BrandLogo imageClassName="h-16 w-48 rounded bg-white px-2" />
+              <BrandLogo imageClassName="h-16 w-48 rounded" />
             </div>
 
             <div className="mb-5 inline-flex items-center rounded-full border border-emerald-300/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-emerald-200">

@@ -873,7 +873,7 @@ export default function HomePage() {
             className="group flex min-w-0 items-center gap-2 cursor-pointer sm:gap-3"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            <BrandLogo imageClassName="h-12 w-36 rounded bg-white px-2 sm:h-14 sm:w-44" />
+            <BrandLogo imageClassName="h-12 w-36 rounded sm:h-14 sm:w-44" />
           </div>
 
           <nav
@@ -1563,7 +1563,7 @@ export default function HomePage() {
           <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
             <div>
               <div className="flex items-center gap-3">
-                <BrandLogo imageClassName="h-16 w-44 rounded bg-white px-2" />
+                <BrandLogo imageClassName="h-16 w-44 rounded" />
               </div>
               <p className="mt-5 max-w-sm text-sm leading-6 text-[#9eafaf]">
                 Practical tools for safer mines, clearer compliance, and better

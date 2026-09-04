@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
-            <BrandLogo imageClassName="h-16 w-44 rounded bg-white px-2" />
+            <BrandLogo imageClassName="h-16 w-44 rounded" />
             <p className="mt-4 max-w-sm text-sm leading-6 text-[#9eafaf]">
               Practical tools for safer mines, clearer compliance, and better
               decisions across every site.
