@@ -6,27 +6,32 @@ import { saveChatMessage } from '../services/api'
 
 const getAssistantReply = (message) => {
   const lower = message.toLowerCase()
+  const mentionsMine = /(jayant|amlohri|nigahi|kusmunda|gevra|dipka|dudhichua|singrauli|korba)/.test(lower)
 
   if (lower.includes('overdue') || lower.includes('urgent') || lower.includes('alert')) {
-    return 'Start with Alerts to identify urgent items, then open the related inspection or compliance record. For critical safety issues, assign an owner and corrective-action due date before closing the alert.'
+    return 'Priority response plan:\n1. Open Alerts and sort by Critical, then High.\n2. Assign one accountable owner and a due date for each item.\n3. Attach inspection evidence or compliance proof before closing it.\n4. Escalate unresolved critical safety issues to the mine manager immediately.'
   }
   if (lower.includes('inspection') || lower.includes('inspect')) {
-    return 'For a strong inspection report: select the mine (this pins its location), add a clear title and observations, attach field evidence, then record each violation with an owner and corrective action. You can review status, photos, and voice notes from Inspections.'
+    return `A complete inspection should include:\n1. Select the mine — its pin will move to the correct location.\n2. Record a specific title, observations, photos, and voice note.\n3. Add every violation with severity, corrective action, owner, and target date.\n4. Review the live preview before submitting.${mentionsMine ? '\n\nI noticed you mentioned a mine; confirm the pin matches the field location before creating the report.' : ''}`
   }
   if (lower.includes('risk') || lower.includes('safety')) {
-    return 'Prioritize critical and high-risk mines first. Check unresolved violations, overdue corrective actions, and recent inspection risk scores; then document the action owner and review date so the escalation is traceable.'
+    return 'Safety prioritisation:\n• Act on critical and high-risk mines first.\n• Check unresolved violations, overdue corrective actions, and the latest risk score.\n• Put interim controls in place before the permanent fix.\n• Record the action owner and review date so the escalation remains traceable.'
   }
   if (lower.includes('compliance') || lower.includes('permit')) {
-    return 'Use Compliances to filter upcoming and overdue obligations. A practical workflow is: verify the statutory reference, assign a responsible person, attach proof of completion, and set the next review date.'
+    return 'Compliance workflow:\n1. Filter the register for overdue and due-this-month items.\n2. Verify the statutory reference and responsible person.\n3. Upload or record completion evidence.\n4. Set the next due date and keep the audit trail complete.'
   }
   if (lower.includes('contractor')) {
-    return 'Open Contractors to review active contracts, mine assignments, contact details, and compliance score. The sample contractor account is available from the login screen for testing the contractor journey.'
+    return 'For contractor oversight, review contract status, mine assignments, compliance score, induction records, and open corrective actions. The demo account for Ananya Singh at Shakti Infra & Mining Contractors is available on the login page.'
   }
-  if (lower.includes('hello') || lower.includes('hi')) {
-    return 'Hi! I can help you navigate inspections, alerts, risk trends, and site compliance.'
+  if (/\b(hello|hi|hey)\b/.test(lower)) {
+    return 'Hello. I can help you decide what to do next with inspections, overdue compliance, contractor performance, mine risk, or safety escalation. Tell me the mine and issue for a focused response.'
   }
 
-  return 'I can help you turn an operational question into a next step. Ask about an inspection, overdue compliance, contractor performance, mine risk, or safety escalation.'
+  if (lower.includes('attention') || lower.includes('today') || lower.includes('summary')) {
+    return 'Today’s recommended review order:\n1. Critical and high-severity alerts.\n2. Overdue compliance obligations.\n3. Inspections with open violations.\n4. Contractor records with lower compliance scores.\n\nOpen the dashboard first, then use Alerts and Compliances to assign and track actions.'
+  }
+
+  return 'I can turn this into an operational next step. Tell me the mine, the issue, its severity, and whether an inspection or compliance deadline is involved; I will suggest a prioritised response.'
 }
 
 const prompts = ['What needs attention today?', 'How do I create a good inspection?', 'How should I handle an overdue compliance?']
@@ -102,7 +107,7 @@ export default function Chat() {
           {messages.map((message) => (
             <div key={message.id} className={`flex items-end gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
               {message.sender === 'bot' && <Bot className="mb-1 h-4 w-4 shrink-0 text-[#9b6b16]" />}
-              <div className={`max-w-[min(80%,38rem)] rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.sender === 'user' ? 'rounded-br-sm bg-[#cfeaf9] text-[#10263d] dark:bg-sky-900/70 dark:text-sky-100' : 'rounded-bl-sm bg-white text-[#3d392f] shadow-sm dark:bg-slate-700 dark:text-slate-100'}`}>
+              <div className={`max-w-[min(80%,38rem)] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.sender === 'user' ? 'rounded-br-sm bg-[#cfeaf9] text-[#10263d] dark:bg-sky-900/70 dark:text-sky-100' : 'rounded-bl-sm bg-white text-[#3d392f] shadow-sm dark:bg-slate-700 dark:text-slate-100'}`}>
                 {message.text}
               </div>
               {message.sender === 'user' && <User className="mb-1 h-4 w-4 shrink-0 text-[#17314a]" />}

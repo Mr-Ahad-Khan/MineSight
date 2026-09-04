@@ -131,6 +131,23 @@
     92% { transform: translateY(-5px) scale(1.04); }
   }
 
+  .coal-ai-wave {
+    position: absolute;
+    inset: -7px;
+    z-index: -1;
+    border: 2px solid rgba(229, 164, 22, 0.72);
+    border-radius: 9999px;
+    pointer-events: none;
+    animation: coal-ai-wave 2.4s ease-out infinite;
+  }
+
+  .coal-ai-wave-two { animation-delay: 1.2s; }
+
+  @keyframes coal-ai-wave {
+    0% { opacity: 0.85; transform: scale(0.82); }
+    72%, 100% { opacity: 0; transform: scale(1.58); }
+  }
+
   /* Landing page: retain a true light palette instead of leaving dark card
      gradients behind light-mode text overrides. */
   .home-page.theme-light .landing-audit,
@@ -188,7 +205,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .coal-ai-launcher { animation: none !important; }
+  .coal-ai-launcher, .coal-ai-wave { animation: none !important; }
 }
 
 @layer components {

@@ -41,7 +41,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 lg:flex-row">
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden text-white">
         <div
@@ -126,7 +126,7 @@ export default function Login() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-950">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-md">
           <Link
             to="/"
@@ -135,19 +135,24 @@ export default function Login() {
             <ArrowLeft className="h-4 w-4" />
             Back to landing page
           </Link>
-          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center text-white">
-              <Building2 className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="font-bold">Coal Governance</h1>
-              <p className="text-xs text-slate-500">Smart Compliance Platform</p>
+          <div
+            className="relative mb-5 h-28 overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900 bg-cover bg-center lg:hidden"
+            style={{ backgroundImage: "linear-gradient(90deg, rgba(7,18,34,0.92), rgba(7,18,34,0.42)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80')" }}
+          >
+            <div className="absolute inset-0 flex items-center gap-3 px-5 text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 shadow-lg shadow-emerald-950/30">
+                <Building2 className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="font-bold">Coal Governance</h1>
+                <p className="text-xs text-slate-200">Smart Compliance Platform</p>
+              </div>
             </div>
           </div>
 
-          <div className="card p-8">
-            <h2 className="text-2xl font-bold mb-1">{t.welcomeBack}</h2>
-            <p className="text-slate-500 text-sm mb-6">{t.signInToAccount}</p>
+          <div className="card p-5 sm:p-8">
+            <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">{t.welcomeBack}</h2>
+            <p className="mb-6 text-sm text-slate-600 dark:text-slate-300">{t.signInToAccount}</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -199,13 +204,13 @@ export default function Login() {
               </button>
             </form>
 
-            <p className="mt-4 text-center text-xs text-slate-500">
+            <p className="mt-4 text-center text-xs leading-5 text-slate-600 dark:text-slate-300">
               Sign in with the email and password you used during registration.
             </p>
 
             {/* Optional seeded demo accounts */}
             <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-              <p className="text-xs text-slate-500 mb-3 text-center">{t.quickDemo} (optional)</p>
+              <p className="mb-3 text-center text-xs font-medium text-slate-600 dark:text-slate-300">{t.quickDemo} (optional)</p>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -238,13 +243,13 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => quickLogin('ananya@shakticontractors.in', 'contract123')}
-                  className="col-span-2 text-xs py-2 px-3 rounded-lg bg-amber-50 text-amber-900 ring-1 ring-amber-200 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-100 dark:ring-amber-800 transition"
+                  className="col-span-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
                   Contractor demo — Ananya Singh, Shakti Contractors
                 </button>
               </div>
 
-              <div className="mt-5 text-center text-sm text-slate-500">
+              <div className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">
                 Don’t have an account?{' '}
                 <Link to="/register" className="font-semibold text-primary-700 hover:text-primary-800">
                   Sign up
