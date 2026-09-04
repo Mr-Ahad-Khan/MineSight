@@ -822,20 +822,20 @@ export default function HomePage() {
 
       {/* Header */}
       <header className={`fixed inset-x-0 top-0 z-40 border-b backdrop-blur-2xl ${darkMode ? 'border-[#61543b] bg-[#151719]/95' : 'border-[#c9b69d] bg-[#f3eadb]/95'}`}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6 sm:py-4 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-2 py-2 sm:gap-4 sm:px-6 sm:py-4 lg:px-8">
           <div
-            className="flex items-center gap-3 cursor-pointer group"
+            className="group flex min-w-0 items-center gap-2 cursor-pointer sm:gap-3"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-md bg-[#e5a416] shadow-lg shadow-black/30 transition-all duration-300 group-hover:scale-105 group-hover:bg-[#f5b82c]">
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#e5a416] shadow-lg shadow-black/30 transition-all duration-300 group-hover:scale-105 group-hover:bg-[#f5b82c] sm:h-11 sm:w-11">
               <Building2 className="h-5 w-5 text-[#151719]" />
               <div className="absolute inset-0 rounded-md bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
             <div className="hidden min-[380px]:block">
-              <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#f3b323]">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f3b323] sm:text-sm sm:tracking-[0.22em]">
                 MineSight
               </p>
-              <p className={`text-xs ${darkMode ? 'text-[#c8c1b5]' : 'text-[#6b6257]'}`}>{localizedCopy.brandTag}</p>
+              <p className={`hidden text-xs sm:block ${darkMode ? 'text-[#c8c1b5]' : 'text-[#6b6257]'}`}>{localizedCopy.brandTag}</p>
             </div>
           </div>
 
@@ -851,7 +851,7 @@ export default function HomePage() {
             ))}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             <button
               type="button"
               onClick={toggleDarkMode}
@@ -864,11 +864,11 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-              className={`inline-flex h-9 items-center gap-1 rounded-full border p-1 text-[10px] font-bold tracking-wide transition hover:border-[#e5a416] ${darkMode ? 'border-white/20 bg-white/5 text-[#e5ded2]' : 'border-[#b99a72] bg-white/60 text-[#4d5b62]'}`}
+              className={`inline-flex h-9 items-center gap-0.5 rounded-full border p-1 text-[10px] font-bold tracking-wide transition hover:border-[#e5a416] sm:gap-1 ${darkMode ? 'border-white/20 bg-white/5 text-[#e5ded2]' : 'border-[#b99a72] bg-white/60 text-[#4d5b62]'}`}
               aria-label="Change language"
               title="Change language"
             >
-              <Languages className="mx-1 h-3.5 w-3.5 text-[#e5a416]" />
+              <Languages className="mx-0.5 h-3.5 w-3.5 text-[#e5a416] sm:mx-1" />
               <span className={`rounded-full px-2 py-1 ${language === 'en' ? 'bg-[#e5a416] text-[#151719]' : ''}`}>EN</span>
               <span className={`rounded-full px-2 py-1 ${language === 'hi' ? 'bg-[#e5a416] text-[#151719]' : ''}`}>हिंदी</span>
             </button>
@@ -883,12 +883,12 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => (token ? navigate('/app') : navigate('/login'))}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-md bg-[#e5a416] px-3 py-2.5 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95 sm:px-5"
+              className="group relative inline-flex items-center overflow-hidden rounded-md bg-[#e5a416] px-2.5 py-2.5 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95 sm:gap-2 sm:px-5"
             >
-              <span className="relative z-10 flex items-center gap-2">
+              <span className="relative z-10 flex items-center sm:gap-2">
                 <span className="hidden sm:inline">{token ? t.openDashboard : t.getStarted}</span>
                 <span className="sm:hidden">{token ? 'Open' : 'Start'}</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="ml-2 hidden h-4 w-4 transition-transform group-hover:translate-x-1 sm:inline" />
               </span>
               <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
             </button>
@@ -896,7 +896,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="pt-[76px]">
+      <main className="pt-[60px] sm:pt-[76px]">
         {/* Hero Section */}
         <section className="relative overflow-hidden border-b border-[#3b3b3b] bg-[#0c0f11]">
           <div

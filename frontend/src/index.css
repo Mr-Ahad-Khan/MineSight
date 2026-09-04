@@ -215,7 +215,7 @@
   .coal-ai-launcher, .coal-ai-wave { animation: none !important; }
 }
 
-@media (max-width: 379px) {
+@media (max-width: 639px) {
   .home-page header [aria-label="Change language"] span:last-child {
     display: none;
   }
