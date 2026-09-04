@@ -205,7 +205,20 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
   .coal-ai-launcher, .coal-ai-wave { animation: none !important; }
+}
+
+@media (max-width: 379px) {
+  .home-page header [aria-label="Change language"] span:last-child {
+    display: none;
+  }
 }
 
 @layer components {

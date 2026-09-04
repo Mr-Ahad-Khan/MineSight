@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import useAuthStore from './store/authStore'
 import useThemeStore from './store/themeStore'
@@ -8,21 +8,23 @@ function PublicHomeRoute() {
   return token ? <Navigate to="/app" replace /> : <HomePage />
 }
 
-import Layout from './components/layout/Layout'
-import HomePage from './pages/HomePage'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import Inspections from './pages/Inspections'
-import CreateInspection from './pages/CreateInspection'
-import InspectionDetail from './pages/InspectionDetail'
-import Compliances from './pages/Compliances'
-import Mines from './pages/Mines'
-import Contractors from './pages/Contractors'
-import Alerts from './pages/Alerts'
-import Analytics from './pages/Analytics'
-import Chat from './pages/Chat'
-import Profile from './pages/Profile'
+// Keep each screen out of the initial bundle. This is especially important for
+// the map and analytics screens, which bring in large third-party libraries.
+const Layout = lazy(() => import('./components/layout/Layout'))
+const HomePage = lazy(() => import('./pages/HomePage'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Inspections = lazy(() => import('./pages/Inspections'))
+const CreateInspection = lazy(() => import('./pages/CreateInspection'))
+const InspectionDetail = lazy(() => import('./pages/InspectionDetail'))
+const Compliances = lazy(() => import('./pages/Compliances'))
+const Mines = lazy(() => import('./pages/Mines'))
+const Contractors = lazy(() => import('./pages/Contractors'))
+const Alerts = lazy(() => import('./pages/Alerts'))
+const Analytics = lazy(() => import('./pages/Analytics'))
+const Chat = lazy(() => import('./pages/Chat'))
+const Profile = lazy(() => import('./pages/Profile'))
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore()
@@ -37,7 +39,8 @@ function App() {
   }, [])
 
   return (
-    <Routes>
+    <Suspense fallback={<main className="min-h-screen bg-slate-50 dark:bg-slate-950" aria-label="Loading page" />}>
+      <Routes>
       <Route path="/" element={<PublicHomeRoute />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -61,7 +64,8 @@ function App() {
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   )
 }
 

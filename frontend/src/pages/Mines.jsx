@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getMines } from '../services/api'
 import { MapPin } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import '../utils/leafletAssets'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
 

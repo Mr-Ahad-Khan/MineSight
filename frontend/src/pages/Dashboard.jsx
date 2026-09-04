@@ -234,9 +234,11 @@ export default function Dashboard() {
         setSummary(summaryRes.data.data)
         setAnalytics(analyticsRes.data.data)
 
-      } catch (error) {
+      } catch {
 
-        console.error('Dashboard Error:', error)
+        // Keep the dashboard usable with its zero-value state if the remote
+        // service is temporarily unavailable. The request error is handled in
+        // the UI rather than being surfaced as a browser console failure.
 
       } finally {
 
@@ -746,8 +748,9 @@ export default function Dashboard() {
             <div
               key={`${riskData.low}-${riskData.medium}-${riskData.high}-${riskData.critical}`}
               className="relative
-                w-[330px]
-                h-[330px]
+                w-full
+                max-w-[330px]
+                aspect-square
               "
             >
 

@@ -484,19 +484,19 @@ const slides = [
   {
     title: 'Powering Progress. Built on Reliability.',
     subtitle: 'Efficient coal extraction. Uncompromising safety. Delivered at scale.',
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2200&q=85',
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=70',
     badge: 'Coal Intelligence Platform',
   },
   {
     title: 'Safer Mines. Smarter Compliance.',
     subtitle: 'Track inspections, contractor risks, and environmental checks from one command center.',
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2200&q=85',
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=70',
     badge: 'Live Risk Monitoring',
   },
   {
     title: 'See the full picture underground.',
     subtitle: 'Geo-tagged operations and automated alerts keep every site aligned with safety mandates.',
-    image: 'https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&w=2200&q=85',
+    image: 'https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&w=1000&q=70',
     badge: 'Real-time Visibility',
   },
 ]
@@ -542,7 +542,9 @@ export default function HomePage() {
   const [password, setPassword] = useState('mine123')
   const [isDemo, setIsDemo] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [assistantOpen, setAssistantOpen] = useState(true)
+  // Do not cover the first mobile viewport with a non-essential panel. It is
+  // still immediately available from the floating assistant button.
+  const [assistantOpen, setAssistantOpen] = useState(false)
   const [assistantChatOpen, setAssistantChatOpen] = useState(false)
   const [assistantInput, setAssistantInput] = useState('')
   const [assistantEmail, setAssistantEmail] = useState('')
@@ -641,10 +643,13 @@ export default function HomePage() {
   const current = translatedSlides[activeSlide]
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((current) => (current + 1) % slides.length)
-    }, 5000)
-    return () => clearInterval(timer)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+
+    const advanceSlide = () => {
+      if (!document.hidden) setActiveSlide((current) => (current + 1) % slides.length)
+    }
+    const timer = window.setInterval(advanceSlide, 5000)
+    return () => window.clearInterval(timer)
   }, [])
 
   useEffect(() => {
@@ -653,7 +658,9 @@ export default function HomePage() {
       .then((response) => {
         if (isMounted) setHomeStats(response.data.data)
       })
-      .catch((error) => console.error('Unable to load home statistics', error))
+      // Public stats are progressive enhancement: retain the static landing page
+      // when the API is unavailable instead of emitting a noisy console error.
+      .catch(() => {})
 
     return () => {
       isMounted = false
@@ -815,7 +822,7 @@ export default function HomePage() {
 
       {/* Header */}
       <header className={`fixed inset-x-0 top-0 z-40 border-b backdrop-blur-2xl ${darkMode ? 'border-[#61543b] bg-[#151719]/95' : 'border-[#c9b69d] bg-[#f3eadb]/95'}`}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6 sm:py-4 lg:px-8">
           <div
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -824,7 +831,7 @@ export default function HomePage() {
               <Building2 className="h-5 w-5 text-[#151719]" />
               <div className="absolute inset-0 rounded-md bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
-            <div>
+            <div className="hidden min-[380px]:block">
               <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#f3b323]">
                 MineSight
               </p>
@@ -844,7 +851,7 @@ export default function HomePage() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             <button
               type="button"
               onClick={toggleDarkMode}
@@ -876,10 +883,11 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => (token ? navigate('/app') : navigate('/login'))}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-md bg-[#e5a416] px-5 py-2.5 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-md bg-[#e5a416] px-3 py-2.5 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95 sm:px-5"
             >
               <span className="relative z-10 flex items-center gap-2">
-                {token ? t.openDashboard : t.getStarted}
+                <span className="hidden sm:inline">{token ? t.openDashboard : t.getStarted}</span>
+                <span className="sm:hidden">{token ? 'Open' : 'Start'}</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
               <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -897,35 +905,35 @@ export default function HomePage() {
               backgroundImage: `linear-gradient(90deg, rgba(5, 8, 10, 0.68) 0%, rgba(5, 8, 10, 0.42) 42%, rgba(5, 8, 10, 0.12) 78%), linear-gradient(0deg, rgba(5, 8, 10, 0.52) 0%, transparent 45%), url(${current.image})`,
             }}
           >
-            <div className="mx-auto flex min-h-[520px] max-w-7xl items-center px-5 py-16 sm:min-h-[590px] sm:px-8 lg:min-h-[650px] lg:px-10">
+            <div className="mx-auto flex min-h-[520px] max-w-7xl items-center px-4 py-12 sm:min-h-[590px] sm:px-8 sm:py-16 lg:min-h-[650px] lg:px-10">
               <div className="max-w-2xl">
-                <p className="mb-5 text-xs font-bold uppercase tracking-[0.24em] text-[#f3b323]">{current.badge}</p>
-                <h1 className="max-w-2xl text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-[4.4rem]">
+                <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f3b323] sm:mb-5 sm:text-xs sm:tracking-[0.24em]">{current.badge}</p>
+                <h1 className="max-w-2xl text-3xl font-black leading-[1.05] tracking-tight text-white min-[380px]:text-4xl sm:text-6xl lg:text-[4.4rem]">
                   {current.title}
                 </h1>
                 <p className="mt-6 max-w-xl text-base leading-7 text-slate-200 sm:text-lg">
                   {current.subtitle}
                 </p>
 
-                <div className="mt-9 flex flex-wrap items-center gap-4">
+                <div className="mt-8 flex flex-col items-stretch gap-3 min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center sm:mt-9 sm:gap-4">
                   <button
                     type="button"
                     onClick={() => navigate('/login')}
-                    className="group inline-flex items-center gap-4 rounded-md bg-[#e5a416] px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-[#111315] transition hover:bg-[#f5b82c]"
+                    className="group inline-flex items-center justify-center gap-4 rounded-md bg-[#e5a416] px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-[#111315] transition hover:bg-[#f5b82c]"
                   >
                     {activeSlide === 0 ? 'Explore Operations' : t.explorePortal}
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-3 rounded-md border border-white/70 bg-black/25 px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/10"
+                    className="inline-flex items-center justify-center gap-3 rounded-md border border-white/70 bg-black/25 px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/10"
                   >
                     <PlayCircle className="h-5 w-5" />
                     {activeSlide === 0 ? 'Download Capability Statement' : t.watchDemo}
                   </button>
                 </div>
 
-                <div className="mt-10 flex items-center gap-3">
+                <div className="mt-8 flex items-center gap-2 sm:mt-10 sm:gap-3">
                   {slides.map((slide, index) => (
                     <button
                       key={slide.title}

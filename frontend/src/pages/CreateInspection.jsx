@@ -4,6 +4,7 @@ import { MapPin, Loader2, Plus, Trash2, Mic, Square, Upload, FileText, ArrowRigh
 import toast from 'react-hot-toast'
 import { createInspection, getMines } from '../services/api'
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet'
+import '../utils/leafletAssets'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
 

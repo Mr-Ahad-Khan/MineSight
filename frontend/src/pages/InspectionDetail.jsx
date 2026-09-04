@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { deleteInspection, getInspection, updateInspection, closeViolation, getMediaUrl } from '../services/api'
 import { format } from 'date-fns'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import '../utils/leafletAssets'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
 
