@@ -1,111 +1,109 @@
-# MineSight — Coal Governance Intelligence Platform
+# MineSight - Coal Governance Intelligence Platform
 
-> **From inspection evidence to accountable action — before a risk becomes an incident.**
+> From inspection evidence to accountable action before a risk becomes an incident.
 
-MineSight is a full-stack, role-aware platform for coal-mine governance. It gives mine officials, corporate teams, and regulators one operational view of inspections, statutory compliance, contractors, risk signals, and corrective actions.
+MineSight is a full-stack, role-aware platform for coal-mine governance. It gives mine officials, corporate teams, administrators, and regulators one operational view of inspections, statutory compliance, contractors, risk signals, alerts, and corrective actions.
 
-Built for **Smart India Hackathon 2026 · Problem Statement SIH 26024**
+Built for **Smart India Hackathon 2026 - Problem Statement SIH 26024**.
 
-## The challenge we address
+## What MineSight Solves
 
-Coal-mine governance data is often fragmented across field notes, photographs, spreadsheets, calls, and separate teams. That makes it difficult to answer the questions that matter during an inspection or incident:
+Coal-mine governance data is often split across field notes, photos, spreadsheets, calls, and separate reporting teams. That makes it hard to answer operational questions quickly:
 
 - Which sites have the highest unresolved risk right now?
 - Has a violation been assigned, escalated, and closed with evidence?
-- What statutory items are nearing or past their due date?
-- Can a regulator, corporate office, and mine team see the same truth at the right level of access?
+- What statutory compliance items are nearing or past their due date?
+- Can regulators, corporate teams, and mine officials see the same record at the right level of access?
 
-**MineSight converts those disconnected records into a single, traceable action loop:**
+MineSight turns disconnected records into a traceable action loop:
 
 ```text
 Field inspection + geo-tagged evidence
-              ↓
-Transparent risk score and severity assessment
-              ↓
-Alert, escalation, and role-aware dashboard visibility
-              ↓
-Corrective-action closure and compliance follow-up
+  -> explainable risk score and severity assessment
+  -> alert, escalation, and role-aware dashboard visibility
+  -> corrective-action closure and compliance follow-up
 ```
 
-## Why MineSight matters
+## Core Capabilities
 
-| What is different | Value in the field |
+| Area | What the platform provides |
 | --- | --- |
-| **Evidence-first inspections** | Capture inspection details with location, photos, audio, observations, and violations in one workflow. |
-| **Explainable risk intelligence** | A transparent, rule-based score combines severity and open/critical violations, making prioritisation defensible and easy to audit. |
-| **Action, not just reporting** | High-risk inspections create alerts; escalation and violation closure are tracked in the same system. |
-| **Governance by role** | Mine officials operate in their assigned mine context while corporate and administrators manage wider portfolios. |
-| **Compliance visibility** | Due dates, status, statutory references, and overdue items make follow-up measurable. |
-| **Built for real conditions** | Geo-spatial data, responsive UI, media uploads, and idempotent `offlineId` support help bridge field-to-office workflows. |
+| Evidence-first inspections | Capture inspection type, location, observations, violations, corrective actions, photos, and audio notes in one workflow. |
+| Explainable risk scoring | Uses a deterministic rule-based engine so prioritisation is inspectable and auditable. |
+| Role-aware governance | Mine officials work in a mine-scoped view; corporate, admin, and regulator roles see broader portfolio data. |
+| Alerts and escalation | High-risk and escalated inspections surface through alert workflows. |
+| Compliance tracking | Track due dates, statutory references, status, and overdue items. |
+| Contractor oversight | Register and monitor contractor records, contact details, safety ratings, and compliance status. |
+| Analytics | Review KPIs, recurring violation categories, high-risk inspections, trends, and risk distribution. |
+| Field-ready foundation | Supports media uploads, geo-coordinates, responsive UI, and idempotent `offlineId` inspection creation. |
 
-> **Responsible AI note:** the current risk engine is deterministic and explainable—not a black-box ML claim. Its inputs and thresholds are inspectable, and the service is designed so a validated ML model can be introduced later without replacing the workflow.
+Responsible AI note: the current risk engine is deterministic and explainable, not a black-box ML model. Its inputs and thresholds are inspectable, and the architecture can later support a validated ML model without replacing the core workflow.
 
-## Capabilities at a glance
+## Demo Walkthrough
 
-### For the mine official
-
-- Create safety, environment, scheduled, surprise, and incident inspections.
-- Attach up to five photographs and one audio recording; capture geo-coordinates and observations.
-- Record violations, corrective actions, due dates, and closure status.
-- See mine-scoped inspections, alerts, and compliance work.
-
-### For corporate and administrators
-
-- Register and manage mines, contractors, users, and compliance records.
-- Compare portfolio KPIs, recurring violation categories, high-risk inspections, and six-month trends.
-- Use the Socket.IO-enabled backend as the foundation for real-time alert delivery.
-
-### For regulators and decision-makers
-
-- Review a consolidated dashboard of compliance, risk distribution, inspections, alerts, and contractor status.
-- Trace an issue from field evidence through escalation and closure.
-- Use consistent, API-backed records instead of reconciling separate reports.
-
-## Product walkthrough — a 3-minute judge demo
-
-1. **Start at the landing page.** Show the public mine-performance snapshot, bilingual UI, and accessible light/dark themes.
-2. **Sign in as a Mine Official** using the seeded credentials below. Point out that the dashboard is role-scoped.
-3. **Create an inspection.** Add location, severity, a violation, and field media. Explain that MineSight calculates risk immediately from explicit rules.
-4. **Show prioritisation.** Open Analytics to surface high-risk inspections, recurring violation categories, and monthly inspection/risk trends.
-5. **Close the loop.** Escalate an inspection or close a violation; then show the linked alert and updated status.
-6. **Switch roles.** Sign in as Corporate or Admin to demonstrate portfolio-level mine and contractor management.
+1. Start on the landing page and show the public mine-performance snapshot, bilingual UI, and light/dark themes.
+2. Sign in as a Mine Official using the seeded credentials below to show mine-scoped access.
+3. Create an inspection with severity, location, a violation, corrective action details, and field media.
+4. Open Analytics to show high-risk inspections, recurring violation categories, and monthly trends.
+5. Escalate an inspection or close a violation, then check the linked alert and updated status.
+6. Switch to Corporate, Admin, or Regulator to show portfolio-level visibility and management workflows.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  F[React + Vite frontend] -->|HTTPS / REST + JWT| A[Express API]
-  F <-->|real-time ready| S[Socket.IO]
-  A --> M[(MongoDB)]
-  A --> R[Risk scoring engine]
-  A --> U[Evidence uploads: images + audio]
-  A --> N[Email OTP via SMTP]
+  Web[React + Vite web app] -->|REST + JWT| API[Express API]
+  Mobile[Capacitor Android app] --> Web
+  Web <-->|real-time ready| Socket[Socket.IO]
+  API --> Mongo[(MongoDB)]
+  API --> Risk[Rule-based risk engine]
+  API --> Uploads[Image + audio uploads]
+  API --> Email[Email OTP via SMTP]
 ```
 
 | Layer | Technologies | Responsibility |
 | --- | --- | --- |
 | Frontend | React 18, Vite, Tailwind CSS, Zustand | Responsive role-aware UI, theme/language preferences, maps, charts, and API state. |
-| API | Node.js, Express, Socket.IO | REST APIs, validation, authentication, authorisation, alerts, and real-time extensibility. |
-| Data | MongoDB + Mongoose | Mines, inspections, violations, compliance tasks, contractors, users, alerts, OTPs, and messages. |
-| Spatial & analytics | Leaflet, GeoJSON points, Recharts | Location-aware inspections, risk distribution, recurring violations, and trends. |
+| Backend API | Node.js, Express, Socket.IO | REST APIs, validation, authentication, authorization, alerts, and real-time-ready events. |
+| Data | MongoDB, Mongoose | Mines, users, inspections, violations, compliance tasks, contractors, alerts, OTPs, audit logs, and chat messages. |
+| Maps and analytics | Leaflet, React Leaflet, Recharts | Geo-tagged inspections, map views, risk distribution, recurring violations, and trends. |
+| Mobile shell | Capacitor 6, Android project | Packages the built web app into an Android application. |
 
-## Security and governance foundations
+## Repository Map
 
-- JWT-protected private API routes with bcrypt password hashing.
-- Role-based access control for mine creation, contractor management, and mine-scoped inspection access.
-- Email OTP verification before registration; OTPs expire after 10 minutes and permit a maximum of five failed attempts.
-- Media validation allows only images/audio and limits each upload to 25 MB.
-- MongoDB indexes support geo-spatial mine/inspection queries, recent inspection retrieval, unread alerts, and expiring OTP records.
+```text
+MineSight/
+|-- backend/              Express/MongoDB API
+|   |-- config/           Database connection
+|   |-- controllers/      Workflow and business logic
+|   |-- middleware/       JWT auth, RBAC, and error handling
+|   |-- models/           Governance data models
+|   |-- routes/           REST endpoint definitions
+|   |-- uploads/          Local development media uploads
+|   `-- utils/            Token generation and risk scoring
+|-- frontend/             React/Vite web app and Vercel config
+|   |-- api/              Vercel serverless API proxy
+|   |-- public/           Static assets
+|   `-- src/
+|       |-- components/   Layout, common UI, and dashboard widgets
+|       |-- pages/        Home, auth, dashboard, operations, analytics
+|       |-- services/     Axios API client
+|       `-- store/        Auth and theme state
+`-- mobile/               Capacitor Android wrapper
+    |-- android/          Native Android project
+    `-- capacitor.config.json
+```
 
-## Quick start
+## Prerequisites
 
-### Prerequisites
-
-- Node.js 18+ (Node 20 LTS recommended)
-- MongoDB locally or a MongoDB Atlas connection string
+- Node.js 18+; Node 20 LTS is recommended
 - npm
+- MongoDB locally or a MongoDB Atlas connection string
+- Android Studio and Android SDK, only if building the mobile app
 
-### 1. Clone and install
+## Quick Start
+
+Install dependencies:
 
 ```bash
 git clone https://github.com/Mr-Ahad-Khan/MineSight.git
@@ -118,11 +116,9 @@ cd ../frontend
 npm ci
 ```
 
-> On Windows systems where PowerShell blocks `npm.ps1`, use `npm.cmd` in place of `npm` (for example, `npm.cmd ci`).
+On Windows systems where PowerShell blocks `npm.ps1`, use `npm.cmd` instead, for example `npm.cmd ci`.
 
-### 2. Configure the backend
-
-Create `backend/.env` with the following values. Keep real credentials out of Git.
+Create `backend/.env`:
 
 ```env
 PORT=5000
@@ -131,7 +127,7 @@ MONGO_URI=mongodb://127.0.0.1:27017/coal_governance
 JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRE=7d
 
-# Optional in development; required for production email OTP delivery
+# Optional in development; required when email OTP delivery is enabled
 EMAIL_HOST=smtp.example.com
 EMAIL_PORT=587
 EMAIL_SECURE=false
@@ -140,90 +136,178 @@ EMAIL_PASSWORD=your-smtp-password
 EMAIL_FROM=no-reply@example.com
 ```
 
-### 3. Seed and run
-
-Open two terminals from the repository root:
+Seed the database and run both apps from separate terminals:
 
 ```bash
-# Terminal 1 — API
+# Terminal 1 - API
 cd backend
 npm run seed
 npm run dev
 ```
 
 ```bash
-# Terminal 2 — web application
+# Terminal 2 - web app
 cd frontend
 npm run dev
 ```
 
-Open `http://localhost:3000`. The development server proxies `/api` requests to `http://localhost:5000`.
+Open `http://localhost:3000`. In development, Vite proxies `/api` requests to `http://localhost:5000`.
 
-### Demo credentials
+## Demo Credentials
 
-Run `npm run seed` first, then use any of these accounts:
+Run `npm run seed` in `backend/` first, then use one of these accounts:
 
 | Role | Email | Password |
 | --- | --- | --- |
 | Mine Official | `rajesh@ncl.gov.in` | `mine123` |
+| Mine Official | `priya@ncl.gov.in` | `mine123` |
 | Corporate | `corporate@cil.gov.in` | `corp123` |
 | Administrator | `admin@cil.gov.in` | `admin123` |
 | Regulator | `regulator@dgms.gov.in` | `reg123` |
 
-## Deployment
+## Backend Scripts
 
-The frontend is configured for Vercel. In production, configure one of the following:
+Run from `backend/`:
 
-| Variable | When to use it | Example |
-| --- | --- | --- |
-| `VITE_BACKEND_URI` or `VITE_API_URL` | The browser calls a public API directly | `https://your-api.example.com` |
-| `BACKEND_URL` | A Vercel `/api/*` proxy forwards requests to the API | `https://your-api.example.com` |
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the API with nodemon. |
+| `npm start` | Start the API with Node. |
+| `npm run seed` | Load demo users, mines, inspections, compliance records, alerts, and related sample data. |
+| `npm run seed:contractor` | Load contractor demo data. |
 
-Do **not** set `BACKEND_URL` to the frontend’s own Vercel URL: that would make proxy requests loop back to the frontend. The backend also needs `MONGO_URI`, `JWT_SECRET`, and production SMTP variables when email OTP is enabled.
+Health checks:
 
-Health check: `GET /api/health`
+- `GET /`
+- `GET /api/health`
 
-## API surface
+## Frontend Scripts
 
-All protected endpoints require `Authorization: Bearer <JWT>`.
+Run from `frontend/`:
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start Vite on `http://localhost:3000`. |
+| `npm run build` | Build the production web app into `frontend/dist`. |
+| `npm run preview` | Preview the production build locally. |
+
+The frontend API client resolves the backend URL in this order:
+
+1. `VITE_API_BASE_URL`
+2. `VITE_BACKEND_URI`
+3. `VITE_API_URL`
+4. Development fallback: `http://localhost:5000/api`
+5. Production fallback: `https://minesight.onrender.com/api`
+
+If an environment value does not end in `/api`, the client appends `/api` automatically.
+
+## Mobile App
+
+The mobile project uses Capacitor and wraps the built frontend from `frontend/dist`.
+
+Install mobile dependencies:
+
+```bash
+cd mobile
+npm ci
+```
+
+Build and sync Android assets:
+
+```bash
+npm run build:android
+```
+
+Build a debug APK:
+
+```bash
+npm run build:apk
+```
+
+Install the debug APK on a connected Android device or emulator:
+
+```bash
+npm run install:android
+```
+
+Full Android development flow:
+
+```bash
+npm run dev:android
+```
+
+## API Surface
+
+All protected endpoints require:
+
+```http
+Authorization: Bearer <JWT>
+```
 
 | Domain | Key endpoints | Purpose |
 | --- | --- | --- |
-| Authentication | `POST /api/auth/register`, `/login`, `/email/request-otp`, `/email/verify-otp`; `GET /me` | Verified onboarding and sessions. |
-| Mines | `GET/POST /api/mines`, `GET/PUT /api/mines/:id` | Mine portfolio and GIS-ready location records. |
-| Inspections | `GET/POST /api/inspections`, `GET/PUT/DELETE /:id`, `PATCH /:id/violations/:violationId` | Evidence, risk, escalation, and closure. |
-| Compliance | `GET/POST /api/compliances`, `GET /overdue`, `PUT /:id` | Statutory task tracking. |
-| Intelligence | `GET /api/dashboard/summary`, `/analytics`, `/public/home-stats` | KPIs, trends, recurring violations, and home metrics. |
-| Alerts | `GET /api/alerts`, `PATCH /read-all`, `PATCH /:id/read` | Risk and escalation follow-up. |
+| Authentication | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/profile`, `POST /api/auth/email/request-otp`, `POST /api/auth/email/verify-otp` | Verified onboarding, profile updates, and sessions. |
+| Mines | `GET /api/mines`, `POST /api/mines`, `GET /api/mines/:id`, `PUT /api/mines/:id` | Mine portfolio and GIS-ready location records. |
+| Inspections | `GET /api/inspections`, `POST /api/inspections`, `GET /api/inspections/:id`, `PUT /api/inspections/:id`, `DELETE /api/inspections/:id`, `PATCH /api/inspections/:id/violations/:violationId` | Evidence capture, risk scoring, escalation, updates, deletion, and violation closure. |
+| Compliance | `GET /api/compliances`, `POST /api/compliances`, `GET /api/compliances/overdue`, `PUT /api/compliances/:id` | Statutory task tracking and overdue visibility. |
+| Dashboard and analytics | `GET /api/dashboard/summary`, `GET /api/dashboard/analytics` | KPIs, trends, recurring violations, and risk distribution. |
+| Alerts | `GET /api/alerts`, `PATCH /api/alerts/read-all`, `PATCH /api/alerts/:id/read` | Risk and escalation follow-up. |
+| Contractors | `GET /api/contractors`, `POST /api/contractors`, `PUT /api/contractors/:id` | Contractor registration and monitoring. |
+| Public | `GET /api/public/home-stats`, `POST /api/public/chat-messages`, `GET /api/public/chat-messages` | Landing page metrics and chat-message capture. |
 
-## Roadmap: from prototype to state-scale deployment
+## Deployment Notes
+
+### Backend
+
+The backend can run on any Node.js host that supports persistent MongoDB connectivity. Configure:
+
+- `MONGO_URI`
+- `JWT_SECRET`
+- `JWT_EXPIRE`
+- `NODE_ENV=production`
+- SMTP variables if email OTP delivery is enabled
+
+Uploaded inspection media are served from `/uploads` in local development. For production, use durable object storage if files must survive redeploys or instance restarts.
+
+### Frontend
+
+The frontend is configured for Vercel. For direct browser-to-backend calls, set one of:
+
+- `VITE_API_BASE_URL`
+- `VITE_BACKEND_URI`
+- `VITE_API_URL`
+
+Example:
+
+```env
+VITE_API_BASE_URL=https://your-api.example.com
+```
+
+The `frontend/api/[...path].js` catch-all function can also proxy same-origin `/api/*` requests on Vercel. That proxy requires:
+
+```env
+BACKEND_URL=https://your-api.example.com
+```
+
+Do not point backend-related variables to the frontend's own Vercel URL, because that can route API calls back to the frontend instead of the API.
+
+## Security and Governance Foundations
+
+- JWT-protected private routes with bcrypt password hashing.
+- Role-based access control for mine creation, contractor management, and mine-scoped inspection access.
+- Email OTP verification before registration; OTPs expire after 10 minutes and limit failed attempts.
+- Profile image uploads are limited to 5 MB.
+- Inspection media uploads accept images and audio only, with a 25 MB per-file limit.
+- MongoDB indexes support geospatial mine and inspection queries, recent inspection retrieval, unread alerts, and expiring OTP records.
+
+## Roadmap
 
 - Integrate verified DGMS/CIL data feeds and statutory-rule libraries.
-- Add multilingual field forms, low-connectivity offline queueing, and conflict-aware synchronisation.
-- Train and validate a risk-prediction model against historical, anonymised inspection outcomes; retain human review and explainability.
+- Add multilingual field forms, low-connectivity offline queueing, and conflict-aware synchronization.
+- Train and validate a risk-prediction model against historical anonymized inspection outcomes while retaining human review and explainability.
 - Introduce immutable audit-log workflows, SSO, tenant isolation, encrypted object storage, and operational monitoring.
 - Add configurable escalation SLAs and regulator-ready export packs.
 
-## Repository map
+## Team Message
 
-```text
-MineSight/
-├── frontend/             # React/Vite application and Vercel configuration
-│   └── src/
-│       ├── pages/        # Landing, authentication, operations, analytics, maps
-│       ├── components/   # Dashboard and layout UI
-│       ├── services/     # API client
-│       └── store/        # Authentication, theme, language state
-└── backend/              # Express/MongoDB API
-    ├── controllers/      # Workflow and business logic
-    ├── models/           # Governance data models
-    ├── routes/           # REST endpoints
-    ├── middleware/       # JWT and RBAC middleware
-    └── utils/            # Risk calculation and token utilities
-```
-
-## Team message
-
-MineSight is not another dashboard. It is a practical digital governance layer that makes safety evidence visible, risk prioritised, and responsibility traceable—from the pithead to the decision table.
-
-**Safer mines begin with clearer, faster, accountable decisions.**
+MineSight is a practical digital governance layer for making safety evidence visible, risk prioritised, and responsibility traceable from field inspection to decision review.
