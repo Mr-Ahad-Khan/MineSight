@@ -69,7 +69,14 @@ export const getMediaUrl = (mediaPath) => {
 export const login = (data) => api.post("/auth/login", data);
 export const register = (data) => api.post("/auth/register", data);
 export const getMe = () => api.get("/auth/me");
-export const updateProfile = (data) => api.put("/auth/profile", data);
+export const updateProfile = (data) => {
+  if (data instanceof FormData) {
+    return api.put("/auth/profile", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  }
+  return api.put("/auth/profile", data);
+};
 export const requestEmailOtp = (data) =>
   api.post("/auth/email/request-otp", data);
 export const verifyEmailOtp = (data) =>

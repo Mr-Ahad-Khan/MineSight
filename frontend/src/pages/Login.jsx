@@ -1,44 +1,46 @@
-import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Building2, Eye, EyeOff, Languages, Loader2 } from 'lucide-react'
-import toast from 'react-hot-toast'
-import useAuthStore from '../store/authStore'
-import { useLanguageStore } from '../store/themeStore'
-import { translations } from '../i18n/translations'
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft, Eye, EyeOff, Languages, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
+import useAuthStore from "../store/authStore";
+import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
+import BrandLogo from "../components/common/BrandLogo";
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const { login, isLoading, token } = useAuthStore()
-  const { language, setLanguage } = useLanguageStore()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const t = translations[language]
-  const redirectTo = new URLSearchParams(location.search).get('redirect') || '/app'
-  const destination = redirectTo.startsWith('/app') ? redirectTo : '/app'
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, isLoading, token } = useAuthStore();
+  const { language, setLanguage } = useLanguageStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const t = translations[language];
+  const redirectTo =
+    new URLSearchParams(location.search).get("redirect") || "/app";
+  const destination = redirectTo.startsWith("/app") ? redirectTo : "/app";
 
   useEffect(() => {
     if (token) {
-      navigate(destination, { replace: true })
+      navigate(destination, { replace: true });
     }
-  }, [token, navigate, destination])
+  }, [token, navigate, destination]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    const result = await login(email.trim(), password)
+    e.preventDefault();
+    const result = await login(email.trim(), password);
     if (result.success) {
-      toast.success('Login successful!')
-      navigate(destination, { replace: true })
+      toast.success("Login successful!");
+      navigate(destination, { replace: true });
     } else {
-      toast.error(result.message)
+      toast.error(result.message);
     }
-  }
+  };
 
   const quickLogin = (roleEmail, rolePass) => {
-    setEmail(roleEmail)
-    setPassword(rolePass)
-  }
+    setEmail(roleEmail);
+    setPassword(rolePass);
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 lg:flex-row">
@@ -55,28 +57,28 @@ export default function Login() {
 
         <div className="relative z-10 flex w-full flex-col justify-between p-12">
           <div>
-<div className="mb-12 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/90 shadow-lg shadow-emerald-900/30">
-                    <Building2 className="h-7 w-7" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold">Coal Governance</h1>
-                    <p className="text-sm text-slate-200/80">Smart Compliance Platform</p>
-                  </div>
-                </div>
+            <div className="mb-12 flex items-center justify-between gap-3">
+              <BrandLogo imageClassName="h-16 w-48 rounded bg-white px-2" />
 
-                <button
-                  type="button"
-                  onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-                  className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-black/20 p-1 text-[10px] font-bold tracking-wide text-white/75 transition hover:border-emerald-300/70"
-                  aria-label="Change language"
-                  title="Change language"
+              <button
+                type="button"
+                onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+                className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-black/20 p-1 text-[10px] font-bold tracking-wide text-white/75 transition hover:border-emerald-300/70"
+                aria-label="Change language"
+                title="Change language"
+              >
+                <Languages className="mx-1 h-3.5 w-3.5 text-emerald-300" />
+                <span
+                  className={`rounded-full px-2 py-1 ${language === "en" ? "bg-emerald-400 text-slate-950" : ""}`}
                 >
-                  <Languages className="mx-1 h-3.5 w-3.5 text-emerald-300" />
-                  <span className={`rounded-full px-2 py-1 ${language === 'en' ? 'bg-emerald-400 text-slate-950' : ''}`}>EN</span>
-                  <span className={`rounded-full px-2 py-1 ${language === 'hi' ? 'bg-emerald-400 text-slate-950' : ''}`}>हिंदी</span>
-                </button>
+                  EN
+                </span>
+                <span
+                  className={`rounded-full px-2 py-1 ${language === "hi" ? "bg-emerald-400 text-slate-950" : ""}`}
+                >
+                  हिंदी
+                </span>
+              </button>
             </div>
 
             <div className="mb-5 inline-flex items-center rounded-full border border-emerald-300/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-emerald-200">
@@ -84,22 +86,27 @@ export default function Login() {
             </div>
 
             <h2 className="mb-5 max-w-lg text-4xl font-black leading-tight">
-              {language === 'en' ? 'AI-Powered Governance for Indian Coal Mines' : 'भारतीय कोयला खदानों के लिए एआई आधारित शासन'}
+              {language === "en"
+                ? "AI-Powered Governance for Indian Coal Mines"
+                : "भारतीय कोयला खदानों के लिए एआई आधारित शासन"}
             </h2>
             <p className="max-w-md text-lg leading-8 text-slate-200">
-              {language === 'en'
-                ? 'Centralized platform for statutory compliance, risk analytics, inspections, and paperless governance across mine operations.'
-                : 'खदान संचालन के लिए सांविधिक अनुपालन, जोखिम विश्लेषण, निरीक्षण और पेपरलेस शासन के लिए एकीकृत प्लेटफ़ॉर्म।'}
+              {language === "en"
+                ? "Centralized platform for statutory compliance, risk analytics, inspections, and paperless governance across mine operations."
+                : "खदान संचालन के लिए सांविधिक अनुपालन, जोखिम विश्लेषण, निरीक्षण और पेपरलेस शासन के लिए एकीकृत प्लेटफ़ॉर्म।"}
             </p>
           </div>
 
           <div className="space-y-5">
             {[
-              'Real-time compliance monitoring',
-              'AI risk scoring & predictive alerts',
-              'Geo-tagged field inspections',
+              "Real-time compliance monitoring",
+              "AI risk scoring & predictive alerts",
+              "Geo-tagged field inspections",
             ].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/20 p-3 backdrop-blur-sm">
+              <div
+                key={item}
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/20 p-3 backdrop-blur-sm"
+              >
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
                 <span className="text-sm text-slate-100">{item}</span>
               </div>
@@ -107,13 +114,18 @@ export default function Login() {
 
             <div className="mt-6 grid grid-cols-3 gap-4">
               {[
-                ['120+', 'Mines'],
-                ['96.4%', 'Safety'],
-                ['24/7', 'Monitoring'],
+                ["120+", "Mines"],
+                ["96.4%", "Safety"],
+                ["24/7", "Monitoring"],
               ].map(([value, label]) => (
-                <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center backdrop-blur-md">
+                <div
+                  key={label}
+                  className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center backdrop-blur-md"
+                >
                   <div className="text-xl font-black text-white">{value}</div>
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-slate-300">{label}</div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-slate-300">
+                    {label}
+                  </div>
                 </div>
               ))}
             </div>
@@ -137,22 +149,23 @@ export default function Login() {
           </Link>
           <div
             className="relative mb-5 h-28 overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900 bg-cover bg-center lg:hidden"
-            style={{ backgroundImage: "linear-gradient(90deg, rgba(7,18,34,0.92), rgba(7,18,34,0.42)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80')" }}
+            style={{
+              backgroundImage:
+                "linear-gradient(90deg, rgba(7,18,34,0.92), rgba(7,18,34,0.42)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80')",
+            }}
           >
             <div className="absolute inset-0 flex items-center gap-3 px-5 text-white">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 shadow-lg shadow-emerald-950/30">
-                <Building2 className="h-6 w-6" />
-              </div>
-              <div>
-                <h1 className="font-bold">Coal Governance</h1>
-                <p className="text-xs text-slate-200">Smart Compliance Platform</p>
-              </div>
+              <BrandLogo imageClassName="h-12 w-40 rounded bg-white px-2" />
             </div>
           </div>
 
           <div className="card p-5 sm:p-8">
-            <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">{t.welcomeBack}</h2>
-            <p className="mb-6 text-sm text-slate-600 dark:text-slate-300">{t.signInToAccount}</p>
+            <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
+              {t.welcomeBack}
+            </h2>
+            <p className="mb-6 text-sm text-slate-600 dark:text-slate-300">
+              {t.signInToAccount}
+            </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -171,7 +184,7 @@ export default function Login() {
                 <label className="label">{t.password}</label>
                 <div className="relative">
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="input-field pr-10"
@@ -183,7 +196,11 @@ export default function Login() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -210,39 +227,43 @@ export default function Login() {
 
             {/* Optional seeded demo accounts */}
             <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-              <p className="mb-3 text-center text-xs font-medium text-slate-600 dark:text-slate-300">{t.quickDemo} (optional)</p>
+              <p className="mb-3 text-center text-xs font-medium text-slate-600 dark:text-slate-300">
+                {t.quickDemo} (optional)
+              </p>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => quickLogin('rajesh@ncl.gov.in', 'mine123')}
+                  onClick={() => quickLogin("rajesh@ncl.gov.in", "mine123")}
                   className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                 >
                   {t.mineOfficial}
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickLogin('corporate@cil.gov.in', 'corp123')}
+                  onClick={() => quickLogin("corporate@cil.gov.in", "corp123")}
                   className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                 >
                   {t.corporate}
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickLogin('admin@cil.gov.in', 'admin123')}
+                  onClick={() => quickLogin("admin@cil.gov.in", "admin123")}
                   className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                 >
                   {t.admin}
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickLogin('regulator@dgms.gov.in', 'reg123')}
+                  onClick={() => quickLogin("regulator@dgms.gov.in", "reg123")}
                   className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                 >
                   {t.regulator}
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickLogin('ananya@shakticontractors.in', 'contract123')}
+                  onClick={() =>
+                    quickLogin("ananya@shakticontractors.in", "contract123")
+                  }
                   className="col-span-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
                   Contractor demo — Ananya Singh, Shakti Contractors
@@ -250,8 +271,11 @@ export default function Login() {
               </div>
 
               <div className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">
-                Don’t have an account?{' '}
-                <Link to="/register" className="font-semibold text-primary-700 hover:text-primary-800">
+                Don’t have an account?{" "}
+                <Link
+                  to="/register"
+                  className="font-semibold text-primary-700 hover:text-primary-800"
+                >
                   Sign up
                 </Link>
               </div>
@@ -260,5 +284,5 @@ export default function Login() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" role="img" aria-labelledby="title desc">
+  <title id="title">MineSight</title>
+  <desc id="desc">MineSight mountain and mine logo</desc>
+  <defs>
+    <linearGradient id="mountain" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1267a7"/>
+      <stop offset="0.52" stop-color="#274d7d"/>
+      <stop offset="1" stop-color="#ed8a37"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#mountain)" d="M28 91 96 16l35 43 60-50 37 50 43-39 78 71-40-18-37 27-44-46-39 40-40-48-48 45z"/>
+  <path fill="#203a5e" d="m177 91 51-55 57 55-24-12-30 27-29-30z"/>
+  <path fill="none" stroke="#e9b05b" stroke-width="3" d="M54 91V68h29V48m-2 20h31V48m6 27V56h31V34m31 57V64h26V47m18 44V70h28V56m-2 35V72h25"/>
+  <circle cx="54" cy="68" r="4" fill="#e9b05b"/><circle cx="83" cy="48" r="4" fill="#e9b05b"/><circle cx="112" cy="56" r="4" fill="#e9b05b"/><circle cx="144" cy="34" r="4" fill="#e9b05b"/><circle cx="170" cy="64" r="4" fill="#e9b05b"/><circle cx="196" cy="47" r="4" fill="#e9b05b"/>
+  <text x="28" y="151" font-family="Trebuchet MS, Arial, sans-serif" font-size="54" font-weight="700" letter-spacing="-2" fill="url(#mountain)">MineSight</text>
+</svg>

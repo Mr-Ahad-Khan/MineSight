@@ -1,0 +1,1 @@
+import{j as s}from"./index-0oeNvK8n.js";function n({className:o="",imageClassName:t=""}){return s.jsx("img",{src:"/minesight-logo.svg",alt:"MineSight",className:`object-contain ${t} ${o}`})}export{n as B};
