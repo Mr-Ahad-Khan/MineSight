@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Mic, Plus, Trash2 } from 'lucide-react'
-import { deleteInspection, getInspections } from '../services/api'
+import { deleteInspection, getInspections, getMediaUrl } from '../services/api'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { useLanguageStore } from '../store/themeStore'
@@ -61,9 +61,7 @@ export default function Inspections() {
 
   const getAudioUrl = (audioPath) => {
     if (!audioPath) return null
-    if (audioPath.startsWith('http')) return audioPath
-    const base = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
-    return `${base}${audioPath.startsWith('/') ? audioPath : `/${audioPath}`}`
+    return getMediaUrl(audioPath)
   }
 
   return (

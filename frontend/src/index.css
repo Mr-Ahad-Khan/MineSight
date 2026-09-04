@@ -123,6 +123,61 @@
   .home-page.theme-light footer {
     color: #52636a !important;
   }
+
+  /* Landing page: retain a true light palette instead of leaving dark card
+     gradients behind light-mode text overrides. */
+  .home-page.theme-light .landing-audit,
+  .home-page.theme-light .landing-contact {
+    background: #f6f0e5 !important;
+    border-color: #d5c4a8 !important;
+  }
+
+  .home-page.theme-light .audit-feature-card,
+  .home-page.theme-light .audit-snapshot,
+  .home-page.theme-light .contact-shell,
+  .home-page.theme-light .contact-card {
+    background: #fffdf8 !important;
+    border-color: #d5c4a8 !important;
+    color: #243746 !important;
+  }
+
+  .home-page.theme-light .audit-feature-card h3,
+  .home-page.theme-light .audit-snapshot h3,
+  .home-page.theme-light .contact-shell h2,
+  .home-page.theme-light .contact-card .font-bold {
+    color: #17314a !important;
+  }
+
+  .home-page.theme-light .audit-feature-card p,
+  .home-page.theme-light .audit-feature-card span,
+  .home-page.theme-light .audit-snapshot p,
+  .home-page.theme-light .contact-shell p,
+  .home-page.theme-light .contact-shell label {
+    color: #4f5f66 !important;
+  }
+
+  .home-page.theme-light .audit-feature-item,
+  .home-page.theme-light .audit-metric {
+    background: #fffdf8 !important;
+    border-color: #d5c4a8 !important;
+  }
+
+  .home-page.theme-light .audit-metric > div:nth-child(2) {
+    color: #17314a !important;
+  }
+
+  .home-page.theme-light .contact-card input,
+  .home-page.theme-light .contact-card select,
+  .home-page.theme-light .contact-card textarea {
+    background: #fffdf8 !important;
+    border-color: #c9b69d !important;
+    color: #243746 !important;
+  }
+
+  .home-page.theme-light .contact-card input::placeholder,
+  .home-page.theme-light .contact-card textarea::placeholder {
+    color: #71808a !important;
+  }
 }
 
 @layer components {

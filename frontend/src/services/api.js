@@ -51,6 +51,14 @@ api.interceptors.response.use(
 
 export default api;
 
+// Resolve media stored by the API without ever falling back to localhost in a
+// deployed build. This keeps voice notes and inspection photos usable on Vercel.
+export const getMediaUrl = (mediaPath) => {
+  if (!mediaPath || mediaPath.startsWith("http")) return mediaPath || null;
+  const origin = apiBaseUrl.replace(/\/api\/?$/, "");
+  return `${origin}${mediaPath.startsWith("/") ? mediaPath : `/${mediaPath}`}`;
+};
+
 // Auth
 export const login = (data) => api.post("/auth/login", data);
 export const register = (data) => api.post("/auth/register", data);

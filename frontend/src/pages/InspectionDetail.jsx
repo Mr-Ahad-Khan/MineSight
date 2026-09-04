@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, MapPin, CheckCircle, Loader2, X, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { deleteInspection, getInspection, updateInspection, closeViolation } from '../services/api'
+import { deleteInspection, getInspection, updateInspection, closeViolation, getMediaUrl } from '../services/api'
 import { format } from 'date-fns'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import { useLanguageStore } from '../store/themeStore'
@@ -90,11 +90,7 @@ export default function InspectionDetail() {
     ? [inspection.location.coordinates[1], inspection.location.coordinates[0]]
     : null
 
-  const audioUrl = inspection.audio
-    ? inspection.audio.startsWith('http')
-      ? inspection.audio
-      : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')}${inspection.audio.startsWith('/') ? inspection.audio : `/${inspection.audio}`}`
-    : null
+  const audioUrl = getMediaUrl(inspection.audio)
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -175,7 +171,7 @@ export default function InspectionDetail() {
                 <p className="text-slate-500 text-sm mb-2">Site Photos</p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {inspection.photos.map((photo, index) => {
-                    const photoSrc = photo.startsWith('http') ? photo : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${photo}`
+                    const photoSrc = getMediaUrl(photo)
                     return (
                       <button
                         key={`${photo}-${index}`}

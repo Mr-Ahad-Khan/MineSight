@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Building2, Eye, EyeOff, Languages, Loader2 } from 'lucide-react'
+import { ArrowLeft, Building2, Eye, EyeOff, Languages, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
 import { useLanguageStore } from '../store/themeStore'
@@ -128,6 +128,13 @@ export default function Login() {
       {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-950">
         <div className="w-full max-w-md">
+          <Link
+            to="/"
+            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-primary-700 dark:text-slate-300 dark:hover:text-primary-300"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to landing page
+          </Link>
           <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
             <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center text-white">
               <Building2 className="w-6 h-6" />

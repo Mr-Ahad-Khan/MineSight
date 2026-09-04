@@ -85,6 +85,50 @@ const seedData = async () => {
       riskLevel: 'high',
     });
 
+    const mine4 = await Mine.create({
+      name: 'Nigahi Open Cast Mine',
+      code: 'NCL-NIG-03',
+      subsidiary: 'Northern Coalfields Limited',
+      location: { type: 'Point', coordinates: [82.59, 24.02] },
+      address: 'Nigahi, Singrauli, Madhya Pradesh',
+      status: 'active',
+      complianceScore: 86,
+      riskLevel: 'low',
+    });
+
+    const mine5 = await Mine.create({
+      name: 'Dudhichua Open Cast Mine',
+      code: 'NCL-DDC-04',
+      subsidiary: 'Northern Coalfields Limited',
+      location: { type: 'Point', coordinates: [82.66, 24.14] },
+      address: 'Dudhichua, Singrauli, Madhya Pradesh',
+      status: 'active',
+      complianceScore: 74,
+      riskLevel: 'medium',
+    });
+
+    const mine6 = await Mine.create({
+      name: 'Gevra Open Cast Mine',
+      code: 'SECL-GEV-02',
+      subsidiary: 'South Eastern Coalfields Limited',
+      location: { type: 'Point', coordinates: [82.56, 22.35] },
+      address: 'Gevra, Korba, Chhattisgarh',
+      status: 'active',
+      complianceScore: 69,
+      riskLevel: 'high',
+    });
+
+    const mine7 = await Mine.create({
+      name: 'Dipka Open Cast Mine',
+      code: 'SECL-DPK-03',
+      subsidiary: 'South Eastern Coalfields Limited',
+      location: { type: 'Point', coordinates: [82.52, 22.30] },
+      address: 'Dipka, Korba, Chhattisgarh',
+      status: 'active',
+      complianceScore: 81,
+      riskLevel: 'medium',
+    });
+
     // Create Mine Officials
     const official1 = await User.create({
       name: 'Rajesh Kumar',

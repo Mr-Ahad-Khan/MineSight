@@ -220,14 +220,14 @@ export default function CreateInspection() {
   const selectedMine = mines.find((mine) => mine._id === form.mineId)
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <div>
         <h1 className="text-2xl font-bold">{t.createInspectionTitle}</h1>
         <p className="text-sm text-slate-500 mt-1">{t.createInspectionSubtitle}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-        <div className="order-first flex gap-3 border-b border-slate-200 pb-5 dark:border-slate-800 lg:col-span-2">
+      <form onSubmit={handleSubmit} className="grid w-full grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)]">
+        <div className="order-first flex flex-wrap gap-3 border-b border-slate-200 pb-5 dark:border-slate-800 xl:col-span-2">
           <button type="submit" disabled={loading} className="btn-primary flex items-center gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             {loading ? 'Creating...' : 'Create Inspection'}
@@ -480,7 +480,7 @@ export default function CreateInspection() {
 
         </div>
 
-        <aside className="space-y-6 lg:sticky lg:top-6">
+        <aside className="space-y-6 xl:sticky xl:top-6">
           <div className="card overflow-hidden">
             <div className="border-b border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50">
               <div className="flex items-center gap-2">

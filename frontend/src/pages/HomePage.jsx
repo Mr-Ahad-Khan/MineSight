@@ -1141,11 +1141,11 @@ export default function HomePage() {
         </section>
 
         {/* Features / Audit readiness */}
-        <section id="features" className="relative scroll-mt-[76px] border-y border-amber-300/10 bg-gradient-to-br from-[#2a241c] via-[#20212a] to-[#151c2a]">
+        <section id="features" className="landing-audit relative scroll-mt-[76px] border-y border-amber-300/10 bg-gradient-to-br from-[#2a241c] via-[#20212a] to-[#151c2a]">
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
             {/* Left card */}
-            <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-8 shadow-2xl">
+            <div className="audit-feature-card relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-8 shadow-2xl">
               <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl" />
 
               <div className="relative">
@@ -1169,7 +1169,7 @@ export default function HomePage() {
                   ].map((item) => (
                     <div
                       key={item}
-                      className="group flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all hover:border-emerald-400/30 hover:bg-emerald-500/5"
+                      className="audit-feature-item group flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all hover:border-emerald-400/30 hover:bg-emerald-500/5"
                     >
                       <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400 transition-transform group-hover:scale-110" />
                       <span className="text-slate-200">{item}</span>
@@ -1180,7 +1180,7 @@ export default function HomePage() {
             </div>
 
             {/* Right snapshot */}
-            <div className="rounded-[32px] border border-white/10 bg-slate-900/70 p-7 shadow-2xl backdrop-blur-sm">
+            <div className="audit-snapshot rounded-[32px] border border-white/10 bg-slate-900/70 p-7 shadow-2xl backdrop-blur-sm">
               <div className="mb-7 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">{language === 'en' ? 'Operations summary' : 'संचालन सारांश'}</p>
@@ -1200,7 +1200,7 @@ export default function HomePage() {
                 ].map(({ label, value, icon: Icon, color }) => (
                   <div
                     key={label}
-                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-lg"
+                    className="audit-metric group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-lg"
                   >
                     <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${color} text-slate-950 shadow-md transition-transform group-hover:scale-110 group-hover:rotate-6`}>
                       <Icon className="h-5 w-5" />
@@ -1216,8 +1216,8 @@ export default function HomePage() {
         </section>
 
         {/* Contact / Login */}
-        <section id="contact" className="relative scroll-mt-[76px] border-y border-[#e5a416]/20 bg-gradient-to-br from-[#102b46] via-[#102338] to-[#17232a] px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-[40px] border border-[#3b5662] bg-gradient-to-br from-[#172b3a] via-[#101b2b] to-[#0d1622] p-7 shadow-2xl lg:p-10">
+        <section id="contact" className="landing-contact relative scroll-mt-[76px] border-y border-[#e5a416]/20 bg-gradient-to-br from-[#102b46] via-[#102338] to-[#17232a] px-4 pb-24 pt-8 sm:px-6 lg:px-8">
+          <div className="contact-shell relative overflow-hidden rounded-[40px] border border-[#3b5662] bg-gradient-to-br from-[#172b3a] via-[#101b2b] to-[#0d1622] p-7 shadow-2xl lg:p-10">
             {/* Background accents */}
             <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-emerald-500/15 blur-3xl" />
             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
@@ -1252,7 +1252,7 @@ export default function HomePage() {
               </div>
 
               {/* Contact card */}
-              <div className="relative rounded-[28px] border border-[#526875] bg-[#0a1420]/95 p-6 shadow-2xl backdrop-blur-xl">
+              <div className="contact-card relative rounded-[28px] border border-[#526875] bg-[#0a1420]/95 p-6 shadow-2xl backdrop-blur-xl">
                 <div className="mb-6 flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f3c24b] to-[#e5a416] text-[#17232a] shadow-lg shadow-[#e5a416]/30">
                     <Mail className="h-5 w-5" />
