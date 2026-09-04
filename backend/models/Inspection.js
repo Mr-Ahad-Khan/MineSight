@@ -71,6 +71,9 @@ const inspectionSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    audio: {
+      type: String,
+    },
     observations: {
       type: String,
     },

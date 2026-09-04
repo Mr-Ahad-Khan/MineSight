@@ -21,6 +21,8 @@ import Mines from './pages/Mines'
 import Contractors from './pages/Contractors'
 import Alerts from './pages/Alerts'
 import Analytics from './pages/Analytics'
+import Chat from './pages/Chat'
+import Profile from './pages/Profile'
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore()
@@ -54,6 +56,8 @@ function App() {
         <Route path="contractors" element={<Contractors />} />
         <Route path="alerts" element={<Alerts />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="chat" element={<Chat />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, MapPin, CheckCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, MapPin, CheckCircle, Loader2, X, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getInspection, updateInspection, closeViolation } from '../services/api'
+import { deleteInspection, getInspection, updateInspection, closeViolation } from '../services/api'
 import { format } from 'date-fns'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import { useLanguageStore } from '../store/themeStore'
@@ -23,6 +23,7 @@ export default function InspectionDetail() {
   const [inspection, setInspection] = useState(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [selectedPhoto, setSelectedPhoto] = useState(null)
 
   useEffect(() => {
     fetchInspection()
@@ -63,6 +64,18 @@ export default function InspectionDetail() {
     }
   }
 
+  const handleDeleteInspection = async () => {
+    if (!window.confirm('Are you sure you want to delete this inspection?')) return
+
+    try {
+      await deleteInspection(id)
+      toast.success('Inspection deleted successfully')
+      navigate('/app/inspections')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete inspection')
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -75,6 +88,12 @@ export default function InspectionDetail() {
 
   const coords = inspection.location?.coordinates
     ? [inspection.location.coordinates[1], inspection.location.coordinates[0]]
+    : null
+
+  const audioUrl = inspection.audio
+    ? inspection.audio.startsWith('http')
+      ? inspection.audio
+      : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')}${inspection.audio.startsWith('/') ? inspection.audio : `/${inspection.audio}`}`
     : null
 
   return (
@@ -141,6 +160,38 @@ export default function InspectionDetail() {
               <div>
                 <p className="text-slate-500 text-sm">{t.observations}</p>
                 <p className="mt-1">{inspection.observations}</p>
+              </div>
+            )}
+
+            {audioUrl && (
+              <div className="pt-2">
+                <p className="text-slate-500 text-sm mb-2">Voice Note</p>
+                <audio controls src={audioUrl} className="w-full max-w-md" />
+              </div>
+            )}
+
+            {inspection.photos?.length > 0 && (
+              <div className="pt-3">
+                <p className="text-slate-500 text-sm mb-2">Site Photos</p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {inspection.photos.map((photo, index) => {
+                    const photoSrc = photo.startsWith('http') ? photo : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${photo}`
+                    return (
+                      <button
+                        key={`${photo}-${index}`}
+                        type="button"
+                        onClick={() => setSelectedPhoto(photoSrc)}
+                        className="group overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
+                      >
+                        <img
+                          src={photoSrc}
+                          alt={`Inspection site ${index + 1}`}
+                          className="h-28 w-full object-cover transition-transform duration-200 group-hover:scale-110 group-focus:scale-110"
+                        />
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -221,6 +272,15 @@ export default function InspectionDetail() {
                 <CheckCircle className="w-4 h-4" /> {t.inspectionClosed}
               </p>
             )}
+
+            <button
+              type="button"
+              onClick={handleDeleteInspection}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Inspection
+            </button>
           </div>
 
           {/* Map */}

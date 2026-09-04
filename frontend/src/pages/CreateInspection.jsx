@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapPin, Loader2, Plus, Trash2 } from 'lucide-react'
+import { MapPin, Loader2, Plus, Trash2, Mic, Square, Upload, FileText, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { createInspection, getMines } from '../services/api'
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
@@ -32,6 +32,14 @@ export default function CreateInspection() {
   const [mines, setMines] = useState([])
   const [loading, setLoading] = useState(false)
   const [position, setPosition] = useState([24.12, 82.45]) // Default Singrauli area
+  const [audioBlob, setAudioBlob] = useState(null)
+  const [audioUrl, setAudioUrl] = useState('')
+  const [photoPreviews, setPhotoPreviews] = useState([])
+  const [selectedPhotos, setSelectedPhotos] = useState([])
+  const [isRecording, setIsRecording] = useState(false)
+  const mediaRecorderRef = useRef(null)
+  const streamRef = useRef(null)
+  const chunksRef = useRef([])
 
   const [form, setForm] = useState({
     mineId: '',
@@ -78,6 +86,95 @@ export default function CreateInspection() {
     })
   }
 
+  const startVoiceRecording = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast.error('Microphone access is not supported in this browser')
+        return
+      }
+
+      if (typeof MediaRecorder === 'undefined') {
+        toast.error('Voice recording is not supported in this browser')
+        return
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      streamRef.current = stream
+
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/webm')
+          ? 'audio/webm'
+          : ''
+
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
+      chunksRef.current = []
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          chunksRef.current.push(event.data)
+        }
+      }
+
+      recorder.onstop = () => {
+        if (!chunksRef.current.length) {
+          setAudioBlob(null)
+          setAudioUrl('')
+          toast.error('No audio captured. Please try again.')
+          return
+        }
+
+        const recordedBlob = new Blob(chunksRef.current, {
+          type: recorder.mimeType || 'audio/webm',
+        })
+
+        setAudioBlob(recordedBlob)
+        const newAudioUrl = URL.createObjectURL(recordedBlob)
+        setAudioUrl((prev) => {
+          if (prev) URL.revokeObjectURL(prev)
+          return newAudioUrl
+        })
+
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop())
+          streamRef.current = null
+        }
+      }
+
+      mediaRecorderRef.current = recorder
+      recorder.start()
+      setIsRecording(true)
+      toast.success('Microphone recording started')
+    } catch (error) {
+      console.error(error)
+      toast.error('Microphone access denied or not available in this browser')
+    }
+  }
+
+  const stopVoiceRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      toast.success('Recording stopped')
+    }
+  }
+
+  const handlePhotoChange = (event) => {
+    const files = Array.from(event.target.files || [])
+    if (!files.length) return
+
+    const validFiles = files.slice(0, 5)
+    const previewUrls = validFiles.map((file) => URL.createObjectURL(file))
+    setPhotoPreviews((prev) => [...prev, ...previewUrls])
+    setSelectedPhotos((prev) => [...prev, ...validFiles])
+    event.target.value = ''
+  }
+
+  const removePhoto = (index) => {
+    setPhotoPreviews((prev) => prev.filter((_, i) => i !== index))
+    setSelectedPhotos((prev) => prev.filter((_, i) => i !== index))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.mineId || !form.title) {
@@ -88,11 +185,31 @@ export default function CreateInspection() {
     try {
       const payload = {
         ...form,
-        coordinates: [position[1], position[0]], // [lng, lat]
+        coordinates: [position[1], position[0]],
       }
-      const res = await createInspection(payload)
+
+      const formData = new FormData()
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value === undefined || value === null) return
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value))
+          return
+        }
+        formData.append(key, value)
+      })
+
+      if (audioBlob) {
+        const fileName = `inspection-audio-${Date.now()}.webm`
+        formData.append('audio', audioBlob, fileName)
+      }
+
+      selectedPhotos.forEach((photo) => {
+        formData.append('photos', photo)
+      })
+
+      const res = await createInspection(formData)
       toast.success(`${t.inspectionCreated} ${res.data.data.riskScore}`)
-      navigate(`/inspections/${res.data.data._id}`)
+      navigate(`/app/inspections/${res.data.data._id}`)
     } catch (error) {
       toast.error(error.response?.data?.message || t.failedToCreate)
     } finally {
@@ -100,14 +217,27 @@ export default function CreateInspection() {
     }
   }
 
+  const selectedMine = mines.find((mine) => mine._id === form.mineId)
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold">{t.createInspectionTitle}</h1>
         <p className="text-sm text-slate-500 mt-1">{t.createInspectionSubtitle}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+        <div className="order-first flex gap-3 border-b border-slate-200 pb-5 dark:border-slate-800 lg:col-span-2">
+          <button type="submit" disabled={loading} className="btn-primary flex items-center gap-2">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {loading ? 'Creating...' : 'Create Inspection'}
+          </button>
+          <button type="button" onClick={() => navigate(-1)} className="btn-secondary">
+            Cancel
+          </button>
+        </div>
+
+        <div className="space-y-6">
         {/* Basic Info */}
         <div className="card p-5 space-y-4">
           <h2 className="font-semibold">{t.basicInformation}</h2>
@@ -189,6 +319,76 @@ export default function CreateInspection() {
               <option value="high">{t.high}</option>
               <option value="critical">{t.criticalLabel}</option>
             </select>
+          </div>
+
+          <div className="pt-2">
+            <label className="label">Voice Note</label>
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              {!isRecording ? (
+                <button
+                  type="button"
+                  onClick={startVoiceRecording}
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#0b3d91] px-3 py-2 text-sm font-medium text-white hover:bg-[#0a2f6d]"
+                >
+                  <Mic className="h-4 w-4" />
+                  Start
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={stopVoiceRecording}
+                  className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                >
+                  <Square className="h-4 w-4 fill-current" />
+                  Stop Recording
+                </button>
+              )}
+
+              {audioUrl && (
+                <>
+                  <audio controls src={audioUrl} className="h-10" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAudioBlob(null)
+                      setAudioUrl('')
+                    }}
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Remove
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <label className="label">Site Photos</label>
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#0b3d91] px-3 py-2 text-sm font-medium text-white hover:bg-[#0a2f6d]">
+                <Upload className="h-4 w-4" />
+                Upload Photos
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoChange} />
+              </label>
+
+              {photoPreviews.length > 0 && (
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {photoPreviews.map((preview, index) => (
+                    <div key={preview} className="relative overflow-hidden rounded-lg border border-slate-200 bg-white">
+                      <img src={preview} alt={`Preview ${index + 1}`} className="h-24 w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -278,16 +478,72 @@ export default function CreateInspection() {
           </div>
         </div>
 
-        {/* Submit */}
-        <div className="flex gap-3">
-          <button type="submit" disabled={loading} className="btn-primary flex items-center gap-2">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {loading ? 'Creating...' : 'Create Inspection'}
-          </button>
-          <button type="button" onClick={() => navigate(-1)} className="btn-secondary">
-            Cancel
-          </button>
         </div>
+
+        <aside className="space-y-6 lg:sticky lg:top-6">
+          <div className="card overflow-hidden">
+            <div className="border-b border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary-600" />
+                <h2 className="font-semibold">Inspection preview</h2>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">Review the report as you complete the form.</p>
+            </div>
+
+            <div className="space-y-5 p-5">
+              <div>
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <h3 className="break-words text-xl font-bold">{form.title || 'Untitled inspection'}</h3>
+                  <span className={`badge badge-${form.severity}`}>{form.severity}</span>
+                </div>
+                <p className="text-sm text-slate-500">
+                  {selectedMine ? `${selectedMine.name} (${selectedMine.code})` : 'Select a mine'}
+                  {' • '}{form.type}
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Report details</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm">{form.description || 'Your description will appear here.'}</p>
+                {form.observations && (
+                  <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-700">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Observations</p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm">{form.observations}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-3 text-sm font-medium dark:border-slate-700">
+                  <MapPin className="h-4 w-4 text-primary-600" />
+                  Site location
+                </div>
+                <div className="bg-slate-100 px-4 py-3 text-sm dark:bg-slate-800">
+                  {position[0].toFixed(5)}, {position[1].toFixed(5)}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-500">Violations added</span>
+                <span className="font-semibold">{form.violations.length}</span>
+              </div>
+
+              {photoPreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {photoPreviews.slice(0, 3).map((preview, index) => (
+                    <img key={preview} src={preview} alt={`Site preview ${index + 1}`} className="h-20 w-full rounded-lg object-cover" />
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 rounded-lg bg-primary-50 p-3 text-sm text-primary-800 dark:bg-primary-900/20 dark:text-primary-200">
+                <ArrowRight className="h-4 w-4 shrink-0" />
+                After submission, the complete inspection details will open automatically.
+              </div>
+            </div>
+          </div>
+        </aside>
+
       </form>
     </div>
   )

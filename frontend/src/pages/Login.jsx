@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Building2, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Building2, Eye, EyeOff, Languages, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
 import { useLanguageStore } from '../store/themeStore'
@@ -13,20 +13,23 @@ export default function Login() {
   const { login, isLoading, token } = useAuthStore()
   const { language, setLanguage } = useLanguageStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const t = translations[language]
+  const redirectTo = new URLSearchParams(location.search).get('redirect') || '/app'
+  const destination = redirectTo.startsWith('/app') ? redirectTo : '/app'
 
   useEffect(() => {
     if (token) {
-      navigate('/app', { replace: true })
+      navigate(destination, { replace: true })
     }
-  }, [token, navigate])
+  }, [token, navigate, destination])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     const result = await login(email.trim(), password)
     if (result.success) {
       toast.success('Login successful!')
-      navigate('/app', { replace: true })
+      navigate(destination, { replace: true })
     } else {
       toast.error(result.message)
     }
@@ -66,9 +69,13 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-                  className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/15"
+                  className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-black/20 p-1 text-[10px] font-bold tracking-wide text-white/75 transition hover:border-emerald-300/70"
+                  aria-label="Change language"
+                  title="Change language"
                 >
-                  {language === 'en' ? 'हिंदी' : 'English'}
+                  <Languages className="mx-1 h-3.5 w-3.5 text-emerald-300" />
+                  <span className={`rounded-full px-2 py-1 ${language === 'en' ? 'bg-emerald-400 text-slate-950' : ''}`}>EN</span>
+                  <span className={`rounded-full px-2 py-1 ${language === 'hi' ? 'bg-emerald-400 text-slate-950' : ''}`}>हिंदी</span>
                 </button>
             </div>
 
@@ -185,9 +192,13 @@ export default function Login() {
               </button>
             </form>
 
-            {/* Optional demo shortcuts */}
+            <p className="mt-4 text-center text-xs text-slate-500">
+              Sign in with the email and password you used during registration.
+            </p>
+
+            {/* Optional seeded demo accounts */}
             <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-              <p className="text-xs text-slate-500 mb-3 text-center">{t.quickDemo}</p>
+              <p className="text-xs text-slate-500 mb-3 text-center">{t.quickDemo} (optional)</p>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"

@@ -451,6 +451,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
+  ArrowUp,
   Building2,
   ShieldCheck,
   Gauge,
@@ -468,29 +469,34 @@ import {
   EyeOff,
   Zap,
   Languages,
+  Moon,
+  Sun,
+  Mail,
+  Send,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
-import { useLanguageStore } from '../store/themeStore'
+import useThemeStore, { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
+import { getPublicHomeStats, saveChatMessage } from '../services/api'
 
 const slides = [
   {
-    title: 'MineSight Digital Governance',
-    subtitle: 'AI-led oversight for coal mining compliance, safety, and production efficiency.',
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80',
+    title: 'Powering Progress. Built on Reliability.',
+    subtitle: 'Efficient coal extraction. Uncompromising safety. Delivered at scale.',
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2200&q=85',
     badge: 'Coal Intelligence Platform',
   },
   {
     title: 'Safer Mines. Smarter Compliance.',
     subtitle: 'Track inspections, contractor risks, and environmental checks from one command center.',
-    image: 'https://images.unsplash.com/photo-1532619187608-e5375feb6d0b?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2200&q=85',
     badge: 'Live Risk Monitoring',
   },
   {
     title: 'See the full picture underground.',
     subtitle: 'Geo-tagged operations and automated alerts keep every site aligned with safety mandates.',
-    image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&w=2200&q=85',
     badge: 'Real-time Visibility',
   },
 ]
@@ -525,11 +531,35 @@ const stats = [
 
 export default function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0)
+  const [metricValues, setMetricValues] = useState({
+    production: 0,
+    availability: 0,
+    ltis: 0,
+    experience: 0,
+  })
+  const [homeStats, setHomeStats] = useState(null)
   const [email, setEmail] = useState('rajesh@ncl.gov.in')
   const [password, setPassword] = useState('mine123')
   const [isDemo, setIsDemo] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [assistantOpen, setAssistantOpen] = useState(true)
+  const [assistantChatOpen, setAssistantChatOpen] = useState(false)
+  const [assistantInput, setAssistantInput] = useState('')
+  const [assistantEmail, setAssistantEmail] = useState('')
+  const [assistantSending, setAssistantSending] = useState(false)
+  const [assistantReady, setAssistantReady] = useState(false)
+  const [contactForm, setContactForm] = useState({ name: '', email: '', organization: '', subject: '', message: '' })
+  const [contactSending, setContactSending] = useState(false)
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  const [assistantMessages, setAssistantMessages] = useState([
+    {
+      id: 1,
+      sender: 'bot',
+      text: 'Hello! I can help with inspections, compliance, mine safety, and dashboards.',
+    },
+  ])
   const { login, isLoading, token } = useAuthStore()
+  const { darkMode, toggleDarkMode } = useThemeStore()
   const { language, setLanguage } = useLanguageStore()
   const navigate = useNavigate()
   const t = translations[language]
@@ -617,6 +647,59 @@ export default function HomePage() {
     return () => clearInterval(timer)
   }, [])
 
+  useEffect(() => {
+    let isMounted = true
+    getPublicHomeStats()
+      .then((response) => {
+        if (isMounted) setHomeStats(response.data.data)
+      })
+      .catch((error) => console.error('Unable to load home statistics', error))
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!homeStats) return undefined
+
+    const targets = {
+      production: homeStats.activeMines,
+      availability: homeStats.averageCompliance,
+      ltis: homeStats.openInspections,
+      experience: homeStats.totalReports,
+    }
+    const duration = 1400
+    const startedAt = Date.now()
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - startedAt) / duration, 1)
+      const easedProgress = 1 - (1 - progress) ** 3
+
+      setMetricValues({
+        production: Math.round(targets.production * easedProgress),
+        availability: Number((targets.availability * easedProgress).toFixed(1)),
+        ltis: targets.ltis,
+        experience: Math.round(targets.experience * easedProgress),
+      })
+
+      if (progress === 1) clearInterval(timer)
+    }, 32)
+
+    return () => clearInterval(timer)
+  }, [homeStats])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAssistantReady(true), 120)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 360)
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   const handleSubmit = async (event) => {
     event.preventDefault()
     const result = await login(email, password)
@@ -628,6 +711,34 @@ export default function HomePage() {
     toast.error(result.message)
   }
 
+  const handleContactSubmit = async (event) => {
+    event.preventDefault()
+    if (contactSending) return
+
+    setContactSending(true)
+    try {
+      const message = [
+        `Name: ${contactForm.name}`,
+        `Organization: ${contactForm.organization || 'Not provided'}`,
+        `Subject: ${contactForm.subject}`,
+        '',
+        contactForm.message,
+      ].join('\n')
+
+      await saveChatMessage({
+        email: contactForm.email.trim(),
+        message,
+        reply: 'Contact form inquiry received. Our team will follow up shortly.',
+      })
+      toast.success(language === 'en' ? 'Message sent successfully.' : 'संदेश सफलतापूर्वक भेजा गया।')
+      setContactForm({ name: '', email: '', organization: '', subject: '', message: '' })
+    } catch (error) {
+      toast.error(language === 'en' ? 'Could not send your message right now.' : 'अभी संदेश नहीं भेजा जा सका।')
+    } finally {
+      setContactSending(false)
+    }
+  }
+
   const quickLogin = (roleEmail, rolePass, label) => {
     setEmail(roleEmail)
     setPassword(rolePass)
@@ -635,8 +746,66 @@ export default function HomePage() {
     toast.success(`${label} credentials loaded`)
   }
 
+  const getAssistantReply = (message) => {
+    const lower = message.toLowerCase()
+
+    if (lower.includes('inspection') || lower.includes('inspect')) {
+      return 'You can review inspection status, photos, and voice notes from the dashboard and inspection module.'
+    }
+    if (lower.includes('risk') || lower.includes('safety')) {
+      return 'I can help prioritize high-risk mines and track safety escalations in real time.'
+    }
+    if (lower.includes('compliance') || lower.includes('permit')) {
+      return 'Compliance tracking is available for permits, deadlines, and alert follow-up across all mines.'
+    }
+    if (lower.includes('contractor')) {
+      return 'You can review team compliance, contractor performance, and approval history from the contractor section.'
+    }
+    if (lower.includes('hello') || lower.includes('hi')) {
+      return 'Hi! I can help you navigate inspections, alerts, risk trends, and site compliance.'
+    }
+
+    return 'I can help you with mine governance, compliance, inspection workflows, and operational risk analysis.'
+  }
+
+  const handleAssistantSend = async () => {
+    const trimmed = assistantInput.trim()
+    if (!trimmed || !assistantEmail.trim() || assistantSending) return
+
+    const reply = getAssistantReply(trimmed)
+    setAssistantSending(true)
+
+    const userMessage = {
+      id: Date.now(),
+      sender: 'user',
+      text: trimmed,
+    }
+
+    setAssistantMessages((prev) => [...prev, userMessage])
+    setAssistantInput('')
+
+    try {
+      await saveChatMessage({ email: assistantEmail.trim(), message: trimmed, reply })
+      setAssistantMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: 'bot',
+          text: `${reply} Your message has been saved and sent to our team.`,
+        },
+      ])
+    } catch (error) {
+      setAssistantMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, sender: 'bot', text: 'We could not send your message right now. Please try again.' },
+      ])
+    } finally {
+      setAssistantSending(false)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500/40 overflow-x-hidden">
+    <div className={`home-page ${darkMode ? 'theme-dark bg-slate-950 text-slate-100' : 'theme-light bg-[#f3eadb] text-slate-800'} min-h-screen overflow-x-hidden selection:bg-emerald-500/40`}>
       {/* Animated background glow */}
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-emerald-500/20 blur-[120px] animate-pulse" />
@@ -645,30 +814,30 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/70 backdrop-blur-2xl">
+      <header className={`fixed inset-x-0 top-0 z-40 border-b backdrop-blur-2xl ${darkMode ? 'border-[#61543b] bg-[#151719]/95' : 'border-[#c9b69d] bg-[#f3eadb]/95'}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-500 shadow-lg shadow-emerald-500/40 transition-all duration-300 group-hover:scale-110 group-hover:shadow-emerald-400/60">
-              <Building2 className="h-5 w-5 text-slate-950" />
-              <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-md bg-[#e5a416] shadow-lg shadow-black/30 transition-all duration-300 group-hover:scale-105 group-hover:bg-[#f5b82c]">
+              <Building2 className="h-5 w-5 text-[#151719]" />
+              <div className="absolute inset-0 rounded-md bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
             <div>
-              <p className="text-sm font-bold tracking-[0.22em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-300 uppercase">
+              <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#f3b323]">
                 MineSight
               </p>
-              <p className="text-xs text-slate-400">{localizedCopy.brandTag}</p>
+              <p className={`text-xs ${darkMode ? 'text-[#c8c1b5]' : 'text-[#6b6257]'}`}>{localizedCopy.brandTag}</p>
             </div>
           </div>
 
-          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-300 md:flex">
+          <nav className={`hidden items-center gap-8 text-sm font-medium md:flex ${darkMode ? 'text-[#d7d0c4]' : 'text-[#4d5b62]'}`}>
             {navItems.map((item) => (
               <a
                 key={item}
                 href={`#${language === 'en' ? item.toLowerCase() : 'overview'}`}
-                className="relative py-1 transition-colors hover:text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-gradient-to-r after:from-emerald-400 after:to-cyan-400 after:transition-all after:duration-300 hover:after:w-full"
+                className={`relative py-1 transition-colors after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-[#e5a416] after:transition-all after:duration-300 hover:after:w-full ${darkMode ? 'hover:text-white' : 'hover:text-[#17314a]'}`}
               >
                 {item}
               </a>
@@ -678,219 +847,227 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-              className="rounded-full border border-white/15 bg-white/5 p-2.5 text-slate-100 transition hover:bg-white/10"
-              aria-label="Toggle language"
-              title="Toggle language"
+              onClick={toggleDarkMode}
+              className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${darkMode ? 'border-white/20 bg-white/5 text-[#e5a416] hover:border-[#e5a416]' : 'border-[#b99a72] bg-white/60 text-[#0d3f6d] hover:border-[#0d3f6d]'}`}
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              <Languages className="h-4 w-4" />
+              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+              className={`inline-flex h-9 items-center gap-1 rounded-full border p-1 text-[10px] font-bold tracking-wide transition hover:border-[#e5a416] ${darkMode ? 'border-white/20 bg-white/5 text-[#e5ded2]' : 'border-[#b99a72] bg-white/60 text-[#4d5b62]'}`}
+              aria-label="Change language"
+              title="Change language"
+            >
+              <Languages className="mx-1 h-3.5 w-3.5 text-[#e5a416]" />
+              <span className={`rounded-full px-2 py-1 ${language === 'en' ? 'bg-[#e5a416] text-[#151719]' : ''}`}>EN</span>
+              <span className={`rounded-full px-2 py-1 ${language === 'hi' ? 'bg-[#e5a416] text-[#151719]' : ''}`}>हिंदी</span>
             </button>
 
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="hidden rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium text-slate-100 transition-all hover:bg-white/10 hover:border-emerald-400/40 hover:text-white sm:inline-flex"
+              className={`hidden rounded-md border px-5 py-2.5 text-sm font-medium transition-all hover:border-[#e5a416] sm:inline-flex ${darkMode ? 'border-white/30 bg-white/5 text-[#f1ece4] hover:bg-[#e5a416]/10 hover:text-white' : 'border-[#b99a72] bg-white/50 text-[#17314a] hover:bg-[#e5a416]/10'}`}
             >
               {t.signIn}
             </button>
             <button
               type="button"
               onClick={() => (token ? navigate('/app') : navigate('/login'))}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-500/30 transition-all hover:shadow-emerald-400/50 hover:scale-105 active:scale-95"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-md bg-[#e5a416] px-5 py-2.5 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95"
             >
               <span className="relative z-10 flex items-center gap-2">
                 {token ? t.openDashboard : t.getStarted}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
             </button>
           </div>
         </div>
       </header>
 
-      <main>
+      <main className="pt-[76px]">
         {/* Hero Section */}
-        <section className="relative overflow-hidden pt-8 pb-16 lg:pt-12 lg:pb-24">
-          <div className="relative mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
-            {/* Left content */}
-            <div className="flex flex-col justify-center">
-              <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-300 shadow-lg shadow-emerald-900/20 backdrop-blur-sm">
-                <Flame className="h-3.5 w-3.5 text-orange-400 animate-pulse" />
-                <span className="bg-gradient-to-r from-emerald-300 to-cyan-300 bg-clip-text text-transparent">
-                  {current.badge}
-                </span>
-              </div>
-
-              <h1 className="max-w-xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-[3.4rem] leading-[1.08]">
-                <span className="bg-gradient-to-r from-white via-emerald-100 to-cyan-200 bg-clip-text text-transparent">
+        <section className="relative overflow-hidden border-b border-[#3b3b3b] bg-[#0c0f11]">
+          <div
+            className="relative min-h-[520px] bg-cover bg-center sm:min-h-[590px] lg:min-h-[650px]"
+            style={{
+              backgroundImage: `linear-gradient(90deg, rgba(5, 8, 10, 0.68) 0%, rgba(5, 8, 10, 0.42) 42%, rgba(5, 8, 10, 0.12) 78%), linear-gradient(0deg, rgba(5, 8, 10, 0.52) 0%, transparent 45%), url(${current.image})`,
+            }}
+          >
+            <div className="mx-auto flex min-h-[520px] max-w-7xl items-center px-5 py-16 sm:min-h-[590px] sm:px-8 lg:min-h-[650px] lg:px-10">
+              <div className="max-w-2xl">
+                <p className="mb-5 text-xs font-bold uppercase tracking-[0.24em] text-[#f3b323]">{current.badge}</p>
+                <h1 className="max-w-2xl text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-[4.4rem]">
                   {current.title}
-                </span>
-              </h1>
+                </h1>
+                <p className="mt-6 max-w-xl text-base leading-7 text-slate-200 sm:text-lg">
+                  {current.subtitle}
+                </p>
 
-              <p className="mt-6 max-w-lg text-lg leading-8 text-slate-300/90">
-                {current.subtitle}
-              </p>
-
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => navigate('/login')}
-                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-7 py-3.5 font-bold text-slate-950 shadow-xl shadow-emerald-500/30 transition-all hover:shadow-emerald-400/50 hover:scale-[1.03] active:scale-95"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    {t.explorePortal}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  className="group inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/5 px-7 py-3.5 font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10"
-                >
-                  <PlayCircle className="h-5 w-5 text-cyan-400 transition-transform group-hover:scale-110" />
-                  {t.watchDemo}
-                </button>
-              </div>
-
-              {/* Stats */}
-              <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {stats.map((item, idx) => (
-                  <div
-                    key={item.label}
-                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/8 to-white/3 p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:shadow-xl hover:shadow-emerald-500/10"
-                    style={{ animationDelay: `${idx * 100}ms` }}
+                <div className="mt-9 flex flex-wrap items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/login')}
+                    className="group inline-flex items-center gap-4 rounded-md bg-[#e5a416] px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-[#111315] transition hover:bg-[#f5b82c]"
                   >
-                    <div className={`text-2xl font-black ${item.accent} transition-transform group-hover:scale-110`}>
-                      {item.value}
-                    </div>
-                    <div className="mt-1 text-[11px] font-medium uppercase tracking-wider text-slate-400">
-                      {item.label}
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-cyan-400/0 group-hover:from-emerald-400/5 group-hover:to-cyan-400/5 transition-all" />
-                  </div>
-                ))}
-              </div>
-            </div>
+                    {activeSlide === 0 ? 'Explore Operations' : t.explorePortal}
+                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-3 rounded-md border border-white/70 bg-black/25 px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/10"
+                  >
+                    <PlayCircle className="h-5 w-5" />
+                    {activeSlide === 0 ? 'Download Capability Statement' : t.watchDemo}
+                  </button>
+                </div>
 
-            {/* Right - Interactive Slider */}
-            <div className="relative">
-              <div className="relative overflow-hidden rounded-[32px] border border-white/15 bg-slate-900/80 shadow-2xl shadow-emerald-900/20 ring-1 ring-white/10">
-                {/* Glow behind card */}
-                <div className="absolute -inset-1 rounded-[34px] bg-gradient-to-r from-emerald-500/30 via-cyan-500/20 to-blue-500/20 blur-xl opacity-60" />
-
-                <div
-                  className="relative h-[460px] sm:h-[520px] overflow-hidden rounded-[32px] transition-all duration-700"
-                  style={{
-                    backgroundImage: `linear-gradient(160deg, rgba(2,6,23,0.75), rgba(15,23,42,0.4)), url(${current.image})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  }}
-                >
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(16,185,129,0.35),transparent_50%)]" />
-
-                  <div className="relative flex h-full flex-col justify-between p-6 sm:p-8">
-                    <div className="flex items-center justify-between">
-                      <span className="rounded-full border border-emerald-400/50 bg-emerald-500/20 px-4 py-1.5 text-xs font-semibold text-emerald-200 backdrop-blur-md shadow-lg shadow-emerald-900/30">
-                        {current.badge}
-                      </span>
-
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          aria-label="Previous slide"
-                          onClick={() => setActiveSlide((activeSlide - 1 + slides.length) % slides.length)}
-                          className="rounded-full border border-white/20 bg-slate-950/60 p-2.5 text-white backdrop-blur-md transition-all hover:bg-emerald-500/20 hover:border-emerald-400/50 hover:scale-110 active:scale-95"
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Next slide"
-                          onClick={() => setActiveSlide((activeSlide + 1) % slides.length)}
-                          className="rounded-full border border-white/20 bg-slate-950/60 p-2.5 text-white backdrop-blur-md transition-all hover:bg-emerald-500/20 hover:border-emerald-400/50 hover:scale-110 active:scale-95"
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Floating metric card */}
-                    <div className="max-w-xs rounded-2xl border border-white/15 bg-slate-950/70 p-5 backdrop-blur-xl shadow-2xl shadow-black/40">
-                      <div className="mb-3 flex items-center gap-2 text-emerald-300">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20">
-                          <Factory className="h-4 w-4" />
-                        </div>
-                        <span className="text-sm font-medium">{localizedCopy.operationHealthIndex}</span>
-                      </div>
-
-                      <div className="flex items-end gap-2">
-                        <span className="text-4xl font-black text-white tracking-tight">91.8</span>
-                        <span className="mb-1.5 text-sm font-medium text-emerald-400">/ 100</span>
-                      </div>
-
-                      <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 shadow-[0_0_12px_rgba(52,211,153,0.6)] transition-all duration-1000 ease-out"
-                          style={{ width: '91.8%' }}
-                        />
-                      </div>
-
-                      <div className="mt-3 flex items-center gap-2 text-sm text-slate-300">
-                        <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                        {localizedCopy.aboveBenchmark}
-                      </div>
-                    </div>
+                <div className="mt-10 flex items-center gap-3">
+                  {slides.map((slide, index) => (
+                    <button
+                      key={slide.title}
+                      type="button"
+                      aria-label={`Go to slide ${index + 1}`}
+                      onClick={() => setActiveSlide(index)}
+                      className={`h-1.5 rounded-full transition-all ${index === activeSlide ? 'w-12 bg-[#e5a416]' : 'w-5 bg-white/50 hover:bg-white'}`}
+                    />
+                  ))}
+                  <div className="ml-4 flex gap-2">
+                    <button
+                      type="button"
+                      aria-label="Previous slide"
+                      onClick={() => setActiveSlide((activeSlide - 1 + slides.length) % slides.length)}
+                      className="rounded-md border border-white/40 bg-black/30 p-2 text-white transition hover:border-[#e5a416] hover:text-[#f3b323]"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Next slide"
+                      onClick={() => setActiveSlide((activeSlide + 1) % slides.length)}
+                      className="rounded-md border border-white/40 bg-black/30 p-2 text-white transition hover:border-[#e5a416] hover:text-[#f3b323]"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Slide indicators */}
-              <div className="mt-6 flex justify-center gap-2.5">
-                {slides.map((slide, index) => (
-                  <button
-                    key={slide.title}
-                    type="button"
-                    aria-label={`Go to slide ${index + 1}`}
-                    onClick={() => setActiveSlide(index)}
-                    className={`h-2.5 rounded-full transition-all duration-400 ${
-                      index === activeSlide
-                        ? 'w-12 bg-gradient-to-r from-emerald-400 to-cyan-400 shadow-md shadow-emerald-500/50'
-                        : 'w-2.5 bg-slate-600 hover:bg-slate-400 hover:w-6'
-                    }`}
-                  />
-                ))}
-              </div>
+          <div className="border-t border-white/15 bg-[#101416]">
+            <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y divide-white/20 sm:grid-cols-4 sm:divide-y-0">
+              {[
+                {
+                  value: metricValues.production,
+                  suffix: '',
+                  label: 'Active Mines',
+                  detail: 'Sites currently operating',
+                  progress: Math.min(metricValues.production * 10, 100),
+                },
+                {
+                  value: `${metricValues.availability}%`,
+                  suffix: '',
+                  label: 'Average Compliance',
+                  detail: 'Across active mine sites',
+                  progress: metricValues.availability,
+                },
+                {
+                  value: metricValues.ltis,
+                  suffix: '',
+                  label: 'Open Inspections',
+                  detail: 'Items needing attention',
+                  progress: Math.min(metricValues.ltis * 5, 100),
+                },
+                {
+                  value: metricValues.experience,
+                  suffix: '',
+                  label: 'Total Reports',
+                  detail: 'Compliance, inspection and alert records',
+                  progress: Math.min(metricValues.experience * 5, 100),
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="group relative overflow-hidden px-5 py-5 transition-colors duration-300 hover:bg-[#1a1e1f] sm:px-8 sm:py-6 lg:px-12"
+                >
+                  <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-[#e5a416] transition-transform duration-500 group-hover:scale-x-100" />
+                  <div className="flex items-end justify-between gap-3">
+                    <div className="text-3xl font-black text-[#e5a416] transition-transform duration-300 group-hover:-translate-y-0.5 sm:text-4xl lg:text-5xl">
+                    {item.value}<span className="ml-1 text-xl sm:text-2xl">{item.suffix}</span>
+                    </div>
+                    <span className="mb-1 hidden text-[10px] font-bold uppercase tracking-[0.16em] text-[#f3b323] opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:block">Live</span>
+                  </div>
+                  <div className="mt-1 text-xs font-semibold text-slate-100 sm:text-sm">{item.label}</div>
+                  <div className="mt-1 max-h-0 overflow-hidden text-[11px] text-[#aaa69e] opacity-0 transition-all duration-300 group-hover:max-h-8 group-hover:opacity-100">{item.detail}</div>
+                  <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-full rounded-full bg-[#e5a416] transition-[width] duration-700" style={{ width: `${item.progress}%` }} />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* Features */}
-        <section id="overview" className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="grid gap-6 md:grid-cols-3">
-            {features.map(({ icon: Icon, title, description, color }, idx) => (
-              <div
-                key={title}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/60 p-7 backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:shadow-2xl hover:shadow-emerald-500/10"
-              >
-                <div className={`mb-5 inline-flex rounded-2xl bg-gradient-to-br ${color} p-3.5 text-slate-950 shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                  <Icon className="h-6 w-6" />
+        <section id="overview" className="relative scroll-mt-[76px] overflow-hidden border-y border-[#263c48] bg-[#101c24]">
+          <div className="pointer-events-none absolute -right-32 top-0 h-96 w-96 rounded-full bg-[#1c5960]/20 blur-3xl" />
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+            <div className="mb-12 flex flex-col gap-6 border-b border-white/10 pb-10 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <div className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#e5a416]">
+                  <span className="h-px w-10 bg-[#e5a416]" />
+                  MineSight capabilities
                 </div>
-                <h3 className="mb-3 text-xl font-bold text-white">{title}</h3>
-                <p className="text-slate-300 leading-relaxed">{description}</p>
-
-                {/* Hover gradient overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-[0.07] transition-opacity duration-500`} />
+                <h2 className="text-3xl font-black leading-tight text-white sm:text-5xl">
+                  Intelligence that keeps every operation moving.
+                </h2>
+                <p className="mt-4 max-w-xl text-base leading-7 text-[#c6c9c1] sm:text-lg">
+                  Turn field activity into clear decisions with connected safety, compliance, and location intelligence.
+                </p>
               </div>
-            ))}
+              <div className="flex shrink-0 items-center gap-3 text-sm text-[#b8c8cd]">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#39c7b0] shadow-[0_0_0_4px_rgba(57,199,176,0.12)]" />
+                Built for daily decisions
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {features.map(({ icon: Icon, title, description }, idx) => (
+                <article
+                  key={title}
+                  className="group relative overflow-hidden border border-white/10 bg-[#172730] p-6 transition-colors duration-300 hover:border-[#e5a416]/60 hover:bg-[#1c3039] sm:p-7"
+                >
+                  <div className="mb-10 flex items-start justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#39c7b0]/30 bg-[#143c43] text-[#61dfca]">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <span className="font-mono text-xs font-semibold tracking-[0.2em] text-[#71868e]">0{idx + 1} / 03</span>
+                  </div>
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5a416]">Core capability</p>
+                  <h3 className="text-xl font-bold text-white">{title}</h3>
+                  <p className="mt-3 min-h-[56px] leading-relaxed text-[#b9c2c2]">{description}</p>
+                  <div className="mt-6 flex items-center gap-2 border-t border-white/10 pt-4 text-xs font-semibold text-[#89a3a8]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#e5a416]" />
+                    Connected to your control room
+                  </div>
+                  <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#e5a416] transition-all duration-300 group-hover:w-full" />
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* Solutions */}
-        <section id="solutions" className="relative border-y border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-950/80">
+        <section id="solutions" className="relative scroll-mt-[76px] overflow-hidden border-y border-[#2d706e] bg-gradient-to-b from-[#0e272d] via-[#102d32] to-[#101416]">
+          <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-[#e5a416]/[0.06] blur-3xl" />
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="mb-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#39c7b0]">
                   {localizedCopy.operationsOverview}
                 </p>
                 <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
@@ -898,10 +1075,10 @@ export default function HomePage() {
                 </h2>
               </div>
 
-              <div className="inline-flex items-center gap-2.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-200 shadow-lg shadow-emerald-900/20">
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-[#39c7b0]/40 bg-[#39c7b0]/10 px-5 py-2 text-sm font-medium text-[#8de4d7] shadow-lg shadow-black/20">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#39c7b0] opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#39c7b0]" />
                 </span>
                 {localizedCopy.monitoringActive}
               </div>
@@ -936,25 +1113,26 @@ export default function HomePage() {
               ].map((card) => (
                 <div
                   key={card.title}
-                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 transition-all duration-500 hover:-translate-y-2 hover:border-emerald-400/30 hover:shadow-2xl hover:shadow-emerald-500/15"
+                  className="group relative overflow-hidden rounded-2xl border border-[#354548] bg-[#101416]/95 shadow-[0_14px_32px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-3 hover:border-[#e5a416]/70 hover:bg-[#151b1c] hover:shadow-2xl hover:shadow-[#e5a416]/15"
                 >
                   <div className="relative h-52 overflow-hidden">
                     <div
-                      className="h-full w-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                      className="h-full w-full bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-125"
                       style={{ backgroundImage: `url(${card.image})` }}
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-t ${card.accent} to-transparent opacity-60`} />
+                    <div className={`absolute inset-0 bg-gradient-to-t ${card.accent} to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90`} />
+                    <div className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-[#e5a416] transition-transform duration-500 group-hover:scale-x-100" />
                   </div>
 
                   <div className="p-6">
-                    <div className="mb-3 flex items-center gap-2 text-emerald-300">
-                      <CheckCircle2 className="h-4 w-4" />
+                    <div className="mb-3 flex items-center gap-2 text-[#39c7b0]">
+                      <CheckCircle2 className="h-4 w-4 transition-transform duration-300 group-hover:scale-125" />
                       <span className="text-sm font-semibold">{localizedCopy.liveIntelligence}</span>
                     </div>
-                    <h3 className="mb-2 text-xl font-bold text-white group-hover:text-emerald-200 transition-colors">
+                    <h3 className="mb-2 text-xl font-bold text-white transition-colors group-hover:text-[#f3b323]">
                       {card.title}
                     </h3>
-                    <p className="text-slate-300 leading-relaxed">{card.text}</p>
+                    <p className="leading-relaxed text-[#c5c7c2]">{card.text}</p>
                   </div>
                 </div>
               ))}
@@ -963,8 +1141,9 @@ export default function HomePage() {
         </section>
 
         {/* Features / Audit readiness */}
-        <section id="features" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+        <section id="features" className="relative scroll-mt-[76px] border-y border-amber-300/10 bg-gradient-to-br from-[#2a241c] via-[#20212a] to-[#151c2a]">
+          <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+            <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
             {/* Left card */}
             <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-8 shadow-2xl">
               <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl" />
@@ -1014,10 +1193,10 @@ export default function HomePage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {[
-                  { label: language === 'en' ? 'Active sites' : 'सक्रिय साइट्स', value: '32', icon: Building2, color: 'from-emerald-400 to-teal-500' },
-                  { label: language === 'en' ? 'Safety score' : 'सुरक्षा स्कोर', value: '96.4%', icon: ShieldCheck, color: 'from-cyan-400 to-blue-500' },
-                  { label: language === 'en' ? 'Alerts' : 'अलर्ट', value: '14', icon: Gauge, color: 'from-amber-400 to-orange-500' },
-                  { label: language === 'en' ? 'Reports' : 'रिपोर्ट्स', value: '248', icon: BarChart3, color: 'from-violet-400 to-purple-500' },
+                              { label: language === 'en' ? 'Active sites' : 'सक्रिय साइट्स', value: homeStats?.activeMines ?? 0, icon: Building2, color: 'from-emerald-400 to-teal-500' },
+                              { label: language === 'en' ? 'Safety score' : 'सुरक्षा स्कोर', value: `${homeStats?.averageCompliance ?? 0}%`, icon: ShieldCheck, color: 'from-cyan-400 to-blue-500' },
+                              { label: language === 'en' ? 'Alerts' : 'अलर्ट', value: homeStats?.totalAlerts ?? 0, icon: Gauge, color: 'from-amber-400 to-orange-500' },
+                              { label: language === 'en' ? 'Reports' : 'रिपोर्ट्स', value: homeStats?.totalReports ?? 0, icon: BarChart3, color: 'from-violet-400 to-purple-500' },
                 ].map(({ label, value, icon: Icon, color }) => (
                   <div
                     key={label}
@@ -1032,12 +1211,13 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
+            </div>
           </div>
         </section>
 
         {/* Contact / Login */}
-        <section id="contact" className="mx-auto max-w-7xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-7 lg:p-10 shadow-2xl">
+        <section id="contact" className="relative scroll-mt-[76px] border-y border-[#e5a416]/20 bg-gradient-to-br from-[#102b46] via-[#102338] to-[#17232a] px-4 pb-24 pt-8 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-[40px] border border-[#3b5662] bg-gradient-to-br from-[#172b3a] via-[#101b2b] to-[#0d1622] p-7 shadow-2xl lg:p-10">
             {/* Background accents */}
             <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-emerald-500/15 blur-3xl" />
             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
@@ -1071,101 +1251,311 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Login card */}
-              <div className="relative rounded-[28px] border border-white/15 bg-slate-950/90 p-6 shadow-2xl backdrop-blur-xl">
+              {/* Contact card */}
+              <div className="relative rounded-[28px] border border-[#526875] bg-[#0a1420]/95 p-6 shadow-2xl backdrop-blur-xl">
                 <div className="mb-6 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-slate-950 shadow-lg shadow-emerald-500/30">
-                    <Building2 className="h-5 w-5" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f3c24b] to-[#e5a416] text-[#17232a] shadow-lg shadow-[#e5a416]/30">
+                    <Mail className="h-5 w-5" />
                   </div>
                   <div>
-                    <div className="font-bold text-white text-lg">{localizedCopy.loginCardTitle}</div>
-                    <div className="text-xs text-slate-400">{localizedCopy.loginCardSubtitle}</div>
+                    <div className="font-bold text-white text-lg">Talk to our team</div>
+                    <div className="text-xs text-slate-400">Plan safer, clearer mine operations</div>
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleContactSubmit} className="space-y-3.5">
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                      {localizedCopy.email}
+                      Name
                     </label>
                     <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-slate-900/80 px-4 py-3 text-white placeholder:text-slate-500 transition-all focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
-                      placeholder="you@cil.gov.in"
+                      type="text"
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                      className="w-full rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white placeholder:text-[#8da0aa] transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
+                      placeholder="Your full name"
                       required
                     />
                   </div>
 
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                      {localizedCopy.password}
-                    </label>
-                    <div className="relative">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Email</label>
                       <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-xl border border-white/15 bg-slate-900/80 px-4 py-3 pr-12 text-white placeholder:text-slate-500 transition-all focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
-                        placeholder="••••••••"
+                        type="email"
+                        value={contactForm.email}
+                        onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                        className="w-full rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white placeholder:text-[#8da0aa] transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
+                        placeholder="you@organization.gov.in"
                         required
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-emerald-300"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
-                      </button>
                     </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Organization</label>
+                      <input
+                        type="text"
+                        value={contactForm.organization}
+                        onChange={(e) => setContactForm({ ...contactForm, organization: e.target.value })}
+                        className="w-full rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white placeholder:text-[#8da0aa] transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
+                        placeholder="Mine or company"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">What can we help with?</label>
+                    <select
+                      value={contactForm.subject}
+                      onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
+                      className="w-full rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
+                      required
+                    >
+                      <option value="">Choose an area</option>
+                      <option value="Platform access">Platform access</option>
+                      <option value="Mine onboarding">Mine onboarding</option>
+                      <option value="Compliance support">Compliance support</option>
+                      <option value="General inquiry">General inquiry</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Message</label>
+                    <textarea
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                      className="min-h-24 w-full resize-y rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white placeholder:text-[#8da0aa] transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
+                      placeholder="Tell us what you need"
+                      required
+                    />
                   </div>
 
                   <button
                     type="submit"
-                    disabled={isLoading}
-                    className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-4 py-3.5 font-bold text-slate-950 shadow-lg shadow-emerald-500/30 transition-all hover:shadow-emerald-400/50 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.98]"
+                    disabled={contactSending}
+                    className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#e5a416] via-[#f3c24b] to-[#24b6c7] px-4 py-3.5 font-bold text-[#10202b] shadow-lg shadow-[#e5a416]/25 transition-all hover:shadow-[#f3c24b]/40 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                      {isLoading ? 'Signing in...' : 'Access dashboard'}
-                      {!isLoading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
+                      {contactSending ? 'Sending...' : 'Send message'}
+                      {!contactSending && <Send className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
                     </span>
                   </button>
                 </form>
-
-                <div className="mt-6">
-                  <p className="mb-3 text-xs font-medium uppercase tracking-wider text-slate-500">
-                    {localizedCopy.quickDemoAccess}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {[
-                      ['rajesh@ncl.gov.in', 'mine123', 'Mine official'],
-                      ['admin@cil.gov.in', 'admin123', 'Admin'],
-                    ].map(([demoEmail, demoPass, label]) => (
-                      <button
-                        key={label}
-                        type="button"
-                        onClick={() => quickLogin(demoEmail, demoPass, label)}
-                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-slate-200 transition-all hover:bg-emerald-500/10 hover:border-emerald-400/40 hover:text-emerald-200 active:scale-95"
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {isDemo && (
-                  <p className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-300">
-                    <CheckCircle2 className="h-4 w-4" />
-                    {localizedCopy.demoReady}
-                  </p>
-                )}
+                <p className="mt-4 text-center text-xs text-slate-500">Our team typically replies within one business day.</p>
               </div>
             </div>
           </div>
         </section>
       </main>
+
+      <footer className="border-t border-[#29414b] bg-[#0b171d] text-[#c5cfce]">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e5a416] text-[#17232a]">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold tracking-tight text-white">Coal Governance</p>
+                  <p className="text-xs text-[#8fa4a6]">MineSight platform</p>
+                </div>
+              </div>
+              <p className="mt-5 max-w-sm text-sm leading-6 text-[#9eafaf]">
+                Practical tools for safer mines, clearer compliance, and better decisions across every site.
+              </p>
+              <div className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-[#83d2c5]">
+                <span className="h-2 w-2 rounded-full bg-[#39c7b0]" />
+                All systems operational
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">Explore</h3>
+              <div className="mt-5 flex flex-col items-start gap-3 text-sm">
+                <a href="#overview" className="transition-colors hover:text-white">Capabilities</a>
+                <a href="#solutions" className="transition-colors hover:text-white">Solutions</a>
+                <a href="#features" className="transition-colors hover:text-white">Audit readiness</a>
+                <a href="#contact" className="transition-colors hover:text-white">Access platform</a>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">Platform</h3>
+              <div className="mt-5 flex flex-col items-start gap-3 text-sm">
+                <span>Risk and safety</span>
+                <span>Compliance records</span>
+                <span>Field inspections</span>
+                <span>Site intelligence</span>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">Talk to the team</h3>
+              <p className="mt-5 text-sm leading-6 text-[#9eafaf]">
+                Need help setting up a mine site or reviewing access?
+              </p>
+              <a href="mailto:support@coalgovernance.in" className="mt-4 inline-block text-sm font-semibold text-white underline decoration-[#e5a416] decoration-2 underline-offset-4 transition-colors hover:text-[#f3b323]">
+                support@coalgovernance.in
+              </a>
+              <p className="mt-3 text-xs text-[#758b8e]">Mon-Fri, 09:00-18:00 IST</p>
+            </div>
+          </div>
+
+          <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs text-[#758b8e] sm:flex-row sm:items-center sm:justify-between">
+            <p>© 2026 Coal Governance. Built for responsible mine operations.</p>
+            <div className="flex gap-5">
+              <span>Privacy</span>
+              <span>Security</span>
+              <span>Version 1.0</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end">
+        {!assistantOpen ? (
+          <button
+            type="button"
+            onClick={() => setAssistantOpen(true)}
+            className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#dfe6ee] bg-[#f7f4ef] shadow-[0_8px_22px_rgba(0,0,0,0.25)] transition-transform hover:scale-105"
+            aria-label="Open AI assistant"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#fbe4bf] to-[#e7d7b8] text-xl text-[#1d2b36]">
+              A
+            </div>
+          </button>
+        ) : (
+          <div
+            className={`w-[300px] overflow-hidden rounded-2xl border border-[#6d5624] bg-[#101416] text-white shadow-[0_16px_35px_rgba(0,0,0,0.35)] transition-all duration-700 ease-out sm:w-[320px] ${assistantReady ? 'translate-x-0 opacity-100' : 'translate-x-[140%] opacity-0'}`}
+          >
+            {!assistantChatOpen ? (
+              <div className="px-4 pb-4 pt-4">
+                <h2 className="text-2xl font-semibold leading-tight text-white">
+                  Can we help you?
+                </h2>
+                <p className="mt-2 text-sm text-[#c6c7c1]">
+                  Ask about inspections, compliance, or mine safety.
+                </p>
+
+                <div className="mt-5 space-y-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (token) {
+                        navigate('/app/chat')
+                      } else {
+                        navigate('/login?redirect=/app/chat')
+                      }
+                    }}
+                    className="w-full rounded-lg border border-[#e5a416] bg-[#e5a416] px-4 py-2.5 text-sm font-bold text-[#151719] transition hover:bg-[#f5b82c]"
+                  >
+                    Chat now
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAssistantOpen(false)}
+                    className="w-full rounded-lg border border-white/20 bg-transparent px-4 py-2.5 text-sm font-semibold text-[#dfe1dc] transition hover:border-[#e5a416] hover:bg-white/5"
+                  >
+                    No thanks
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-[390px] flex-col bg-[#101416]">
+                <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#dfeaf7] text-xs font-bold text-[#17314a]">
+                      AI
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">Coal AI</p>
+                      <p className="text-[10px] text-slate-300">Online</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setAssistantOpen(false)}
+                    className="text-lg text-slate-300 hover:text-white"
+                    aria-label="Close AI assistant"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="flex-1 space-y-3 overflow-y-auto bg-[#152227] px-3 py-3">
+                  {assistantMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
+                          message.sender === 'user'
+                            ? 'bg-[#cfeaf9] text-[#10263d]'
+                            : 'bg-white/10 text-white'
+                        }`}
+                      >
+                        {message.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t border-white/10 bg-[#101416] p-3">
+                  <input
+                    type="email"
+                    value={assistantEmail}
+                    onChange={(e) => setAssistantEmail(e.target.value)}
+                    placeholder="Your email to receive a reply"
+                    className="mb-2 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs text-white outline-none placeholder:text-slate-500 focus:border-[#e5a416]"
+                    required
+                  />
+                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2">
+                    <input
+                      type="text"
+                      value={assistantInput}
+                      onChange={(e) => setAssistantInput(e.target.value)}
+                      placeholder="Ask a question..."
+                      className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-400 outline-none"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleAssistantSend()
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAssistantSend}
+                      disabled={assistantSending || !assistantEmail.trim()}
+                      className="rounded-full bg-[#e5a416] px-3 py-1.5 text-sm font-semibold text-[#151719] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {assistantSending ? '...' : 'Send'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-3 flex justify-end pr-1">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#f6f7f8] bg-gradient-to-br from-[#f7d9b7] to-[#d4b5a3] shadow-[0_8px_22px_rgba(0,0,0,0.25)]">
+                <div className="h-10 w-10 rounded-full bg-[radial-gradient(circle_at_30%_30%,_#f9d5bc,_#d2a77d_62%,_#6d4738)]" />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-5 right-24 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-[#d7c7ab] bg-[#f7f4ef] text-[#17314a] shadow-[0_6px_18px_rgba(0,0,0,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#e5a416] hover:bg-[#fffaf0] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/60 focus:ring-offset-2 focus:ring-offset-[#101416]"
+          aria-label="Scroll to top"
+          title="Scroll to top"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </button>
+      )}
     </div>
   )
 }

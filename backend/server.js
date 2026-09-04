@@ -45,6 +45,7 @@ app.use('/api/compliances', require('./routes/complianceRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/alerts', require('./routes/alertRoutes'));
 app.use('/api/contractors', require('./routes/contractorRoutes'));
+app.use('/api/public', require('./routes/publicRoutes'));
 
 // Root and health endpoints
 // Render opens the service URL at `/` by default. Keep this endpoint public so

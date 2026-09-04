@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     isActive: {
       type: Boolean,
       default: true,

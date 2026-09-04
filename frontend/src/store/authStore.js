@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { login as loginApi, register as registerApi, getMe } from '../services/api'
+import { login as loginApi, register as registerApi, updateProfile as updateProfileApi } from '../services/api'
 
 const getStoredUser = () => {
   try {
@@ -44,6 +44,8 @@ const useAuthStore = create((set) => ({
     try {
       const { data } = await registerApi(userData)
       const authUser = data?.data || data
+      localStorage.setItem('token', authUser?.token || '')
+      localStorage.setItem('user', JSON.stringify(authUser))
       set({ user: authUser, token: authUser?.token || null, isLoading: false })
       return { success: true, user: authUser }
     } catch (error) {
@@ -51,6 +53,25 @@ const useAuthStore = create((set) => ({
       return {
         success: false,
         message: error.response?.data?.message || error.message || 'Registration failed'
+      }
+    }
+  },
+
+  updateProfile: async (profileData) => {
+    set({ isLoading: true })
+    try {
+      const { data } = await updateProfileApi(profileData)
+      const updatedUser = data?.data || data
+      const currentUser = getStoredUser()
+      const user = { ...currentUser, ...updatedUser }
+      localStorage.setItem('user', JSON.stringify(user))
+      set({ user, isLoading: false })
+      return { success: true, user }
+    } catch (error) {
+      set({ isLoading: false })
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Profile update failed'
       }
     }
   },

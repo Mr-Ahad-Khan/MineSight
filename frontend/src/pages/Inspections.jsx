@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus } from 'lucide-react'
-import { getInspections } from '../services/api'
+import { Mic, Plus, Trash2 } from 'lucide-react'
+import { deleteInspection, getInspections } from '../services/api'
+import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
@@ -46,104 +47,181 @@ export default function Inspections() {
     }
   }
 
+  const handleDeleteInspection = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this inspection?')) return
+
+    try {
+      await deleteInspection(id)
+      toast.success('Inspection deleted successfully')
+      setInspections((prev) => prev.filter((inspection) => inspection._id !== id))
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete inspection')
+    }
+  }
+
+  const getAudioUrl = (audioPath) => {
+    if (!audioPath) return null
+    if (audioPath.startsWith('http')) return audioPath
+    const base = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
+    return `${base}${audioPath.startsWith('/') ? audioPath : `/${audioPath}`}`
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">{t.inspections}</h1>
-          <p className="text-sm text-slate-500 mt-1">{t.manageFieldInspections}</p>
+    <div className="min-h-[calc(100vh-72px)] bg-[#f3eadb] px-4 pb-10 pt-3 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1600px]">
+        <div className="mb-4 flex items-center justify-between gap-4 border-b border-[#c9b69d] pb-4">
+          <h1 className="text-[40px] font-medium tracking-[-0.05em] text-[#1b1b1b]">{t.inspections}</h1>
+
+          <div className="flex items-center gap-3">
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              className="min-w-[160px] appearance-none rounded-full border border-[#bca98e] bg-[#f8f4ed] px-4 py-2.5 pr-10 text-[16px] text-[#1f1f1f] outline-none focus:border-[#8a7156]"
+            >
+              <option value="">{t.allStatus}</option>
+              <option value="open">{t.open}</option>
+              <option value="in_progress">{t.inProgress}</option>
+              <option value="closed">{t.closed}</option>
+              <option value="escalated">{t.escalated}</option>
+            </select>
+
+            <select
+              value={filters.severity}
+              onChange={(e) => setFilters({ ...filters, severity: e.target.value })}
+              className="min-w-[160px] appearance-none rounded-full border border-[#bca98e] bg-[#f8f4ed] px-4 py-2.5 pr-10 text-[16px] text-[#1f1f1f] outline-none focus:border-[#8a7156]"
+            >
+              <option value="">{t.allSeverity}</option>
+              <option value="low">{t.low}</option>
+              <option value="medium">{t.medium}</option>
+              <option value="high">{t.high}</option>
+              <option value="critical">{t.criticalLabel}</option>
+            </select>
+          </div>
         </div>
-        <Link to="/app/inspections/new" className="btn-primary inline-flex items-center gap-2 self-start">
-          <Plus className="w-4 h-4" />
-          {t.newInspection}
-        </Link>
-      </div>
 
-      {/* Filters */}
-      <div className="card p-4 flex flex-wrap gap-3">
-        <select
-          value={filters.status}
-          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          className="input-field w-auto"
-        >
-          <option value="">{t.allStatus}</option>
-          <option value="open">{t.open}</option>
-          <option value="in_progress">{t.inProgress}</option>
-          <option value="closed">{t.closed}</option>
-          <option value="escalated">{t.escalated}</option>
-        </select>
-        <select
-          value={filters.severity}
-          onChange={(e) => setFilters({ ...filters, severity: e.target.value })}
-          className="input-field w-auto"
-        >
-          <option value="">{t.allSeverity}</option>
-          <option value="low">{t.low}</option>
-          <option value="medium">{t.medium}</option>
-          <option value="high">{t.high}</option>
-          <option value="critical">{t.criticalLabel}</option>
-        </select>
-      </div>
+        <div className="overflow-hidden rounded-[24px] border border-[#d8c6a6] bg-[#f5efe8] shadow-[0_2px_8px_rgba(76,60,43,0.08)]">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-[15px] text-[#1d1d1d]">
+              <thead className="bg-[#f1e8dc] text-left">
+                <tr>
+                  <th className="px-4 py-4 font-semibold text-[#1e1e1e]">{t.title}</th>
+                  <th className="px-4 py-4 font-semibold text-[#1e1e1e]">Photos</th>
+                  <th className="px-4 py-4 font-semibold text-[#1e1e1e]">{t.mine}</th>
+                  <th className="px-4 py-4 font-semibold text-[#1e1e1e]">{t.severity}</th>
+                  <th className="px-4 py-4 font-semibold text-[#1e1e1e]">{t.status}</th>
+                  <th className="px-4 py-4 font-semibold text-[#1e1e1e]">{t.risk}</th>
+                  <th className="px-4 py-4 font-semibold text-[#1e1e1e]">{t.date}</th>
+                  <th className="px-4 py-4 font-semibold text-[#1e1e1e]">Action</th>
+                </tr>
+              </thead>
 
-      {/* Table */}
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 dark:bg-slate-800/50 text-left">
-              <tr>
-                <th className="px-4 py-3 font-medium text-slate-600 dark:text-slate-300">{t.title}</th>
-                <th className="px-4 py-3 font-medium text-slate-600 dark:text-slate-300">{t.mine}</th>
-                <th className="px-4 py-3 font-medium text-slate-600 dark:text-slate-300">{t.severity}</th>
-                <th className="px-4 py-3 font-medium text-slate-600 dark:text-slate-300">{t.risk}</th>
-                <th className="px-4 py-3 font-medium text-slate-600 dark:text-slate-300">{t.status}</th>
-                <th className="px-4 py-3 font-medium text-slate-600 dark:text-slate-300">{t.date}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="px-4 py-12 text-center text-slate-400">
-                    {t.loading}
-                  </td>
-                </tr>
-              ) : inspections.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="px-4 py-12 text-center text-slate-400">
-                    {t.noInspections}
-                  </td>
-                </tr>
-              ) : (
-                inspections.map((insp) => (
-                  <tr key={insp._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                    <td className="px-4 py-3">
-                      <Link to={`/inspections/${insp._id}`} className="font-medium text-primary-600 hover:underline">
-                        {insp.title}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
-                      {insp.mineId?.name || '—'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`badge ${severityBadge[insp.severity]}`}>
-                        {insp.severity}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-semibold">
-                      {insp.riskScore}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`badge ${statusBadge[insp.status]}`}>
-                        {insp.status?.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">
-                      {format(new Date(insp.createdAt), 'dd MMM yyyy')}
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="7" className="px-4 py-12 text-center text-slate-400">
+                      {t.loading}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : inspections.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" className="px-4 py-12 text-center text-slate-400">
+                      {t.noInspections}
+                    </td>
+                  </tr>
+                ) : (
+                  inspections.map((insp) => {
+                    const audioUrl = getAudioUrl(insp.audio)
+
+                    return (
+                      <tr key={insp._id} className="border-t border-[#d7c8b0] bg-[#f7f3ed] hover:bg-[#f1eadf]">
+                        <td className="px-4 py-4 align-middle">
+                          <Link to={`/app/inspections/${insp._id}`} className="text-[18px] font-medium text-[#1f1f1f] hover:text-[#0d3f6d] hover:underline">
+                            {insp.title}
+                          </Link>
+                        </td>
+
+                        <td className="px-4 py-4 align-middle">
+                          <div className="flex items-center gap-3">
+                            {audioUrl ? (
+                              <div className="flex items-center gap-2 rounded-full bg-[#f0f1f3] px-2 py-1 text-[10px] font-medium text-[#3a3a3a]">
+                                <Mic className="h-3 w-3 text-[#0d3f6d]" />
+                                <audio controls src={audioUrl} className="h-8 w-28" />
+                              </div>
+                            ) : null}
+
+                            {insp.photos?.length > 0 ? (
+                              <div className="flex items-center gap-1">
+                                {insp.photos.slice(0, 3).map((photo, idx) => (
+                                  <img
+                                    key={`${photo}-${idx}`}
+                                    src={getAudioUrl(photo)}
+                                    alt="Inspection preview"
+                                    className="h-9 w-9 rounded-md border border-[#d9c7a7] object-cover shadow-sm transition-transform duration-200 hover:scale-110"
+                                  />
+                                ))}
+                                {insp.photos.length > 3 ? (
+                                  <span className="ml-1 rounded-md bg-[#ece4d5] px-1.5 py-0.5 text-[10px] font-medium text-[#4c433d]">
+                                    +{insp.photos.length - 3}
+                                  </span>
+                                ) : null}
+                              </div>
+                            ) : (
+                              <span className="text-slate-400 text-xs">—</span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4 align-middle text-[#2d2d2d]">
+                          {insp.mineId?.name || '—'}
+                        </td>
+
+                        <td className="px-4 py-4 align-middle">
+                          <span className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${severityBadge[insp.severity]}`}>
+                            {insp.severity}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-4 align-middle">
+                          <span className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${statusBadge[insp.status]}`}>
+                            {insp.status?.replace('_', ' ')}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-4 align-middle text-center font-semibold text-[#1e1e1e]">
+                          {insp.riskScore}
+                        </td>
+
+                        <td className="px-4 py-4 align-middle text-[#474747]">
+                          {format(new Date(insp.createdAt), 'dd MMM yyyy')}
+                        </td>
+
+                        <td className="px-4 py-4 align-middle">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteInspection(insp._id)}
+                            className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-100"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex justify-end px-4 pb-4 pt-2">
+            <Link
+              to="/app/inspections/new"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#0d3f6d] px-5 py-3 text-[15px] font-medium text-white shadow-[0_3px_10px_rgba(13,63,109,0.25)] transition hover:bg-[#0a3560]"
+            >
+              <Plus className="h-4 w-4" />
+              {t.newInspection}
+            </Link>
+          </div>
         </div>
       </div>
     </div>

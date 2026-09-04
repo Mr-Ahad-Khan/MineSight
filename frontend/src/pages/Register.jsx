@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Building2, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Building2, CheckCircle2, Eye, EyeOff, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
+import { requestEmailOtp, verifyEmailOtp } from '../services/api'
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -15,6 +16,11 @@ export default function Register() {
     phone: '',
   })
   const [showPassword, setShowPassword] = useState(false)
+  const [otp, setOtp] = useState('')
+  const [emailVerificationToken, setEmailVerificationToken] = useState('')
+  const [otpSent, setOtpSent] = useState(false)
+  const [isSendingOtp, setIsSendingOtp] = useState(false)
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false)
   const { register, isLoading, token } = useAuthStore()
   const { language } = useLanguageStore()
   const navigate = useNavigate()
@@ -29,6 +35,48 @@ export default function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
+    if (name === 'email') {
+      setOtp('')
+      setOtpSent(false)
+      setEmailVerificationToken('')
+    }
+  }
+
+  const handleSendOtp = async () => {
+    setIsSendingOtp(true)
+    try {
+      const { data } = await requestEmailOtp({ email: form.email.trim() })
+      setOtpSent(true)
+      if (data.devOtp) {
+        toast.success(`Demo OTP: ${data.devOtp}`)
+      } else {
+        toast.success('Verification code sent to your mobile')
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || (error.response?.status === 503
+        ? 'Email service is not configured. Add email settings to backend/.env.'
+        : 'Unable to send verification code')
+      toast.error(message)
+    } finally {
+      setIsSendingOtp(false)
+    }
+  }
+
+  const handleOtpChange = async (e) => {
+    const code = e.target.value.replace(/\D/g, '').slice(0, 6)
+    setOtp(code)
+    if (code.length !== 6 || isVerifyingOtp || emailVerificationToken) return
+
+    setIsVerifyingOtp(true)
+    try {
+      const { data } = await verifyEmailOtp({ email: form.email.trim(), code })
+      setEmailVerificationToken(data.emailVerificationToken)
+      toast.success('Email verified')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Incorrect verification code')
+    } finally {
+      setIsVerifyingOtp(false)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -40,13 +88,19 @@ export default function Register() {
       password: form.password,
       role: form.role,
       phone: form.phone.trim(),
+      emailVerificationToken,
+    }
+
+    if (!emailVerificationToken) {
+      toast.error('Verify your email before creating an account')
+      return
     }
 
     const result = await register(payload)
 
     if (result.success) {
       toast.success('Account created successfully!')
-      navigate('/login', { replace: true })
+      navigate('/app', { replace: true })
     } else {
       toast.error(result.message)
     }
@@ -61,7 +115,8 @@ export default function Register() {
             backgroundImage:
               "linear-gradient(135deg, rgba(15,23,42,0.88), rgba(15,118,110,0.42)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80')",
           }}
-        />
+        >
+        </div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.25),transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.28),transparent_28%)]" />
 
         <div className="relative z-10 flex w-full flex-col justify-between p-12">
@@ -128,28 +183,59 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="label">Email address</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="you@cil.gov.in"
-                  required
-                />
+                <label className="label" htmlFor="email">Email address</label>
+                <div className="flex gap-2">
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    className="input-field min-w-0 flex-1"
+                    placeholder="you@cil.gov.in"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={isSendingOtp || !/^\S+@\S+\.\S+$/.test(form.email.trim()) || Boolean(emailVerificationToken)}
+                    className={`shrink-0 rounded-lg px-3 text-sm font-semibold transition ${emailVerificationToken ? 'bg-emerald-100 text-emerald-700' : 'bg-[#0d3f6b] text-white hover:bg-[#092f52] disabled:cursor-not-allowed disabled:opacity-50'}`}
+                  >
+                    {emailVerificationToken ? <CheckCircle2 className="h-5 w-5" /> : isSendingOtp ? 'Sending...' : 'Verify'}
+                  </button>
+                </div>
+                {otpSent && !emailVerificationToken && (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={otp}
+                      onChange={handleOtpChange}
+                      className="input-field tracking-[0.4em]"
+                      placeholder="Enter 6-digit OTP"
+                      maxLength={6}
+                      autoComplete="one-time-code"
+                      aria-label="Email verification code"
+                    />
+                    <p className="mt-1 text-xs text-slate-500">{isVerifyingOtp ? 'Verifying code...' : 'Code expires in 10 minutes.'}</p>
+                  </div>
+                )}
               </div>
 
               <div>
-                <label className="label">Phone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="9876543210"
-                />
+                <label className="label" htmlFor="phone">Phone number (optional)</label>
+                <div className="flex gap-2">
+                  <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    className="input-field min-w-0 flex-1"
+                    placeholder="9876543210"
+                    maxLength={10}
+                  />
+                </div>
               </div>
 
               <div>

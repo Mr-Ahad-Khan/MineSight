@@ -4,6 +4,23 @@ const Mine = require('../models/Mine');
 const Alert = require('../models/Alert');
 const { calculateRiskScore, getRiskLevel } = require('../utils/riskCalculator');
 
+const parseFormDataValue = (value, fallback = null) => {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed;
+    } catch (error) {
+      return value;
+    }
+  }
+
+  return value;
+};
+
 // @desc    Get all inspections
 // @route   GET /api/inspections
 // @access  Private
@@ -66,18 +83,23 @@ const getInspectionById = asyncHandler(async (req, res) => {
 // @route   POST /api/inspections
 // @access  Private
 const createInspection = asyncHandler(async (req, res) => {
-  const {
-    mineId,
-    type,
-    title,
-    description,
-    coordinates,
-    observations,
-    severity,
-    violations,
-    photos,
-    offlineId,
-  } = req.body;
+  const parsedBody = req.body || {};
+
+  const mineId = parsedBody.mineId;
+  const type = parsedBody.type;
+  const title = parsedBody.title;
+  const description = parsedBody.description;
+  const coordinates = parseFormDataValue(parsedBody.coordinates, null);
+  const observations = parsedBody.observations;
+  const severity = parsedBody.severity;
+  const violations = parseFormDataValue(parsedBody.violations, []) || [];
+  const existingPhotos = parseFormDataValue(parsedBody.photos, []) || [];
+  const offlineId = parsedBody.offlineId;
+  const uploadedPhotos = (req.files?.photos || []).map((file) => `/uploads/${file.filename}`);
+  const photos = [...existingPhotos, ...uploadedPhotos].filter(Boolean);
+  const audio = req.files?.audio?.[0]
+    ? `/uploads/${req.files.audio[0].filename}`
+    : parseFormDataValue(parsedBody.audio, null);
 
   if (!mineId || !title) {
     res.status(400);
@@ -106,6 +128,7 @@ const createInspection = asyncHandler(async (req, res) => {
     severity: severity || 'medium',
     violations: violations || [],
     photos: photos || [],
+    audio,
     offlineId,
   };
 
@@ -211,6 +234,26 @@ const updateInspection = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Delete inspection
+// @route   DELETE /api/inspections/:id
+// @access  Private
+const deleteInspection = asyncHandler(async (req, res) => {
+  const inspection = await Inspection.findById(req.params.id);
+
+  if (!inspection) {
+    res.status(404);
+    throw new Error('Inspection not found');
+  }
+
+  await inspection.deleteOne();
+
+  res.json({
+    success: true,
+    message: 'Inspection deleted successfully',
+    data: { id: req.params.id },
+  });
+});
+
 // @desc    Close a specific violation inside inspection
 // @route   PATCH /api/inspections/:id/violations/:violationId
 // @access  Private
@@ -246,5 +289,6 @@ module.exports = {
   getInspectionById,
   createInspection,
   updateInspection,
+  deleteInspection,
   closeViolation,
 };

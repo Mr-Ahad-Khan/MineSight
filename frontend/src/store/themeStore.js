@@ -11,6 +11,7 @@ const useThemeStore = create((set) => ({
     } else {
       document.documentElement.classList.remove('dark')
     }
+    document.documentElement.style.colorScheme = newMode ? 'dark' : 'light'
     return { darkMode: newMode }
   }),
 
@@ -18,7 +19,10 @@ const useThemeStore = create((set) => ({
     const isDark = localStorage.getItem('darkMode') === 'true'
     if (isDark) {
       document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
     }
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
   }
 }))
 
