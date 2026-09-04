@@ -140,6 +140,7 @@ const registerUser = asyncHandler(async (req, res) => {
         email: user.email,
         role: user.role,
         mineId: user.mineId,
+        phone: user.phone,
         token: generateToken(user._id),
       },
     });
@@ -176,6 +177,7 @@ const loginUser = asyncHandler(async (req, res) => {
         email: user.email,
         role: user.role,
         mineId: user.mineId,
+        phone: user.phone,
         token: generateToken(user._id),
       },
     });

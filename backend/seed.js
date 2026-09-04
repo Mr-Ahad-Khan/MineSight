@@ -148,6 +148,15 @@ const seedData = async () => {
       phone: '9876543211',
     });
 
+    const contractorUser = await User.create({
+      name: 'Ananya Singh',
+      email: 'ananya@shakticontractors.in',
+      password: 'contract123',
+      role: 'contractor',
+      mineId: mine1._id,
+      phone: '9876543212',
+    });
+
     // Update mine managers
     mine1.managerId = official1._id;
     await mine1.save();
@@ -286,6 +295,18 @@ const seedData = async () => {
         status: 'active',
         complianceScore: 70,
       },
+      {
+        name: 'Shakti Infra & Mining Contractors Pvt. Ltd.',
+        registrationNo: 'MP-SGR-2024-1187',
+        contactPerson: 'Ananya Singh',
+        phone: contractorUser.phone,
+        email: contractorUser.email,
+        mineIds: [mine1._id, mine4._id],
+        contractStart: new Date('2024-04-01'),
+        contractEnd: new Date('2027-03-31'),
+        status: 'active',
+        complianceScore: 88,
+      },
     ]);
 
     // Create Alerts
@@ -323,6 +344,7 @@ const seedData = async () => {
     console.log('Regulator  : regulator@dgms.gov.in / reg123');
     console.log('Mine Off.1 : rajesh@ncl.gov.in / mine123');
     console.log('Mine Off.2 : priya@ncl.gov.in / mine123');
+    console.log('Contractor : ananya@shakticontractors.in / contract123');
 
     process.exit();
   } catch (error) {

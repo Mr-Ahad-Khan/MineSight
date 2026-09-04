@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { MapPin, Loader2, Plus, Trash2, Mic, Square, Upload, FileText, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { createInspection, getMines } from '../services/api'
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
@@ -69,6 +69,14 @@ export default function CreateInspection() {
       )
     }
   }, [])
+
+  useEffect(() => {
+    const mine = mines.find((item) => item._id === form.mineId)
+    const coordinates = mine?.location?.coordinates
+    if (Array.isArray(coordinates) && coordinates.length >= 2 && coordinates.every(Number.isFinite)) {
+      setPosition([coordinates[1], coordinates[0]])
+    }
+  }, [form.mineId, mines])
 
   const addViolation = () => {
     if (!violation.description) return toast.error(t.violationDescriptionRequired)
@@ -226,7 +234,7 @@ export default function CreateInspection() {
         <p className="text-sm text-slate-500 mt-1">{t.createInspectionSubtitle}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid w-full grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)]">
+      <form onSubmit={handleSubmit} className="grid w-full grid-cols-1 items-start gap-5 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)]">
         <div className="order-first flex flex-wrap gap-3 border-b border-slate-200 pb-5 dark:border-slate-800 xl:col-span-2">
           <button type="submit" disabled={loading} className="btn-primary flex items-center gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -239,7 +247,7 @@ export default function CreateInspection() {
 
         <div className="space-y-6">
         {/* Basic Info */}
-        <div className="card p-5 space-y-4">
+        <div className="card space-y-4 p-4 sm:p-5">
           <h2 className="font-semibold">{t.basicInformation}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -393,7 +401,7 @@ export default function CreateInspection() {
         </div>
 
         {/* Geo Location */}
-        <div className="card p-5 space-y-4">
+        <div className="card space-y-4 p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-primary-600" />
             <h2 className="font-semibold">{t.geoLocation}</h2>
@@ -406,6 +414,7 @@ export default function CreateInspection() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; OpenStreetMap'
               />
+              <MapFocus position={position} />
               <LocationPicker position={position} setPosition={setPosition} />
             </MapContainer>
           </div>
@@ -415,7 +424,7 @@ export default function CreateInspection() {
         </div>
 
         {/* Violations */}
-        <div className="card p-5 space-y-4">
+        <div className="card space-y-4 p-4 sm:p-5">
           <h2 className="font-semibold">{t.violationsFound}</h2>
           
           {form.violations.length > 0 && (
@@ -547,4 +556,16 @@ export default function CreateInspection() {
       </form>
     </div>
   )
+}
+
+function MapFocus({ position }) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (position?.every(Number.isFinite)) {
+      map.flyTo(position, Math.max(map.getZoom(), 13), { duration: 0.65 })
+    }
+  }, [map, position])
+
+  return null
 }

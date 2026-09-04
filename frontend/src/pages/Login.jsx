@@ -235,6 +235,13 @@ export default function Login() {
                 >
                   {t.regulator}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => quickLogin('ananya@shakticontractors.in', 'contract123')}
+                  className="col-span-2 text-xs py-2 px-3 rounded-lg bg-amber-50 text-amber-900 ring-1 ring-amber-200 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-100 dark:ring-amber-800 transition"
+                >
+                  Contractor demo — Ananya Singh, Shakti Contractors
+                </button>
               </div>
 
               <div className="mt-5 text-center text-sm text-slate-500">

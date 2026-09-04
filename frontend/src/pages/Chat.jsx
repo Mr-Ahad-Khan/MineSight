@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Bot, Send, ShieldCheck, User } from 'lucide-react'
+import { Bot, Send, ShieldCheck, Sparkles, User } from 'lucide-react'
 import toast from 'react-hot-toast'
 import useAuthStore from '../store/authStore'
 import { saveChatMessage } from '../services/api'
@@ -7,24 +7,29 @@ import { saveChatMessage } from '../services/api'
 const getAssistantReply = (message) => {
   const lower = message.toLowerCase()
 
+  if (lower.includes('overdue') || lower.includes('urgent') || lower.includes('alert')) {
+    return 'Start with Alerts to identify urgent items, then open the related inspection or compliance record. For critical safety issues, assign an owner and corrective-action due date before closing the alert.'
+  }
   if (lower.includes('inspection') || lower.includes('inspect')) {
-    return 'You can review inspection status, photos, and voice notes from the dashboard and inspection module.'
+    return 'For a strong inspection report: select the mine (this pins its location), add a clear title and observations, attach field evidence, then record each violation with an owner and corrective action. You can review status, photos, and voice notes from Inspections.'
   }
   if (lower.includes('risk') || lower.includes('safety')) {
-    return 'I can help prioritize high-risk mines and track safety escalations in real time.'
+    return 'Prioritize critical and high-risk mines first. Check unresolved violations, overdue corrective actions, and recent inspection risk scores; then document the action owner and review date so the escalation is traceable.'
   }
   if (lower.includes('compliance') || lower.includes('permit')) {
-    return 'Compliance tracking is available for permits, deadlines, and alert follow-up across all mines.'
+    return 'Use Compliances to filter upcoming and overdue obligations. A practical workflow is: verify the statutory reference, assign a responsible person, attach proof of completion, and set the next review date.'
   }
   if (lower.includes('contractor')) {
-    return 'You can review team compliance, contractor performance, and approval history from the contractor section.'
+    return 'Open Contractors to review active contracts, mine assignments, contact details, and compliance score. The sample contractor account is available from the login screen for testing the contractor journey.'
   }
   if (lower.includes('hello') || lower.includes('hi')) {
     return 'Hi! I can help you navigate inspections, alerts, risk trends, and site compliance.'
   }
 
-  return 'I can help you with mine governance, compliance, inspection workflows, and operational risk analysis.'
+  return 'I can help you turn an operational question into a next step. Ask about an inspection, overdue compliance, contractor performance, mine risk, or safety escalation.'
 }
+
+const prompts = ['What needs attention today?', 'How do I create a good inspection?', 'How should I handle an overdue compliance?']
 
 export default function Chat() {
   const { user } = useAuthStore()
@@ -65,13 +70,19 @@ export default function Chat() {
     }
   }
 
+  const askPrompt = (prompt) => {
+    if (sending) return
+    const reply = getAssistantReply(prompt)
+    setMessages((current) => [...current, { id: Date.now(), sender: 'user', text: prompt }, { id: Date.now() + 1, sender: 'bot', text: reply }])
+  }
+
   return (
     <section className="mx-auto flex min-h-[calc(100vh-72px)] max-w-5xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9b6b16]">Operations assistant</p>
           <h1 className="mt-1 text-3xl font-bold text-[#17314a] dark:text-white">Coal AI</h1>
-          <p className="mt-1 text-sm text-[#655b4e] dark:text-slate-400">Ask questions about mine safety, inspections, compliance, or risk.</p>
+          <p className="mt-1 text-sm text-[#655b4e] dark:text-slate-400">Clear guidance for inspections, compliance follow-up, contractor oversight, and risk escalation.</p>
         </div>
         <div className="hidden items-center gap-2 rounded-full border border-[#bfd9c8] bg-[#edf8f0] px-3 py-2 text-xs font-semibold text-[#267044] sm:flex">
           <ShieldCheck className="h-4 w-4" /> Secure session
@@ -98,6 +109,15 @@ export default function Chat() {
             </div>
           ))}
           {sending && <p className="pl-6 text-xs text-[#786f63]">Coal AI is thinking...</p>}
+          {messages.length === 1 && (
+            <div className="ml-6 flex flex-wrap gap-2 pt-1">
+              {prompts.map((prompt) => (
+                <button key={prompt} type="button" onClick={() => askPrompt(prompt)} className="inline-flex items-center gap-1 rounded-full border border-[#d7c7ab] bg-white px-3 py-2 text-xs font-medium text-[#17314a] transition hover:border-[#9b6b16] hover:bg-[#fff8e8] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100">
+                  <Sparkles className="h-3 w-3 text-[#b77909]" /> {prompt}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSend} className="border-t border-[#e6dccb] bg-white p-4 dark:border-slate-700 dark:bg-slate-900">

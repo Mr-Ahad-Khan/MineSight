@@ -124,6 +124,13 @@
     color: #52636a !important;
   }
 
+  @keyframes coal-ai-nudge {
+    0%, 72%, 100% { transform: translateY(0) scale(1); }
+    78% { transform: translateY(-7px) scale(1.06); }
+    86% { transform: translateY(-2px) scale(1.02); }
+    92% { transform: translateY(-5px) scale(1.04); }
+  }
+
   /* Landing page: retain a true light palette instead of leaving dark card
      gradients behind light-mode text overrides. */
   .home-page.theme-light .landing-audit,
@@ -178,6 +185,10 @@
   .home-page.theme-light .contact-card textarea::placeholder {
     color: #71808a !important;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coal-ai-launcher { animation: none !important; }
 }
 
 @layer components {
