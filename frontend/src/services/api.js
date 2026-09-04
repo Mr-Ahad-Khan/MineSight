@@ -56,7 +56,8 @@ export default api;
 export const getMediaUrl = (mediaPath) => {
   if (!mediaPath) return null;
 
-  const path = typeof mediaPath === "string" ? mediaPath : mediaPath.url || mediaPath.path;
+  const path =
+    typeof mediaPath === "string" ? mediaPath : mediaPath.url || mediaPath.path;
   if (!path || typeof path !== "string") return null;
   if (/^https?:\/\//i.test(path)) return path;
 
@@ -69,14 +70,17 @@ export const login = (data) => api.post("/auth/login", data);
 export const register = (data) => api.post("/auth/register", data);
 export const getMe = () => api.get("/auth/me");
 export const updateProfile = (data) => api.put("/auth/profile", data);
-export const requestEmailOtp = (data) => api.post("/auth/email/request-otp", data);
-export const verifyEmailOtp = (data) => api.post("/auth/email/verify-otp", data);
+export const requestEmailOtp = (data) =>
+  api.post("/auth/email/request-otp", data);
+export const verifyEmailOtp = (data) =>
+  api.post("/auth/email/verify-otp", data);
 
 // Dashboard
 export const getDashboardSummary = () => api.get("/dashboard/summary");
 export const getAnalytics = () => api.get("/dashboard/analytics");
 export const getPublicHomeStats = () => api.get("/public/home-stats");
-export const saveChatMessage = (data) => api.post("/public/chat-messages", data);
+export const saveChatMessage = (data) =>
+  api.post("/public/chat-messages", data);
 
 // Mines
 export const getMines = (params) => api.get("/mines", { params });

@@ -1,103 +1,133 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, MapPin, CheckCircle, Loader2, X, Trash2 } from 'lucide-react'
-import toast from 'react-hot-toast'
-import { deleteInspection, getInspection, updateInspection, closeViolation, getMediaUrl } from '../services/api'
-import { format } from 'date-fns'
-import { MapContainer, TileLayer, Marker } from 'react-leaflet'
-import '../utils/leafletAssets'
-import { useLanguageStore } from '../store/themeStore'
-import { translations } from '../i18n/translations'
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  MapPin,
+  CheckCircle,
+  Loader2,
+  X,
+  Trash2,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import {
+  deleteInspection,
+  getInspection,
+  updateInspection,
+  closeViolation,
+  getMediaUrl,
+} from "../services/api";
+import { format } from "date-fns";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import "../utils/leafletAssets";
+import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
 
 const severityBadge = {
-  low: 'badge-low',
-  medium: 'badge-medium',
-  high: 'badge-high',
-  critical: 'badge-critical',
-}
+  low: "badge-low",
+  medium: "badge-medium",
+  high: "badge-high",
+  critical: "badge-critical",
+};
 
 export default function InspectionDetail() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { language } = useLanguageStore()
-  const t = translations[language]
-  const [inspection, setInspection] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
-  const [selectedPhoto, setSelectedPhoto] = useState(null)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { language } = useLanguageStore();
+  const t = translations[language];
+  const [inspection, setInspection] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   useEffect(() => {
-    fetchInspection()
-  }, [id])
+    fetchInspection();
+  }, [id]);
+
+  useEffect(() => {
+    if (!selectedPhoto) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setSelectedPhoto(null);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedPhoto]);
 
   const fetchInspection = async () => {
     try {
-      const res = await getInspection(id)
-      setInspection(res.data.data)
+      const res = await getInspection(id);
+      setInspection(res.data.data);
     } catch (error) {
-      toast.error('Inspection not found')
-      navigate('/app/inspections')
+      toast.error("Inspection not found");
+      navigate("/app/inspections");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleStatusChange = async (status) => {
-    setUpdating(true)
+    setUpdating(true);
     try {
-      const res = await updateInspection(id, { status })
-      setInspection(res.data.data)
-      toast.success(`${t.statusUpdated} ${status}`)
+      const res = await updateInspection(id, { status });
+      setInspection(res.data.data);
+      toast.success(`${t.statusUpdated} ${status}`);
     } catch (error) {
-      toast.error(t.failedUpdate)
+      toast.error(t.failedUpdate);
     } finally {
-      setUpdating(false)
+      setUpdating(false);
     }
-  }
+  };
 
   const handleCloseViolation = async (violationId) => {
     try {
-      const res = await closeViolation(id, violationId)
-      setInspection(res.data.data)
-      toast.success(t.violationClosed)
+      const res = await closeViolation(id, violationId);
+      setInspection(res.data.data);
+      toast.success(t.violationClosed);
     } catch (error) {
-      toast.error(t.failedClose)
+      toast.error(t.failedClose);
     }
-  }
+  };
 
   const handleDeleteInspection = async () => {
-    if (!window.confirm('Are you sure you want to delete this inspection?')) return
+    if (!window.confirm("Are you sure you want to delete this inspection?"))
+      return;
 
     try {
-      await deleteInspection(id)
-      toast.success('Inspection deleted successfully')
-      navigate('/app/inspections')
+      await deleteInspection(id);
+      toast.success("Inspection deleted successfully");
+      navigate("/app/inspections");
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to delete inspection')
+      toast.error(
+        error.response?.data?.message || "Failed to delete inspection",
+      );
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
-    )
+    );
   }
 
-  if (!inspection) return null
+  if (!inspection) return null;
 
   const coords = inspection.location?.coordinates
     ? [inspection.location.coordinates[1], inspection.location.coordinates[0]]
-    : null
+    : null;
 
-  const audioUrl = getMediaUrl(inspection.audio)
+  const audioUrl = getMediaUrl(inspection.audio);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 mt-1">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 mt-1"
+        >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1">
@@ -108,16 +138,22 @@ export default function InspectionDetail() {
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            {inspection.mineId?.name} • {format(new Date(inspection.createdAt), 'dd MMM yyyy, HH:mm')}
+            {inspection.mineId?.name} •{" "}
+            {format(new Date(inspection.createdAt), "dd MMM yyyy, HH:mm")}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className={`text-center px-4 py-2 rounded-lg ${
-            inspection.riskScore >= 80 ? 'bg-red-100 text-red-700 dark:bg-red-900/30' :
-            inspection.riskScore >= 60 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30' :
-            inspection.riskScore >= 35 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30' :
-            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30'
-          }`}>
+          <div
+            className={`text-center px-4 py-2 rounded-lg ${
+              inspection.riskScore >= 80
+                ? "bg-red-100 text-red-700 dark:bg-red-900/30"
+                : inspection.riskScore >= 60
+                  ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30"
+                  : inspection.riskScore >= 35
+                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30"
+                    : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30"
+            }`}
+          >
             <p className="text-xs font-medium">{t.riskScore}</p>
             <p className="text-2xl font-bold">{inspection.riskScore}</p>
           </div>
@@ -136,15 +172,19 @@ export default function InspectionDetail() {
               </div>
               <div>
                 <p className="text-slate-500">{t.status}</p>
-                <p className="font-medium capitalize">{inspection.status?.replace('_', ' ')}</p>
+                <p className="font-medium capitalize">
+                  {inspection.status?.replace("_", " ")}
+                </p>
               </div>
               <div>
                 <p className="text-slate-500">{t.inspector}</p>
-                <p className="font-medium">{inspection.inspectorId?.name || '—'}</p>
+                <p className="font-medium">
+                  {inspection.inspectorId?.name || "—"}
+                </p>
               </div>
               <div>
                 <p className="text-slate-500">{t.mineCode}</p>
-                <p className="font-medium">{inspection.mineId?.code || '—'}</p>
+                <p className="font-medium">{inspection.mineId?.code || "—"}</p>
               </div>
             </div>
             {inspection.description && (
@@ -172,7 +212,7 @@ export default function InspectionDetail() {
                 <p className="text-slate-500 text-sm mb-2">Site Photos</p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {inspection.photos.map((photo, index) => {
-                    const photoSrc = getMediaUrl(photo)
+                    const photoSrc = getMediaUrl(photo);
                     return (
                       <button
                         key={`${photo}-${index}`}
@@ -185,11 +225,13 @@ export default function InspectionDetail() {
                           alt={`Inspection site ${index + 1}`}
                           className="h-28 w-full object-cover transition-transform duration-200 group-hover:scale-110 group-focus:scale-110"
                           onError={(event) => {
-                            event.currentTarget.closest('button').style.display = 'none'
+                            event.currentTarget.closest(
+                              "button",
+                            ).style.display = "none";
                           }}
                         />
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -201,25 +243,34 @@ export default function InspectionDetail() {
             <h2 className="font-semibold mb-4">
               {t.violationCount} ({inspection.violations?.length || 0})
             </h2>
-            {(!inspection.violations || inspection.violations.length === 0) ? (
+            {!inspection.violations || inspection.violations.length === 0 ? (
               <p className="text-slate-400 text-sm">{t.noViolations}</p>
             ) : (
               <div className="space-y-3">
                 {inspection.violations.map((v) => (
-                  <div key={v._id} className="p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div
+                    key={v._id}
+                    className="p-4 rounded-lg border border-slate-200 dark:border-slate-700"
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="font-medium">{v.description}</p>
                         <p className="text-xs text-slate-500 mt-1">
-                          {v.category} • <span className={`badge ${severityBadge[v.severity]}`}>{v.severity}</span>
+                          {v.category} •{" "}
+                          <span
+                            className={`badge ${severityBadge[v.severity]}`}
+                          >
+                            {v.severity}
+                          </span>
                         </p>
                         {v.correctiveAction && (
                           <p className="text-sm mt-2 text-slate-600 dark:text-slate-300">
-                            <strong>{t.actionLabel}:</strong> {v.correctiveAction}
+                            <strong>{t.actionLabel}:</strong>{" "}
+                            {v.correctiveAction}
                           </p>
                         )}
                       </div>
-                      {v.status === 'open' ? (
+                      {v.status === "open" ? (
                         <button
                           onClick={() => handleCloseViolation(v._id)}
                           className="btn-secondary text-xs flex items-center gap-1 shrink-0"
@@ -242,24 +293,24 @@ export default function InspectionDetail() {
           {/* Actions */}
           <div className="card p-5 space-y-3">
             <h2 className="font-semibold">{t.actions}</h2>
-            {inspection.status !== 'closed' && (
+            {inspection.status !== "closed" && (
               <>
                 <button
-                  onClick={() => handleStatusChange('in_progress')}
-                  disabled={updating || inspection.status === 'in_progress'}
+                  onClick={() => handleStatusChange("in_progress")}
+                  disabled={updating || inspection.status === "in_progress"}
                   className="btn-secondary w-full text-sm"
                 >
                   {t.markInProgress}
                 </button>
                 <button
-                  onClick={() => handleStatusChange('escalated')}
+                  onClick={() => handleStatusChange("escalated")}
                   disabled={updating}
                   className="btn-secondary w-full text-sm text-orange-600"
                 >
                   {t.escalate}
                 </button>
                 <button
-                  onClick={() => handleStatusChange('closed')}
+                  onClick={() => handleStatusChange("closed")}
                   disabled={updating}
                   className="btn-primary w-full text-sm"
                 >
@@ -267,7 +318,7 @@ export default function InspectionDetail() {
                 </button>
               </>
             )}
-            {inspection.status === 'closed' && (
+            {inspection.status === "closed" && (
               <p className="text-sm text-emerald-600 flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" /> {t.inspectionClosed}
               </p>
@@ -291,7 +342,11 @@ export default function InspectionDetail() {
                 <h2 className="font-semibold">{t.location}</h2>
               </div>
               <div className="h-48 rounded-lg overflow-hidden">
-                <MapContainer center={coords} zoom={14} style={{ height: '100%', width: '100%' }}>
+                <MapContainer
+                  center={coords}
+                  zoom={14}
+                  style={{ height: "100%", width: "100%" }}
+                >
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <Marker position={coords} />
                 </MapContainer>
@@ -303,6 +358,31 @@ export default function InspectionDetail() {
           )}
         </div>
       </div>
+
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Enlarged inspection photo"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedPhoto(null)}
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+            aria-label="Close enlarged photo"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img
+            src={selectedPhoto}
+            alt="Enlarged inspection site"
+            className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
-  )
+  );
 }

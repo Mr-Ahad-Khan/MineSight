@@ -1,5 +1,5 @@
-const asyncHandler = require('express-async-handler');
-const Mine = require('../models/Mine');
+const asyncHandler = require("express-async-handler");
+const Mine = require("../models/Mine");
 
 // @desc    Get all mines
 // @route   GET /api/mines
@@ -23,7 +23,7 @@ const getMines = asyncHandler(async (req, res) => {
 
   const total = await Mine.countDocuments(query);
   const mines = await Mine.find(query)
-    .populate('managerId', 'name email phone')
+    .populate("managerId", "name email phone")
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 });
@@ -42,11 +42,14 @@ const getMines = asyncHandler(async (req, res) => {
 // @route   GET /api/mines/:id
 // @access  Private
 const getMineById = asyncHandler(async (req, res) => {
-  const mine = await Mine.findById(req.params.id).populate('managerId', 'name email phone');
+  const mine = await Mine.findById(req.params.id).populate(
+    "managerId",
+    "name email phone",
+  );
 
   if (!mine) {
     res.status(404);
-    throw new Error('Mine not found');
+    throw new Error("Mine not found");
   }
 
   res.json({
@@ -63,13 +66,13 @@ const createMine = asyncHandler(async (req, res) => {
 
   if (!name || !code || !subsidiary || !coordinates) {
     res.status(400);
-    throw new Error('Please provide name, code, subsidiary and coordinates');
+    throw new Error("Please provide name, code, subsidiary and coordinates");
   }
 
   const mineExists = await Mine.findOne({ code });
   if (mineExists) {
     res.status(400);
-    throw new Error('Mine with this code already exists');
+    throw new Error("Mine with this code already exists");
   }
 
   const mine = await Mine.create({
@@ -77,7 +80,7 @@ const createMine = asyncHandler(async (req, res) => {
     code,
     subsidiary,
     location: {
-      type: 'Point',
+      type: "Point",
       coordinates, // [lng, lat]
     },
     address,
@@ -98,7 +101,7 @@ const updateMine = asyncHandler(async (req, res) => {
 
   if (!mine) {
     res.status(404);
-    throw new Error('Mine not found');
+    throw new Error("Mine not found");
   }
 
   mine = await Mine.findByIdAndUpdate(req.params.id, req.body, {
