@@ -15,11 +15,6 @@
 
   body {
     @apply font-sans antialiased text-slate-800 dark:text-slate-100;
-    text-align: center;
-  }
-
-  body * {
-    text-align: center !important;
   }
 
   .dark body {
@@ -39,6 +34,42 @@
   .risk-donut-animate {
     animation: risk-donut-spin 1.2s cubic-bezier(0.22, 0.8, 0.28, 1) both;
     transform-origin: center;
+  }
+
+  .hero-text-reveal {
+    opacity: 0;
+    animation: hero-text-reveal 700ms cubic-bezier(0.22, 0.8, 0.28, 1) both;
+  }
+
+  .hero-text-reveal-delay-1 {
+    animation-delay: 80ms;
+  }
+
+  .hero-text-reveal-delay-2 {
+    animation-delay: 150ms;
+  }
+
+  .hero-text-reveal-delay-3 {
+    animation-delay: 230ms;
+  }
+
+  .hero-text-reveal-delay-4 {
+    animation-delay: 320ms;
+  }
+
+  .hero-text-reveal-delay-5 {
+    animation-delay: 410ms;
+  }
+
+  @keyframes hero-text-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes risk-donut-spin {

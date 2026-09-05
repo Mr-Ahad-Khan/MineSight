@@ -524,6 +524,7 @@ export default function Dashboard() {
         min-h-[calc(100vh-64px)]
         bg-[#f6f0e5]
         text-[#111]
+        text-left
         px-5
         sm:px-7
         lg:px-8
@@ -694,6 +695,8 @@ export default function Dashboard() {
             shadow-[0_2px_5px_rgba(80,60,30,0.10)]
             p-5
             min-h-[500px]
+            flex
+            flex-col
           "
         >
 
@@ -741,6 +744,9 @@ export default function Dashboard() {
           <div
             className="
               flex
+              flex-1
+              flex-col
+              items-center
               justify-center
               mt-8
             "
@@ -844,7 +850,8 @@ export default function Dashboard() {
           <div
             className="
               grid
-              grid-cols-4
+              grid-cols-2
+              sm:grid-cols-4
               gap-2
               mt-5
             "
@@ -898,6 +905,8 @@ export default function Dashboard() {
             shadow-[0_2px_5px_rgba(80,60,30,0.10)]
             p-5
             min-h-[500px]
+            flex
+            flex-col
           "
         >
 
@@ -936,11 +945,13 @@ export default function Dashboard() {
 
           {/* EXISTING COMPONENT - LOGIC PRESERVED */}
 
-          <HighRiskList
-            inspections={
-              analytics?.highRiskInspections || []
-            }
-          />
+          <div className="flex flex-1 items-start w-full">
+            <HighRiskList
+              inspections={
+                analytics?.highRiskInspections || []
+              }
+            />
+          </div>
 
         </div>
 
@@ -1284,7 +1295,7 @@ function RiskLegend({
 
   return (
 
-    <div className="text-center">
+    <div className="text-center min-w-0">
 
       <div
         className="

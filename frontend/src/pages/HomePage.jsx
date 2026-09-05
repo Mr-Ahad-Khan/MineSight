@@ -571,6 +571,22 @@ export default function HomePage() {
   const navigate = useNavigate();
   const t = translations[language];
 
+  useEffect(() => {
+    setAssistantMessages((current) =>
+      current.length === 1 && current[0].sender === "bot"
+        ? [
+            {
+              ...current[0],
+              text:
+                language === "hi"
+                  ? "नमस्ते! मैं निरीक्षण, अनुपालन, खदान सुरक्षा और डैशबोर्ड में आपकी मदद कर सकता हूँ।"
+                  : "Hello! I can help with inspections, compliance, mine safety, and dashboards.",
+            },
+          ]
+        : current,
+    );
+  }, [language]);
+
   const localizedFeatures = [
     {
       ...features[0],
@@ -804,6 +820,25 @@ export default function HomePage() {
   const getAssistantReply = (message) => {
     const lower = message.toLowerCase();
 
+    if (language === "hi") {
+      if (lower.includes("inspection") || lower.includes("inspect") || message.includes("निरीक्षण")) {
+        return "आप डैशबोर्ड और निरीक्षण मॉड्यूल से निरीक्षण की स्थिति, फ़ोटो और वॉइस नोट देख सकते हैं।";
+      }
+      if (lower.includes("risk") || lower.includes("safety") || message.includes("जोखिम") || message.includes("सुरक्षा")) {
+        return "मैं उच्च जोखिम वाली खदानों को प्राथमिकता देने और सुरक्षा संबंधी कार्रवाई को रियल टाइम में ट्रैक करने में मदद कर सकता हूँ।";
+      }
+      if (lower.includes("compliance") || lower.includes("permit") || message.includes("अनुपालन") || message.includes("परमिट")) {
+        return "अनुपालन ट्रैकिंग में सभी खदानों के परमिट, समय-सीमा और अलर्ट फॉलो-अप उपलब्ध हैं।";
+      }
+      if (lower.includes("contractor") || message.includes("ठेकेदार")) {
+        return "ठेकेदार सेक्शन से टीम अनुपालन, ठेकेदार प्रदर्शन और अनुमोदन इतिहास की समीक्षा करें।";
+      }
+      if (/(hello|hi|नमस्ते|हेलो)/.test(lower) || message.includes("नमस्ते")) {
+        return "नमस्ते! मैं निरीक्षण, अलर्ट, जोखिम रुझान और साइट अनुपालन में आपकी मदद कर सकता हूँ।";
+      }
+      return "मैं खदान शासन, अनुपालन, निरीक्षण प्रक्रिया और संचालन जोखिम विश्लेषण में आपकी मदद कर सकता हूँ।";
+    }
+
     if (lower.includes("inspection") || lower.includes("inspect")) {
       return "You can review inspection status, photos, and voice notes from the dashboard and inspection module.";
     }
@@ -977,19 +1012,19 @@ export default function HomePage() {
               backgroundImage: `linear-gradient(90deg, rgba(5, 8, 10, 0.68) 0%, rgba(5, 8, 10, 0.42) 42%, rgba(5, 8, 10, 0.12) 78%), linear-gradient(0deg, rgba(5, 8, 10, 0.52) 0%, transparent 45%), url(${current.image})`,
             }}
           >
-            <div className="mx-auto flex min-h-[520px] max-w-7xl items-center justify-center px-4 py-12 text-center sm:min-h-[590px] sm:px-8 sm:py-16 lg:min-h-[650px] lg:px-10">
-              <div className="mx-auto max-w-2xl">
-                <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f3b323] sm:mb-5 sm:text-xs sm:tracking-[0.24em]">
+            <div className="mx-auto flex min-h-[520px] max-w-7xl items-center justify-center px-4 py-14 text-center sm:min-h-[590px] sm:px-8 sm:py-20 lg:min-h-[650px] lg:px-10 lg:py-24">
+              <div key={current.title} className="mx-auto flex w-full max-w-4xl flex-col items-center">
+                <p className="hero-text-reveal hero-text-reveal-delay-1 mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f3b323] sm:mb-6 sm:text-xs sm:tracking-[0.24em]">
                   {current.badge}
                 </p>
-                <h1 className="max-w-2xl text-3xl font-black leading-[1.05] tracking-tight text-white min-[380px]:text-4xl sm:text-6xl lg:text-[4.4rem]">
+                <h1 className="hero-text-reveal hero-text-reveal-delay-2 max-w-4xl text-4xl font-black leading-[1.03] tracking-tight text-white min-[380px]:text-[2.75rem] sm:text-6xl lg:text-[5.25rem]">
                   {current.title}
                 </h1>
-                <p className="mt-6 max-w-xl text-base leading-7 text-slate-200 sm:text-lg">
+                <p className="hero-text-reveal hero-text-reveal-delay-3 mt-6 max-w-2xl text-base leading-7 text-slate-200 sm:mt-7 sm:text-lg sm:leading-8">
                   {current.subtitle}
                 </p>
 
-                <div className="mt-8 flex flex-col items-stretch justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center sm:mt-9 sm:gap-4">
+                <div className="hero-text-reveal hero-text-reveal-delay-4 mt-9 flex flex-col items-stretch justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center sm:mt-10 sm:gap-4">
                   <button
                     type="button"
                     onClick={() => navigate("/login")}
@@ -1009,7 +1044,7 @@ export default function HomePage() {
                   </button>
                 </div>
 
-                <div className="mt-8 flex items-center justify-center gap-2 sm:mt-10 sm:gap-3">
+                <div className="hero-text-reveal hero-text-reveal-delay-5 mt-9 flex items-center justify-center gap-2 sm:mt-11 sm:gap-3">
                   {slides.map((slide, index) => (
                     <button
                       key={slide.title}
@@ -1560,12 +1595,11 @@ export default function HomePage() {
                 <BrandLogo imageClassName="h-16 w-44 rounded" />
               </div>
               <p className="mx-auto mt-5 max-w-sm text-sm leading-6 text-[#9eafaf]">
-                Practical tools for safer mines, clearer compliance, and better
-                decisions across every site.
+                {t.footerTagline}
               </p>
               <div className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-[#83d2c5]">
                 <span className="h-2 w-2 rounded-full bg-[#39c7b0]" />
-                All systems operational
+                {t.allSystemsOperational}
               </div>
             </div>
 
@@ -1584,7 +1618,7 @@ export default function HomePage() {
                   href="#solutions"
                   className="transition-colors hover:text-white"
                 >
-                  Solutions
+                  {t.solutions}
                 </a>
                 <a
                   href="#features"
@@ -1603,7 +1637,7 @@ export default function HomePage() {
 
             <div>
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
-                Platform
+                {t.platform}
               </h3>
               <div className="mt-5 flex flex-col items-center gap-3 text-sm">
                 <span>{t.riskSafety}</span>
@@ -1632,12 +1666,12 @@ export default function HomePage() {
 
           <div className="mt-10 flex flex-col items-center gap-3 border-t border-white/10 pt-5 text-center text-xs text-[#758b8e] sm:flex-row sm:justify-center">
             <p>
-              © 2026 Coal Governance. Built for responsible mine operations.
+              {t.footerCopyright}
             </p>
             <div className="flex flex-wrap justify-center gap-5">
-              <span>Privacy</span>
-              <span>Security</span>
-              <span>Version 1.0</span>
+              <span>{t.privacy}</span>
+              <span>{t.security}</span>
+              <span>{t.version}</span>
             </div>
           </div>
         </div>
@@ -1649,7 +1683,7 @@ export default function HomePage() {
             type="button"
             onClick={() => setAssistantOpen(true)}
             className="relative isolate flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#dfe6ee] bg-[#f7f4ef] text-[#17314a] shadow-[0_8px_22px_rgba(0,0,0,0.25)] transition-transform hover:scale-105"
-            aria-label="Open AI assistant"
+            aria-label={t.coalAiAssistant}
           >
             <span
               className="coal-ai-wave coal-ai-wave-one"
@@ -1670,10 +1704,10 @@ export default function HomePage() {
             {!assistantChatOpen ? (
               <div className="px-4 pb-4 pt-4">
                 <h2 className="text-2xl font-semibold leading-tight text-white">
-                  Can we help you?
+                  {language === "hi" ? "क्या हम आपकी सहायता कर सकते हैं?" : "Can we help you?"}
                 </h2>
                 <p className="mt-2 text-sm text-[#c6c7c1]">
-                  Ask about inspections, compliance, or mine safety.
+                  {language === "hi" ? "निरीक्षण, अनुपालन या खदान सुरक्षा के बारे में पूछें।" : "Ask about inspections, compliance, or mine safety."}
                 </p>
 
                 <div className="mt-5 space-y-2.5">
@@ -1688,7 +1722,7 @@ export default function HomePage() {
                     }}
                     className="w-full rounded-lg border border-[#e5a416] bg-[#e5a416] px-4 py-2.5 text-sm font-bold text-[#151719] transition hover:bg-[#f5b82c]"
                   >
-                    Chat now
+                    {language === "hi" ? "अभी चैट करें" : "Chat now"}
                   </button>
 
                   <button
@@ -1696,7 +1730,7 @@ export default function HomePage() {
                     onClick={() => setAssistantOpen(false)}
                     className="w-full rounded-lg border border-white/20 bg-transparent px-4 py-2.5 text-sm font-semibold text-[#dfe1dc] transition hover:border-[#e5a416] hover:bg-white/5"
                   >
-                    No thanks
+                    {language === "hi" ? "अभी नहीं" : "No thanks"}
                   </button>
                 </div>
               </div>
@@ -1709,7 +1743,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white">
-                        Coal AI
+                        {t.coalAi}
                       </p>
                       <p className="text-[10px] text-slate-300">Online</p>
                     </div>
@@ -1719,7 +1753,7 @@ export default function HomePage() {
                     type="button"
                     onClick={() => setAssistantOpen(false)}
                     className="text-lg text-slate-300 hover:text-white"
-                    aria-label="Close AI assistant"
+                      aria-label={language === "hi" ? "कोल एआई बंद करें" : "Close AI assistant"}
                   >
                     ×
                   </button>
@@ -1749,7 +1783,7 @@ export default function HomePage() {
                     type="email"
                     value={assistantEmail}
                     onChange={(e) => setAssistantEmail(e.target.value)}
-                    placeholder="Your email to receive a reply"
+                    placeholder={language === "hi" ? "उत्तर पाने के लिए अपना ईमेल लिखें" : "Your email to receive a reply"}
                     className="mb-2 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs text-white outline-none placeholder:text-slate-500 focus:border-[#e5a416]"
                     required
                   />
@@ -1758,7 +1792,7 @@ export default function HomePage() {
                       type="text"
                       value={assistantInput}
                       onChange={(e) => setAssistantInput(e.target.value)}
-                      placeholder="Ask a question..."
+                      placeholder={t.askCoalAi}
                       className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-400 outline-none"
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleAssistantSend();
@@ -1770,7 +1804,7 @@ export default function HomePage() {
                       disabled={assistantSending || !assistantEmail.trim()}
                       className="rounded-full bg-[#e5a416] px-3 py-1.5 text-sm font-semibold text-[#151719] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {assistantSending ? "..." : "Send"}
+                      {assistantSending ? "..." : language === "hi" ? "भेजें" : "Send"}
                     </button>
                   </div>
                 </div>

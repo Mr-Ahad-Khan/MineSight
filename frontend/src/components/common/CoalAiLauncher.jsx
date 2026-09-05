@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bot, MessageCircle, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguageStore } from '../../store/themeStore'
+import { translations } from '../../i18n/translations'
 
 export default function CoalAiLauncher() {
   const [open, setOpen] = useState(false)
   const [ready, setReady] = useState(false)
   const launcherRef = useRef(null)
   const navigate = useNavigate()
+  const { language } = useLanguageStore()
+  const t = translations[language]
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -33,8 +37,8 @@ export default function CoalAiLauncher() {
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e5a416] text-[#17232a]"><Bot className="h-4 w-4" /></div>
             <div>
-              <p className="text-sm font-semibold">Coal AI</p>
-              <p className="text-[10px] text-[#9db0b5]">Ready to help</p>
+              <p className="text-sm font-semibold">{t.coalAi}</p>
+              <p className="text-[10px] text-[#9db0b5]">{t.readyToHelp}</p>
             </div>
           </div>
           <button type="button" onClick={closePanel} className="rounded-md p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white" aria-label="Minimize Coal AI" title="Minimize Coal AI">
@@ -45,7 +49,7 @@ export default function CoalAiLauncher() {
           <p className="text-sm leading-6 text-[#d5dfdf]">Ask about inspections, compliance, mine safety, or operational risk.</p>
           <button type="button" onClick={() => navigate('/app/chat')} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#e5a416] px-4 py-2.5 text-sm font-bold text-[#151719] transition hover:bg-[#f5b82c]">
             <MessageCircle className="h-4 w-4" />
-            Open Coal AI
+            {t.openCoalAi}
           </button>
         </div>
       </div>

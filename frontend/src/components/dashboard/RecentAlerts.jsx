@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { Bell } from 'lucide-react'
 import { getAlerts } from '../../services/api'
 import { formatDistanceToNow } from 'date-fns'
+import { hi } from 'date-fns/locale'
+import { useLanguageStore } from '../../store/themeStore'
+import { translations } from '../../i18n/translations'
 
 const severityColor = {
   info: 'bg-blue-500',
@@ -12,6 +15,15 @@ const severityColor = {
 
 export default function RecentAlerts() {
   const [alerts, setAlerts] = useState([])
+  const { language } = useLanguageStore()
+  const t = translations[language]
+
+  const translateAlertTitle = (title) => {
+    if (language !== 'hi') return title
+    if (title?.startsWith('Inspection Escalated')) return 'निरीक्षण बढ़ाया गया'
+    if (title?.startsWith('High Risk Inspection')) return 'उच्च जोखिम निरीक्षण'
+    return title
+  }
 
   useEffect(() => {
     getAlerts({ limit: 5 })
@@ -23,7 +35,7 @@ export default function RecentAlerts() {
     return (
       <div className="text-center py-6 text-slate-400">
         <Bell className="w-7 h-7 mx-auto mb-2 opacity-50" />
-        <p className="text-sm">No recent alerts</p>
+        <p className="text-sm">{t.noAlerts}</p>
       </div>
     )
   }
@@ -34,9 +46,12 @@ export default function RecentAlerts() {
         <div key={alert._id} className="dashboard-subcard flex gap-3">
           <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${severityColor[alert.severity] || 'bg-slate-400'}`} />
           <div className="min-w-0">
-            <p className="text-sm font-medium line-clamp-1">{alert.title}</p>
+            <p className="text-sm font-medium line-clamp-1">{translateAlertTitle(alert.title)}</p>
             <p className="text-xs text-slate-500 mt-0.5">
-              {formatDistanceToNow(new Date(alert.createdAt), { addSuffix: true })}
+              {formatDistanceToNow(new Date(alert.createdAt), {
+                addSuffix: true,
+                locale: language === 'hi' ? hi : undefined,
+              })}
             </p>
           </div>
         </div>

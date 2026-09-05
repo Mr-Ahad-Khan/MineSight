@@ -51,15 +51,21 @@ export default function Navbar() {
     <button
       type="button"
       onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-      className="inline-flex h-9 items-center gap-1 rounded-full border border-[#b99a72] bg-[#f4ecdf] px-2 text-[10px] font-bold tracking-wide text-[#5d554b] transition hover:border-[#0d3f6b] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-sky-400"
+      className="inline-flex h-9 items-center gap-0.5 rounded-full border border-[#b99a72] bg-[#f4ecdf] p-1 text-[10px] font-bold tracking-wide text-[#5d554b] transition hover:border-[#0d3f6b] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-sky-400"
       title="Change language"
       aria-label="Change language"
     >
-      <Languages className="h-3.5 w-3.5 text-[#0d3f6b] dark:text-sky-300" />
-      <span className="hidden sm:inline">
-        {language === "en" ? "EN" : "हिंदी"}
+      <Languages className="mx-1 h-3.5 w-3.5 text-[#0d3f6b] dark:text-sky-300" />
+      <span
+        className={`rounded-full px-2 py-1 transition-colors ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+      >
+        EN
       </span>
-      <span className="sm:hidden">{language === "en" ? "EN" : "हि"}</span>
+      <span
+        className={`rounded-full px-2 py-1 transition-colors ${language === "hi" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+      >
+        हिंदी
+      </span>
     </button>
   );
 

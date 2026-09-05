@@ -145,7 +145,7 @@ export default function Login() {
             className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-primary-700 dark:text-slate-300 dark:hover:text-primary-300"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to landing page
+            {t.backToLanding}
           </Link>
           <div
             className="relative mb-5 h-28 overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900 bg-cover bg-center lg:hidden"
@@ -222,13 +222,13 @@ export default function Login() {
             </form>
 
             <p className="mt-4 text-center text-xs leading-5 text-slate-600 dark:text-slate-300">
-              Sign in with the email and password you used during registration.
+              {t.signInHint}
             </p>
 
             {/* Optional seeded demo accounts */}
             <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
               <p className="mb-3 text-center text-xs font-medium text-slate-600 dark:text-slate-300">
-                {t.quickDemo} (optional)
+                {t.quickDemo} ({t.optional})
               </p>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -266,12 +266,12 @@ export default function Login() {
                   }
                   className="col-span-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
-                  Contractor demo — Ananya Singh, Shakti Contractors
+                  {t.contractorDemo}
                 </button>
               </div>
 
               <div className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">
-                Don’t have an account?{" "}
+                {t.dontHaveAccount}{" "}
                 <Link
                   to="/register"
                   className="font-semibold text-primary-700 hover:text-primary-800"

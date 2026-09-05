@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAlerts, markAlertRead, markAllAlertsRead } from "../services/api";
 import { Bell, CheckCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { hi } from "date-fns/locale";
 import toast from "react-hot-toast";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
@@ -17,6 +18,24 @@ export default function Alerts() {
   const [loading, setLoading] = useState(true);
   const { language } = useLanguageStore();
   const t = translations[language];
+
+  const getAlertText = (alert) => {
+    if (alert.title?.startsWith("Inspection Escalated")) {
+      return {
+        title: `${t.inspectionEscalated}${alert.title.slice("Inspection Escalated".length)}`,
+        message: t.inspectionEscalatedMessage,
+      };
+    }
+
+    if (alert.title?.startsWith("High Risk Inspection")) {
+      return {
+        title: `${t.highRiskInspection}${alert.title.slice("High Risk Inspection".length)}`,
+        message: t.highRiskInspectionMessage,
+      };
+    }
+
+    return { title: alert.title, message: alert.message };
+  };
 
   const fetchAlerts = () => {
     getAlerts()
@@ -36,7 +55,7 @@ export default function Alerts() {
 
   const handleMarkAll = async () => {
     await markAllAlertsRead();
-    toast.success("All alerts marked as read");
+    toast.success(t.alertsMarkedRead);
     fetchAlerts();
   };
 
@@ -57,11 +76,11 @@ export default function Alerts() {
 
       <div className="mx-auto w-full max-w-6xl space-y-3">
         {loading ? (
-          <p className="text-slate-400">Loading...</p>
+          <p className="text-slate-400">{t.loading}</p>
         ) : alerts.length === 0 ? (
           <div className="card p-12 text-center text-slate-400">
             <Bell className="w-10 h-10 mx-auto mb-3 opacity-50" />
-            <p>No alerts</p>
+            <p>{t.noAlerts}</p>
           </div>
         ) : (
           alerts.map((alert) => (
@@ -71,18 +90,24 @@ export default function Alerts() {
                 alert.isRead ? "opacity-60" : ""
               }`}
             >
+              {(() => {
+                const alertText = getAlertText(alert);
+                return (
               <div className="min-w-0 text-center sm:text-left">
-                <p className="font-medium">{alert.title}</p>
+                <p className="font-medium">{alertText.title}</p>
                 <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-                  {alert.message}
+                  {alertText.message}
                 </p>
                 <p className="text-xs text-slate-400 mt-2">
                   {formatDistanceToNow(new Date(alert.createdAt), {
                     addSuffix: true,
+                    locale: language === "hi" ? hi : undefined,
                   })}
                   {alert.mineId?.name && ` • ${alert.mineId.name}`}
                 </p>
               </div>
+                );
+              })()}
               {!alert.isRead && (
                 <button
                   onClick={() => handleMarkRead(alert._id)}

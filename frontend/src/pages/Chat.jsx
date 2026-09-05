@@ -6,12 +6,38 @@ import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 import { saveChatMessage } from "../services/api";
 
-const getAssistantReply = (message) => {
+const getAssistantReply = (message, language = "en") => {
   const lower = message.toLowerCase();
+  const isHindi = language === "hi";
   const mentionsMine =
     /(jayant|amlohri|nigahi|kusmunda|gevra|dipka|dudhichua|singrauli|korba)/.test(
       lower,
     );
+
+  if (isHindi) {
+    if (lower.includes("overdue") || lower.includes("urgent") || lower.includes("alert") || message.includes("समय-सीमा") || message.includes("तत्काल") || message.includes("अलर्ट")) {
+      return "प्राथमिकता वाली कार्रवाई योजना:\n1. अलर्ट खोलें और पहले गंभीर, फिर उच्च जोखिम वाले अलर्ट छाँटें।\n2. हर विषय के लिए एक जिम्मेदार व्यक्ति और समय-सीमा तय करें।\n3. बंद करने से पहले निरीक्षण प्रमाण या अनुपालन दस्तावेज़ जोड़ें।\n4. गंभीर सुरक्षा समस्याओं को तुरंत खदान प्रबंधक तक पहुँचाएँ।";
+    }
+    if (lower.includes("inspection") || lower.includes("inspect") || message.includes("निरीक्षण")) {
+      return `एक पूर्ण निरीक्षण में यह शामिल होना चाहिए:\n1. खदान चुनें, ताकि पिन सही स्थान पर जाए।\n2. स्पष्ट शीर्षक, अवलोकन, फ़ोटो और वॉइस नोट दर्ज करें।\n3. हर उल्लंघन के साथ गंभीरता, सुधारात्मक कार्रवाई, जिम्मेदार व्यक्ति और लक्ष्य तिथि जोड़ें।\n4. रिपोर्ट भेजने से पहले लाइव प्रीव्यू की समीक्षा करें।${mentionsMine ? "\n\nआपने एक खदान का उल्लेख किया है; रिपोर्ट बनाने से पहले पिन के फ़ील्ड स्थान से मेल खाने की पुष्टि करें।" : ""}`;
+    }
+    if (lower.includes("risk") || lower.includes("safety") || message.includes("जोखिम") || message.includes("सुरक्षा")) {
+      return "सुरक्षा प्राथमिकता:\n• पहले गंभीर और उच्च जोखिम वाली खदानों पर कार्रवाई करें।\n• अनसुलझे उल्लंघन, लंबित सुधारात्मक कार्रवाई और नवीनतम जोखिम स्कोर जाँचें।\n• स्थायी सुधार से पहले अंतरिम नियंत्रण लागू करें।\n• कार्रवाई के जिम्मेदार व्यक्ति और समीक्षा तिथि दर्ज करें।";
+    }
+    if (lower.includes("compliance") || lower.includes("permit") || message.includes("अनुपालन") || message.includes("परमिट")) {
+      return "अनुपालन प्रक्रिया:\n1. रजिस्टर में समय-सीमा पार और इस महीने देय विषयों को फ़िल्टर करें।\n2. वैधानिक संदर्भ और जिम्मेदार व्यक्ति की पुष्टि करें।\n3. अनुपालन का प्रमाण अपलोड या दर्ज करें।\n4. अगली देय तिथि तय करें और ऑडिट रिकॉर्ड पूरा रखें।";
+    }
+    if (lower.includes("contractor") || message.includes("ठेकेदार")) {
+      return "ठेकेदार निगरानी के लिए अनुबंध स्थिति, खदान असाइनमेंट, अनुपालन स्कोर, इंडक्शन रिकॉर्ड और खुली सुधारात्मक कार्रवाइयाँ जाँचें। अनन्या सिंह और शक्ति इंफ्रा एंड माइनिंग कॉन्ट्रैक्टर्स का डेमो अकाउंट लॉगिन पेज पर उपलब्ध है।";
+    }
+    if (/(hello|hi|hey|नमस्ते|हेलो)/.test(lower) || message.includes("नमस्ते")) {
+      return "नमस्ते। मैं निरीक्षण, लंबित अनुपालन, ठेकेदार प्रदर्शन, खदान जोखिम और सुरक्षा संबंधी कार्रवाई में मदद कर सकता हूँ। केंद्रित उत्तर के लिए खदान और समस्या बताइए।";
+    }
+    if (lower.includes("attention") || lower.includes("today") || lower.includes("summary") || message.includes("ध्यान") || message.includes("आज") || message.includes("सारांश")) {
+      return "आज की अनुशंसित समीक्षा क्रम:\n1. गंभीर और उच्च-गंभीरता वाले अलर्ट।\n2. समय-सीमा पार अनुपालन दायित्व।\n3. खुले उल्लंघनों वाले निरीक्षण।\n4. कम अनुपालन स्कोर वाले ठेकेदार रिकॉर्ड।\n\nपहले डैशबोर्ड खोलें, फिर कार्रवाई तय करने के लिए अलर्ट और अनुपालन पेज देखें।";
+    }
+    return "मैं इसे अगले व्यावहारिक कदम में बदल सकता हूँ। खदान, समस्या, उसकी गंभीरता और निरीक्षण या अनुपालन की समय-सीमा बताइए; मैं प्राथमिकता के अनुसार कार्रवाई सुझाऊँगा।";
+  }
 
   if (
     lower.includes("overdue") ||
@@ -47,11 +73,18 @@ const getAssistantReply = (message) => {
   return "I can turn this into an operational next step. Tell me the mine, the issue, its severity, and whether an inspection or compliance deadline is involved; I will suggest a prioritised response.";
 };
 
-const prompts = [
-  "What needs attention today?",
-  "How do I create a good inspection?",
-  "How should I handle an overdue compliance?",
-];
+const prompts = {
+  en: [
+    "What needs attention today?",
+    "How do I create a good inspection?",
+    "How should I handle an overdue compliance?",
+  ],
+  hi: [
+    "आज किस बात पर ध्यान देना चाहिए?",
+    "मैं अच्छा निरीक्षण कैसे बनाऊँ?",
+    "समय-सीमा पार अनुपालन को कैसे संभालूँ?",
+  ],
+};
 
 export default function Chat() {
   const { user } = useAuthStore();
@@ -63,7 +96,10 @@ export default function Chat() {
     {
       id: 1,
       sender: "bot",
-      text: `Hello${user?.name ? ` ${user.name}` : ""}! I can help with inspections, compliance, mine safety, and dashboards.`,
+      text:
+        language === "hi"
+          ? `नमस्ते${user?.name ? ` ${user.name}` : ""}! मैं निरीक्षण, अनुपालन, खदान सुरक्षा और डैशबोर्ड में आपकी मदद कर सकता हूँ।`
+          : `Hello${user?.name ? ` ${user.name}` : ""}! I can help with inspections, compliance, mine safety, and dashboards.`,
     },
   ]);
 
@@ -72,7 +108,7 @@ export default function Chat() {
     const message = input.trim();
     if (!message || sending) return;
 
-    const reply = getAssistantReply(message);
+    const reply = getAssistantReply(message, language);
     setInput("");
     setMessages((current) => [
       ...current,
@@ -92,7 +128,10 @@ export default function Chat() {
         {
           id: Date.now() + 1,
           sender: "bot",
-          text: "I could not process that right now. Please try again.",
+          text:
+            language === "hi"
+              ? "मैं अभी इसे संसाधित नहीं कर सका। कृपया फिर प्रयास करें।"
+              : "I could not process that right now. Please try again.",
         },
       ]);
       toast.error("Could not send your message");
@@ -103,7 +142,7 @@ export default function Chat() {
 
   const askPrompt = (prompt) => {
     if (sending) return;
-    const reply = getAssistantReply(prompt);
+    const reply = getAssistantReply(prompt, language);
     setMessages((current) => [
       ...current,
       { id: Date.now(), sender: "user", text: prompt },
@@ -165,7 +204,7 @@ export default function Chat() {
           )}
           {messages.length === 1 && (
             <div className="ml-6 flex flex-wrap gap-2 pt-1">
-              {prompts.map((prompt) => (
+              {prompts[language].map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
