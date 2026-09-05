@@ -46,8 +46,66 @@ const createMediaStorage = (folder) => {
 const getStoredMediaPath = (file) =>
   cloudinaryConfigured ? file.path : `/uploads/${file.filename}`;
 
+const localUploadPrefix = "/uploads/";
+
+const isRemoteMediaPath = (mediaPath) =>
+  typeof mediaPath === "string" && /^https?:\/\//i.test(mediaPath);
+
+const getUploadFilePath = (mediaPath) => {
+  if (
+    typeof mediaPath !== "string" ||
+    !mediaPath.startsWith(localUploadPrefix)
+  ) {
+    return null;
+  }
+
+  let relativePath = mediaPath.slice(localUploadPrefix.length).split(/[?#]/)[0];
+  try {
+    relativePath = decodeURIComponent(relativePath);
+  } catch (error) {
+    return null;
+  }
+
+  const resolvedPath = path.resolve(uploadDir, relativePath);
+  const resolvedUploadDir = path.resolve(uploadDir);
+
+  if (
+    resolvedPath !== resolvedUploadDir &&
+    resolvedPath.startsWith(`${resolvedUploadDir}${path.sep}`)
+  ) {
+    return resolvedPath;
+  }
+
+  return null;
+};
+
+const isAvailableMediaPath = (mediaPath) => {
+  if (!mediaPath || typeof mediaPath !== "string") return false;
+  if (isRemoteMediaPath(mediaPath)) return true;
+
+  const uploadFilePath = getUploadFilePath(mediaPath);
+  return uploadFilePath ? fs.existsSync(uploadFilePath) : true;
+};
+
+const serializeInspectionMedia = (inspection) => {
+  if (!inspection) return inspection;
+
+  const data =
+    typeof inspection.toObject === "function"
+      ? inspection.toObject()
+      : { ...inspection };
+
+  return {
+    ...data,
+    photos: (data.photos || []).filter(isAvailableMediaPath),
+    audio: isAvailableMediaPath(data.audio) ? data.audio : null,
+  };
+};
+
 module.exports = {
   createMediaStorage,
   getStoredMediaPath,
   cloudinaryConfigured,
+  isAvailableMediaPath,
+  serializeInspectionMedia,
 };

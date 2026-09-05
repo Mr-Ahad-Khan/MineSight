@@ -3,7 +3,10 @@ const Inspection = require("../models/Inspection");
 const Mine = require("../models/Mine");
 const Alert = require("../models/Alert");
 const { calculateRiskScore, getRiskLevel } = require("../utils/riskCalculator");
-const { getStoredMediaPath } = require("../utils/mediaStorage");
+const {
+  getStoredMediaPath,
+  serializeInspectionMedia,
+} = require("../utils/mediaStorage");
 
 const parseFormDataValue = (value, fallback = null) => {
   if (value === undefined || value === null || value === "") {
@@ -57,7 +60,7 @@ const getInspections = asyncHandler(async (req, res) => {
     total,
     page,
     pages: Math.ceil(total / limit),
-    data: inspections,
+    data: inspections.map(serializeInspectionMedia),
   });
 });
 
@@ -76,7 +79,7 @@ const getInspectionById = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: inspection,
+    data: serializeInspectionMedia(inspection),
   });
 });
 
@@ -181,7 +184,7 @@ const createInspection = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: populated,
+    data: serializeInspectionMedia(populated),
   });
 });
 
@@ -231,7 +234,7 @@ const updateInspection = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: inspection,
+    data: serializeInspectionMedia(inspection),
   });
 });
 
@@ -281,7 +284,7 @@ const closeViolation = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: inspection,
+    data: serializeInspectionMedia(inspection),
   });
 });
 

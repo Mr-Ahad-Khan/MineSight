@@ -4,6 +4,7 @@ const Inspection = require('../models/Inspection');
 const Compliance = require('../models/Compliance');
 const Alert = require('../models/Alert');
 const Contractor = require('../models/Contractor');
+const { serializeInspectionMedia } = require('../utils/mediaStorage');
 
 // @desc    Get dashboard summary
 // @route   GET /api/dashboard/summary
@@ -139,7 +140,7 @@ const getAnalytics = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     data: {
-      highRiskInspections,
+      highRiskInspections: highRiskInspections.map(serializeInspectionMedia),
       recurringViolations,
       monthlyTrend,
     },
