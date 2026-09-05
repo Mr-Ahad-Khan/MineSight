@@ -263,7 +263,7 @@ export default function CreateInspection() {
 
       <form
         onSubmit={handleSubmit}
-        autoComplete="off"
+        autoComplete="on"
         className="grid w-full grid-cols-1 items-start gap-5 lg:gap-6 xl:grid-cols-2"
       >
         <div className="order-first flex flex-wrap justify-center gap-3 border-b border-slate-200 pb-5 dark:border-slate-800 xl:col-span-2">
@@ -297,6 +297,7 @@ export default function CreateInspection() {
                 <select
                   id="inspection-mine"
                   name="mineId"
+                  autoComplete="off"
                   value={form.mineId}
                   onChange={(e) => setForm({ ...form, mineId: e.target.value })}
                   className="input-field"
@@ -317,6 +318,7 @@ export default function CreateInspection() {
                 <select
                   id="inspection-type"
                   name="type"
+                  autoComplete="off"
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
                   className="input-field"
@@ -338,6 +340,7 @@ export default function CreateInspection() {
                 id="inspection-title"
                 name="title"
                 type="text"
+                autoComplete="off"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 className="input-field"
@@ -353,6 +356,7 @@ export default function CreateInspection() {
               <textarea
                 id="inspection-description"
                 name="description"
+                autoComplete="off"
                 value={form.description}
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
@@ -370,6 +374,7 @@ export default function CreateInspection() {
               <textarea
                 id="inspection-observations"
                 name="observations"
+                autoComplete="off"
                 value={form.observations}
                 onChange={(e) =>
                   setForm({ ...form, observations: e.target.value })
@@ -388,6 +393,7 @@ export default function CreateInspection() {
                 <select
                   id="inspection-severity"
                   name="severity"
+                  autoComplete="off"
                   value={form.severity}
                   onChange={(e) =>
                     setForm({ ...form, severity: e.target.value })
@@ -455,6 +461,7 @@ export default function CreateInspection() {
                       id="site-photos"
                       name="photos"
                       type="file"
+                      autoComplete="off"
                       accept="image/*"
                       multiple
                       className="hidden"
@@ -552,6 +559,7 @@ export default function CreateInspection() {
                 id="violation-description"
                 name="violationDescription"
                 type="text"
+                autoComplete="off"
                 value={violation.description}
                 onChange={(e) =>
                   setViolation({ ...violation, description: e.target.value })
@@ -562,6 +570,7 @@ export default function CreateInspection() {
               <select
                 id="violation-category"
                 name="violationCategory"
+                autoComplete="off"
                 value={violation.category}
                 onChange={(e) =>
                   setViolation({ ...violation, category: e.target.value })
@@ -577,6 +586,7 @@ export default function CreateInspection() {
               <select
                 id="violation-severity"
                 name="violationSeverity"
+                autoComplete="off"
                 value={violation.severity}
                 onChange={(e) =>
                   setViolation({ ...violation, severity: e.target.value })
@@ -592,6 +602,7 @@ export default function CreateInspection() {
                 id="violation-corrective-action"
                 name="violationCorrectiveAction"
                 type="text"
+                autoComplete="off"
                 value={violation.correctiveAction}
                 onChange={(e) =>
                   setViolation({

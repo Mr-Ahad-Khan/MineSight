@@ -169,7 +169,7 @@ export default function Login() {
 
             <form
               onSubmit={handleSubmit}
-              autoComplete="off"
+              autoComplete="on"
               className="space-y-4"
             >
               <div>
@@ -180,6 +180,7 @@ export default function Login() {
                   id="login-email"
                   name="email"
                   type="email"
+                  autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input-field"
@@ -197,6 +198,7 @@ export default function Login() {
                     id="login-password"
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="input-field pr-10"

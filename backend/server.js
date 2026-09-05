@@ -1,12 +1,12 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const morgan = require('morgan');
-const path = require('path');
-const connectDB = require('./config/db');
-const { errorHandler, notFound } = require('./middleware/errorHandler');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const morgan = require("morgan");
+const path = require("path");
+const connectDB = require("./config/db");
+const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 // Load env
 dotenv.config();
@@ -20,46 +20,53 @@ const server = http.createServer(app);
 // Socket.io
 const io = new Server(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   },
 });
 
 // Make io accessible in routes if needed
-app.set('io', io);
+app.set("io", io);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
 // Static folder for uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(
+  "/uploads",
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.join(__dirname, "uploads")),
+);
 
 // Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/mines', require('./routes/mineRoutes'));
-app.use('/api/inspections', require('./routes/inspectionRoutes'));
-app.use('/api/compliances', require('./routes/complianceRoutes'));
-app.use('/api/dashboard', require('./routes/dashboardRoutes'));
-app.use('/api/alerts', require('./routes/alertRoutes'));
-app.use('/api/contractors', require('./routes/contractorRoutes'));
-app.use('/api/public', require('./routes/publicRoutes'));
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/mines", require("./routes/mineRoutes"));
+app.use("/api/inspections", require("./routes/inspectionRoutes"));
+app.use("/api/compliances", require("./routes/complianceRoutes"));
+app.use("/api/dashboard", require("./routes/dashboardRoutes"));
+app.use("/api/alerts", require("./routes/alertRoutes"));
+app.use("/api/contractors", require("./routes/contractorRoutes"));
+app.use("/api/public", require("./routes/publicRoutes"));
 
 // Root and health endpoints
 // Render opens the service URL at `/` by default. Keep this endpoint public so
 // the deployment can be checked without needing an API route or auth token.
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Coal Governance API is running',
-    health: '/api/health',
+    message: "Coal Governance API is running",
+    health: "/api/health",
   });
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'Coal Governance API is running' });
+app.get("/api/health", (req, res) => {
+  res.json({ success: true, message: "Coal Governance API is running" });
 });
 
 // Error handlers
@@ -67,15 +74,15 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Socket connection
-io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
+io.on("connection", (socket) => {
+  console.log("New client connected:", socket.id);
 
-  socket.on('join-mine', (mineId) => {
+  socket.on("join-mine", (mineId) => {
     socket.join(`mine-${mineId}`);
   });
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
   });
 });
 

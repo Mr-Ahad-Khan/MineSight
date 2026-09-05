@@ -1486,7 +1486,7 @@ export default function HomePage() {
 
                 <form
                   onSubmit={handleContactSubmit}
-                  autoComplete="off"
+                  autoComplete="on"
                   className="space-y-3.5"
                 >
                   <div>
@@ -1500,6 +1500,7 @@ export default function HomePage() {
                       id="contact-name"
                       name="name"
                       type="text"
+                      autoComplete="name"
                       value={contactForm.name}
                       onChange={(e) =>
                         setContactForm({ ...contactForm, name: e.target.value })
@@ -1522,6 +1523,7 @@ export default function HomePage() {
                         id="contact-email"
                         name="email"
                         type="email"
+                        autoComplete="email"
                         value={contactForm.email}
                         onChange={(e) =>
                           setContactForm({
@@ -1545,6 +1547,7 @@ export default function HomePage() {
                         id="contact-organization"
                         name="organization"
                         type="text"
+                        autoComplete="organization"
                         value={contactForm.organization}
                         onChange={(e) =>
                           setContactForm({
@@ -1568,6 +1571,7 @@ export default function HomePage() {
                     <select
                       id="contact-subject"
                       name="subject"
+                      autoComplete="off"
                       value={contactForm.subject}
                       onChange={(e) =>
                         setContactForm({
@@ -1598,6 +1602,7 @@ export default function HomePage() {
                     <textarea
                       id="contact-message"
                       name="message"
+                      autoComplete="off"
                       value={contactForm.message}
                       onChange={(e) =>
                         setContactForm({
@@ -1835,6 +1840,7 @@ export default function HomePage() {
                     id="assistant-email"
                     name="assistantEmail"
                     type="email"
+                    autoComplete="email"
                     value={assistantEmail}
                     onChange={(e) => setAssistantEmail(e.target.value)}
                     placeholder={
@@ -1850,6 +1856,7 @@ export default function HomePage() {
                       id="assistant-message"
                       name="assistantMessage"
                       type="text"
+                      autoComplete="off"
                       value={assistantInput}
                       onChange={(e) => setAssistantInput(e.target.value)}
                       placeholder={t.askCoalAi}

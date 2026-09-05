@@ -157,7 +157,7 @@ export default function Inspections() {
                 {loading ? (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="8"
                       className="px-4 py-12 text-center text-slate-400"
                     >
                       {t.loading}
@@ -166,7 +166,7 @@ export default function Inspections() {
                 ) : inspections.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="8"
                       className="px-4 py-12 text-center text-slate-400"
                     >
                       {t.noInspections}

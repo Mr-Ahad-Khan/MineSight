@@ -7,101 +7,123 @@ import { translations } from "../i18n/translations";
 import { saveChatMessage } from "../services/api";
 
 const getAssistantReply = (message, language = "en") => {
-  const lower = message.toLowerCase();
+  const lower = message.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ");
   const isHindi = language === "hi";
-  const mentionsMine =
-    /(jayant|amlohri|nigahi|kusmunda|gevra|dipka|dudhichua|singrauli|korba)/.test(
-      lower,
-    );
+  const has = (...terms) => terms.some((term) => lower.includes(term));
+  const mineNames = [
+    "Jayant",
+    "Amlohri",
+    "Nigahi",
+    "Kusmunda",
+    "Gevra",
+    "Dipka",
+    "Dudhichua",
+    "Singrauli",
+    "Korba",
+  ];
+  const mentionedMine = mineNames.find((mine) =>
+    lower.includes(mine.toLowerCase()),
+  );
+  const mineNote = mentionedMine
+    ? isHindi
+      ? `\n\n${mentionedMine} के लिए कार्रवाई दर्ज करते समय सही खदान फ़िल्टर और निरीक्षण स्थान की पुष्टि करें।`
+      : `\n\nFor ${mentionedMine}, confirm the mine filter and inspection location before recording the action.`
+    : "";
 
-  if (isHindi) {
-    if (
-      lower.includes("overdue") ||
-      lower.includes("urgent") ||
-      lower.includes("alert") ||
-      message.includes("समय-सीमा") ||
-      message.includes("तत्काल") ||
-      message.includes("अलर्ट")
-    ) {
-      return "प्राथमिकता वाली कार्रवाई योजना:\n1. अलर्ट खोलें और पहले गंभीर, फिर उच्च जोखिम वाले अलर्ट छाँटें।\n2. हर विषय के लिए एक जिम्मेदार व्यक्ति और समय-सीमा तय करें।\n3. बंद करने से पहले निरीक्षण प्रमाण या अनुपालन दस्तावेज़ जोड़ें।\n4. गंभीर सुरक्षा समस्याओं को तुरंत खदान प्रबंधक तक पहुँचाएँ।";
-    }
-    if (
-      lower.includes("inspection") ||
-      lower.includes("inspect") ||
-      message.includes("निरीक्षण")
-    ) {
-      return `एक पूर्ण निरीक्षण में यह शामिल होना चाहिए:\n1. खदान चुनें, ताकि पिन सही स्थान पर जाए।\n2. स्पष्ट शीर्षक, अवलोकन, फ़ोटो और वॉइस नोट दर्ज करें।\n3. हर उल्लंघन के साथ गंभीरता, सुधारात्मक कार्रवाई, जिम्मेदार व्यक्ति और लक्ष्य तिथि जोड़ें।\n4. रिपोर्ट भेजने से पहले लाइव प्रीव्यू की समीक्षा करें।${mentionsMine ? "\n\nआपने एक खदान का उल्लेख किया है; रिपोर्ट बनाने से पहले पिन के फ़ील्ड स्थान से मेल खाने की पुष्टि करें।" : ""}`;
-    }
-    if (
-      lower.includes("risk") ||
-      lower.includes("safety") ||
-      message.includes("जोखिम") ||
-      message.includes("सुरक्षा")
-    ) {
-      return "सुरक्षा प्राथमिकता:\n• पहले गंभीर और उच्च जोखिम वाली खदानों पर कार्रवाई करें।\n• अनसुलझे उल्लंघन, लंबित सुधारात्मक कार्रवाई और नवीनतम जोखिम स्कोर जाँचें।\n• स्थायी सुधार से पहले अंतरिम नियंत्रण लागू करें।\n• कार्रवाई के जिम्मेदार व्यक्ति और समीक्षा तिथि दर्ज करें।";
-    }
-    if (
-      lower.includes("compliance") ||
-      lower.includes("permit") ||
-      message.includes("अनुपालन") ||
-      message.includes("परमिट")
-    ) {
-      return "अनुपालन प्रक्रिया:\n1. रजिस्टर में समय-सीमा पार और इस महीने देय विषयों को फ़िल्टर करें।\n2. वैधानिक संदर्भ और जिम्मेदार व्यक्ति की पुष्टि करें।\n3. अनुपालन का प्रमाण अपलोड या दर्ज करें।\n4. अगली देय तिथि तय करें और ऑडिट रिकॉर्ड पूरा रखें।";
-    }
-    if (lower.includes("contractor") || message.includes("ठेकेदार")) {
-      return "ठेकेदार निगरानी के लिए अनुबंध स्थिति, खदान असाइनमेंट, अनुपालन स्कोर, इंडक्शन रिकॉर्ड और खुली सुधारात्मक कार्रवाइयाँ जाँचें। अनन्या सिंह और शक्ति इंफ्रा एंड माइनिंग कॉन्ट्रैक्टर्स का डेमो अकाउंट लॉगिन पेज पर उपलब्ध है।";
-    }
-    if (
-      /(hello|hi|hey|नमस्ते|हेलो)/.test(lower) ||
-      message.includes("नमस्ते")
-    ) {
-      return "नमस्ते। मैं निरीक्षण, लंबित अनुपालन, ठेकेदार प्रदर्शन, खदान जोखिम और सुरक्षा संबंधी कार्रवाई में मदद कर सकता हूँ। केंद्रित उत्तर के लिए खदान और समस्या बताइए।";
-    }
-    if (
-      lower.includes("attention") ||
-      lower.includes("today") ||
-      lower.includes("summary") ||
-      message.includes("ध्यान") ||
-      message.includes("आज") ||
-      message.includes("सारांश")
-    ) {
-      return "आज की अनुशंसित समीक्षा क्रम:\n1. गंभीर और उच्च-गंभीरता वाले अलर्ट।\n2. समय-सीमा पार अनुपालन दायित्व।\n3. खुले उल्लंघनों वाले निरीक्षण।\n4. कम अनुपालन स्कोर वाले ठेकेदार रिकॉर्ड।\n\nपहले डैशबोर्ड खोलें, फिर कार्रवाई तय करने के लिए अलर्ट और अनुपालन पेज देखें।";
-    }
-    return "मैं इसे अगले व्यावहारिक कदम में बदल सकता हूँ। खदान, समस्या, उसकी गंभीरता और निरीक्षण या अनुपालन की समय-सीमा बताइए; मैं प्राथमिकता के अनुसार कार्रवाई सुझाऊँगा।";
+  if (has("hello", "hi", "hey", "नमस्ते", "हेलो")) {
+    return isHindi
+      ? "नमस्ते। मैं अलर्ट, निरीक्षण, अनुपालन, जोखिम, ठेकेदार और डैशबोर्ड कार्रवाई में मदद कर सकता हूँ। उदाहरण के लिए पूछें: ‘आज सबसे जरूरी क्या है?’"
+      : "Hello. I can help with alerts, inspections, compliance, risk, contractors, and dashboard actions. Try asking, ‘What needs attention today?’";
   }
 
   if (
-    lower.includes("overdue") ||
-    lower.includes("urgent") ||
-    lower.includes("alert")
+    has(
+      "today",
+      "attention",
+      "summary",
+      "priority",
+      "urgent",
+      "आज",
+      "ध्यान",
+      "सारांश",
+      "जरूरी",
+    )
   ) {
-    return "Priority response plan:\n1. Open Alerts and sort by Critical, then High.\n2. Assign one accountable owner and a due date for each item.\n3. Attach inspection evidence or compliance proof before closing it.\n4. Escalate unresolved critical safety issues to the mine manager immediately.";
-  }
-  if (lower.includes("inspection") || lower.includes("inspect")) {
-    return `A complete inspection should include:\n1. Select the mine — its pin will move to the correct location.\n2. Record a specific title, observations, photos, and voice note.\n3. Add every violation with severity, corrective action, owner, and target date.\n4. Review the live preview before submitting.${mentionsMine ? "\n\nI noticed you mentioned a mine; confirm the pin matches the field location before creating the report." : ""}`;
-  }
-  if (lower.includes("risk") || lower.includes("safety")) {
-    return "Safety prioritisation:\n• Act on critical and high-risk mines first.\n• Check unresolved violations, overdue corrective actions, and the latest risk score.\n• Put interim controls in place before the permanent fix.\n• Record the action owner and review date so the escalation remains traceable.";
-  }
-  if (lower.includes("compliance") || lower.includes("permit")) {
-    return "Compliance workflow:\n1. Filter the register for overdue and due-this-month items.\n2. Verify the statutory reference and responsible person.\n3. Upload or record completion evidence.\n4. Set the next due date and keep the audit trail complete.";
-  }
-  if (lower.includes("contractor")) {
-    return "For contractor oversight, review contract status, mine assignments, compliance score, induction records, and open corrective actions. The demo account for Ananya Singh at Shakti Infra & Mining Contractors is available on the login page.";
-  }
-  if (/\b(hello|hi|hey)\b/.test(lower)) {
-    return "Hello. I can help you decide what to do next with inspections, overdue compliance, contractor performance, mine risk, or safety escalation. Tell me the mine and issue for a focused response.";
+    return isHindi
+      ? "आज की प्राथमिकता:\n1. Alerts में Critical और High आइटम खोलें।\n2. Overdue अनुपालन को जिम्मेदार व्यक्ति और तारीख दें।\n3. खुले उल्लंघनों वाले निरीक्षणों की समीक्षा करें।\n4. कम compliance score वाले ठेकेदार देखें।\n\nहर कार्रवाई का मालिक, अंतरिम नियंत्रण और अगली समीक्षा तिथि दर्ज करें।"
+      : "Today’s priority:\n1. Open Critical and High items in Alerts.\n2. Assign an owner and due date to overdue compliance.\n3. Review inspections with open violations.\n4. Check contractors with lower compliance scores.\n\nRecord an owner, interim control, and next review date for every action.";
   }
 
   if (
-    lower.includes("attention") ||
-    lower.includes("today") ||
-    lower.includes("summary")
+    has(
+      "alert",
+      "overdue",
+      "late",
+      "escalat",
+      "अलर्ट",
+      "समय सीमा",
+      "समयसीमा",
+      "तत्काल",
+    )
   ) {
-    return "Today’s recommended review order:\n1. Critical and high-severity alerts.\n2. Overdue compliance obligations.\n3. Inspections with open violations.\n4. Contractor records with lower compliance scores.\n\nOpen the dashboard first, then use Alerts and Compliances to assign and track actions.";
+    return isHindi
+      ? `अलर्ट कार्रवाई योजना:\n1. Critical, फिर High के अनुसार छाँटें।\n2. प्रभावित खदान और तत्काल खतरे की पुष्टि करें।\n3. जिम्मेदार व्यक्ति, समय-सीमा और अंतरिम नियंत्रण जोड़ें।\n4. प्रमाण संलग्न करके ही आइटम बंद करें; गंभीर सुरक्षा मुद्दे प्रबंधक तक पहुँचाएँ।${mineNote}`
+      : `Alert action plan:\n1. Sort Critical first, then High.\n2. Confirm the affected mine and immediate hazard.\n3. Add an accountable owner, due date, and interim control.\n4. Attach evidence before closing; escalate critical safety issues to the mine manager.${mineNote}`;
   }
 
-  return "I can turn this into an operational next step. Tell me the mine, the issue, its severity, and whether an inspection or compliance deadline is involved; I will suggest a prioritised response.";
+  if (has("inspection", "inspect", "checklist", "निरीक्षण", "जांच", "जाँच")) {
+    return isHindi
+      ? `निरीक्षण चेकलिस्ट:\n1. सही खदान और स्थान चुनें।\n2. स्पष्ट शीर्षक, तथ्यात्मक अवलोकन, फोटो और वॉइस नोट जोड़ें।\n3. हर उल्लंघन में गंभीरता, सुधारात्मक कार्रवाई, मालिक और लक्ष्य तिथि भरें।\n4. सबमिट करने से पहले प्रीव्यू और प्रमाण जाँचें।${mineNote}`
+      : `Inspection checklist:\n1. Select the correct mine and location.\n2. Add a specific title, factual observations, photos, and a voice note.\n3. For each violation, set severity, corrective action, owner, and target date.\n4. Review the preview and evidence before submitting.${mineNote}`;
+  }
+
+  if (has("risk", "safety", "hazard", "danger", "जोखिम", "सुरक्षा", "खतरा")) {
+    return isHindi
+      ? `सुरक्षा प्राथमिकता:\n• पहले Critical और High जोखिम पर काम करें।\n• खुले उल्लंघन, लंबित सुधार और नवीनतम risk score देखें।\n• स्थायी समाधान तक अंतरिम नियंत्रण लागू रखें।\n• कार्रवाई और समीक्षा का ऑडिट रिकॉर्ड बनाएँ।${mineNote}`
+      : `Safety prioritisation:\n• Act on Critical and High risk first.\n• Check open violations, overdue corrective actions, and the latest risk score.\n• Keep interim controls in place until the permanent fix.\n• Preserve an auditable record of the action and review.${mineNote}`;
+  }
+
+  if (
+    has(
+      "compliance",
+      "permit",
+      "renew",
+      "statutory",
+      "अनुपालन",
+      "परमिट",
+      "नवीनीकरण",
+    )
+  ) {
+    return isHindi
+      ? "अनुपालन कार्यप्रवाह:\n1. Overdue और इस महीने देय रिकॉर्ड फ़िल्टर करें।\n2. वैधानिक संदर्भ, मालिक और अगली देय तिथि की पुष्टि करें।\n3. प्रमाण अपलोड करें और कमी होने पर सुधारात्मक कार्रवाई बनाएँ।\n4. पूरा होने के बाद ऑडिट ट्रेल अपडेट करें।"
+      : "Compliance workflow:\n1. Filter overdue and due-this-month records.\n2. Verify the statutory reference, owner, and next due date.\n3. Upload evidence and create corrective action for any gap.\n4. Update the audit trail after completion.";
+  }
+
+  if (has("contractor", "vendor", "ठेकेदार")) {
+    return isHindi
+      ? "ठेकेदार समीक्षा में अनुबंध स्थिति, खदान असाइनमेंट, compliance score, induction रिकॉर्ड और खुले सुधार देखें। कम स्कोर या समाप्त अनुबंध वाले रिकॉर्ड को पहले एस्केलेट करें।"
+      : "For contractor oversight, review contract status, mine assignments, compliance score, induction records, and open corrective actions. Escalate low-score or expired-contract records first.";
+  }
+
+  if (
+    has(
+      "analytics",
+      "trend",
+      "report",
+      "dashboard",
+      "विश्लेषण",
+      "रिपोर्ट",
+      "डैशबोर्ड",
+    )
+  ) {
+    return isHindi
+      ? "डैशबोर्ड में पहले risk distribution और high-risk inspections देखें, फिर Alerts और Compliances में कार्रवाई असाइन करें। रुझान समझने के लिए समान अवधि और समान खदानों की तुलना करें।"
+      : "Start with risk distribution and high-risk inspections on the dashboard, then assign actions in Alerts and Compliances. Compare the same period and the same mines when checking trends.";
+  }
+
+  return isHindi
+    ? "मैं आपको कार्रवाई तक पहुँचा सकता हूँ। खदान का नाम, समस्या, गंभीरता और समय-सीमा बताइए। आप alerts, inspection, compliance, risk, contractor या dashboard के बारे में पूछ सकते हैं।"
+    : "I can turn this into an operational action. Include the mine, issue, severity, and deadline. You can ask about alerts, inspections, compliance, risk, contractors, or the dashboard.";
 };
 
 const prompts = {
@@ -215,10 +237,10 @@ export default function Chat() {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex items-end gap-2 ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex items-start gap-2 ${message.sender === "user" ? "justify-end" : "justify-start"}`}
             >
               {message.sender === "bot" && (
-                <Bot className="mb-1 h-4 w-4 shrink-0 text-[#9b6b16]" />
+                <Bot className="mt-1 h-4 w-4 shrink-0 text-[#9b6b16]" />
               )}
               <div
                 className={`max-w-[min(80%,38rem)] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.sender === "user" ? "rounded-br-sm bg-[#cfeaf9] text-[#10263d] dark:bg-sky-900/70 dark:text-sky-100" : "rounded-bl-sm bg-white text-[#3d392f] shadow-sm dark:bg-slate-700 dark:text-slate-100"}`}
@@ -226,7 +248,7 @@ export default function Chat() {
                 {message.text}
               </div>
               {message.sender === "user" && (
-                <User className="mb-1 h-4 w-4 shrink-0 text-[#17314a]" />
+                <User className="mt-1 h-4 w-4 shrink-0 text-[#17314a]" />
               )}
             </div>
           ))}
