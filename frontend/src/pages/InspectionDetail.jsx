@@ -203,7 +203,14 @@ export default function InspectionDetail() {
             {audioUrl && (
               <div className="pt-2">
                 <p className="text-slate-500 text-sm mb-2">Voice Note</p>
-                <audio controls src={audioUrl} className="w-full max-w-md" />
+                <audio
+                  controls
+                  src={audioUrl}
+                  className="w-full max-w-md"
+                  onError={(event) => {
+                    event.currentTarget.parentElement.style.display = "none";
+                  }}
+                />
               </div>
             )}
 

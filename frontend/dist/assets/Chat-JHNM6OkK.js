@@ -1,0 +1,63 @@
+import{u as k,b as y,r as f,j as e,s as j,z as N}from"./index-CUgxDRhX.js";import{t as C}from"./translations-Cf6SdlAu.js";import{S as A,B as b}from"./shield-check-D0e0cMPI.js";import{c as w}from"./createLucideIcon-7zFOrhAi.js";import{S}from"./send-DZ7MAjwk.js";const I=w("Sparkles",[["path",{d:"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z",key:"4pj2yx"}],["path",{d:"M20 3v4",key:"1olli1"}],["path",{d:"M22 5h-4",key:"1gvqau"}],["path",{d:"M4 17v2",key:"vumght"}],["path",{d:"M5 18H3",key:"zchphs"}]]);const H=w("User",[["path",{d:"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2",key:"975kel"}],["circle",{cx:"12",cy:"7",r:"4",key:"17ys0d"}]]),g=(c,i="en")=>{const r=c.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu," "),t=i==="hi",a=(...o)=>o.some(x=>{const h=x.toLowerCase().trim();return h?h.includes(" ")?r.includes(h):new RegExp(`(?:^|\\s)${h}(?:$|\\s)`,"u").test(r):!1}),l=["Jayant","Amlohri","Nigahi","Kusmunda","Gevra","Dipka","Dudhichua","Singrauli","Korba"].find(o=>r.includes(o.toLowerCase())),s=l?t?`
+
+${l} के लिए कार्रवाई दर्ज करते समय सही खदान फ़िल्टर और निरीक्षण स्थान की पुष्टि करें।`:`
+
+For ${l}, confirm the mine filter and inspection location before recording the action.`:"";return a("hello","hi","hey","नमस्ते","हेलो")?t?"नमस्ते। मैं अलर्ट, निरीक्षण, अनुपालन, जोखिम, ठेकेदार और डैशबोर्ड कार्रवाई में मदद कर सकता हूँ। उदाहरण के लिए पूछें: ‘आज सबसे जरूरी क्या है?’":"Hello. I can help with alerts, inspections, compliance, risk, contractors, and dashboard actions. Try asking, ‘What needs attention today?’":a("help","what can you do","मदद","क्या कर सकते")?t?`मैं इन कामों में मदद कर सकता हूँ:
+• आज की प्राथमिकताएँ और critical alerts
+• निरीक्षण और corrective actions
+• overdue compliance और permits
+• mine risk और trend review
+• contractor compliance
+
+किसी खदान का नाम, समस्या और deadline दें, मैं अगला action plan बनाऊँगा।`:`I can help with:
+• Today’s priorities and critical alerts
+• Inspections and corrective actions
+• Overdue compliance and permits
+• Mine risk and trend review
+• Contractor compliance
+
+Share the mine, issue, and deadline and I’ll turn it into a clear action plan.`:a("go","open","show","demo","navigate","जाएँ","खोलें")?a("dashboard","डैशबोर्ड")?t?"डैशबोर्ड खोलकर पहले risk distribution, high-risk inspections और recent alerts देखें। फिर किसी item को खोलकर owner और due date असाइन करें।":"Open the dashboard and start with risk distribution, high-risk inspections, and recent alerts. Open an item next, then assign an owner and due date.":a("alert","अलर्ट")?t?"Alerts में Critical और High को पहले फ़िल्टर करें। प्रभावित खदान, तत्काल नियंत्रण, owner और due date की पुष्टि करें।":"In Alerts, filter Critical and High first. Confirm the affected mine, interim control, owner, and due date before closing anything.":a("inspection","निरीक्षण")?t?"Inspections खोलें, सही खदान चुनें और नया निरीक्षण बनाएँ। हर finding में severity, corrective action, owner और target date भरें।":"Open Inspections, choose the correct mine, and create a new inspection. Add severity, corrective action, owner, and target date for every finding.":t?"मैं आपको सही मॉड्यूल तक ले जा सकता हूँ। Dashboard, alerts, inspections, compliance या contractors में से कौन सा खोलना है?":"I can guide you to the right module. Should we open the dashboard, alerts, inspections, compliance, or contractors?":a("today","attention","summary","priority","urgent","आज","ध्यान","सारांश","जरूरी")?t?`आज की प्राथमिकता:
+1. Alerts में Critical और High आइटम खोलें।
+2. Overdue अनुपालन को जिम्मेदार व्यक्ति और तारीख दें।
+3. खुले उल्लंघनों वाले निरीक्षणों की समीक्षा करें।
+4. कम compliance score वाले ठेकेदार देखें।
+
+हर कार्रवाई का मालिक, अंतरिम नियंत्रण और अगली समीक्षा तिथि दर्ज करें।`:`Today’s priority:
+1. Open Critical and High items in Alerts.
+2. Assign an owner and due date to overdue compliance.
+3. Review inspections with open violations.
+4. Check contractors with lower compliance scores.
+
+Record an owner, interim control, and next review date for every action.`:a("alert","overdue","late","escalat","अलर्ट","समय सीमा","समयसीमा","तत्काल")?t?`अलर्ट कार्रवाई योजना:
+1. Critical, फिर High के अनुसार छाँटें।
+2. प्रभावित खदान और तत्काल खतरे की पुष्टि करें।
+3. जिम्मेदार व्यक्ति, समय-सीमा और अंतरिम नियंत्रण जोड़ें।
+4. प्रमाण संलग्न करके ही आइटम बंद करें; गंभीर सुरक्षा मुद्दे प्रबंधक तक पहुँचाएँ।${s}`:`Alert action plan:
+1. Sort Critical first, then High.
+2. Confirm the affected mine and immediate hazard.
+3. Add an accountable owner, due date, and interim control.
+4. Attach evidence before closing; escalate critical safety issues to the mine manager.${s}`:a("inspection","inspect","checklist","निरीक्षण","जांच","जाँच")?t?`निरीक्षण चेकलिस्ट:
+1. सही खदान और स्थान चुनें।
+2. स्पष्ट शीर्षक, तथ्यात्मक अवलोकन, फोटो और वॉइस नोट जोड़ें।
+3. हर उल्लंघन में गंभीरता, सुधारात्मक कार्रवाई, मालिक और लक्ष्य तिथि भरें।
+4. सबमिट करने से पहले प्रीव्यू और प्रमाण जाँचें।${s}`:`Inspection checklist:
+1. Select the correct mine and location.
+2. Add a specific title, factual observations, photos, and a voice note.
+3. For each violation, set severity, corrective action, owner, and target date.
+4. Review the preview and evidence before submitting.${s}`:a("risk","safety","hazard","danger","जोखिम","सुरक्षा","खतरा")?t?`सुरक्षा प्राथमिकता:
+• पहले Critical और High जोखिम पर काम करें।
+• खुले उल्लंघन, लंबित सुधार और नवीनतम risk score देखें।
+• स्थायी समाधान तक अंतरिम नियंत्रण लागू रखें।
+• कार्रवाई और समीक्षा का ऑडिट रिकॉर्ड बनाएँ।${s}`:`Safety prioritisation:
+• Act on Critical and High risk first.
+• Check open violations, overdue corrective actions, and the latest risk score.
+• Keep interim controls in place until the permanent fix.
+• Preserve an auditable record of the action and review.${s}`:a("compliance","permit","renew","statutory","अनुपालन","परमिट","नवीनीकरण")?t?`अनुपालन कार्यप्रवाह:
+1. Overdue और इस महीने देय रिकॉर्ड फ़िल्टर करें।
+2. वैधानिक संदर्भ, मालिक और अगली देय तिथि की पुष्टि करें।
+3. प्रमाण अपलोड करें और कमी होने पर सुधारात्मक कार्रवाई बनाएँ।
+4. पूरा होने के बाद ऑडिट ट्रेल अपडेट करें।`:`Compliance workflow:
+1. Filter overdue and due-this-month records.
+2. Verify the statutory reference, owner, and next due date.
+3. Upload evidence and create corrective action for any gap.
+4. Update the audit trail after completion.`:a("contractor","vendor","ठेकेदार")?t?"ठेकेदार समीक्षा में अनुबंध स्थिति, खदान असाइनमेंट, compliance score, induction रिकॉर्ड और खुले सुधार देखें। कम स्कोर या समाप्त अनुबंध वाले रिकॉर्ड को पहले एस्केलेट करें।":"For contractor oversight, review contract status, mine assignments, compliance score, induction records, and open corrective actions. Escalate low-score or expired-contract records first.":a("analytics","trend","report","dashboard","विश्लेषण","रिपोर्ट","डैशबोर्ड")?t?"डैशबोर्ड में पहले risk distribution और high-risk inspections देखें, फिर Alerts और Compliances में कार्रवाई असाइन करें। रुझान समझने के लिए समान अवधि और समान खदानों की तुलना करें।":"Start with risk distribution and high-risk inspections on the dashboard, then assign actions in Alerts and Compliances. Compare the same period and the same mines when checking trends.":t?"मैं इस अनुरोध को बेहतर तरीके से संभालने के लिए थोड़ा संदर्भ चाहता हूँ। क्या आप alerts, inspections, compliance, risk, contractors या dashboard के बारे में पूछ रहे हैं? खदान का नाम, समस्या और deadline भी दें।":"I need a little more context to give a useful answer. Are you asking about alerts, inspections, compliance, risk, contractors, or the dashboard? Include the mine, issue, and deadline when you can."},$={en:["What needs attention today?","How do I create a good inspection?","How should I handle an overdue compliance?"],hi:["आज किस बात पर ध्यान देना चाहिए?","मैं अच्छा निरीक्षण कैसे बनाऊँ?","समय-सीमा पार अनुपालन को कैसे संभालूँ?"]};function R(){const{user:c}=k(),{language:i}=y(),r=C[i],[t,a]=f.useState(""),[d,l]=f.useState(!1),[s,o]=f.useState([{id:1,sender:"bot",text:i==="hi"?`नमस्ते${c?.name?` ${c.name}`:""}! मैं निरीक्षण, अनुपालन, खदान सुरक्षा और डैशबोर्ड में आपकी मदद कर सकता हूँ।`:`Hello${c?.name?` ${c.name}`:""}! I can help with inspections, compliance, mine safety, and dashboards.`}]),x=async n=>{n.preventDefault();const m=t.trim();if(!m||d)return;const p=g(m,i);a(""),o(u=>[...u,{id:Date.now(),sender:"user",text:m}]),l(!0);try{await j({email:c?.email,message:m,reply:p}),o(u=>[...u,{id:Date.now()+1,sender:"bot",text:p}])}catch{o(v=>[...v,{id:Date.now()+1,sender:"bot",text:i==="hi"?"मैं अभी इसे संसाधित नहीं कर सका। कृपया फिर प्रयास करें।":"I could not process that right now. Please try again."}]),N.error("Could not send your message")}finally{l(!1)}},h=n=>{if(d)return;const m=g(n,i);o(p=>[...p,{id:Date.now(),sender:"user",text:n},{id:Date.now()+1,sender:"bot",text:m}])};return e.jsxs("section",{className:"mx-auto flex min-h-[calc(100vh-72px)] max-w-5xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100",children:[e.jsxs("div",{className:"mb-6 flex items-center justify-between gap-4",children:[e.jsxs("div",{children:[e.jsx("p",{className:"text-xs font-semibold uppercase tracking-[0.18em] text-[#9b6b16]",children:r.operationsAssistant}),e.jsx("h1",{className:"mt-1 text-3xl font-bold text-[#17314a] dark:text-white",children:r.coalAi}),e.jsx("p",{className:"mt-1 text-sm text-[#655b4e] dark:text-slate-400",children:r.chatSubtitle})]}),e.jsxs("div",{className:"hidden items-center gap-2 rounded-full border border-[#bfd9c8] bg-[#edf8f0] px-3 py-2 text-xs font-semibold text-[#267044] sm:flex",children:[e.jsx(A,{className:"h-4 w-4"})," ",r.secureSession]})]}),e.jsxs("div",{className:"flex min-h-[520px] flex-1 flex-col overflow-hidden rounded-2xl border border-[#d7c7ab] bg-[#fffdf9] shadow-[0_10px_30px_rgba(74,54,32,0.1)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none",children:[e.jsxs("div",{className:"flex items-center gap-3 border-b border-[#e6dccb] bg-[#17314a] px-5 py-4 text-white",children:[e.jsx("div",{className:"flex h-10 w-10 items-center justify-center rounded-full bg-[#e5a416] text-[#17314a]",children:e.jsx(b,{className:"h-5 w-5"})}),e.jsxs("div",{children:[e.jsx("p",{className:"font-semibold",children:r.coalAiAssistant}),e.jsx("p",{className:"text-xs text-[#c9d8e2]",children:r.readyToHelp})]})]}),e.jsxs("div",{className:"flex-1 space-y-4 overflow-y-auto bg-[#f7f1e7] p-4 sm:p-6 dark:bg-slate-800",children:[s.map(n=>e.jsxs("div",{className:`flex items-start gap-2 ${n.sender==="user"?"justify-end":"justify-start"}`,children:[n.sender==="bot"&&e.jsx(b,{className:"mt-1 h-4 w-4 shrink-0 text-[#9b6b16]"}),e.jsx("div",{className:`max-w-[min(80%,38rem)] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-relaxed ${n.sender==="user"?"rounded-br-sm bg-[#cfeaf9] text-[#10263d] dark:bg-sky-900/70 dark:text-sky-100":"rounded-bl-sm bg-white text-[#3d392f] shadow-sm dark:bg-slate-700 dark:text-slate-100"}`,children:n.text}),n.sender==="user"&&e.jsx(H,{className:"mt-1 h-4 w-4 shrink-0 text-[#17314a]"})]},n.id)),d&&e.jsx("p",{className:"pl-6 text-xs text-[#786f63]",children:r.thinking}),s.length===1&&e.jsx("div",{className:"ml-6 flex flex-wrap gap-2 pt-1",children:$[i].map(n=>e.jsxs("button",{type:"button",onClick:()=>h(n),className:"inline-flex items-center gap-1 rounded-full border border-[#d7c7ab] bg-white px-3 py-2 text-xs font-medium text-[#17314a] transition hover:border-[#9b6b16] hover:bg-[#fff8e8] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100",children:[e.jsx(I,{className:"h-3 w-3 text-[#b77909]"})," ",n]},n))})]}),e.jsx("form",{onSubmit:x,autoComplete:"off",className:"border-t border-[#e6dccb] bg-white p-4 dark:border-slate-700 dark:bg-slate-900",children:e.jsxs("div",{className:"flex items-center gap-2 rounded-xl border border-[#cdbd9f] bg-[#fffdf9] px-3 py-2 focus-within:border-[#17314a] focus-within:ring-2 focus-within:ring-[#17314a]/10 dark:border-slate-600 dark:bg-slate-800 dark:focus-within:border-sky-400",children:[e.jsx("input",{id:"chat-message",name:"message",type:"text",value:t,onChange:n=>a(n.target.value),placeholder:r.askCoalAi,className:"min-w-0 flex-1 bg-transparent px-1 text-sm text-[#17314a] outline-none placeholder:text-[#958a7b] dark:text-white dark:placeholder:text-slate-500",disabled:d,"aria-label":r.messageCoalAi}),e.jsx("button",{type:"submit",disabled:d||!t.trim(),className:"flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e5a416] text-[#151719] transition hover:bg-[#f5b82c] disabled:cursor-not-allowed disabled:opacity-50","aria-label":"Send message",title:"Send message",children:e.jsx(S,{className:"h-4 w-4"})})]})})]})]})}export{R as default};

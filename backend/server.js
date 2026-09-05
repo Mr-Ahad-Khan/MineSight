@@ -42,6 +42,11 @@ app.use(
     next();
   },
   express.static(path.join(__dirname, "uploads")),
+  (req, res) => {
+    res.status(404);
+    res.type(path.extname(req.path) || "bin");
+    res.end();
+  },
 );
 
 // Routes

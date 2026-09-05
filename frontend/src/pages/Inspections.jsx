@@ -199,6 +199,10 @@ export default function Inspections() {
                                   controls
                                   src={audioUrl}
                                   className="h-8 w-28"
+                                  onError={(event) => {
+                                    event.currentTarget.parentElement.style.display =
+                                      "none";
+                                  }}
                                 />
                               </div>
                             ) : null}

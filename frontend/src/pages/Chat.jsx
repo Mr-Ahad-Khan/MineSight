@@ -9,7 +9,15 @@ import { saveChatMessage } from "../services/api";
 const getAssistantReply = (message, language = "en") => {
   const lower = message.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ");
   const isHindi = language === "hi";
-  const has = (...terms) => terms.some((term) => lower.includes(term));
+  const has = (...terms) =>
+    terms.some((term) => {
+      const normalizedTerm = term.toLowerCase().trim();
+      if (!normalizedTerm) return false;
+      if (normalizedTerm.includes(" ")) return lower.includes(normalizedTerm);
+      return new RegExp(`(?:^|\\s)${normalizedTerm}(?:$|\\s)`, "u").test(
+        lower,
+      );
+    });
   const mineNames = [
     "Jayant",
     "Amlohri",
@@ -34,6 +42,33 @@ const getAssistantReply = (message, language = "en") => {
     return isHindi
       ? "नमस्ते। मैं अलर्ट, निरीक्षण, अनुपालन, जोखिम, ठेकेदार और डैशबोर्ड कार्रवाई में मदद कर सकता हूँ। उदाहरण के लिए पूछें: ‘आज सबसे जरूरी क्या है?’"
       : "Hello. I can help with alerts, inspections, compliance, risk, contractors, and dashboard actions. Try asking, ‘What needs attention today?’";
+  }
+
+  if (has("help", "what can you do", "मदद", "क्या कर सकते")) {
+    return isHindi
+      ? "मैं इन कामों में मदद कर सकता हूँ:\n• आज की प्राथमिकताएँ और critical alerts\n• निरीक्षण और corrective actions\n• overdue compliance और permits\n• mine risk और trend review\n• contractor compliance\n\nकिसी खदान का नाम, समस्या और deadline दें, मैं अगला action plan बनाऊँगा।"
+      : "I can help with:\n• Today’s priorities and critical alerts\n• Inspections and corrective actions\n• Overdue compliance and permits\n• Mine risk and trend review\n• Contractor compliance\n\nShare the mine, issue, and deadline and I’ll turn it into a clear action plan.";
+  }
+
+  if (has("go", "open", "show", "demo", "navigate", "जाएँ", "खोलें")) {
+    if (has("dashboard", "डैशबोर्ड")) {
+      return isHindi
+        ? "डैशबोर्ड खोलकर पहले risk distribution, high-risk inspections और recent alerts देखें। फिर किसी item को खोलकर owner और due date असाइन करें।"
+        : "Open the dashboard and start with risk distribution, high-risk inspections, and recent alerts. Open an item next, then assign an owner and due date.";
+    }
+    if (has("alert", "अलर्ट")) {
+      return isHindi
+        ? "Alerts में Critical और High को पहले फ़िल्टर करें। प्रभावित खदान, तत्काल नियंत्रण, owner और due date की पुष्टि करें।"
+        : "In Alerts, filter Critical and High first. Confirm the affected mine, interim control, owner, and due date before closing anything.";
+    }
+    if (has("inspection", "निरीक्षण")) {
+      return isHindi
+        ? "Inspections खोलें, सही खदान चुनें और नया निरीक्षण बनाएँ। हर finding में severity, corrective action, owner और target date भरें।"
+        : "Open Inspections, choose the correct mine, and create a new inspection. Add severity, corrective action, owner, and target date for every finding.";
+    }
+    return isHindi
+      ? "मैं आपको सही मॉड्यूल तक ले जा सकता हूँ। Dashboard, alerts, inspections, compliance या contractors में से कौन सा खोलना है?"
+      : "I can guide you to the right module. Should we open the dashboard, alerts, inspections, compliance, or contractors?";
   }
 
   if (
@@ -122,8 +157,8 @@ const getAssistantReply = (message, language = "en") => {
   }
 
   return isHindi
-    ? "मैं आपको कार्रवाई तक पहुँचा सकता हूँ। खदान का नाम, समस्या, गंभीरता और समय-सीमा बताइए। आप alerts, inspection, compliance, risk, contractor या dashboard के बारे में पूछ सकते हैं।"
-    : "I can turn this into an operational action. Include the mine, issue, severity, and deadline. You can ask about alerts, inspections, compliance, risk, contractors, or the dashboard.";
+    ? "मैं इस अनुरोध को बेहतर तरीके से संभालने के लिए थोड़ा संदर्भ चाहता हूँ। क्या आप alerts, inspections, compliance, risk, contractors या dashboard के बारे में पूछ रहे हैं? खदान का नाम, समस्या और deadline भी दें।"
+    : "I need a little more context to give a useful answer. Are you asking about alerts, inspections, compliance, risk, contractors, or the dashboard? Include the mine, issue, and deadline when you can.";
 };
 
 const prompts = {
