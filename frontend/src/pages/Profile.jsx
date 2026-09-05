@@ -113,7 +113,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 p-6">
+        <form onSubmit={handleSubmit} autoComplete="off" className="space-y-5 p-6">
           <div className="flex items-center gap-4 border-b border-slate-200 pb-5 dark:border-slate-700">
             {previewUrl ? (
               <img

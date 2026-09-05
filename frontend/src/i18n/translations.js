@@ -12,7 +12,8 @@ export const translations = {
     welcomeBack: "Welcome back",
     signInToAccount: "Sign in to your account",
     backToLanding: "Back to landing page",
-    signInHint: "Sign in with the email and password you used during registration.",
+    signInHint:
+      "Sign in with the email and password you used during registration.",
     optional: "optional",
     contractorDemo: "Contractor demo — Ananya Singh, Shakti Contractors",
     dontHaveAccount: "Don’t have an account?",
@@ -86,7 +87,8 @@ export const translations = {
     noAlerts: "No alerts",
     alertsMarkedRead: "All alerts marked as read",
     inspectionEscalated: "Inspection Escalated",
-    inspectionEscalatedMessage: "Inspection has been escalated for higher attention.",
+    inspectionEscalatedMessage:
+      "Inspection has been escalated for higher attention.",
     highRiskInspection: "High Risk Inspection",
     highRiskInspectionMessage: "Immediate attention required.",
     insightTitle: "AI Analytics",
@@ -240,7 +242,8 @@ export const translations = {
     welcomeBack: "वापसी पर आपका स्वागत है",
     signInToAccount: "अपने अकाउंट में साइन इन करें",
     backToLanding: "लैंडिंग पेज पर वापस जाएँ",
-    signInHint: "पंजीकरण के दौरान इस्तेमाल किए गए ईमेल और पासवर्ड से साइन इन करें।",
+    signInHint:
+      "पंजीकरण के दौरान इस्तेमाल किए गए ईमेल और पासवर्ड से साइन इन करें।",
     optional: "वैकल्पिक",
     contractorDemo: "ठेकेदार डेमो — अनन्या सिंह, शक्ति कॉन्ट्रैक्टर्स",
     dontHaveAccount: "क्या आपका अकाउंट नहीं है?",

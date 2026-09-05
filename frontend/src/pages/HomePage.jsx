@@ -821,13 +821,27 @@ export default function HomePage() {
     const lower = message.toLowerCase();
 
     if (language === "hi") {
-      if (lower.includes("inspection") || lower.includes("inspect") || message.includes("निरीक्षण")) {
+      if (
+        lower.includes("inspection") ||
+        lower.includes("inspect") ||
+        message.includes("निरीक्षण")
+      ) {
         return "आप डैशबोर्ड और निरीक्षण मॉड्यूल से निरीक्षण की स्थिति, फ़ोटो और वॉइस नोट देख सकते हैं।";
       }
-      if (lower.includes("risk") || lower.includes("safety") || message.includes("जोखिम") || message.includes("सुरक्षा")) {
+      if (
+        lower.includes("risk") ||
+        lower.includes("safety") ||
+        message.includes("जोखिम") ||
+        message.includes("सुरक्षा")
+      ) {
         return "मैं उच्च जोखिम वाली खदानों को प्राथमिकता देने और सुरक्षा संबंधी कार्रवाई को रियल टाइम में ट्रैक करने में मदद कर सकता हूँ।";
       }
-      if (lower.includes("compliance") || lower.includes("permit") || message.includes("अनुपालन") || message.includes("परमिट")) {
+      if (
+        lower.includes("compliance") ||
+        lower.includes("permit") ||
+        message.includes("अनुपालन") ||
+        message.includes("परमिट")
+      ) {
         return "अनुपालन ट्रैकिंग में सभी खदानों के परमिट, समय-सीमा और अलर्ट फॉलो-अप उपलब्ध हैं।";
       }
       if (lower.includes("contractor") || message.includes("ठेकेदार")) {
@@ -1013,7 +1027,10 @@ export default function HomePage() {
             }}
           >
             <div className="mx-auto flex min-h-[520px] max-w-7xl items-center justify-center px-4 py-14 text-center sm:min-h-[590px] sm:px-8 sm:py-20 lg:min-h-[650px] lg:px-10 lg:py-24">
-              <div key={current.title} className="mx-auto flex w-full max-w-4xl flex-col items-center">
+              <div
+                key={current.title}
+                className="mx-auto flex w-full max-w-4xl flex-col items-center"
+              >
                 <p className="hero-text-reveal hero-text-reveal-delay-1 mb-5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f3b323] sm:mb-6 sm:text-xs sm:tracking-[0.24em]">
                   {current.badge}
                 </p>
@@ -1467,7 +1484,11 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <form onSubmit={handleContactSubmit} className="space-y-3.5">
+                <form
+                  onSubmit={handleContactSubmit}
+                  autoComplete="off"
+                  className="space-y-3.5"
+                >
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                       Name
@@ -1665,9 +1686,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 flex flex-col items-center gap-3 border-t border-white/10 pt-5 text-center text-xs text-[#758b8e] sm:flex-row sm:justify-center">
-            <p>
-              {t.footerCopyright}
-            </p>
+            <p>{t.footerCopyright}</p>
             <div className="flex flex-wrap justify-center gap-5">
               <span>{t.privacy}</span>
               <span>{t.security}</span>
@@ -1704,10 +1723,14 @@ export default function HomePage() {
             {!assistantChatOpen ? (
               <div className="px-4 pb-4 pt-4">
                 <h2 className="text-2xl font-semibold leading-tight text-white">
-                  {language === "hi" ? "क्या हम आपकी सहायता कर सकते हैं?" : "Can we help you?"}
+                  {language === "hi"
+                    ? "क्या हम आपकी सहायता कर सकते हैं?"
+                    : "Can we help you?"}
                 </h2>
                 <p className="mt-2 text-sm text-[#c6c7c1]">
-                  {language === "hi" ? "निरीक्षण, अनुपालन या खदान सुरक्षा के बारे में पूछें।" : "Ask about inspections, compliance, or mine safety."}
+                  {language === "hi"
+                    ? "निरीक्षण, अनुपालन या खदान सुरक्षा के बारे में पूछें।"
+                    : "Ask about inspections, compliance, or mine safety."}
                 </p>
 
                 <div className="mt-5 space-y-2.5">
@@ -1753,7 +1776,11 @@ export default function HomePage() {
                     type="button"
                     onClick={() => setAssistantOpen(false)}
                     className="text-lg text-slate-300 hover:text-white"
-                      aria-label={language === "hi" ? "कोल एआई बंद करें" : "Close AI assistant"}
+                    aria-label={
+                      language === "hi"
+                        ? "कोल एआई बंद करें"
+                        : "Close AI assistant"
+                    }
                   >
                     ×
                   </button>
@@ -1783,7 +1810,11 @@ export default function HomePage() {
                     type="email"
                     value={assistantEmail}
                     onChange={(e) => setAssistantEmail(e.target.value)}
-                    placeholder={language === "hi" ? "उत्तर पाने के लिए अपना ईमेल लिखें" : "Your email to receive a reply"}
+                    placeholder={
+                      language === "hi"
+                        ? "उत्तर पाने के लिए अपना ईमेल लिखें"
+                        : "Your email to receive a reply"
+                    }
                     className="mb-2 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs text-white outline-none placeholder:text-slate-500 focus:border-[#e5a416]"
                     required
                   />
@@ -1804,7 +1835,11 @@ export default function HomePage() {
                       disabled={assistantSending || !assistantEmail.trim()}
                       className="rounded-full bg-[#e5a416] px-3 py-1.5 text-sm font-semibold text-[#151719] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {assistantSending ? "..." : language === "hi" ? "भेजें" : "Send"}
+                      {assistantSending
+                        ? "..."
+                        : language === "hi"
+                          ? "भेजें"
+                          : "Send"}
                     </button>
                   </div>
                 </div>

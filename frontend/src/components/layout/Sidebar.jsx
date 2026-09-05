@@ -55,6 +55,9 @@ export default function Sidebar({ open, setOpen }) {
           <button
             onClick={() => setOpen(false)}
             className="lg:hidden p-1 rounded hover:bg-white/10"
+            type="button"
+            title="Close sidebar"
+            aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
           </button>

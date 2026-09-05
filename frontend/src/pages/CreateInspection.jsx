@@ -253,7 +253,7 @@ export default function CreateInspection() {
   const selectedMine = mines.find((mine) => mine._id === form.mineId);
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="w-full space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <div className="text-center">
         <h1 className="text-2xl font-bold">{t.createInspectionTitle}</h1>
         <p className="text-sm text-slate-500 mt-1">
@@ -263,7 +263,8 @@ export default function CreateInspection() {
 
       <form
         onSubmit={handleSubmit}
-        className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-5 lg:gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(400px,1fr)]"
+        autoComplete="off"
+        className="grid w-full grid-cols-1 items-start gap-5 lg:gap-6 xl:grid-cols-2"
       >
         <div className="order-first flex flex-wrap justify-center gap-3 border-b border-slate-200 pb-5 dark:border-slate-800 xl:col-span-2">
           <button
@@ -283,9 +284,9 @@ export default function CreateInspection() {
           </button>
         </div>
 
-        <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <div className="grid items-stretch gap-6 lg:grid-cols-2 xl:contents">
           {/* Basic Info */}
-          <div className="card space-y-4 p-4 sm:p-5 lg:col-span-2">
+          <div className="card space-y-4 p-4 sm:p-5 lg:col-span-2 xl:col-span-1 xl:col-start-1 xl:row-start-2">
             <h2 className="font-semibold">{t.basicInformation}</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -462,7 +463,7 @@ export default function CreateInspection() {
           </div>
 
           {/* Geo Location */}
-          <div className="card flex h-full flex-col space-y-4 p-4 sm:p-5">
+          <div className="card flex h-full flex-col space-y-4 p-4 sm:p-5 xl:col-start-1 xl:row-start-3">
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-primary-600" />
               <h2 className="font-semibold">{t.geoLocation}</h2>
@@ -490,7 +491,7 @@ export default function CreateInspection() {
           </div>
 
           {/* Violations */}
-          <div className="card flex h-full flex-col justify-center space-y-4 p-4 sm:p-5">
+          <div className="card flex h-full flex-col justify-center space-y-4 p-4 sm:p-5 xl:col-start-2 xl:row-start-3">
             <h2 className="font-semibold">{t.violationsFound}</h2>
 
             {form.violations.length > 0 && (
@@ -576,7 +577,7 @@ export default function CreateInspection() {
           </div>
         </div>
 
-        <aside className="space-y-6 xl:sticky xl:top-6">
+        <aside className="space-y-6 xl:col-start-2 xl:row-start-2">
           <div className="card overflow-hidden">
             <div className="border-b border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50">
               <div className="flex items-center gap-2">

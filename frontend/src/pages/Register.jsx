@@ -173,7 +173,7 @@ export default function Register() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
               <div>
                 <label className="label">Full name</label>
                 <input

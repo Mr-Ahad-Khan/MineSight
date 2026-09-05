@@ -38,6 +38,30 @@ function App() {
     initTheme()
   }, [])
 
+  useEffect(() => {
+    const enhanceControls = () => {
+      document.querySelectorAll('form').forEach((form) => {
+        form.setAttribute('autocomplete', 'off')
+      })
+
+      document.querySelectorAll('button').forEach((button) => {
+        if (button.title) return
+
+        const label =
+          button.getAttribute('aria-label') ||
+          button.textContent?.replace(/\s+/g, ' ').trim() ||
+          'Button'
+        button.setAttribute('title', label)
+      })
+    }
+
+    enhanceControls()
+    const observer = new MutationObserver(enhanceControls)
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <Suspense fallback={<main className="min-h-screen bg-slate-50 dark:bg-slate-950" aria-label="Loading page" />}>
       <Routes>

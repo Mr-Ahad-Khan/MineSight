@@ -167,7 +167,7 @@ export default function Login() {
               {t.signInToAccount}
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
               <div>
                 <label className="label">{t.email}</label>
                 <input
