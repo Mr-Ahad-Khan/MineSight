@@ -267,7 +267,11 @@ The backend can run on any Node.js host that supports persistent MongoDB connect
 - `NODE_ENV=production`
 - SMTP variables if email OTP delivery is enabled
 
-Uploaded inspection media are served from `/uploads` in local development. For production, use durable object storage if files must survive redeploys or instance restarts.
+Uploaded media use local `/uploads` storage in development. Configure these Render environment variables to store inspection photos, audio, and profile pictures durably in Cloudinary:
+
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
 
 ### Frontend
 

@@ -14,6 +14,10 @@
     "/^Push-Location backend; node --check server\\.js; node --check routes/inspectionRoutes\\.js; node -e \"console\\.log\\(require\\.resolve\\('mime-types'\\)\\)\"; Pop-Location$/": {
       "approve": true,
       "matchCommandLine": true
+    },
+    "/^node --check backend/utils/mediaStorage\\.js; node --check backend/routes/inspectionRoutes\\.js; node --check backend/routes/authRoutes\\.js; node --check backend/controllers/inspectionController\\.js; node --check backend/controllers/authController\\.js$/": {
+      "approve": true,
+      "matchCommandLine": true
     }
   }
 }

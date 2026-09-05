@@ -4,6 +4,7 @@ const EmailOtp = require("../models/EmailOtp");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const generateToken = require("../utils/generateToken");
+const { getStoredMediaPath } = require("../utils/mediaStorage");
 
 const normalizeEmail = (email) =>
   String(email || "")
@@ -250,7 +251,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   if (name !== undefined) user.name = name.trim();
   if (email !== undefined) user.email = email.trim().toLowerCase();
   if (phone !== undefined) user.phone = phone.trim();
-  if (req.file) user.profilePicture = `/uploads/${req.file.filename}`;
+  if (req.file) user.profilePicture = getStoredMediaPath(req.file);
   if (password) user.password = password;
 
   if (!user.name || !user.email) {

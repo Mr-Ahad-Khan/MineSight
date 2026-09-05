@@ -1,6 +1,4 @@
 const express = require("express");
-const path = require("path");
-const fs = require("fs");
 const multer = require("multer");
 const router = express.Router();
 const {
@@ -12,21 +10,10 @@ const {
   updateProfile,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
-
-const uploadDir = path.join(__dirname, "../uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+const { createMediaStorage } = require("../utils/mediaStorage");
 
 const profileUpload = multer({
-  storage: multer.diskStorage({
-    destination: uploadDir,
-    filename: (req, file, cb) => {
-      const extension = path.extname(file.originalname).toLowerCase() || ".jpg";
-      cb(
-        null,
-        `profile-${Date.now()}-${Math.round(Math.random() * 1e9)}${extension}`,
-      );
-    },
-  }),
+  storage: createMediaStorage("profiles"),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) return cb(null, true);

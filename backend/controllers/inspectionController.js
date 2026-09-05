@@ -3,6 +3,7 @@ const Inspection = require('../models/Inspection');
 const Mine = require('../models/Mine');
 const Alert = require('../models/Alert');
 const { calculateRiskScore, getRiskLevel } = require('../utils/riskCalculator');
+const { getStoredMediaPath } = require('../utils/mediaStorage');
 
 const parseFormDataValue = (value, fallback = null) => {
   if (value === undefined || value === null || value === '') {
@@ -95,10 +96,10 @@ const createInspection = asyncHandler(async (req, res) => {
   const violations = parseFormDataValue(parsedBody.violations, []) || [];
   const existingPhotos = parseFormDataValue(parsedBody.photos, []) || [];
   const offlineId = parsedBody.offlineId;
-  const uploadedPhotos = (req.files?.photos || []).map((file) => `/uploads/${file.filename}`);
+  const uploadedPhotos = (req.files?.photos || []).map(getStoredMediaPath);
   const photos = [...existingPhotos, ...uploadedPhotos].filter(Boolean);
   const audio = req.files?.audio?.[0]
-    ? `/uploads/${req.files.audio[0].filename}`
+    ? getStoredMediaPath(req.files.audio[0])
     : parseFormDataValue(parsedBody.audio, null);
 
   if (!mineId || !title) {
