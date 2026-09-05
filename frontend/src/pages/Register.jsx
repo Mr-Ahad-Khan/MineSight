@@ -173,10 +173,17 @@ export default function Register() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
+            <form
+              onSubmit={handleSubmit}
+              autoComplete="off"
+              className="space-y-4"
+            >
               <div>
-                <label className="label">Full name</label>
+                <label className="label" htmlFor="register-name">
+                  Full name
+                </label>
                 <input
+                  id="register-name"
                   type="text"
                   name="name"
                   value={form.name}
@@ -224,6 +231,8 @@ export default function Register() {
                 {otpSent && !emailVerificationToken && (
                   <div className="mt-2">
                     <input
+                      id="email-otp"
+                      name="emailOtp"
                       type="text"
                       inputMode="numeric"
                       value={otp}
@@ -262,8 +271,11 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="label">Role</label>
+                <label className="label" htmlFor="register-role">
+                  Role
+                </label>
                 <select
+                  id="register-role"
                   name="role"
                   value={form.role}
                   onChange={handleChange}
@@ -278,9 +290,12 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="label">Password</label>
+                <label className="label" htmlFor="register-password">
+                  Password
+                </label>
                 <div className="relative">
                   <input
+                    id="register-password"
                     type={showPassword ? "text" : "password"}
                     name="password"
                     value={form.password}

@@ -1490,10 +1490,15 @@ export default function HomePage() {
                   className="space-y-3.5"
                 >
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    <label
+                      htmlFor="contact-name"
+                      className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
+                    >
                       Name
                     </label>
                     <input
+                      id="contact-name"
+                      name="name"
                       type="text"
                       value={contactForm.name}
                       onChange={(e) =>
@@ -1507,10 +1512,15 @@ export default function HomePage() {
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      <label
+                        htmlFor="contact-email"
+                        className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
+                      >
                         Email
                       </label>
                       <input
+                        id="contact-email"
+                        name="email"
                         type="email"
                         value={contactForm.email}
                         onChange={(e) =>
@@ -1525,10 +1535,15 @@ export default function HomePage() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      <label
+                        htmlFor="contact-organization"
+                        className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
+                      >
                         Organization
                       </label>
                       <input
+                        id="contact-organization"
+                        name="organization"
                         type="text"
                         value={contactForm.organization}
                         onChange={(e) =>
@@ -1544,10 +1559,15 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    <label
+                      htmlFor="contact-subject"
+                      className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
+                    >
                       What can we help with?
                     </label>
                     <select
+                      id="contact-subject"
+                      name="subject"
                       value={contactForm.subject}
                       onChange={(e) =>
                         setContactForm({
@@ -1569,10 +1589,15 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    <label
+                      htmlFor="contact-message"
+                      className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
+                    >
                       Message
                     </label>
                     <textarea
+                      id="contact-message"
+                      name="message"
                       value={contactForm.message}
                       onChange={(e) =>
                         setContactForm({
@@ -1807,6 +1832,8 @@ export default function HomePage() {
 
                 <div className="border-t border-white/10 bg-[#101416] p-3">
                   <input
+                    id="assistant-email"
+                    name="assistantEmail"
                     type="email"
                     value={assistantEmail}
                     onChange={(e) => setAssistantEmail(e.target.value)}
@@ -1820,6 +1847,8 @@ export default function HomePage() {
                   />
                   <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2">
                     <input
+                      id="assistant-message"
+                      name="assistantMessage"
                       type="text"
                       value={assistantInput}
                       onChange={(e) => setAssistantInput(e.target.value)}

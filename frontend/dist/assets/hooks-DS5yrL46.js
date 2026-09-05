@@ -1,0 +1,1 @@
+import{r as n}from"./index-DNSq694k.js";import{u as o}from"./leafletAssets-DamuA34h.js";function r(){return o().map}function p(e){const t=r();return n.useEffect(function(){return t.on(e),function(){t.off(e)}},[t,e]),t}export{p as a,r as u};

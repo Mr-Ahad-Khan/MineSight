@@ -167,10 +167,18 @@ export default function Login() {
               {t.signInToAccount}
             </p>
 
-            <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
+            <form
+              onSubmit={handleSubmit}
+              autoComplete="off"
+              className="space-y-4"
+            >
               <div>
-                <label className="label">{t.email}</label>
+                <label className="label" htmlFor="login-email">
+                  {t.email}
+                </label>
                 <input
+                  id="login-email"
+                  name="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -181,9 +189,13 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="label">{t.password}</label>
+                <label className="label" htmlFor="login-password">
+                  {t.password}
+                </label>
                 <div className="relative">
                   <input
+                    id="login-password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

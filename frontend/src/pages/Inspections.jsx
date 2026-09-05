@@ -86,6 +86,9 @@ export default function Inspections() {
 
           <div className="flex items-center gap-3">
             <select
+              id="inspection-status-filter"
+              name="status"
+              aria-label={t.allStatus}
               value={filters.status}
               onChange={(e) =>
                 setFilters({ ...filters, status: e.target.value })
@@ -100,6 +103,9 @@ export default function Inspections() {
             </select>
 
             <select
+              id="inspection-severity-filter"
+              name="severity"
+              aria-label={t.allSeverity}
               value={filters.severity}
               onChange={(e) =>
                 setFilters({ ...filters, severity: e.target.value })

@@ -256,6 +256,8 @@ export default function Chat() {
         >
           <div className="flex items-center gap-2 rounded-xl border border-[#cdbd9f] bg-[#fffdf9] px-3 py-2 focus-within:border-[#17314a] focus-within:ring-2 focus-within:ring-[#17314a]/10 dark:border-slate-600 dark:bg-slate-800 dark:focus-within:border-sky-400">
             <input
+              id="chat-message"
+              name="message"
               type="text"
               value={input}
               onChange={(event) => setInput(event.target.value)}

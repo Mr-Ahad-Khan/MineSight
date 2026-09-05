@@ -291,8 +291,12 @@ export default function CreateInspection() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="label">{t.mineRequired}</label>
+                <label className="label" htmlFor="inspection-mine">
+                  {t.mineRequired}
+                </label>
                 <select
+                  id="inspection-mine"
+                  name="mineId"
                   value={form.mineId}
                   onChange={(e) => setForm({ ...form, mineId: e.target.value })}
                   className="input-field"
@@ -307,8 +311,12 @@ export default function CreateInspection() {
                 </select>
               </div>
               <div>
-                <label className="label">{t.inspectionType}</label>
+                <label className="label" htmlFor="inspection-type">
+                  {t.inspectionType}
+                </label>
                 <select
+                  id="inspection-type"
+                  name="type"
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
                   className="input-field"
@@ -323,8 +331,12 @@ export default function CreateInspection() {
             </div>
 
             <div>
-              <label className="label">{t.titleRequired}</label>
+              <label className="label" htmlFor="inspection-title">
+                {t.titleRequired}
+              </label>
               <input
+                id="inspection-title"
+                name="title"
                 type="text"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -335,8 +347,12 @@ export default function CreateInspection() {
             </div>
 
             <div>
-              <label className="label">{t.description}</label>
+              <label className="label" htmlFor="inspection-description">
+                {t.description}
+              </label>
               <textarea
+                id="inspection-description"
+                name="description"
                 value={form.description}
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
@@ -348,8 +364,12 @@ export default function CreateInspection() {
             </div>
 
             <div>
-              <label className="label">{t.observations}</label>
+              <label className="label" htmlFor="inspection-observations">
+                {t.observations}
+              </label>
               <textarea
+                id="inspection-observations"
+                name="observations"
                 value={form.observations}
                 onChange={(e) =>
                   setForm({ ...form, observations: e.target.value })
@@ -362,8 +382,12 @@ export default function CreateInspection() {
 
             <div className="grid gap-4 pt-2 md:grid-cols-3 md:items-end">
               <div>
-                <label className="label">{t.severity}</label>
+                <label className="label" htmlFor="inspection-severity">
+                  {t.severity}
+                </label>
                 <select
+                  id="inspection-severity"
+                  name="severity"
                   value={form.severity}
                   onChange={(e) =>
                     setForm({ ...form, severity: e.target.value })
@@ -378,7 +402,7 @@ export default function CreateInspection() {
               </div>
 
               <div>
-                <label className="label">Voice Note</label>
+                <div className="label">Voice Note</div>
                 <div className="flex min-h-14 flex-wrap items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
                   {!isRecording ? (
                     <button
@@ -420,12 +444,16 @@ export default function CreateInspection() {
               </div>
 
               <div>
-                <label className="label">Site Photos</label>
+                <label className="label" htmlFor="site-photos">
+                  Site Photos
+                </label>
                 <div className="flex min-h-14 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#0b3d91] px-3 py-2 text-sm font-medium text-white hover:bg-[#0a2f6d]">
                     <Upload className="h-4 w-4" />
                     Upload Photos
                     <input
+                      id="site-photos"
+                      name="photos"
                       type="file"
                       accept="image/*"
                       multiple
@@ -521,6 +549,8 @@ export default function CreateInspection() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg">
               <input
+                id="violation-description"
+                name="violationDescription"
                 type="text"
                 value={violation.description}
                 onChange={(e) =>
@@ -530,6 +560,8 @@ export default function CreateInspection() {
                 placeholder="Violation description"
               />
               <select
+                id="violation-category"
+                name="violationCategory"
                 value={violation.category}
                 onChange={(e) =>
                   setViolation({ ...violation, category: e.target.value })
@@ -543,6 +575,8 @@ export default function CreateInspection() {
                 <option value="other">Other</option>
               </select>
               <select
+                id="violation-severity"
+                name="violationSeverity"
                 value={violation.severity}
                 onChange={(e) =>
                   setViolation({ ...violation, severity: e.target.value })
@@ -555,6 +589,8 @@ export default function CreateInspection() {
                 <option value="critical">Critical</option>
               </select>
               <input
+                id="violation-corrective-action"
+                name="violationCorrectiveAction"
                 type="text"
                 value={violation.correctiveAction}
                 onChange={(e) =>
