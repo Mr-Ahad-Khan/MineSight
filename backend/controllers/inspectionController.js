@@ -1,16 +1,16 @@
-const asyncHandler = require('express-async-handler');
-const Inspection = require('../models/Inspection');
-const Mine = require('../models/Mine');
-const Alert = require('../models/Alert');
-const { calculateRiskScore, getRiskLevel } = require('../utils/riskCalculator');
-const { getStoredMediaPath } = require('../utils/mediaStorage');
+const asyncHandler = require("express-async-handler");
+const Inspection = require("../models/Inspection");
+const Mine = require("../models/Mine");
+const Alert = require("../models/Alert");
+const { calculateRiskScore, getRiskLevel } = require("../utils/riskCalculator");
+const { getStoredMediaPath } = require("../utils/mediaStorage");
 
 const parseFormDataValue = (value, fallback = null) => {
-  if (value === undefined || value === null || value === '') {
+  if (value === undefined || value === null || value === "") {
     return fallback;
   }
 
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     try {
       const parsed = JSON.parse(value);
       return parsed;
@@ -33,7 +33,7 @@ const getInspections = asyncHandler(async (req, res) => {
   let query = {};
 
   // Role based filtering
-  if (req.user.role === 'mine_official' && req.user.mineId) {
+  if (req.user.role === "mine_official" && req.user.mineId) {
     query.mineId = req.user.mineId;
   } else if (req.query.mineId) {
     query.mineId = req.query.mineId;
@@ -45,8 +45,8 @@ const getInspections = asyncHandler(async (req, res) => {
 
   const total = await Inspection.countDocuments(query);
   const inspections = await Inspection.find(query)
-    .populate('mineId', 'name code subsidiary')
-    .populate('inspectorId', 'name email')
+    .populate("mineId", "name code subsidiary")
+    .populate("inspectorId", "name email")
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 });
@@ -66,12 +66,12 @@ const getInspections = asyncHandler(async (req, res) => {
 // @access  Private
 const getInspectionById = asyncHandler(async (req, res) => {
   const inspection = await Inspection.findById(req.params.id)
-    .populate('mineId', 'name code subsidiary location')
-    .populate('inspectorId', 'name email phone');
+    .populate("mineId", "name code subsidiary location")
+    .populate("inspectorId", "name email phone");
 
   if (!inspection) {
     res.status(404);
-    throw new Error('Inspection not found');
+    throw new Error("Inspection not found");
   }
 
   res.json({
@@ -104,7 +104,7 @@ const createInspection = asyncHandler(async (req, res) => {
 
   if (!mineId || !title) {
     res.status(400);
-    throw new Error('Please provide mineId and title');
+    throw new Error("Please provide mineId and title");
   }
 
   // Check if offlineId already exists (prevent duplicate offline sync)
@@ -113,7 +113,7 @@ const createInspection = asyncHandler(async (req, res) => {
     if (existing) {
       return res.json({
         success: true,
-        message: 'Already synced',
+        message: "Already synced",
         data: existing,
       });
     }
@@ -122,11 +122,11 @@ const createInspection = asyncHandler(async (req, res) => {
   const inspectionData = {
     mineId,
     inspectorId: req.user._id,
-    type: type || 'scheduled',
+    type: type || "scheduled",
     title,
     description,
     observations,
-    severity: severity || 'medium',
+    severity: severity || "medium",
     violations: violations || [],
     photos: photos || [],
     audio,
@@ -135,7 +135,7 @@ const createInspection = asyncHandler(async (req, res) => {
 
   if (coordinates && coordinates.length === 2) {
     inspectionData.location = {
-      type: 'Point',
+      type: "Point",
       coordinates,
     };
   }
@@ -149,10 +149,10 @@ const createInspection = asyncHandler(async (req, res) => {
   if (inspection.riskScore >= 60) {
     await Alert.create({
       mineId,
-      type: 'high_risk',
+      type: "high_risk",
       title: `High Risk Inspection: ${title}`,
       message: `Risk Score: ${inspection.riskScore}. Immediate attention required.`,
-      severity: inspection.riskScore >= 80 ? 'critical' : 'warning',
+      severity: inspection.riskScore >= 80 ? "critical" : "warning",
       relatedInspection: inspection._id,
       assignedTo: req.user._id,
     });
@@ -168,16 +168,16 @@ const createInspection = asyncHandler(async (req, res) => {
     });
 
     if (recentHighRisk >= 3) {
-      mine.riskLevel = 'high';
+      mine.riskLevel = "high";
     } else if (recentHighRisk >= 1) {
-      mine.riskLevel = 'medium';
+      mine.riskLevel = "medium";
     }
     await mine.save();
   }
 
   const populated = await Inspection.findById(inspection._id)
-    .populate('mineId', 'name code')
-    .populate('inspectorId', 'name');
+    .populate("mineId", "name code")
+    .populate("inspectorId", "name");
 
   res.status(201).json({
     success: true,
@@ -193,7 +193,7 @@ const updateInspection = asyncHandler(async (req, res) => {
 
   if (!inspection) {
     res.status(404);
-    throw new Error('Inspection not found');
+    throw new Error("Inspection not found");
   }
 
   // Recalculate risk if violations or severity changed
@@ -206,7 +206,7 @@ const updateInspection = asyncHandler(async (req, res) => {
   }
 
   // If status is closed
-  if (req.body.status === 'closed' && inspection.status !== 'closed') {
+  if (req.body.status === "closed" && inspection.status !== "closed") {
     req.body.closedAt = Date.now();
   }
 
@@ -214,17 +214,17 @@ const updateInspection = asyncHandler(async (req, res) => {
     new: true,
     runValidators: true,
   })
-    .populate('mineId', 'name code')
-    .populate('inspectorId', 'name');
+    .populate("mineId", "name code")
+    .populate("inspectorId", "name");
 
   // Create escalation alert
-  if (req.body.status === 'escalated') {
+  if (req.body.status === "escalated") {
     await Alert.create({
       mineId: inspection.mineId,
-      type: 'escalation',
+      type: "escalation",
       title: `Inspection Escalated: ${inspection.title}`,
       message: `Inspection has been escalated for higher attention.`,
-      severity: 'critical',
+      severity: "critical",
       relatedInspection: inspection._id,
     });
   }
@@ -243,14 +243,14 @@ const deleteInspection = asyncHandler(async (req, res) => {
 
   if (!inspection) {
     res.status(404);
-    throw new Error('Inspection not found');
+    throw new Error("Inspection not found");
   }
 
   await inspection.deleteOne();
 
   res.json({
     success: true,
-    message: 'Inspection deleted successfully',
+    message: "Inspection deleted successfully",
     data: { id: req.params.id },
   });
 });
@@ -263,16 +263,16 @@ const closeViolation = asyncHandler(async (req, res) => {
 
   if (!inspection) {
     res.status(404);
-    throw new Error('Inspection not found');
+    throw new Error("Inspection not found");
   }
 
   const violation = inspection.violations.id(req.params.violationId);
   if (!violation) {
     res.status(404);
-    throw new Error('Violation not found');
+    throw new Error("Violation not found");
   }
 
-  violation.status = 'closed';
+  violation.status = "closed";
   violation.closedAt = Date.now();
 
   // Recalculate risk

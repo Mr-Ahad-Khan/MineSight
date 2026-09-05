@@ -7,8 +7,8 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const uploadDir = path.join(__dirname, "../uploads");
 const cloudinaryConfigured = Boolean(
   process.env.CLOUDINARY_CLOUD_NAME &&
-    process.env.CLOUDINARY_API_KEY &&
-    process.env.CLOUDINARY_API_SECRET,
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET,
 );
 
 if (cloudinaryConfigured) {
@@ -46,4 +46,8 @@ const createMediaStorage = (folder) => {
 const getStoredMediaPath = (file) =>
   cloudinaryConfigured ? file.path : `/uploads/${file.filename}`;
 
-module.exports = { createMediaStorage, getStoredMediaPath, cloudinaryConfigured };
+module.exports = {
+  createMediaStorage,
+  getStoredMediaPath,
+  cloudinaryConfigured,
+};

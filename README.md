@@ -26,16 +26,16 @@ Field inspection + geo-tagged evidence
 
 ## Core Capabilities
 
-| Area | What the platform provides |
-| --- | --- |
+| Area                       | What the platform provides                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Evidence-first inspections | Capture inspection type, location, observations, violations, corrective actions, photos, and audio notes in one workflow. |
-| Explainable risk scoring | Uses a deterministic rule-based engine so prioritisation is inspectable and auditable. |
-| Role-aware governance | Mine officials work in a mine-scoped view; corporate, admin, and regulator roles see broader portfolio data. |
-| Alerts and escalation | High-risk and escalated inspections surface through alert workflows. |
-| Compliance tracking | Track due dates, statutory references, status, and overdue items. |
-| Contractor oversight | Register and monitor contractor records, contact details, safety ratings, and compliance status. |
-| Analytics | Review KPIs, recurring violation categories, high-risk inspections, trends, and risk distribution. |
-| Field-ready foundation | Supports media uploads, geo-coordinates, responsive UI, and idempotent `offlineId` inspection creation. |
+| Explainable risk scoring   | Uses a deterministic rule-based engine so prioritisation is inspectable and auditable.                                    |
+| Role-aware governance      | Mine officials work in a mine-scoped view; corporate, admin, and regulator roles see broader portfolio data.              |
+| Alerts and escalation      | High-risk and escalated inspections surface through alert workflows.                                                      |
+| Compliance tracking        | Track due dates, statutory references, status, and overdue items.                                                         |
+| Contractor oversight       | Register and monitor contractor records, contact details, safety ratings, and compliance status.                          |
+| Analytics                  | Review KPIs, recurring violation categories, high-risk inspections, trends, and risk distribution.                        |
+| Field-ready foundation     | Supports media uploads, geo-coordinates, responsive UI, and idempotent `offlineId` inspection creation.                   |
 
 Responsible AI note: the current risk engine is deterministic and explainable, not a black-box ML model. Its inputs and thresholds are inspectable, and the architecture can later support a validated ML model without replacing the core workflow.
 
@@ -61,13 +61,13 @@ flowchart LR
   API --> Email[Email OTP via SMTP]
 ```
 
-| Layer | Technologies | Responsibility |
-| --- | --- | --- |
-| Frontend | React 18, Vite, Tailwind CSS, Zustand | Responsive role-aware UI, theme/language preferences, maps, charts, and API state. |
-| Backend API | Node.js, Express, Socket.IO | REST APIs, validation, authentication, authorization, alerts, and real-time-ready events. |
-| Data | MongoDB, Mongoose | Mines, users, inspections, violations, compliance tasks, contractors, alerts, OTPs, audit logs, and chat messages. |
-| Maps and analytics | Leaflet, React Leaflet, Recharts | Geo-tagged inspections, map views, risk distribution, recurring violations, and trends. |
-| Mobile shell | Capacitor 6, Android project | Packages the built web app into an Android application. |
+| Layer              | Technologies                          | Responsibility                                                                                                     |
+| ------------------ | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Frontend           | React 18, Vite, Tailwind CSS, Zustand | Responsive role-aware UI, theme/language preferences, maps, charts, and API state.                                 |
+| Backend API        | Node.js, Express, Socket.IO           | REST APIs, validation, authentication, authorization, alerts, and real-time-ready events.                          |
+| Data               | MongoDB, Mongoose                     | Mines, users, inspections, violations, compliance tasks, contractors, alerts, OTPs, audit logs, and chat messages. |
+| Maps and analytics | Leaflet, React Leaflet, Recharts      | Geo-tagged inspections, map views, risk distribution, recurring violations, and trends.                            |
+| Mobile shell       | Capacitor 6, Android project          | Packages the built web app into an Android application.                                                            |
 
 ## Repository Map
 
@@ -157,24 +157,24 @@ Open `http://localhost:3000`. In development, Vite proxies `/api` requests to `h
 
 Run `npm run seed` in `backend/` first, then use one of these accounts:
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Mine Official | `rajesh@ncl.gov.in` | `mine123` |
-| Mine Official | `priya@ncl.gov.in` | `mine123` |
-| Corporate | `corporate@cil.gov.in` | `corp123` |
-| Administrator | `admin@cil.gov.in` | `admin123` |
-| Regulator | `regulator@dgms.gov.in` | `reg123` |
+| Role          | Email                   | Password   |
+| ------------- | ----------------------- | ---------- |
+| Mine Official | `rajesh@ncl.gov.in`     | `mine123`  |
+| Mine Official | `priya@ncl.gov.in`      | `mine123`  |
+| Corporate     | `corporate@cil.gov.in`  | `corp123`  |
+| Administrator | `admin@cil.gov.in`      | `admin123` |
+| Regulator     | `regulator@dgms.gov.in` | `reg123`   |
 
 ## Backend Scripts
 
 Run from `backend/`:
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the API with nodemon. |
-| `npm start` | Start the API with Node. |
-| `npm run seed` | Load demo users, mines, inspections, compliance records, alerts, and related sample data. |
-| `npm run seed:contractor` | Load contractor demo data. |
+| Command                   | Purpose                                                                                   |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| `npm run dev`             | Start the API with nodemon.                                                               |
+| `npm start`               | Start the API with Node.                                                                  |
+| `npm run seed`            | Load demo users, mines, inspections, compliance records, alerts, and related sample data. |
+| `npm run seed:contractor` | Load contractor demo data.                                                                |
 
 Health checks:
 
@@ -185,11 +185,11 @@ Health checks:
 
 Run from `frontend/`:
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start Vite on `http://localhost:3000`. |
-| `npm run build` | Build the production web app into `frontend/dist`. |
-| `npm run preview` | Preview the production build locally. |
+| Command           | Purpose                                            |
+| ----------------- | -------------------------------------------------- |
+| `npm run dev`     | Start Vite on `http://localhost:3000`.             |
+| `npm run build`   | Build the production web app into `frontend/dist`. |
+| `npm run preview` | Preview the production build locally.              |
 
 The frontend API client resolves the backend URL in this order:
 
@@ -244,16 +244,16 @@ All protected endpoints require:
 Authorization: Bearer <JWT>
 ```
 
-| Domain | Key endpoints | Purpose |
-| --- | --- | --- |
-| Authentication | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/profile`, `POST /api/auth/email/request-otp`, `POST /api/auth/email/verify-otp` | Verified onboarding, profile updates, and sessions. |
-| Mines | `GET /api/mines`, `POST /api/mines`, `GET /api/mines/:id`, `PUT /api/mines/:id` | Mine portfolio and GIS-ready location records. |
-| Inspections | `GET /api/inspections`, `POST /api/inspections`, `GET /api/inspections/:id`, `PUT /api/inspections/:id`, `DELETE /api/inspections/:id`, `PATCH /api/inspections/:id/violations/:violationId` | Evidence capture, risk scoring, escalation, updates, deletion, and violation closure. |
-| Compliance | `GET /api/compliances`, `POST /api/compliances`, `GET /api/compliances/overdue`, `PUT /api/compliances/:id` | Statutory task tracking and overdue visibility. |
-| Dashboard and analytics | `GET /api/dashboard/summary`, `GET /api/dashboard/analytics` | KPIs, trends, recurring violations, and risk distribution. |
-| Alerts | `GET /api/alerts`, `PATCH /api/alerts/read-all`, `PATCH /api/alerts/:id/read` | Risk and escalation follow-up. |
-| Contractors | `GET /api/contractors`, `POST /api/contractors`, `PUT /api/contractors/:id` | Contractor registration and monitoring. |
-| Public | `GET /api/public/home-stats`, `POST /api/public/chat-messages`, `GET /api/public/chat-messages` | Landing page metrics and chat-message capture. |
+| Domain                  | Key endpoints                                                                                                                                                                                | Purpose                                                                               |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Authentication          | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/profile`, `POST /api/auth/email/request-otp`, `POST /api/auth/email/verify-otp`                        | Verified onboarding, profile updates, and sessions.                                   |
+| Mines                   | `GET /api/mines`, `POST /api/mines`, `GET /api/mines/:id`, `PUT /api/mines/:id`                                                                                                              | Mine portfolio and GIS-ready location records.                                        |
+| Inspections             | `GET /api/inspections`, `POST /api/inspections`, `GET /api/inspections/:id`, `PUT /api/inspections/:id`, `DELETE /api/inspections/:id`, `PATCH /api/inspections/:id/violations/:violationId` | Evidence capture, risk scoring, escalation, updates, deletion, and violation closure. |
+| Compliance              | `GET /api/compliances`, `POST /api/compliances`, `GET /api/compliances/overdue`, `PUT /api/compliances/:id`                                                                                  | Statutory task tracking and overdue visibility.                                       |
+| Dashboard and analytics | `GET /api/dashboard/summary`, `GET /api/dashboard/analytics`                                                                                                                                 | KPIs, trends, recurring violations, and risk distribution.                            |
+| Alerts                  | `GET /api/alerts`, `PATCH /api/alerts/read-all`, `PATCH /api/alerts/:id/read`                                                                                                                | Risk and escalation follow-up.                                                        |
+| Contractors             | `GET /api/contractors`, `POST /api/contractors`, `PUT /api/contractors/:id`                                                                                                                  | Contractor registration and monitoring.                                               |
+| Public                  | `GET /api/public/home-stats`, `POST /api/public/chat-messages`, `GET /api/public/chat-messages`                                                                                              | Landing page metrics and chat-message capture.                                        |
 
 ## Deployment Notes
 
