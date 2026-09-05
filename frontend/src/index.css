@@ -22,17 +22,6 @@
     text-align: center;
   }
 
-  body p,
-  body li,
-  body td,
-  body th,
-  body label,
-  body dd,
-  body dt {
-    text-align: justify;
-    text-justify: inter-word;
-  }
-
   .dark body {
     background-color: #0f1720;
     color-scheme: dark;

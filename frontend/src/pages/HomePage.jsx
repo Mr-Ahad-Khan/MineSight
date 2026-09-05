@@ -442,12 +442,11 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   ArrowUp,
+  Bot,
   Building2,
   ShieldCheck,
   Gauge,
   MapPinned,
-  ChevronLeft,
-  ChevronRight,
   PlayCircle,
   CheckCircle2,
   BarChart3,
@@ -1002,30 +1001,6 @@ export default function HomePage() {
                       className={`h-1.5 rounded-full transition-all ${index === activeSlide ? "w-12 bg-[#e5a416]" : "w-5 bg-white/50 hover:bg-white"}`}
                     />
                   ))}
-                  <div className="ml-4 flex gap-2">
-                    <button
-                      type="button"
-                      aria-label="Previous slide"
-                      onClick={() =>
-                        setActiveSlide(
-                          (activeSlide - 1 + slides.length) % slides.length,
-                        )
-                      }
-                      className="rounded-md border border-white/40 bg-black/30 p-2 text-white transition hover:border-[#e5a416] hover:text-[#f3b323]"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Next slide"
-                      onClick={() =>
-                        setActiveSlide((activeSlide + 1) % slides.length)
-                      }
-                      className="rounded-md border border-white/40 bg-black/30 p-2 text-white transition hover:border-[#e5a416] hover:text-[#f3b323]"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1656,11 +1631,19 @@ export default function HomePage() {
           <button
             type="button"
             onClick={() => setAssistantOpen(true)}
-            className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#dfe6ee] bg-[#f7f4ef] shadow-[0_8px_22px_rgba(0,0,0,0.25)] transition-transform hover:scale-105"
+            className="relative isolate flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#dfe6ee] bg-[#f7f4ef] text-[#17314a] shadow-[0_8px_22px_rgba(0,0,0,0.25)] transition-transform hover:scale-105"
             aria-label="Open AI assistant"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#fbe4bf] to-[#e7d7b8] text-xl text-[#1d2b36]">
-              A
+            <span
+              className="coal-ai-wave coal-ai-wave-one"
+              aria-hidden="true"
+            />
+            <span
+              className="coal-ai-wave coal-ai-wave-two"
+              aria-hidden="true"
+            />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5a416]">
+              <Bot className="h-6 w-6" />
             </div>
           </button>
         ) : (
