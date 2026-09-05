@@ -873,7 +873,7 @@ export default function HomePage() {
             className="group flex min-w-0 items-center gap-2 cursor-pointer sm:gap-3"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            <BrandLogo imageClassName="h-12 w-36 rounded sm:h-14 sm:w-44" />
+            <BrandLogo imageClassName="h-10 w-28 rounded min-[380px]:h-12 min-[380px]:w-36 sm:h-14 sm:w-44" />
           </div>
 
           <nav

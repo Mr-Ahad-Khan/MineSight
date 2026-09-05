@@ -4,9 +4,13 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { getMediaUrl } from "../services/api";
+import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
 
 export default function Profile() {
   const { user, updateProfile, isLoading } = useAuthStore();
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: user?.name || "",
@@ -85,7 +89,7 @@ export default function Profile() {
         onClick={() => navigate(-1)}
         className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-[#0d3f6b] dark:text-sky-300"
       >
-        <ArrowLeft className="h-4 w-4" /> Back
+        <ArrowLeft className="h-4 w-4" /> {t.back}
       </button>
 
       <div className="card overflow-hidden">
@@ -103,10 +107,8 @@ export default function Profile() {
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold">Profile settings</h1>
-              <p className="mt-1 text-sm text-slate-200">
-                Manage your account details and sign-in password.
-              </p>
+              <h1 className="text-2xl font-bold">{t.profileSettings}</h1>
+              <p className="mt-1 text-sm text-slate-200">{t.manageAccount}</p>
             </div>
           </div>
         </div>
@@ -129,7 +131,7 @@ export default function Profile() {
                 htmlFor="profilePicture"
                 className="btn-secondary inline-flex cursor-pointer items-center gap-2"
               >
-                <Camera className="h-4 w-4" /> Add profile picture
+                <Camera className="h-4 w-4" /> {t.addProfilePicture}
               </label>
               <input
                 id="profilePicture"
@@ -147,7 +149,7 @@ export default function Profile() {
           <div className="grid gap-5 md:grid-cols-2">
             <div>
               <label className="label" htmlFor="name">
-                Full name
+                {t.fullName}
               </label>
               <input
                 id="name"
@@ -187,7 +189,7 @@ export default function Profile() {
             </div>
             <div>
               <label className="label" htmlFor="role">
-                Account type
+                {t.accountType}
               </label>
               <input
                 id="role"
@@ -200,7 +202,7 @@ export default function Profile() {
 
           <div className="border-t border-slate-200 pt-5 dark:border-slate-700">
             <label className="label" htmlFor="password">
-              New password
+              {t.newPassword}
             </label>
             <input
               id="password"
@@ -221,7 +223,7 @@ export default function Profile() {
               className="btn-primary inline-flex items-center gap-2"
             >
               <Save className="h-4 w-4" />{" "}
-              {isLoading ? "Saving..." : "Save changes"}
+              {isLoading ? t.loading : t.saveChanges}
             </button>
           </div>
         </form>

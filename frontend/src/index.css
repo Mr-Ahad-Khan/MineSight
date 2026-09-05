@@ -1,10 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html,
+  body,
+  #root {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     @apply font-sans antialiased text-slate-800 dark:text-slate-100;
+    text-align: center;
+  }
+
+  body * {
+    text-align: center;
+  }
+
+  body p,
+  body li,
+  body td,
+  body th,
+  body label,
+  body dd,
+  body dt {
+    text-align: justify;
+    text-justify: inter-word;
   }
 
   .dark body {
@@ -90,19 +116,40 @@
     color: #243746 !important;
   }
 
-  .home-page.theme-light main > section:not(:first-child) [class*="bg-[#101416]"],
-  .home-page.theme-light main > section:not(:first-child) [class*="bg-[#172730]"],
-  .home-page.theme-light main > section:not(:first-child) [class*="bg-slate-900"],
-  .home-page.theme-light main > section:not(:first-child) [class*="bg-slate-950"] {
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="bg-[#101416]"],
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="bg-[#172730]"],
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="bg-slate-900"],
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="bg-slate-950"] {
     background: #fffdf8 !important;
     border-color: #d5c4a8 !important;
     color: #243746 !important;
   }
 
   .home-page.theme-light main > section:not(:first-child) [class*="text-white"],
-  .home-page.theme-light main > section:not(:first-child) [class*="text-slate-100"],
-  .home-page.theme-light main > section:not(:first-child) [class*="text-slate-200"],
-  .home-page.theme-light main > section:not(:first-child) [class*="text-slate-300"],
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="text-slate-100"],
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="text-slate-200"],
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="text-slate-300"],
   .home-page.theme-light main > section:not(:first-child) [class*="text-[#c"],
   .home-page.theme-light main > section:not(:first-child) [class*="text-[#b"],
   .home-page.theme-light footer [class*="text-[#"] {
@@ -111,11 +158,17 @@
 
   .home-page.theme-light main > section:not(:first-child) h2,
   .home-page.theme-light main > section:not(:first-child) h3,
-  .home-page.theme-light main > section:not(:first-child) [class*="font-black"] {
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="font-black"] {
     color: #17314a !important;
   }
 
-  .home-page.theme-light main > section:not(:first-child) [class*="border-white"],
+  .home-page.theme-light
+    main
+    > section:not(:first-child)
+    [class*="border-white"],
   .home-page.theme-light footer [class*="border-white"] {
     border-color: #d5c4a8 !important;
   }
@@ -125,10 +178,20 @@
   }
 
   @keyframes coal-ai-nudge {
-    0%, 72%, 100% { transform: translateY(0) scale(1); }
-    78% { transform: translateY(-7px) scale(1.06); }
-    86% { transform: translateY(-2px) scale(1.02); }
-    92% { transform: translateY(-5px) scale(1.04); }
+    0%,
+    72%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    78% {
+      transform: translateY(-7px) scale(1.06);
+    }
+    86% {
+      transform: translateY(-2px) scale(1.02);
+    }
+    92% {
+      transform: translateY(-5px) scale(1.04);
+    }
   }
 
   .coal-ai-wave {
@@ -141,11 +204,20 @@
     animation: coal-ai-wave 2.4s ease-out infinite;
   }
 
-  .coal-ai-wave-two { animation-delay: 1.2s; }
+  .coal-ai-wave-two {
+    animation-delay: 1.2s;
+  }
 
   @keyframes coal-ai-wave {
-    0% { opacity: 0.85; transform: scale(0.82); }
-    72%, 100% { opacity: 0; transform: scale(1.58); }
+    0% {
+      opacity: 0.85;
+      transform: scale(0.82);
+    }
+    72%,
+    100% {
+      opacity: 0;
+      transform: scale(1.58);
+    }
   }
 
   /* Landing page: retain a true light palette instead of leaving dark card
@@ -205,14 +277,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 
-  .coal-ai-launcher, .coal-ai-wave { animation: none !important; }
+  .coal-ai-launcher,
+  .coal-ai-wave {
+    animation: none !important;
+  }
 }
 
 @media (max-width: 639px) {
@@ -225,36 +302,44 @@
   .card {
     @apply bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card;
   }
-  
+
   .btn-primary {
     @apply bg-primary-700 hover:bg-primary-800 text-white font-medium px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
-  
+
   .btn-secondary {
     @apply bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-medium px-4 py-2.5 rounded-lg transition-colors;
   }
-  
+
   .btn-danger {
     @apply bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2.5 rounded-lg transition-colors;
   }
-  
+
   .input-field {
     @apply w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition;
   }
-  
+
   .label {
     @apply block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5;
   }
-  
+
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
-  
-  .badge-low { @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300; }
-  .badge-medium { @apply bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300; }
-  .badge-high { @apply bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300; }
-  .badge-critical { @apply bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300; }
-  
+
+  .badge-low {
+    @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300;
+  }
+  .badge-medium {
+    @apply bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300;
+  }
+  .badge-high {
+    @apply bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300;
+  }
+  .badge-critical {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300;
+  }
+
   .stat-card {
     @apply card p-5 flex flex-col gap-1;
   }

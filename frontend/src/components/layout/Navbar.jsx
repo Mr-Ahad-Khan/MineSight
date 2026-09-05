@@ -39,7 +39,7 @@ export default function Navbar() {
     { name: t.contractors, href: "/app/contractors", icon: Users },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
     { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
-    { name: "Coal AI", href: "/app/chat", icon: MessageCircle },
+    { name: t.coalAi, href: "/app/chat", icon: MessageCircle },
   ];
 
   const handleLogout = () => {
@@ -93,7 +93,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-30 border-b border-[#d7c7ab] bg-[#e8dfcf] shadow-[0_2px_8px_rgba(74,54,32,0.08)] dark:border-slate-700 dark:bg-[#111c24] dark:shadow-none">
       <div className="flex h-16 min-w-0 items-center sm:h-20 lg:h-[88px]">
         <div className="flex h-full min-w-0 shrink-0 items-center bg-white px-3 sm:px-5 dark:bg-[#171b22] xl:pr-8">
-          <BrandLogo imageClassName="h-14 w-56 sm:h-16 sm:w-64 lg:h-20 lg:w-72" />
+          <BrandLogo imageClassName="h-10 w-36 sm:h-16 sm:w-64 lg:h-20 lg:w-72" />
         </div>
 
         <nav
@@ -163,13 +163,13 @@ export default function Navbar() {
                 }}
                 className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-[#f3eadb] dark:hover:bg-slate-800"
               >
-                <UserCircle className="h-4 w-4" /> Profile
+                <UserCircle className="h-4 w-4" /> {t.profile}
               </button>
               <button
                 onClick={handleLogout}
                 className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
               >
-                <LogOut className="h-4 w-4" /> Logout
+                <LogOut className="h-4 w-4" /> {t.logout}
               </button>
             </div>
           )}
@@ -192,13 +192,13 @@ export default function Navbar() {
               }}
               className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium hover:bg-[#f3eadb] dark:hover:bg-slate-800"
             >
-              <UserCircle className="h-4 w-4" /> Profile
+              <UserCircle className="h-4 w-4" /> {t.profile}
             </button>
             <button
               onClick={handleLogout}
               className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
             >
-              <LogOut className="h-4 w-4" /> Logout
+              <LogOut className="h-4 w-4" /> {t.logout}
             </button>
           </div>
         </div>

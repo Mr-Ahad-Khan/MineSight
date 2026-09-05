@@ -1,6 +1,11 @@
 import BrandLogo from "./BrandLogo";
+import { useLanguageStore } from "../../store/themeStore";
+import { translations } from "../../i18n/translations";
 
 export default function Footer() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
+
   return (
     <footer className="border-t border-[#29414b] bg-[#0b171d] text-[#c5cfce]">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -8,57 +13,54 @@ export default function Footer() {
           <div>
             <BrandLogo imageClassName="h-16 w-44 rounded" />
             <p className="mt-4 max-w-sm text-sm leading-6 text-[#9eafaf]">
-              Practical tools for safer mines, clearer compliance, and better
-              decisions across every site.
+              {t.footerTagline}
             </p>
           </div>
 
           <div>
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
-              Platform
+              {t.platform}
             </h3>
             <div className="mt-4 flex flex-col gap-2.5 text-sm text-[#b5c2c1]">
-              <span>Risk and safety</span>
-              <span>Compliance records</span>
-              <span>Field inspections</span>
-              <span>Site intelligence</span>
+              <span>{t.riskSafety}</span>
+              <span>{t.complianceRecords}</span>
+              <span>{t.fieldInspections}</span>
+              <span>{t.siteIntelligence}</span>
             </div>
           </div>
 
           <div>
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
-              Support
+              {t.support}
             </h3>
             <div className="mt-4 flex flex-col gap-2.5 text-sm text-[#b5c2c1]">
               <a
                 href="mailto:support@coalgovernance.in"
                 className="transition-colors hover:text-white"
               >
-                Contact support
+                {t.contactSupport}
               </a>
-              <span>Access help</span>
-              <span>Security</span>
-              <span>Privacy</span>
+              <span>{t.accessHelp}</span>
+              <span>{t.security}</span>
+              <span>{t.privacy}</span>
             </div>
           </div>
 
           <div>
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
-              System status
+              {t.systemStatus}
             </h3>
             <div className="mt-4 inline-flex items-center gap-2 text-sm text-[#83d2c5]">
               <span className="h-2 w-2 rounded-full bg-[#39c7b0]" />
-              All systems operational
+              {t.allSystemsOperational}
             </div>
-            <p className="mt-3 text-xs text-[#758b8e]">
-              Support hours: Mon-Fri, 09:00-18:00 IST
-            </p>
+            <p className="mt-3 text-xs text-[#758b8e]">{t.supportHours}</p>
           </div>
         </div>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-4 text-xs text-[#758b8e] sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 Coal Governance. Built for responsible mine operations.</p>
-          <p>MineSight platform · Version 1.0</p>
+          <p>{t.footerCopyright}</p>
+          <p>{t.version}</p>
         </div>
       </div>
     </footer>
