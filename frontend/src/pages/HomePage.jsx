@@ -571,6 +571,24 @@ export default function HomePage() {
   const navigate = useNavigate();
   const t = translations[language];
 
+  const localizedFeatures = [
+    {
+      ...features[0],
+      title: t.capabilityRiskTitle,
+      description: t.capabilityRiskDescription,
+    },
+    {
+      ...features[1],
+      title: t.capabilityComplianceTitle,
+      description: t.capabilityComplianceDescription,
+    },
+    {
+      ...features[2],
+      title: t.capabilityGeoTitle,
+      description: t.capabilityGeoDescription,
+    },
+  ];
+
   const navItems =
     language === "en"
       ? ["Overview", "Solutions", "Features", "Contact"]
@@ -959,8 +977,8 @@ export default function HomePage() {
               backgroundImage: `linear-gradient(90deg, rgba(5, 8, 10, 0.68) 0%, rgba(5, 8, 10, 0.42) 42%, rgba(5, 8, 10, 0.12) 78%), linear-gradient(0deg, rgba(5, 8, 10, 0.52) 0%, transparent 45%), url(${current.image})`,
             }}
           >
-            <div className="mx-auto flex min-h-[520px] max-w-7xl items-center px-4 py-12 sm:min-h-[590px] sm:px-8 sm:py-16 lg:min-h-[650px] lg:px-10">
-              <div className="max-w-2xl">
+            <div className="mx-auto flex min-h-[520px] max-w-7xl items-center justify-center px-4 py-12 text-center sm:min-h-[590px] sm:px-8 sm:py-16 lg:min-h-[650px] lg:px-10">
+              <div className="mx-auto max-w-2xl">
                 <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f3b323] sm:mb-5 sm:text-xs sm:tracking-[0.24em]">
                   {current.badge}
                 </p>
@@ -971,7 +989,7 @@ export default function HomePage() {
                   {current.subtitle}
                 </p>
 
-                <div className="mt-8 flex flex-col items-stretch gap-3 min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center sm:mt-9 sm:gap-4">
+                <div className="mt-8 flex flex-col items-stretch justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center sm:mt-9 sm:gap-4">
                   <button
                     type="button"
                     onClick={() => navigate("/login")}
@@ -991,7 +1009,7 @@ export default function HomePage() {
                   </button>
                 </div>
 
-                <div className="mt-8 flex items-center gap-2 sm:mt-10 sm:gap-3">
+                <div className="mt-8 flex items-center justify-center gap-2 sm:mt-10 sm:gap-3">
                   {slides.map((slide, index) => (
                     <button
                       key={slide.title}
@@ -1012,52 +1030,52 @@ export default function HomePage() {
                 {
                   value: metricValues.production,
                   suffix: "",
-                  label: "Active Mines",
-                  detail: "Sites currently operating",
+                  label: t.activeMinesLabel,
+                  detail: t.activeMinesDetail,
                   progress: Math.min(metricValues.production * 10, 100),
                 },
                 {
                   value: `${metricValues.availability}%`,
                   suffix: "",
-                  label: "Average Compliance",
-                  detail: "Across active mine sites",
+                  label: t.averageComplianceLabel,
+                  detail: t.averageComplianceDetail,
                   progress: metricValues.availability,
                 },
                 {
                   value: metricValues.ltis,
                   suffix: "",
-                  label: "Open Inspections",
-                  detail: "Items needing attention",
+                  label: t.openInspectionsLabel,
+                  detail: t.openInspectionsDetail,
                   progress: Math.min(metricValues.ltis * 5, 100),
                 },
                 {
                   value: metricValues.experience,
                   suffix: "",
-                  label: "Total Reports",
-                  detail: "Compliance, inspection and alert records",
+                  label: t.totalReportsLabel,
+                  detail: t.totalReportsDetail,
                   progress: Math.min(metricValues.experience * 5, 100),
                 },
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="group relative overflow-hidden px-5 py-5 transition-colors duration-300 hover:bg-[#1a1e1f] sm:px-8 sm:py-6 lg:px-12"
+                  className="home-metric group relative overflow-hidden px-5 py-5 text-center transition-colors duration-300 hover:bg-[#fffaf0] sm:px-8 sm:py-6 lg:px-12 dark:hover:bg-[#1a1e1f]"
                 >
                   <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-[#e5a416] transition-transform duration-500 group-hover:scale-x-100" />
-                  <div className="flex items-end justify-between gap-3">
+                  <div className="flex items-end justify-center gap-3 text-center">
                     <div className="text-3xl font-black text-[#e5a416] transition-transform duration-300 group-hover:-translate-y-0.5 sm:text-4xl lg:text-5xl">
                       {item.value}
                       <span className="ml-1 text-xl sm:text-2xl">
                         {item.suffix}
                       </span>
                     </div>
-                    <span className="mb-1 hidden text-[10px] font-bold uppercase tracking-[0.16em] text-[#f3b323] opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:block">
-                      Live
+                    <span className="mb-1 hidden text-[10px] font-bold uppercase tracking-[0.16em] text-[#9b6b16] sm:block dark:text-[#f3b323]">
+                      {t.live}
                     </span>
                   </div>
-                  <div className="mt-1 text-xs font-semibold text-slate-100 sm:text-sm">
+                  <div className="mt-1 text-xs font-semibold text-[#17314a] dark:text-slate-100 sm:text-sm">
                     {item.label}
                   </div>
-                  <div className="mt-1 max-h-0 overflow-hidden text-[11px] text-[#aaa69e] opacity-0 transition-all duration-300 group-hover:max-h-8 group-hover:opacity-100">
+                  <div className="mt-1 text-[11px] text-[#52636a] dark:text-[#aaa69e]">
                     {item.detail}
                   </div>
                   <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10">
@@ -1079,54 +1097,55 @@ export default function HomePage() {
         >
           <div className="pointer-events-none absolute -right-32 top-0 h-96 w-96 rounded-full bg-[#1c5960]/20 blur-3xl" />
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-            <div className="mb-12 flex flex-col gap-6 border-b border-white/10 pb-10 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-2xl">
-                <div className="mb-4 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#e5a416]">
+            <div className="mb-12 flex flex-col items-center gap-6 border-b border-white/10 pb-10 text-center lg:justify-between">
+              <div className="mx-auto max-w-2xl">
+                <div className="mb-4 flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#e5a416]">
                   <span className="h-px w-10 bg-[#e5a416]" />
-                  MineSight capabilities
+                  {t.capabilitiesEyebrow}
                 </div>
                 <h2 className="text-3xl font-black leading-tight text-white sm:text-5xl">
-                  Intelligence that keeps every operation moving.
+                  {t.capabilitiesTitle}
                 </h2>
-                <p className="mt-4 max-w-xl text-base leading-7 text-[#c6c9c1] sm:text-lg">
-                  Turn field activity into clear decisions with connected
-                  safety, compliance, and location intelligence.
+                <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-[#c6c9c1] sm:text-lg">
+                  {t.capabilitiesDescription}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-3 text-sm text-[#b8c8cd]">
+              <div className="flex shrink-0 items-center justify-center gap-3 text-sm text-[#b8c8cd]">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#39c7b0] shadow-[0_0_0_4px_rgba(57,199,176,0.12)]" />
-                Built for daily decisions
+                {t.builtForDailyDecisions}
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {features.map(({ icon: Icon, title, description }, idx) => (
-                <article
-                  key={title}
-                  className="group relative overflow-hidden border border-white/10 bg-[#172730] p-6 transition-colors duration-300 hover:border-[#e5a416]/60 hover:bg-[#1c3039] sm:p-7"
-                >
-                  <div className="mb-10 flex items-start justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#39c7b0]/30 bg-[#143c43] text-[#61dfca]">
-                      <Icon className="h-6 w-6" />
+              {localizedFeatures.map(
+                ({ icon: Icon, title, description }, idx) => (
+                  <article
+                    key={title}
+                    className="group relative z-0 overflow-hidden border border-white/10 bg-[#172730] p-6 text-center transition duration-300 hover:z-10 hover:scale-[1.02] hover:border-[#e5a416]/60 hover:bg-[#1c3039] hover:shadow-xl hover:shadow-black/20 sm:p-7"
+                  >
+                    <div className="mb-10 flex flex-col items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#39c7b0]/30 bg-[#143c43] text-[#61dfca]">
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <span className="font-mono text-xs font-semibold tracking-[0.2em] text-[#71868e]">
+                        0{idx + 1} / 03
+                      </span>
                     </div>
-                    <span className="font-mono text-xs font-semibold tracking-[0.2em] text-[#71868e]">
-                      0{idx + 1} / 03
-                    </span>
-                  </div>
-                  <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5a416]">
-                    Core capability
-                  </p>
-                  <h3 className="text-xl font-bold text-white">{title}</h3>
-                  <p className="mt-3 min-h-[56px] leading-relaxed text-[#b9c2c2]">
-                    {description}
-                  </p>
-                  <div className="mt-6 flex items-center gap-2 border-t border-white/10 pt-4 text-xs font-semibold text-[#89a3a8]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#e5a416]" />
-                    Connected to your control room
-                  </div>
-                  <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#e5a416] transition-all duration-300 group-hover:w-full" />
-                </article>
-              ))}
+                    <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5a416]">
+                      {t.coreCapability}
+                    </p>
+                    <h3 className="text-xl font-bold text-white">{title}</h3>
+                    <p className="mt-3 min-h-[56px] leading-relaxed text-[#b9c2c2]">
+                      {description}
+                    </p>
+                    <div className="mt-6 flex items-center justify-center gap-2 border-t border-white/10 pt-4 text-xs font-semibold text-[#89a3a8]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#e5a416]" />
+                      {t.connectedControlRoom}
+                    </div>
+                    <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#e5a416] transition-all duration-300 group-hover:w-full" />
+                  </article>
+                ),
+              )}
             </div>
           </div>
         </section>
@@ -1368,19 +1387,19 @@ export default function HomePage() {
             <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-emerald-500/15 blur-3xl" />
             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
 
-            <div className="relative grid gap-10 lg:grid-cols-[1fr_420px]">
-              <div className="flex flex-col justify-center">
+            <div className="relative grid items-center gap-10 xl:grid-cols-[minmax(0,1fr)_420px]">
+              <div className="flex flex-col items-center justify-center text-center">
                 <p className="text-sm font-bold uppercase tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
                   {localizedCopy.readyToScale}
                 </p>
                 <h2 className="mt-4 text-3xl font-black text-white sm:text-4xl leading-tight">
                   {localizedCopy.scaleHeading}
                 </h2>
-                <p className="mt-5 max-w-xl text-slate-300 leading-relaxed">
+                <p className="mx-auto mt-5 max-w-xl text-slate-300 leading-relaxed">
                   {localizedCopy.scaleText}
                 </p>
 
-                <div className="mt-8 flex flex-wrap gap-3">
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
                   {[
                     { icon: ShieldCheck, label: localizedCopy.secureAccess },
                     { icon: Zap, label: localizedCopy.realTime },
@@ -1398,7 +1417,7 @@ export default function HomePage() {
               </div>
 
               {/* Contact card */}
-              <div className="contact-card relative rounded-[28px] border border-[#526875] bg-[#0a1420]/95 p-6 shadow-2xl backdrop-blur-xl">
+              <div className="contact-card relative w-full max-w-[420px] justify-self-center rounded-[28px] border border-[#526875] bg-[#0a1420]/95 p-6 shadow-2xl backdrop-blur-xl">
                 <div className="mb-6 flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f3c24b] to-[#e5a416] text-[#17232a] shadow-lg shadow-[#e5a416]/30">
                     <Mail className="h-5 w-5" />
@@ -1533,14 +1552,14 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-[#29414b] bg-[#0b171d] text-[#c5cfce]">
+      <footer className="border-t border-[#29414b] bg-[#0b171d] pb-28 text-[#c5cfce] sm:pb-0">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
-            <div>
+          <div className="grid gap-10 text-center md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
+            <div className="flex flex-col items-center">
               <div className="flex items-center gap-3">
                 <BrandLogo imageClassName="h-16 w-44 rounded" />
               </div>
-              <p className="mt-5 max-w-sm text-sm leading-6 text-[#9eafaf]">
+              <p className="mx-auto mt-5 max-w-sm text-sm leading-6 text-[#9eafaf]">
                 Practical tools for safer mines, clearer compliance, and better
                 decisions across every site.
               </p>
@@ -1552,14 +1571,14 @@ export default function HomePage() {
 
             <div>
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
-                Explore
+                {t.explore}
               </h3>
-              <div className="mt-5 flex flex-col items-start gap-3 text-sm">
+              <div className="mt-5 flex flex-col items-center gap-3 text-sm">
                 <a
                   href="#overview"
                   className="transition-colors hover:text-white"
                 >
-                  Capabilities
+                  {t.capabilitiesLink}
                 </a>
                 <a
                   href="#solutions"
@@ -1571,13 +1590,13 @@ export default function HomePage() {
                   href="#features"
                   className="transition-colors hover:text-white"
                 >
-                  Audit readiness
+                  {t.auditReadiness}
                 </a>
                 <a
                   href="#contact"
                   className="transition-colors hover:text-white"
                 >
-                  Access platform
+                  {t.accessPlatform}
                 </a>
               </div>
             </div>
@@ -1586,20 +1605,20 @@ export default function HomePage() {
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
                 Platform
               </h3>
-              <div className="mt-5 flex flex-col items-start gap-3 text-sm">
-                <span>Risk and safety</span>
-                <span>Compliance records</span>
-                <span>Field inspections</span>
-                <span>Site intelligence</span>
+              <div className="mt-5 flex flex-col items-center gap-3 text-sm">
+                <span>{t.riskSafety}</span>
+                <span>{t.complianceRecords}</span>
+                <span>{t.fieldInspections}</span>
+                <span>{t.siteIntelligence}</span>
               </div>
             </div>
 
-            <div>
+            <div className="flex flex-col items-center">
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
-                Talk to the team
+                {t.talkToTeam}
               </h3>
               <p className="mt-5 text-sm leading-6 text-[#9eafaf]">
-                Need help setting up a mine site or reviewing access?
+                {t.footerContactPrompt}
               </p>
               <a
                 href="mailto:support@coalgovernance.in"
@@ -1607,17 +1626,15 @@ export default function HomePage() {
               >
                 support@coalgovernance.in
               </a>
-              <p className="mt-3 text-xs text-[#758b8e]">
-                Mon-Fri, 09:00-18:00 IST
-              </p>
+              <p className="mt-3 text-xs text-[#758b8e]">{t.footerSchedule}</p>
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs text-[#758b8e] sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-10 flex flex-col items-center gap-3 border-t border-white/10 pt-5 text-center text-xs text-[#758b8e] sm:flex-row sm:justify-center">
             <p>
               © 2026 Coal Governance. Built for responsible mine operations.
             </p>
-            <div className="flex gap-5">
+            <div className="flex flex-wrap justify-center gap-5">
               <span>Privacy</span>
               <span>Security</span>
               <span>Version 1.0</span>
@@ -1773,7 +1790,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-5 right-24 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-[#d7c7ab] bg-[#f7f4ef] text-[#17314a] shadow-[0_6px_18px_rgba(0,0,0,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#e5a416] hover:bg-[#fffaf0] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/60 focus:ring-offset-2 focus:ring-offset-[#101416]"
+          className="fixed bottom-24 right-4 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-[#d7c7ab] bg-[#f7f4ef] text-[#17314a] shadow-[0_6px_18px_rgba(0,0,0,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#e5a416] hover:bg-[#fffaf0] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/60 focus:ring-offset-2 focus:ring-offset-[#101416] sm:bottom-5 sm:right-24"
           aria-label="Scroll to top"
           title="Scroll to top"
         >

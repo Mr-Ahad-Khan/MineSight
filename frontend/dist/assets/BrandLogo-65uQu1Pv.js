@@ -1,0 +1,1 @@
+import{j as e}from"./index-BwLdBKL0.js";function o({className:r="",imageClassName:s=""}){return e.jsx("div",{className:`flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-transparent p-0 ${s} ${r}`,children:e.jsx("img",{src:"/minesight-logo.svg",alt:"MineSight",loading:"eager",className:"block h-full w-full object-cover"})})}export{o as B};

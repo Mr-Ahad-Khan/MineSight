@@ -24,7 +24,7 @@ export default function HighRiskList({ inspections }) {
         <Link
           key={insp._id}
           to={`/inspections/${insp._id}`}
-          className="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition"
+          className="dashboard-subcard flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition"
         >
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{insp.title}</p>

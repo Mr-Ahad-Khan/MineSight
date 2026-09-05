@@ -1,58 +1,61 @@
-import { useEffect, useState } from 'react'
-import { getAlerts, markAlertRead, markAllAlertsRead } from '../services/api'
-import { Bell, CheckCheck } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import toast from 'react-hot-toast'
-import { useLanguageStore } from '../store/themeStore'
-import { translations } from '../i18n/translations'
+import { useEffect, useState } from "react";
+import { getAlerts, markAlertRead, markAllAlertsRead } from "../services/api";
+import { Bell, CheckCheck } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import toast from "react-hot-toast";
+import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
 
 const severityColor = {
-  info: 'border-blue-500 bg-blue-50 dark:bg-blue-900/10',
-  warning: 'border-amber-500 bg-amber-50 dark:bg-amber-900/10',
-  critical: 'border-red-500 bg-red-50 dark:bg-red-900/10',
-}
+  info: "border-blue-500 bg-blue-50 dark:bg-blue-900/10",
+  warning: "border-amber-500 bg-amber-50 dark:bg-amber-900/10",
+  critical: "border-red-500 bg-red-50 dark:bg-red-900/10",
+};
 
 export default function Alerts() {
-  const [alerts, setAlerts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const { language } = useLanguageStore()
-  const t = translations[language]
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { language } = useLanguageStore();
+  const t = translations[language];
 
   const fetchAlerts = () => {
     getAlerts()
       .then((res) => setAlerts(res.data.data || []))
       .catch(console.error)
-      .finally(() => setLoading(false))
-  }
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    fetchAlerts()
-  }, [])
+    fetchAlerts();
+  }, []);
 
   const handleMarkRead = async (id) => {
-    await markAlertRead(id)
-    fetchAlerts()
-  }
+    await markAlertRead(id);
+    fetchAlerts();
+  };
 
   const handleMarkAll = async () => {
-    await markAllAlertsRead()
-    toast.success('All alerts marked as read')
-    fetchAlerts()
-  }
+    await markAllAlertsRead();
+    toast.success("All alerts marked as read");
+    fetchAlerts();
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">{t.alertTitle}</h1>
           <p className="text-sm text-slate-500 mt-1">{t.alertSubtitle}</p>
         </div>
-        <button onClick={handleMarkAll} className="btn-secondary flex items-center gap-2 text-sm">
+        <button
+          onClick={handleMarkAll}
+          className="btn-secondary flex items-center gap-2 text-sm"
+        >
           <CheckCheck className="w-4 h-4" /> {t.markAllRead}
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="mx-auto w-full max-w-6xl space-y-3">
         {loading ? (
           <p className="text-slate-400">Loading...</p>
         ) : alerts.length === 0 ? (
@@ -64,32 +67,34 @@ export default function Alerts() {
           alerts.map((alert) => (
             <div
               key={alert._id}
-              className={`card p-4 border-l-4 ${severityColor[alert.severity] || ''} ${
-                alert.isRead ? 'opacity-60' : ''
+              className={`card grid min-h-28 grid-cols-1 items-center gap-4 border-l-4 p-4 sm:grid-cols-[minmax(0,1fr)_auto] ${severityColor[alert.severity] || ""} ${
+                alert.isRead ? "opacity-60" : ""
               }`}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-medium">{alert.title}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">{alert.message}</p>
-                  <p className="text-xs text-slate-400 mt-2">
-                    {formatDistanceToNow(new Date(alert.createdAt), { addSuffix: true })}
-                    {alert.mineId?.name && ` • ${alert.mineId.name}`}
-                  </p>
-                </div>
-                {!alert.isRead && (
-                  <button
-                    onClick={() => handleMarkRead(alert._id)}
-                    className="text-xs text-primary-600 hover:underline shrink-0"
-                  >
-                    {t.markRead}
-                  </button>
-                )}
+              <div className="min-w-0 text-center sm:text-left">
+                <p className="font-medium">{alert.title}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                  {alert.message}
+                </p>
+                <p className="text-xs text-slate-400 mt-2">
+                  {formatDistanceToNow(new Date(alert.createdAt), {
+                    addSuffix: true,
+                  })}
+                  {alert.mineId?.name && ` • ${alert.mineId.name}`}
+                </p>
               </div>
+              {!alert.isRead && (
+                <button
+                  onClick={() => handleMarkRead(alert._id)}
+                  className="justify-self-center text-xs text-primary-600 hover:underline sm:justify-self-end"
+                >
+                  {t.markRead}
+                </button>
+              )}
             </div>
           ))
         )}
       </div>
     </div>
-  )
+  );
 }

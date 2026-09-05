@@ -685,6 +685,7 @@ export default function Dashboard() {
 
         <div
           className="
+            dashboard-panel
             xl:col-span-4
             rounded-2xl
             border
@@ -888,6 +889,7 @@ export default function Dashboard() {
 
         <div
           className="
+            dashboard-panel
             xl:col-span-4
             rounded-2xl
             border
@@ -961,6 +963,7 @@ export default function Dashboard() {
 
           <div
             className="
+              dashboard-panel
               rounded-2xl
               border
               border-[#cbbda7]
@@ -1035,6 +1038,7 @@ export default function Dashboard() {
 
           <div
             className="
+              dashboard-panel
               rounded-2xl
               border
               border-[#cbbda7]
@@ -1113,6 +1117,7 @@ function StatCard({
 
     <div
       className="
+        dashboard-panel
         min-h-[105px]
         rounded-2xl
         border
@@ -1218,6 +1223,7 @@ function QuickStat({
 
     <div
       className="
+        dashboard-subcard
         flex
         items-center
         justify-between

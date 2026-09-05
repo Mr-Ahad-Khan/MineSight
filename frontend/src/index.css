@@ -19,7 +19,7 @@
   }
 
   body * {
-    text-align: center;
+    text-align: center !important;
   }
 
   .dark body {
@@ -251,6 +251,10 @@
     color: #17314a !important;
   }
 
+  .home-page.theme-light .home-metric:hover {
+    background: #fffaf0 !important;
+  }
+
   .home-page.theme-light .contact-card input,
   .home-page.theme-light .contact-card select,
   .home-page.theme-light .contact-card textarea {
@@ -288,8 +292,32 @@
 }
 
 @layer components {
+  @media (hover: hover) and (pointer: fine) {
+    .dashboard-panel,
+    .dashboard-subcard {
+      position: relative;
+      transition: scale 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+    }
+
+    .dashboard-panel:hover,
+    .dashboard-subcard:hover {
+      scale: 1.02;
+      z-index: 10;
+      box-shadow: 0 12px 24px rgb(80 60 30 / 0.14);
+    }
+  }
+
   .card {
-    @apply bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card;
+    @apply relative bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card transition-shadow duration-200;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover,
+    .stat-card:hover {
+      scale: 1.02;
+      z-index: 10;
+      @apply shadow-card-hover;
+    }
   }
 
   .btn-primary {

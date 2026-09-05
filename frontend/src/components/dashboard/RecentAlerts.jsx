@@ -31,7 +31,7 @@ export default function RecentAlerts() {
   return (
     <div className="space-y-3">
       {alerts.map((alert) => (
-        <div key={alert._id} className="flex gap-3">
+        <div key={alert._id} className="dashboard-subcard flex gap-3">
           <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${severityColor[alert.severity] || 'bg-slate-400'}`} />
           <div className="min-w-0">
             <p className="text-sm font-medium line-clamp-1">{alert.title}</p>
