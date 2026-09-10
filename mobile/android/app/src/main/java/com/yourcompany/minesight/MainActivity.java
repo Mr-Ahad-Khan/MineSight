@@ -33,17 +33,19 @@ public class MainActivity extends BridgeActivity {
 		}
 		window.getDecorView().setSystemUiVisibility(0);
 
-		View webView = getBridge().getWebView();
-		ViewCompat.setOnApplyWindowInsetsListener(webView, (view, insets) -> {
+		View content = findViewById(android.R.id.content);
+		int initialTopPadding = content.getPaddingTop();
+		int initialBottomPadding = content.getPaddingBottom();
+		ViewCompat.setOnApplyWindowInsetsListener(content, (view, insets) -> {
 			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 			view.setPadding(
 				view.getPaddingLeft(),
-				systemBars.top,
+				initialTopPadding + systemBars.top,
 				view.getPaddingRight(),
-				systemBars.bottom
+				initialBottomPadding + systemBars.bottom
 			);
 			return insets;
 		});
-		ViewCompat.requestApplyInsets(webView);
+		ViewCompat.requestApplyInsets(content);
 	}
 }
