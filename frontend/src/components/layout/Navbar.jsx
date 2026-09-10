@@ -97,7 +97,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-[#d7c7ab] bg-[#e8dfcf] shadow-[0_2px_8px_rgba(74,54,32,0.08)] dark:border-slate-700 dark:bg-[#111c24] dark:shadow-none">
-      <div className="grid h-16 min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center sm:h-20 lg:h-[88px]">
+      <div className="grid h-16 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center sm:h-20 lg:h-[88px]">
         <div className="flex h-full min-w-0 items-center bg-white px-3 sm:px-5 dark:bg-[#171b22] xl:pr-8">
           <BrandLogo imageClassName="h-10 w-[clamp(7.5rem,38vw,9rem)] max-w-full sm:h-16 sm:w-64 lg:h-20 lg:w-72" />
         </div>
