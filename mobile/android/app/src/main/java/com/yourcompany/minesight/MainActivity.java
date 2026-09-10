@@ -22,9 +22,9 @@ public class MainActivity extends BridgeActivity {
 		Window window = getWindow();
 		window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 		window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-		window.setStatusBarColor(Color.rgb(15, 23, 32));
+		window.setStatusBarColor(Color.TRANSPARENT);
 		window.setNavigationBarColor(Color.rgb(15, 23, 32));
-		WindowCompat.setDecorFitsSystemWindows(window, true);
+		WindowCompat.setDecorFitsSystemWindows(window, false);
 
 		WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
 		if (controller != null) {
