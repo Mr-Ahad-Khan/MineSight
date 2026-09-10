@@ -55,7 +55,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          path: mobile/android/app/build/outputs/apk/debug/MineSight-debug.apk
+          if-no-files-found: error
 
       - name: Build Release APK
         working-directory: ./mobile/android
@@ -66,4 +67,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          path: mobile/android/app/build/outputs/apk/release/MineSight-release.apk
+          if-no-files-found: error
