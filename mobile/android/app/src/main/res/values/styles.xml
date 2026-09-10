@@ -18,5 +18,7 @@
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/minesight_splash_icon</item>
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
     </style>
 </resources>

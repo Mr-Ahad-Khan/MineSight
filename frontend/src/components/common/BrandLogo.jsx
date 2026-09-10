@@ -7,7 +7,7 @@ export default function BrandLogo({ className = "", imageClassName = "" }) {
         src={`${import.meta.env.BASE_URL}minesight-logo.svg`}
         alt="MineSight"
         loading="eager"
-        className="block h-full w-full object-cover"
+        className="block h-full w-full object-contain"
       />
     </div>
   );

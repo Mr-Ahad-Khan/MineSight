@@ -18,6 +18,7 @@
     "/^node --check backend/utils/mediaStorage\\.js; node --check backend/routes/inspectionRoutes\\.js; node --check backend/routes/authRoutes\\.js; node --check backend/controllers/inspectionController\\.js; node --check backend/controllers/authController\\.js$/": {
       "approve": true,
       "matchCommandLine": true
-    }
+    },
+    ".\\gradlew.bat": true
   }
 }
