@@ -333,7 +333,10 @@
     .dashboard-panel,
     .dashboard-subcard {
       position: relative;
-      transition: scale 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+      transition:
+        scale 200ms ease,
+        box-shadow 200ms ease,
+        background-color 200ms ease;
     }
 
     .dashboard-panel:hover,

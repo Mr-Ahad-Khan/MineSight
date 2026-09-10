@@ -437,7 +437,7 @@
 //   )
 // }
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -530,6 +530,7 @@ const stats = [
 
 export default function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const swipeStart = useRef(null);
   const [metricValues, setMetricValues] = useState({
     production: 0,
     availability: 0,
@@ -688,6 +689,36 @@ export default function HomePage() {
 
   const translatedSlides = heroSlides;
   const current = translatedSlides[activeSlide];
+
+  const handleHeroPointerDown = (event) => {
+    if (!event.isPrimary) return;
+    swipeStart.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleHeroPointerUp = (event) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || start.id !== event.pointerId) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    if (Math.abs(deltaX) < 50 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+
+    setActiveSlide((slide) =>
+      deltaX < 0
+        ? (slide + 1) % slides.length
+        : (slide - 1 + slides.length) % slides.length,
+    );
+  };
+
+  const handleHeroPointerCancel = () => {
+    swipeStart.current = null;
+  };
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
@@ -1021,7 +1052,10 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="relative overflow-hidden border-b border-[#3b3b3b] bg-[#0c0f11]">
           <div
-            className="relative min-h-[520px] bg-cover bg-center sm:min-h-[590px] lg:min-h-[650px]"
+            className="relative min-h-[520px] cursor-grab touch-pan-y select-none bg-cover bg-center active:cursor-grabbing sm:min-h-[590px] lg:min-h-[650px]"
+            onPointerDown={handleHeroPointerDown}
+            onPointerUp={handleHeroPointerUp}
+            onPointerCancel={handleHeroPointerCancel}
             style={{
               backgroundImage: `linear-gradient(90deg, rgba(5, 8, 10, 0.68) 0%, rgba(5, 8, 10, 0.42) 42%, rgba(5, 8, 10, 0.12) 78%), linear-gradient(0deg, rgba(5, 8, 10, 0.52) 0%, transparent 45%), url(${current.image})`,
             }}
@@ -1050,15 +1084,17 @@ export default function HomePage() {
                     {activeSlide === 0 ? "Explore Operations" : t.explorePortal}
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
-                  <button
-                    type="button"
+                  <a
+                    href="https://drive.google.com/file/d/1pGt9zt4_o3_I-wFK_2AZnwhJ3uQL-Tk9/view?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-3 rounded-md border border-white/70 bg-black/25 px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/10"
                   >
                     <PlayCircle className="h-5 w-5" />
                     {activeSlide === 0
                       ? "Download Capability Statement"
                       : t.watchDemo}
-                  </button>
+                  </a>
                 </div>
 
                 <div className="hero-text-reveal hero-text-reveal-delay-5 mt-9 flex items-center justify-center gap-2 sm:mt-11 sm:gap-3">
