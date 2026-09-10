@@ -499,8 +499,7 @@ const slides = [
   },
 ];
 
-const capabilityStatementUrl =
-  "https://drive.google.com/file/d/1pGt9zt4_o3_I-wFK_2AZnwhJ3uQL-Tk9/view?usp=sharing";
+const capabilityStatementUrl = "https://www.youtube.com/watch?v=IyvTMzeYq8M";
 
 const features = [
   {
