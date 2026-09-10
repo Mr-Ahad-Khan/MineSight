@@ -17,12 +17,6 @@
     @apply font-sans antialiased text-slate-800 dark:text-slate-100;
   }
 
-  @media (max-width: 767px) {
-    .app-shell {
-      padding-top: 24px;
-    }
-  }
-
   .dark body {
     background-color: #0f1720;
     color-scheme: dark;
