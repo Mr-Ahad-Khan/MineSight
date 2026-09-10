@@ -439,6 +439,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Browser } from "@capacitor/browser";
+import { Capacitor } from "@capacitor/core";
 import {
   ArrowRight,
   ArrowUp,
@@ -496,6 +498,9 @@ const slides = [
     badge: "Real-time Visibility",
   },
 ];
+
+const capabilityStatementUrl =
+  "https://drive.google.com/file/d/1pGt9zt4_o3_I-wFK_2AZnwhJ3uQL-Tk9/view?usp=sharing";
 
 const features = [
   {
@@ -692,6 +697,7 @@ export default function HomePage() {
 
   const handleHeroPointerDown = (event) => {
     if (!event.isPrimary) return;
+    if (event.target.closest?.("a, button, input, textarea, select")) return;
     swipeStart.current = {
       id: event.pointerId,
       x: event.clientX,
@@ -718,6 +724,13 @@ export default function HomePage() {
 
   const handleHeroPointerCancel = () => {
     swipeStart.current = null;
+  };
+
+  const handleDemoClick = async (event) => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    event.preventDefault();
+    await Browser.open({ url: capabilityStatementUrl });
   };
 
   useEffect(() => {
@@ -1085,9 +1098,10 @@ export default function HomePage() {
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
                   <a
-                    href="https://drive.google.com/file/d/1pGt9zt4_o3_I-wFK_2AZnwhJ3uQL-Tk9/view?usp=sharing"
+                    href={capabilityStatementUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={handleDemoClick}
                     className="inline-flex items-center justify-center gap-3 rounded-md border border-white/70 bg-black/25 px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/10"
                   >
                     <PlayCircle className="h-5 w-5" />

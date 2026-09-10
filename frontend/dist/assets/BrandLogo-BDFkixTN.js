@@ -1,1 +1,0 @@
-import{j as e}from"./index-Fc-yeSu3.js";function t({className:n="",imageClassName:r=""}){return e.jsx("div",{className:`flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-transparent p-0 ${r} ${n}`,children:e.jsx("img",{src:"/minesight-logo.svg",alt:"MineSight",loading:"eager",className:"block h-full w-full object-contain"})})}export{t as B};
