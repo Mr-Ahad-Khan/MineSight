@@ -51,18 +51,18 @@ export default function Navbar() {
     <button
       type="button"
       onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-      className="inline-flex h-9 items-center gap-0.5 rounded-full border border-[#b99a72] bg-[#f4ecdf] p-1 text-[10px] font-bold tracking-wide text-[#5d554b] transition hover:border-[#0d3f6b] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-sky-400"
+      className="inline-flex h-9 shrink-0 items-center gap-0.5 rounded-full border border-[#b99a72] bg-[#f4ecdf] p-1 text-[10px] font-bold tracking-wide text-[#5d554b] transition hover:border-[#0d3f6b] max-[380px]:gap-0 max-[380px]:px-0.5 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-sky-400"
       title="Change language"
       aria-label="Change language"
     >
-      <Languages className="mx-1 h-3.5 w-3.5 text-[#0d3f6b] dark:text-sky-300" />
+      <Languages className="mx-1 h-3.5 w-3.5 text-[#0d3f6b] max-[380px]:mx-0.5 max-[380px]:h-3 max-[380px]:w-3 dark:text-sky-300" />
       <span
-        className={`rounded-full px-2 py-1 transition-colors ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+        className={`rounded-full px-2 py-1 transition-colors max-[380px]:px-1.5 ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
       >
         EN
       </span>
       <span
-        className={`rounded-full px-2 py-1 transition-colors ${language === "hi" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+        className={`rounded-full px-2 py-1 transition-colors max-[380px]:px-1.5 ${language === "hi" ? "bg-[#e5a416] text-[#151719]" : ""}`}
       >
         हिंदी
       </span>
@@ -97,9 +97,9 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-[#d7c7ab] bg-[#e8dfcf] shadow-[0_2px_8px_rgba(74,54,32,0.08)] dark:border-slate-700 dark:bg-[#111c24] dark:shadow-none">
-      <div className="flex h-16 min-w-0 items-center sm:h-20 lg:h-[88px]">
-        <div className="flex h-full min-w-0 shrink-0 items-center bg-white px-3 sm:px-5 dark:bg-[#171b22] xl:pr-8">
-          <BrandLogo imageClassName="h-10 w-36 sm:h-16 sm:w-64 lg:h-20 lg:w-72" />
+      <div className="grid h-16 min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center sm:h-20 lg:h-[88px]">
+        <div className="flex h-full min-w-0 items-center bg-white px-3 sm:px-5 dark:bg-[#171b22] xl:pr-8">
+          <BrandLogo imageClassName="h-10 w-[clamp(7.5rem,38vw,9rem)] max-w-full sm:h-16 sm:w-64 lg:h-20 lg:w-72" />
         </div>
 
         <nav
@@ -109,11 +109,11 @@ export default function Navbar() {
           {navLinks("desktop")}
         </nav>
 
-        <div className="relative ml-auto flex h-full shrink-0 items-center gap-1 px-2 text-[#3a3a3a] sm:gap-2 sm:px-3 dark:text-slate-200">
+        <div className="relative flex h-full shrink-0 items-center gap-1 px-2 text-[#3a3a3a] max-[380px]:gap-0 max-[380px]:px-1 sm:gap-2 sm:px-3 dark:text-slate-200">
           {languageControl}
           <button
             onClick={toggleDarkMode}
-            className="rounded-lg p-2 hover:bg-[#efe7da] dark:hover:bg-slate-800"
+            className="rounded-lg p-2 hover:bg-[#efe7da] max-[380px]:p-1.5 dark:hover:bg-slate-800"
             title="Toggle theme"
             aria-label="Toggle theme"
           >
@@ -129,7 +129,7 @@ export default function Navbar() {
               setAccountMenuOpen(false);
               setNavigationMenuOpen((open) => !open);
             }}
-            className="rounded-lg p-2 hover:bg-[#efe7da] dark:hover:bg-slate-800 xl:hidden"
+            className="rounded-lg p-2 hover:bg-[#efe7da] max-[380px]:p-1.5 dark:hover:bg-slate-800 xl:hidden"
             aria-expanded={navigationMenuOpen}
             aria-label="Open navigation menu"
           >
