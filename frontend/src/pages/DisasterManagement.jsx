@@ -143,7 +143,7 @@ export default function DisasterManagement() {
   const printReport = () => window.print();
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-screen-2xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div className="flex items-center gap-2 text-rose-600">
@@ -163,10 +163,10 @@ export default function DisasterManagement() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="card border-l-4 border-l-rose-500 p-5"><p className="text-sm text-slate-500">Active incidents</p><p className="mt-2 text-3xl font-bold text-rose-600">{activeIncidents.length}</p></div>
-        <div className="card border-l-4 border-l-amber-500 p-5"><p className="text-sm text-slate-500">Response readiness</p><p className="mt-2 text-3xl font-bold text-amber-600">{Math.round((checkedItems.length / checklistItems.length) * 100)}%</p></div>
-        <div className="card border-l-4 border-l-emerald-500 p-5"><p className="text-sm text-slate-500">Emergency channels</p><p className="mt-2 text-3xl font-bold text-emerald-600">{emergencyContacts.length}</p></div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="card border-t-4 border-t-rose-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">Active incidents</p><AlertOctagon className="h-5 w-5 text-rose-600" /></div><p className="mt-3 text-3xl font-bold text-rose-600">{activeIncidents.length}</p></div>
+        <div className="card border-t-4 border-t-amber-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">Response readiness</p><CheckCircle2 className="h-5 w-5 text-amber-600" /></div><p className="mt-3 text-3xl font-bold text-amber-600">{Math.round((checkedItems.length / checklistItems.length) * 100)}%</p></div>
+        <div className="card border-t-4 border-t-emerald-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">Emergency channels</p><PhoneCall className="h-5 w-5 text-emerald-600" /></div><p className="mt-3 text-3xl font-bold text-emerald-600">{emergencyContacts.length}</p></div>
       </div>
 
       {formOpen && (

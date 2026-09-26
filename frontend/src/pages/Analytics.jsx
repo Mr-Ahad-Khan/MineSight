@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { getAnalytics } from '../services/api'
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend
+  PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, Legend
 } from 'recharts'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
 
-const COLORS = ['#10b981', '#f59e0b', '#f97316', '#ef4444']
+const COLORS = ['#2563eb', '#0d9488', '#ff6f00', '#ef4444']
 
 const getPercentChange = (current, previous) => {
   if (previous === 0) return current === 0 ? 0 : 100
@@ -132,11 +132,11 @@ export default function Analytics() {
               const isPositive = change > 0
               const isNegative = change < 0
               return (
-                <div key={key} className="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+                <div key={key} className="card border-t-4 border-t-[#ff6f00] p-4">
                   <p className="text-sm text-slate-500">{label}</p>
                   <div className="flex items-end justify-between gap-3 mt-2">
                     <p className="text-2xl font-bold">{current}</p>
-                    <span className={`text-sm font-semibold ${isPositive ? 'text-rose-600' : isNegative ? 'text-emerald-600' : 'text-slate-500'}`}>
+                    <span className={`rounded-full bg-emerald-50 px-2 py-1 text-sm font-semibold ${isPositive ? 'text-emerald-700' : isNegative ? 'text-rose-600' : 'text-slate-500'}`}>
                       {change > 0 ? '+' : ''}{change}%
                     </span>
                   </div>
@@ -176,13 +176,13 @@ export default function Analytics() {
             <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
           ) : (
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={trendData}>
+              <AreaChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Bar dataKey="inspections" fill="#0f766e" radius={[4, 4, 0, 0]} name="Inspections" />
-              </BarChart>
+                <Area type="monotone" dataKey="inspections" stroke="#0d9488" fill="#0d9488" fillOpacity={0.16} strokeWidth={3} name="Inspections" />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </div>

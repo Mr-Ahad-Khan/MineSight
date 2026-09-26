@@ -87,15 +87,15 @@ export default function Navbar() {
         onClick={() => setNavigationMenuOpen(false)}
         className={({ isActive }) =>
           variant === "desktop"
-            ? `flex min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold transition-colors ${
+              ? `relative flex min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-none px-1 py-3 text-[10px] font-semibold transition-colors after:absolute after:inset-x-1 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-[#ff6f00] after:transition-transform 2xl:text-xs ${
                 isActive
-                  ? "bg-[#d9e7f4] text-[#0d3f6b] dark:bg-slate-800 dark:text-white"
-                  : "text-[#3a3a3a] hover:bg-[#f4ecdf] hover:text-[#152b3d] dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                  ? "text-white after:scale-x-100"
+                  : "text-white/70 hover:text-white hover:after:scale-x-100"
               }`
             : `flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
                 isActive
-                  ? "bg-[#0d3f6b] text-white"
-                  : "bg-[#f6f0e5] text-[#304451] hover:bg-[#e8dfcf] dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  ? "bg-[#ff6f00] text-white"
+                  : "text-white/75 hover:bg-white/10 hover:text-white"
               }`
         }
       >
@@ -105,20 +105,20 @@ export default function Navbar() {
     ));
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#d7c7ab] bg-[#e8dfcf] shadow-[0_2px_8px_rgba(74,54,32,0.08)] dark:border-slate-700 dark:bg-[#111c24] dark:shadow-none">
-      <div className="grid h-16 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center sm:h-20 lg:h-[88px]">
-        <div className="flex h-full min-w-0 items-center bg-white px-3 sm:px-5 dark:bg-[#171b22] xl:pr-8">
+    <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-[#212121] text-white shadow-md">
+      <div className="grid h-16 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center">
+        <div className="flex h-full min-w-0 items-center bg-[#212121] px-3 sm:px-5 xl:pr-8">
           <BrandLogo imageClassName="h-10 w-[clamp(7.5rem,38vw,9rem)] max-w-full sm:h-16 sm:w-64 lg:h-20 lg:w-72" />
         </div>
 
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-1 xl:flex"
+          className="navbar-scrollbar-hidden hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto px-1 xl:flex"
           aria-label="Primary navigation"
         >
           {navLinks("desktop")}
         </nav>
 
-        <div className="relative flex h-full shrink-0 items-center gap-1 px-2 text-[#3a3a3a] max-[380px]:gap-0 max-[380px]:px-1 sm:gap-2 sm:px-3 dark:text-slate-200">
+        <div className="relative flex h-full shrink-0 items-center gap-1 px-2 text-white max-[380px]:gap-0 max-[380px]:px-1 sm:gap-2 sm:px-3">
           <button
             type="button"
             onClick={() => navigate("/app/support")}
@@ -131,7 +131,7 @@ export default function Navbar() {
           {languageControl}
           <button
             onClick={toggleDarkMode}
-            className="rounded-lg p-2 hover:bg-[#efe7da] max-[380px]:p-1.5 dark:hover:bg-slate-800"
+            className="rounded-lg p-2 hover:bg-white/10 max-[380px]:p-1.5"
             title="Toggle theme"
             aria-label="Toggle theme"
           >
@@ -147,7 +147,7 @@ export default function Navbar() {
               setAccountMenuOpen(false);
               setNavigationMenuOpen((open) => !open);
             }}
-            className="rounded-lg p-2 hover:bg-[#efe7da] max-[380px]:p-1.5 dark:hover:bg-slate-800 xl:hidden"
+            className="rounded-lg p-2 hover:bg-white/10 max-[380px]:p-1.5 xl:hidden"
             aria-expanded={navigationMenuOpen}
             aria-label="Open navigation menu"
           >
@@ -163,7 +163,7 @@ export default function Navbar() {
               setNavigationMenuOpen(false);
               setAccountMenuOpen((open) => !open);
             }}
-            className="hidden rounded-lg p-2 hover:bg-[#efe7da] dark:hover:bg-slate-800 xl:inline-flex"
+            className="hidden rounded-lg p-2 hover:bg-white/10 xl:inline-flex"
             aria-expanded={accountMenuOpen}
             aria-label="Open account menu"
           >
@@ -201,7 +201,7 @@ export default function Navbar() {
       </div>
 
       {navigationMenuOpen && (
-        <div className="border-t border-[#d7c7ab] bg-[#fffdf8] p-3 shadow-lg dark:border-slate-700 dark:bg-slate-900 xl:hidden">
+        <div className="border-t border-white/10 bg-[#212121] p-3 shadow-lg xl:hidden">
           <nav
             className="grid grid-cols-2 gap-2"
             aria-label="Mobile navigation"

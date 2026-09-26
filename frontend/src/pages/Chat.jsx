@@ -239,7 +239,7 @@ export default function Chat() {
   };
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-72px)] max-w-5xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
+    <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-4xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9b6b16]">
@@ -257,9 +257,9 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="flex min-h-[520px] flex-1 flex-col overflow-hidden rounded-2xl border border-[#d7c7ab] bg-[#fffdf9] shadow-[0_10px_30px_rgba(74,54,32,0.1)] dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
-        <div className="flex items-center gap-3 border-b border-[#e6dccb] bg-[#17314a] px-5 py-4 text-white">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5a416] text-[#17314a]">
+      <div className="flex min-h-[520px] flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
+        <div className="flex items-center gap-3 border-b border-blue-950 bg-[#1e3a8a] px-5 py-4 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
             <Bot className="h-5 w-5" />
           </div>
           <div>
@@ -268,7 +268,7 @@ export default function Chat() {
           </div>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto bg-[#f7f1e7] p-4 sm:p-6 dark:bg-slate-800">
+        <div className="flex-1 space-y-4 overflow-y-auto bg-[#f5f7fa] p-4 sm:p-6 dark:bg-slate-800">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -278,7 +278,7 @@ export default function Chat() {
                 <Bot className="mt-1 h-4 w-4 shrink-0 text-[#9b6b16]" />
               )}
               <div
-                className={`max-w-[min(80%,38rem)] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.sender === "user" ? "rounded-br-sm bg-[#cfeaf9] text-[#10263d] dark:bg-sky-900/70 dark:text-sky-100" : "rounded-bl-sm bg-white text-[#3d392f] shadow-sm dark:bg-slate-700 dark:text-slate-100"}`}
+                className={`max-w-[min(80%,38rem)] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.sender === "user" ? "rounded-br-sm bg-blue-100 text-gray-800 dark:bg-sky-900/70 dark:text-sky-100" : "rounded-bl-sm bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-100"}`}
               >
                 {message.text}
               </div>
@@ -297,9 +297,9 @@ export default function Chat() {
                   key={prompt}
                   type="button"
                   onClick={() => askPrompt(prompt)}
-                  className="inline-flex items-center gap-1 rounded-full border border-[#d7c7ab] bg-white px-3 py-2 text-xs font-medium text-[#17314a] transition hover:border-[#9b6b16] hover:bg-[#fff8e8] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+                  className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-[#ff6f00] hover:bg-orange-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
                 >
-                  <Sparkles className="h-3 w-3 text-[#b77909]" /> {prompt}
+                  <Sparkles className="h-3 w-3 text-[#ff6f00]" /> {prompt}
                 </button>
               ))}
             </div>
@@ -309,9 +309,9 @@ export default function Chat() {
         <form
           onSubmit={handleSend}
           autoComplete="off"
-          className="border-t border-[#e6dccb] bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
+          className="border-t border-gray-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
         >
-          <div className="flex items-center gap-2 rounded-xl border border-[#cdbd9f] bg-[#fffdf9] px-3 py-2 focus-within:border-[#17314a] focus-within:ring-2 focus-within:ring-[#17314a]/10 dark:border-slate-600 dark:bg-slate-800 dark:focus-within:border-sky-400">
+          <div className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 focus-within:border-[#ff6f00] focus-within:ring-2 focus-within:ring-[#ff6f00]/15 dark:border-slate-600 dark:bg-slate-800 dark:focus-within:border-sky-400">
             <input
               id="chat-message"
               name="message"
@@ -319,14 +319,14 @@ export default function Chat() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder={t.askCoalAi}
-              className="min-w-0 flex-1 bg-transparent px-1 text-sm text-[#17314a] outline-none placeholder:text-[#958a7b] dark:text-white dark:placeholder:text-slate-500"
+              className="min-w-0 flex-1 bg-transparent px-1 text-sm text-gray-800 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-slate-500"
               disabled={sending}
               aria-label={t.messageCoalAi}
             />
             <button
               type="submit"
               disabled={sending || !input.trim()}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e5a416] text-[#151719] transition hover:bg-[#f5b82c] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#ff6f00] text-white transition hover:bg-[#e65100] disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Send message"
               title="Send message"
             >

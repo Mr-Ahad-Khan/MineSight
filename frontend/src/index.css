@@ -14,7 +14,8 @@
   }
 
   body {
-    @apply font-sans antialiased text-slate-800 dark:text-slate-100;
+    @apply font-sans antialiased text-gray-700 dark:text-slate-100;
+    background-color: #f5f7fa;
   }
 
   .dark body {
@@ -342,7 +343,7 @@
   }
 
   .card {
-    @apply relative bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-card transition-shadow duration-200;
+    @apply relative rounded-xl border border-gray-200 bg-white shadow-md transition-shadow duration-200 dark:border-slate-800 dark:bg-slate-900;
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -355,11 +356,11 @@
   }
 
   .btn-primary {
-    @apply bg-primary-700 hover:bg-primary-800 text-white font-medium px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply rounded-lg bg-[#ff6f00] px-4 py-2.5 font-medium text-white transition-colors hover:bg-[#e65100] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-medium px-4 py-2.5 rounded-lg transition-colors;
+    @apply rounded-lg border border-[#212121] bg-white px-4 py-2.5 font-medium text-[#212121] transition-colors hover:bg-gray-100 dark:border-slate-500 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700;
   }
 
   .btn-danger {
@@ -392,8 +393,16 @@
   }
 
   .stat-card {
-    @apply card p-5 flex flex-col gap-1;
+    @apply card flex flex-col gap-1 border-t-4 border-t-[#ff6f00] p-5;
   }
+}
+
+.app-shell {
+  background-color: #f5f7fa;
+}
+
+.app-shell main {
+  color: #374151;
 }
 
 /* Leaflet dark mode fix */

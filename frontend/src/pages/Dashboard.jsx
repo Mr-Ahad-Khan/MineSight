@@ -527,7 +527,7 @@ export default function Dashboard() {
     <div
       className="
         min-h-[calc(100vh-64px)]
-        bg-[#f6f0e5]
+        bg-[#f5f7fa]
         text-[#111]
         text-left
         px-5
@@ -554,6 +554,30 @@ export default function Dashboard() {
       >
 
         <div>
+
+        <section
+          className="relative mb-6 flex min-h-[280px] items-center justify-center overflow-hidden rounded-xl bg-cover bg-center px-5 py-10 text-center text-white shadow-md sm:min-h-[320px]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.BASE_URL}coal-miners.webp)`,
+          }}
+        >
+          <div className="relative z-10 max-w-3xl">
+            <p className="text-xs font-bold uppercase text-[#ff6f00] sm:text-sm">
+              MineSight Coal Governance
+            </p>
+            <h2 className="mt-3 text-4xl font-bold leading-tight text-white sm:text-5xl">
+              See the full picture underground
+            </h2>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link to="/app/inspections" className="btn-primary inline-flex items-center gap-2">
+                View inspections <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link to="/app/analytics" className="inline-flex items-center gap-2 rounded-lg border border-white/70 bg-white/10 px-4 py-2.5 font-medium text-white transition hover:bg-white/20">
+                Explore analytics
+              </Link>
+            </div>
+          </div>
+        </section>
 
           <h1
             className="
@@ -653,12 +677,13 @@ export default function Dashboard() {
 
         <div
           className="
-            xl:col-span-2
+            md:col-span-2
+            xl:col-span-12
             grid
             grid-cols-1
             sm:grid-cols-2
-            xl:grid-cols-1
-            gap-5
+            xl:grid-cols-4
+            gap-6
           "
         >
 
@@ -668,7 +693,7 @@ export default function Dashboard() {
             title={t.totalMines}
             value={summary?.totalMines || 0}
             icon={Building2}
-            iconClass="bg-[#dce7f7] text-[#315c99]"
+            iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
 
 
@@ -680,7 +705,7 @@ export default function Dashboard() {
             subtitle={`${summary?.criticalInspections || 0} ${t.critical}`}
             secondary={`Updated inspections: ${animatedOpenInspections + 1}`}
             icon={ClipboardList}
-            iconClass="bg-[#fae8bf] text-[#bc7914]"
+            iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
 
 
@@ -690,7 +715,7 @@ export default function Dashboard() {
             title={t.overdueCompliances}
             value={summary?.overdueCompliances || 0}
             icon={ShieldAlert}
-            iconClass="bg-[#f6d9d9] text-[#b43a3a]"
+            iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
 
 
@@ -700,7 +725,7 @@ export default function Dashboard() {
             title={t.avgComplianceScore}
             value={`${animatedComplianceScore}%`}
             icon={TrendingUp}
-            iconClass="bg-[#dcebdc] text-[#23804f]"
+            iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
 
         </div>
@@ -713,12 +738,12 @@ export default function Dashboard() {
         <div
           className="
             dashboard-panel
-            xl:col-span-4
+            xl:col-span-5
             rounded-2xl
             border
-            border-[#cbbda7]
-            bg-[#fffdf8]
-            shadow-[0_2px_5px_rgba(80,60,30,0.10)]
+            border-gray-200
+            bg-white
+            shadow-md
             p-5
             min-h-[500px]
             flex
@@ -923,12 +948,12 @@ export default function Dashboard() {
         <div
           className="
             dashboard-panel
-            xl:col-span-4
+            xl:col-span-5
             rounded-2xl
             border
-            border-[#cbbda7]
-            bg-[#fffdf8]
-            shadow-[0_2px_5px_rgba(80,60,30,0.10)]
+            border-gray-200
+            bg-white
+            shadow-md
             p-5
             min-h-[500px]
             flex
@@ -1003,9 +1028,9 @@ export default function Dashboard() {
               dashboard-panel
               rounded-2xl
               border
-              border-[#cbbda7]
-              bg-[#fffdf8]
-              shadow-[0_2px_5px_rgba(80,60,30,0.10)]
+              border-gray-200
+              bg-white
+              shadow-md
               p-5
             "
           >
@@ -1078,9 +1103,9 @@ export default function Dashboard() {
               dashboard-panel
               rounded-2xl
               border
-              border-[#cbbda7]
-              bg-[#fffdf8]
-              shadow-[0_2px_5px_rgba(80,60,30,0.10)]
+              border-gray-200
+              bg-white
+              shadow-md
               p-5
               min-h-[190px]
             "
@@ -1158,9 +1183,11 @@ function StatCard({
         min-h-[105px]
         rounded-2xl
         border
-        border-[#cbbda7]
-        bg-[#fffdf8]
-        shadow-[0_2px_5px_rgba(80,60,30,0.10)]
+        border-gray-200
+        border-t-4
+        border-t-[#ff6f00]
+        bg-white
+        shadow-md
         px-5
         py-4
       "
@@ -1179,7 +1206,7 @@ function StatCard({
           <p
             className="
               text-[15px]
-              text-[#151515]
+              text-gray-600
               mb-2
             "
           >
@@ -1192,6 +1219,7 @@ function StatCard({
               text-[27px]
               font-semibold
               leading-none
+              text-[#ff6f00]
             "
           >
             {value}

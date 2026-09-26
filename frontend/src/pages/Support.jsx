@@ -145,10 +145,10 @@ export default function Support() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-72px)] bg-[#f3eadb] px-4 pb-12 pt-4 sm:px-6 lg:px-8 dark:bg-[#0b1218]">
+    <div className="min-h-[calc(100vh-72px)] bg-[#f5f7fa] px-4 pb-12 pt-6 sm:px-6 lg:px-8 dark:bg-[#0b1218]">
       <div className="mx-auto max-w-[1600px] space-y-6">
         {/* Support Panel Header */}
-        <div className="flex flex-col gap-4 border-b border-[#cbb79d] pb-5 md:flex-row md:items-center md:justify-between dark:border-slate-800">
+        <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 md:flex-row md:items-center md:justify-between dark:border-slate-800">
           <div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0d3f6d] to-[#1a62a3] text-white shadow-md">
@@ -169,7 +169,7 @@ export default function Support() {
             <button
               type="button"
               onClick={() => setFormOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0d3f6d] to-[#175d9e] px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-[#0d3f6d]/20 transition hover:brightness-110 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#ff6f00] px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-[#e65100] active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
               <span>Raise Support Ticket</span>
@@ -178,7 +178,7 @@ export default function Support() {
         </div>
 
         {/* Emergency SOS & Hotlines Banner */}
-        <div className="rounded-2xl border-2 border-red-500/40 bg-gradient-to-br from-red-500/10 via-[#fdf3f2] to-amber-500/10 p-5 shadow-sm dark:border-red-500/30 dark:from-red-950/30 dark:via-slate-900 dark:to-amber-950/20">
+        <div className="rounded-xl border-2 border-red-300 bg-red-50 p-5 shadow-md dark:border-red-500/30 dark:from-red-950/30 dark:via-slate-900 dark:to-amber-950/20">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-3.5">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-600/30 animate-pulse">
@@ -222,7 +222,7 @@ export default function Support() {
           {/* Column 1: System Telemetry Status & Helplines */}
           <div className="space-y-6">
             {/* System Status Card */}
-            <div className="rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="rounded-xl border border-sky-200 bg-white p-5 shadow-md dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between border-b border-[#ebdcc7] pb-3 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <Server className="h-4 w-4 text-[#0d3f6d] dark:text-sky-400" />
@@ -241,31 +241,31 @@ export default function Support() {
                   <span className="text-slate-600 dark:text-slate-400">
                     Real-Time Biometric Gateway
                   </span>
-                  <span className="font-semibold text-emerald-600">Operational</span>
+                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">Operational</span>
                 </div>
                 <div className="flex items-center justify-between py-1 border-b border-[#f0e5d4] dark:border-slate-800/60">
                   <span className="text-slate-600 dark:text-slate-400">
                     DGMS Statutory Sync Server
                   </span>
-                  <span className="font-semibold text-emerald-600">Connected</span>
+                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">Connected</span>
                 </div>
                 <div className="flex items-center justify-between py-1 border-b border-[#f0e5d4] dark:border-slate-800/60">
                   <span className="text-slate-600 dark:text-slate-400">
                     IoT Telemetry Ingestion
                   </span>
-                  <span className="font-semibold text-emerald-600">99.98% SLA</span>
+                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">99.98% SLA</span>
                 </div>
                 <div className="flex items-center justify-between py-1">
                   <span className="text-slate-600 dark:text-slate-400">
                     Field Media & Voice Storage
                   </span>
-                  <span className="font-semibold text-emerald-600">Synced</span>
+                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">Synced</span>
                 </div>
               </div>
             </div>
 
             {/* Support Directory */}
-            <div className="rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="rounded-xl border border-sky-200 bg-white p-5 shadow-md dark:border-slate-800 dark:bg-slate-900">
               <h3 className="mb-3 text-sm font-bold text-slate-900 dark:text-white">
                 Technical & Statutory Contacts
               </h3>
@@ -303,7 +303,7 @@ export default function Support() {
           {/* Column 2 & 3: Support Tickets & Knowledge Base */}
           <div className="lg:col-span-2 space-y-6">
             {/* Tickets Tracker */}
-            <div className="rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="rounded-xl border border-sky-200 bg-white p-5 shadow-md dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between border-b border-[#ebdcc7] pb-3 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-[#0d3f6d] dark:text-sky-400" />

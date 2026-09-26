@@ -19,18 +19,23 @@ export default {
           950: "#172554",
         },
         gov: {
-          blue: "#0b3d91",
-          dark: "#0a2540",
+          blue: "#2563eb",
+          dark: "#212121",
           green: "#0f766e",
           amber: "#d97706",
           red: "#b91c1c",
+        },
+        coal: {
+          orange: "#ff6f00",
+          charcoal: "#212121",
+          canvas: "#f5f7fa",
         },
       },
       fontFamily: {
         sans: ["Montserrat", "Noto Sans Devanagari", "sans-serif"],
       },
       boxShadow: {
-        card: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+        card: "0 4px 12px 0 rgb(17 24 39 / 0.08)",
         "card-hover":
           "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
       },
