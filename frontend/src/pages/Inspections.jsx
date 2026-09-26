@@ -181,13 +181,22 @@ export default function Inspections() {
                         key={insp._id}
                         className="border-t border-[#d7c8b0] bg-[#f7f3ed] hover:bg-[#f1eadf]"
                       >
-                        <td className="px-4 py-4 align-middle">
+                        <td className="px-4 py-4 align-middle max-w-sm">
                           <Link
                             to={`/app/inspections/${insp._id}`}
-                            className="text-[18px] font-medium text-[#1f1f1f] hover:text-[#0d3f6d] hover:underline"
+                            className="text-[17px] font-semibold text-[#1f1f1f] hover:text-[#0d3f6d] hover:underline block"
                           >
                             {insp.title}
                           </Link>
+                          {insp.description ? (
+                            <p className="mt-1 text-xs text-[#52493b] dark:text-slate-400 line-clamp-2 leading-relaxed">
+                              {insp.description}
+                            </p>
+                          ) : insp.observations ? (
+                            <p className="mt-1 text-xs text-slate-400 italic line-clamp-1">
+                              {insp.observations}
+                            </p>
+                          ) : null}
                         </td>
 
                         <td className="px-4 py-4 align-middle">

@@ -132,3 +132,21 @@ export const getContractors = (params) => api.get("/contractors", { params });
 export const createContractor = (data) => api.post("/contractors", data);
 export const updateContractor = (id, data) =>
   api.put(`/contractors/${id}`, data);
+
+// Attendance & Real-Time Presence
+export const getRealtimeAttendance = (params) =>
+  api.get("/attendance/realtime", { params });
+export const getAttendance = (params) => api.get("/attendance", { params });
+export const markCheckIn = (data) => api.post("/attendance/check-in", data);
+export const markCheckOut = (id) => api.post(`/attendance/${id}/check-out`);
+export const updateAttendanceLiveStatus = (id, data) =>
+  api.patch(`/attendance/${id}/live-status`, data);
+
+// Support & Emergency Panel
+export const getSupportDirectory = () => api.get("/support/directory");
+export const getSupportTickets = (params) =>
+  api.get("/support/tickets", { params });
+export const getSupportTicket = (id) => api.get(`/support/tickets/${id}`);
+export const createSupportTicket = (data) => api.post("/support/tickets", data);
+export const replySupportTicket = (id, data) =>
+  api.post(`/support/tickets/${id}/responses`, data);

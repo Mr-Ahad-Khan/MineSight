@@ -231,6 +231,10 @@ export default function CreateInspection() {
         formData.append(key, value);
       });
 
+      formData.set("title", form.title || "");
+      formData.set("description", form.description || "");
+      formData.set("observations", form.observations || "");
+
       if (audioBlob) {
         const fileName = `inspection-audio-${Date.now()}.webm`;
         formData.append("audio", audioBlob, fileName);

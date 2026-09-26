@@ -14,6 +14,8 @@ import {
   Sun,
   UserCircle,
   Users,
+  UserCheck,
+  LifeBuoy,
   X,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -34,11 +36,13 @@ export default function Navbar() {
   const navigation = [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
+    { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
     { name: t.mines, href: "/app/mines", icon: MapPin },
     { name: t.contractors, href: "/app/contractors", icon: Users },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
     { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
+    { name: t.support || "Support", href: "/app/support", icon: LifeBuoy },
     { name: t.coalAi, href: "/app/chat", icon: MessageCircle },
   ];
 
@@ -103,13 +107,22 @@ export default function Navbar() {
         </div>
 
         <nav
-          className="hidden min-w-0 flex-1 grid-cols-8 gap-1 px-3 xl:grid"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-1 xl:flex"
           aria-label="Primary navigation"
         >
           {navLinks("desktop")}
         </nav>
 
         <div className="relative flex h-full shrink-0 items-center gap-1 px-2 text-[#3a3a3a] max-[380px]:gap-0 max-[380px]:px-1 sm:gap-2 sm:px-3 dark:text-slate-200">
+          <button
+            type="button"
+            onClick={() => navigate("/app/support")}
+            className="inline-flex items-center gap-1 rounded-full border border-red-300/80 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 transition hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300"
+            title="Emergency Support Panel"
+          >
+            <LifeBuoy className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">SOS Help</span>
+          </button>
           {languageControl}
           <button
             onClick={toggleDarkMode}

@@ -5,6 +5,8 @@ import {
   ShieldCheck,
   MapPin,
   Users,
+  UserCheck,
+  LifeBuoy,
   Bell,
   BarChart3,
   X,
@@ -22,11 +24,13 @@ export default function Sidebar({ open, setOpen }) {
   const navigation = [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
+    { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
     { name: t.mines, href: "/app/mines", icon: MapPin },
     { name: t.contractors, href: "/app/contractors", icon: Users },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
     { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
+    { name: t.support || "Support", href: "/app/support", icon: LifeBuoy },
   ];
 
   return (

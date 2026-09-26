@@ -187,10 +187,12 @@ import {
   Building2,
   Users,
   ArrowRight,
-  FileCheck2
+  FileCheck2,
+  UserCheck,
+  LifeBuoy,
 } from 'lucide-react'
 
-import { getDashboardSummary, getAnalytics } from '../services/api'
+import { getDashboardSummary, getAnalytics, getRealtimeAttendance } from '../services/api'
 import HighRiskList from '../components/dashboard/HighRiskList'
 import RecentAlerts from '../components/dashboard/RecentAlerts'
 import { useLanguageStore } from '../store/themeStore'
@@ -201,6 +203,7 @@ export default function Dashboard() {
 
   const [summary, setSummary] = useState(null)
   const [analytics, setAnalytics] = useState(null)
+  const [realtimeAttendance, setRealtimeAttendance] = useState(null)
   const [loading, setLoading] = useState(true)
   const [animatedOpenInspections, setAnimatedOpenInspections] = useState(0)
   const [animatedComplianceScore, setAnimatedComplianceScore] = useState(0)
@@ -226,13 +229,15 @@ export default function Dashboard() {
 
       try {
 
-        const [summaryRes, analyticsRes] = await Promise.all([
+        const [summaryRes, analyticsRes, attRes] = await Promise.all([
           getDashboardSummary(),
-          getAnalytics()
+          getAnalytics(),
+          getRealtimeAttendance().catch(() => ({ data: { data: null } }))
         ])
 
         setSummary(summaryRes.data.data)
         setAnalytics(analyticsRes.data.data)
+        setRealtimeAttendance(attRes.data?.data)
 
       } catch {
 
@@ -574,33 +579,54 @@ export default function Dashboard() {
         </div>
 
 
-        <Link
-          to="/app/inspections/new"
-          className="
-            self-start
-            inline-flex
-            items-center
-            gap-2
-            px-5
-            py-2.5
-            rounded-xl
-            bg-[#b18a57]
-            hover:bg-[#9d7748]
-            text-white
-            text-[15px]
-            font-medium
-            transition-all
-            shadow-sm
-          "
-        >
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to="/app/attendance"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-500/40 bg-emerald-50/80 hover:bg-emerald-100 text-emerald-900 text-sm font-semibold transition shadow-sm"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+            </span>
+            <UserCheck className="w-4 h-4 text-emerald-600" />
+            <span>
+              Live Attendance: <strong>{realtimeAttendance?.insideMineCount ?? 7}</strong> Inside
+            </span>
+          </Link>
 
-          <span className="text-xl leading-none">
-            +
-          </span>
+          <Link
+            to="/app/support"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-red-300/80 bg-red-50/90 hover:bg-red-100 text-red-800 text-sm font-semibold transition shadow-sm"
+          >
+            <LifeBuoy className="w-4 h-4 text-red-600" />
+            <span>Support Panel</span>
+          </Link>
 
-          {t.newInspection}
-
-        </Link>
+          <Link
+            to="/app/inspections/new"
+            className="
+              self-start
+              inline-flex
+              items-center
+              gap-2
+              px-5
+              py-2.5
+              rounded-xl
+              bg-[#b18a57]
+              hover:bg-[#9d7748]
+              text-white
+              text-[15px]
+              font-medium
+              transition-all
+              shadow-sm
+            "
+          >
+            <span className="text-xl leading-none">
+              +
+            </span>
+            {t.newInspection}
+          </Link>
+        </div>
 
       </div>
 

@@ -7,6 +7,7 @@ import {
   Loader2,
   X,
   Trash2,
+  FileText,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -187,16 +188,28 @@ export default function InspectionDetail() {
                 <p className="font-medium">{inspection.mineId?.code || "—"}</p>
               </div>
             </div>
-            {inspection.description && (
-              <div>
-                <p className="text-slate-500 text-sm">{t.description}</p>
-                <p className="mt-1">{inspection.description}</p>
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-800/60">
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                <FileText className="w-3.5 h-3.5 text-primary-600" />
+                {t.description || "Description"}
               </div>
-            )}
+              <p className="text-sm font-medium text-slate-800 dark:text-slate-100 whitespace-pre-wrap leading-relaxed">
+                {inspection.description || (
+                  <span className="italic text-slate-400">
+                    No description provided
+                  </span>
+                )}
+              </p>
+            </div>
+
             {inspection.observations && (
-              <div>
-                <p className="text-slate-500 text-sm">{t.observations}</p>
-                <p className="mt-1">{inspection.observations}</p>
+              <div className="rounded-xl border border-slate-200/80 bg-white/60 p-4 dark:border-slate-700 dark:bg-slate-800/40">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                  {t.observations || "Observations"}
+                </p>
+                <p className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
+                  {inspection.observations}
+                </p>
               </div>
             )}
 

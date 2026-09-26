@@ -25,6 +25,8 @@ const Alerts = lazy(() => import("./pages/Alerts"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Attendance = lazy(() => import("./pages/Attendance"));
+const Support = lazy(() => import("./pages/Support"));
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore();
@@ -89,6 +91,8 @@ function App() {
           <Route path="contractors" element={<Contractors />} />
           <Route path="alerts" element={<Alerts />} />
           <Route path="analytics" element={<Analytics />} />
+          <Route path="attendance" element={<Attendance />} />
+          <Route path="support" element={<Support />} />
           <Route path="chat" element={<Chat />} />
           <Route path="profile" element={<Profile />} />
         </Route>
