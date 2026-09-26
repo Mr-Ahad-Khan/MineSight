@@ -122,8 +122,17 @@ const verifyEmailOtp = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/register
 // @access  Public (or Admin only in production)
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, mineId, phone, emailVerificationToken } =
-    req.body;
+  const {
+    name,
+    email,
+    password,
+    role,
+    mineId,
+    phone,
+    employeeId,
+    department,
+    emailVerificationToken,
+  } = req.body;
 
   if (!name || !email || !password) {
     res.status(400);
@@ -159,6 +168,8 @@ const registerUser = asyncHandler(async (req, res) => {
     role: role || "mine_official",
     mineId: mineId || null,
     phone,
+    employeeId,
+    department,
   });
 
   if (user) {
@@ -171,6 +182,8 @@ const registerUser = asyncHandler(async (req, res) => {
         role: user.role,
         mineId: user.mineId,
         phone: user.phone,
+        employeeId: user.employeeId,
+        department: user.department,
         profilePicture: user.profilePicture,
         token: generateToken(user._id),
       },
@@ -211,6 +224,8 @@ const loginUser = asyncHandler(async (req, res) => {
         role: user.role,
         mineId: user.mineId,
         phone: user.phone,
+        employeeId: user.employeeId,
+        department: user.department,
         profilePicture: user.profilePicture,
         token: generateToken(user._id),
       },

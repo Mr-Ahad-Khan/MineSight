@@ -29,7 +29,7 @@ const useAuthStore = create((set) => ({
       localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(authUser))
       set({ user: authUser, token, isLoading: false })
-      return { success: true }
+      return { success: true, user: authUser }
     } catch (error) {
       set({ isLoading: false })
       return { 

@@ -9,6 +9,8 @@ const Compliance = require('./models/Compliance');
 const Inspection = require('./models/Inspection');
 const Contractor = require('./models/Contractor');
 const Alert = require('./models/Alert');
+const WorkerTask = require('./models/WorkerTask');
+const Attendance = require('./models/Attendance');
 
 dotenv.config();
 
@@ -23,6 +25,8 @@ const seedData = async () => {
     await Inspection.deleteMany();
     await Contractor.deleteMany();
     await Alert.deleteMany();
+    await WorkerTask.deleteMany();
+    await Attendance.deleteMany();
 
     console.log('Data cleared...');
 
@@ -156,6 +160,72 @@ const seedData = async () => {
       mineId: mine1._id,
       phone: '9876543212',
     });
+
+    const worker1 = await User.create({
+      name: 'Amit Yadav',
+      email: 'worker@cil.gov.in',
+      password: 'worker123',
+      role: 'worker',
+      mineId: mine1._id,
+      phone: '9876543213',
+      employeeId: 'EMP-001',
+      department: 'Mining Operations',
+    });
+
+    const worker2 = await User.create({
+      name: 'Sunita Devi',
+      email: 'worker2@cil.gov.in',
+      password: 'worker123',
+      role: 'worker',
+      mineId: mine2._id,
+      phone: '9876543214',
+      employeeId: 'EMP-002',
+      department: 'Safety & Compliance',
+    });
+
+    await WorkerTask.create([
+      {
+        workerId: worker1._id,
+        mineId: mine1._id,
+        title: 'Inspect haul road safety barriers',
+        department: worker1.department,
+        status: 'completed',
+        completedAt: new Date(),
+      },
+      {
+        workerId: worker1._id,
+        mineId: mine1._id,
+        title: 'Record daily equipment checklist',
+        department: worker1.department,
+        status: 'pending',
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+      {
+        workerId: worker2._id,
+        mineId: mine2._id,
+        title: 'Verify PPE issue register',
+        department: worker2.department,
+        status: 'in_progress',
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      },
+    ]);
+
+    await Attendance.create([
+      {
+        workerId: worker1._id,
+        mineId: mine1._id,
+        date: new Date(new Date().setHours(0, 0, 0, 0)),
+        status: 'present',
+        checkIn: new Date(),
+      },
+      {
+        workerId: worker2._id,
+        mineId: mine2._id,
+        date: new Date(new Date().setHours(0, 0, 0, 0)),
+        status: 'late',
+        checkIn: new Date(),
+      },
+    ]);
 
     // Update mine managers
     mine1.managerId = official1._id;
@@ -343,6 +413,7 @@ const seedData = async () => {
     console.log('Corporate  : corporate@cil.gov.in / corp123');
     console.log('Regulator  : regulator@dgms.gov.in / reg123');
     console.log('Mine Off.1 : rajesh@ncl.gov.in / mine123');
+    console.log('Worker : worker@cil.gov.in / worker123');
     console.log('Mine Off.2 : priya@ncl.gov.in / mine123');
     console.log('Contractor : ananya@shakticontractors.in / contract123');
 

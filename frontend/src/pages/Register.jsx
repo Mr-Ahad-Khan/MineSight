@@ -15,6 +15,8 @@ export default function Register() {
     password: "",
     role: "mine_official",
     phone: "",
+    employeeId: "",
+    department: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState("");
@@ -93,6 +95,8 @@ export default function Register() {
       password: form.password,
       role: form.role,
       phone: form.phone.trim(),
+      employeeId: form.employeeId.trim(),
+      department: form.department.trim(),
       emailVerificationToken,
     };
 
@@ -286,8 +290,22 @@ export default function Register() {
                   <option value="admin">Admin</option>
                   <option value="regulator">Regulator</option>
                   <option value="contractor">Contractor</option>
+                  <option value="worker">Worker</option>
                 </select>
               </div>
+
+              {form.role === "worker" && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="label" htmlFor="employeeId">Employee ID</label>
+                    <input id="employeeId" name="employeeId" value={form.employeeId} onChange={handleChange} className="input-field" placeholder="EMP-001" />
+                  </div>
+                  <div>
+                    <label className="label" htmlFor="department">Department</label>
+                    <input id="department" name="department" value={form.department} onChange={handleChange} className="input-field" placeholder="Operations" />
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="label" htmlFor="register-password">

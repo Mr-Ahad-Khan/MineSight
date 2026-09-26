@@ -25,10 +25,16 @@ const Alerts = lazy(() => import("./pages/Alerts"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Workers = lazy(() => import("./pages/Workers"));
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore();
   return token ? children : <Navigate to="/login" replace />;
+}
+
+function AppIndex() {
+  const { user } = useAuthStore();
+  return user?.role === "worker" ? <Workers /> : <Dashboard />;
 }
 
 function App() {
@@ -80,7 +86,7 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index element={<AppIndex />} />
           <Route path="inspections" element={<Inspections />} />
           <Route path="inspections/new" element={<CreateInspection />} />
           <Route path="inspections/:id" element={<InspectionDetail />} />
@@ -91,6 +97,7 @@ function App() {
           <Route path="analytics" element={<Analytics />} />
           <Route path="chat" element={<Chat />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="workers" element={<Workers />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

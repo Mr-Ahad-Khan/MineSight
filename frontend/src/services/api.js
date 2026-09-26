@@ -132,3 +132,11 @@ export const getContractors = (params) => api.get("/contractors", { params });
 export const createContractor = (data) => api.post("/contractors", data);
 export const updateContractor = (id, data) =>
   api.put(`/contractors/${id}`, data);
+
+// Workers
+export const getWorkerSummary = () => api.get("/workers/summary");
+export const markWorkerAttendance = (data) =>
+  api.post("/workers/attendance", data);
+export const createWorkerTask = (data) => api.post("/workers/tasks", data);
+export const updateWorkerTask = (id, data) =>
+  api.patch(`/workers/tasks/${id}`, data);

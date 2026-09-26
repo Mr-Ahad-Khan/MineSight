@@ -23,7 +23,14 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["mine_official", "corporate", "regulator", "admin", "contractor"],
+      enum: [
+        "mine_official",
+        "corporate",
+        "regulator",
+        "admin",
+        "contractor",
+        "worker",
+      ],
       default: "mine_official",
     },
     mineId: {
@@ -32,6 +39,15 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
     phone: {
+      type: String,
+      trim: true,
+    },
+    employeeId: {
+      type: String,
+      trim: true,
+      uppercase: true,
+    },
+    department: {
       type: String,
       trim: true,
     },

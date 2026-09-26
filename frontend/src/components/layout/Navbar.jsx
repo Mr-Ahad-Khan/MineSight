@@ -31,7 +31,9 @@ export default function Navbar() {
   const navigate = useNavigate();
   const t = translations[language];
 
-  const navigation = [
+  const navigation = user?.role === "worker" ? [
+    { name: "My Work & Attendance", href: "/app/workers", icon: ClipboardList },
+  ] : [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
@@ -39,6 +41,7 @@ export default function Navbar() {
     { name: t.contractors, href: "/app/contractors", icon: Users },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
     { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
+    { name: "Workers", href: "/app/workers", icon: Users },
     { name: t.coalAi, href: "/app/chat", icon: MessageCircle },
   ];
 

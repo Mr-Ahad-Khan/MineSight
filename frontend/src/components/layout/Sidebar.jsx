@@ -19,7 +19,9 @@ export default function Sidebar({ open, setOpen }) {
   const { language } = useLanguageStore();
   const t = translations[language];
 
-  const navigation = [
+  const navigation = user?.role === "worker" ? [
+    { name: "My Work & Attendance", href: "/app/workers", icon: ClipboardList },
+  ] : [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
@@ -27,6 +29,7 @@ export default function Sidebar({ open, setOpen }) {
     { name: t.contractors, href: "/app/contractors", icon: Users },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
     { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
+    { name: "Workers", href: "/app/workers", icon: Users },
   ];
 
   return (

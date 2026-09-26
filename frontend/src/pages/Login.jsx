@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, Languages, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  Eye,
+  EyeOff,
+  Languages,
+  Leaf,
+  Loader2,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -11,18 +21,21 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading, token } = useAuthStore();
+  const { login, isLoading, token, user } = useAuthStore();
   const { language, setLanguage } = useLanguageStore();
   const navigate = useNavigate();
   const location = useLocation();
   const t = translations[language];
   const redirectTo =
-    new URLSearchParams(location.search).get("redirect") || "/app";
+    new URLSearchParams(location.search).get("redirect") ||
+    (user?.role === "worker" ? "/app/workers" : "/app");
   const destination = redirectTo.startsWith("/app") ? redirectTo : "/app";
 
   useEffect(() => {
     if (token) {
-      navigate(destination, { replace: true });
+      navigate(result.user?.role === "worker" ? "/app/workers" : destination, {
+        replace: true,
+      });
     }
   }, [token, navigate, destination]);
 
@@ -45,94 +58,70 @@ export default function Login() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 lg:flex-row">
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden text-white">
+      <div className="relative hidden overflow-hidden bg-[#071827] text-white lg:flex lg:w-1/2">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              "linear-gradient(135deg, rgba(15,23,42,0.88), rgba(15,118,110,0.42)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80')",
+              "linear-gradient(90deg, rgba(5,23,38,0.94) 0%, rgba(5,23,38,0.74) 42%, rgba(5,23,38,0.35) 100%), linear-gradient(0deg, rgba(5,23,38,0.86), transparent 58%), url('/coal-miners.webp')",
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.25),transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.28),transparent_28%)]" />
-
-        <div className="relative z-10 flex w-full flex-col justify-between p-12">
+        <div className="relative z-10 flex min-h-screen w-full flex-col justify-between px-[8.5%] py-12 xl:px-14">
           <div>
-            <div className="mb-12 flex items-center justify-between gap-3">
-              <BrandLogo imageClassName="h-16 w-48 rounded" />
+            <div className="mb-14 flex items-center justify-between gap-3">
+              <BrandLogo imageClassName="h-16 w-64 rounded" />
 
               <button
                 type="button"
                 onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-                className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-black/20 p-1 text-[10px] font-bold tracking-wide text-white/75 transition hover:border-emerald-300/70"
+                className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-black/20 p-1 text-[10px] font-bold tracking-wide text-white/75 transition hover:border-amber-300/70"
                 aria-label="Change language"
                 title="Change language"
               >
-                <Languages className="mx-1 h-3.5 w-3.5 text-emerald-300" />
+                <Languages className="mx-1 h-3.5 w-3.5 text-amber-300" />
                 <span
-                  className={`rounded-full px-2 py-1 ${language === "en" ? "bg-emerald-400 text-slate-950" : ""}`}
+                  className={`rounded-full px-2 py-1 ${language === "en" ? "bg-amber-400 text-slate-950" : ""}`}
                 >
                   EN
                 </span>
                 <span
-                  className={`rounded-full px-2 py-1 ${language === "hi" ? "bg-emerald-400 text-slate-950" : ""}`}
+                  className={`rounded-full px-2 py-1 ${language === "hi" ? "bg-amber-400 text-slate-950" : ""}`}
                 >
                   हिंदी
                 </span>
               </button>
             </div>
 
-            <div className="mb-5 inline-flex items-center rounded-full border border-emerald-300/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-emerald-200">
-              {t.mineSight}
-            </div>
-
-            <h2 className="mb-5 max-w-lg text-4xl font-black leading-tight">
+            <h2 className="mb-4 max-w-[540px] whitespace-pre-line text-4xl font-extrabold leading-[1.12] tracking-tight xl:text-[2.65rem]">
               {language === "en"
-                ? "AI-Powered Governance for Indian Coal Mines"
-                : "भारतीय कोयला खदानों के लिए एआई आधारित शासन"}
+                ? "Smarter Monitoring\nfor a Safer Tomorrow"
+                : "स्मार्ट निगरानी\nएक सुरक्षित कल के लिए"}
             </h2>
-            <p className="max-w-md text-lg leading-8 text-slate-200">
+              <p className="max-w-[390px] whitespace-pre-line text-base leading-7 text-slate-200 xl:text-[17px]">
               {language === "en"
-                ? "Centralized platform for statutory compliance, risk analytics, inspections, and paperless governance across mine operations."
-                : "खदान संचालन के लिए सांविधिक अनुपालन, जोखिम विश्लेषण, निरीक्षण और पेपरलेस शासन के लिए एकीकृत प्लेटफ़ॉर्म।"}
+                ? "Coal MineSight helps you monitor, manage and\nimprove coal mine operations with real-time data,\nAI insights and collaborative tools."
+                : "कोल माइनसाइट आपको वास्तविक समय के डेटा,\nएआई अंतर्दृष्टि और सहयोगी उपकरणों के साथ\nखदान संचालन की निगरानी और प्रबंधन में मदद करता है।"}
             </p>
           </div>
 
-          <div className="space-y-5">
+          <div className="grid max-w-[570px] grid-cols-4 gap-3 pb-1 sm:gap-6">
             {[
-              "Real-time compliance monitoring",
-              "AI risk scoring & predictive alerts",
-              "Geo-tagged field inspections",
-            ].map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/20 p-3 backdrop-blur-sm"
-              >
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
-                <span className="text-sm text-slate-100">{item}</span>
+              [ShieldCheck, "Enhanced", "Safety"],
+              [BarChart3, "Real-Time", "Monitoring"],
+              [Leaf, "Efficient", "Resource Use"],
+              [Users, "Better", "Collaboration"],
+            ].map(([Icon, title, subtitle]) => (
+              <div key={title} className="text-center">
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full border border-amber-400 text-amber-300 sm:h-14 sm:w-14">
+                  <Icon className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.5} />
+                </div>
+                <div className="text-xs font-medium leading-5 text-white sm:text-sm">
+                  {title}
+                  <br />
+                  {subtitle}
+                </div>
               </div>
             ))}
-
-            <div className="mt-6 grid grid-cols-3 gap-4">
-              {[
-                ["120+", "Mines"],
-                ["96.4%", "Safety"],
-                ["24/7", "Monitoring"],
-              ].map(([value, label]) => (
-                <div
-                  key={label}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center backdrop-blur-md"
-                >
-                  <div className="text-xl font-black text-white">{value}</div>
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-slate-300">
-                    {label}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-6 text-xs tracking-[0.18em] text-slate-300/80">
-              Ministry of Coal | Coal India Limited | Smart India Hackathon 2026
-            </p>
           </div>
         </div>
       </div>
@@ -272,6 +261,13 @@ export default function Login() {
                   className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                 >
                   {t.regulator}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => quickLogin("worker@cil.gov.in", "worker123")}
+                  className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                >
+                  Worker demo
                 </button>
                 <button
                   type="button"
