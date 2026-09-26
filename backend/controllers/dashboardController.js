@@ -86,9 +86,13 @@ const getAnalytics = asyncHandler(async (req, res) => {
     mineFilter.mineId = req.user.mineId;
   }
 
+  const reportFilter = { ...mineFilter };
+  if (req.query.severity) reportFilter.severity = req.query.severity;
+  if (req.query.status) reportFilter.status = req.query.status;
+
   // Recent high risk inspections
   const highRiskInspections = await Inspection.find({
-    ...mineFilter,
+    ...reportFilter,
     riskScore: { $gte: 60 },
   })
     .populate('mineId', 'name code')
@@ -97,7 +101,7 @@ const getAnalytics = asyncHandler(async (req, res) => {
 
   // Recurring violations (simple grouping by category)
   const recentInspections = await Inspection.find({
-    ...mineFilter,
+    ...reportFilter,
     createdAt: { $gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
   }).select('violations');
 
@@ -120,7 +124,7 @@ const getAnalytics = asyncHandler(async (req, res) => {
   const monthlyTrend = await Inspection.aggregate([
     {
       $match: {
-        ...mineFilter,
+        ...reportFilter,
         createdAt: { $gte: sixMonthsAgo },
       },
     },
@@ -137,12 +141,55 @@ const getAnalytics = asyncHandler(async (req, res) => {
     { $sort: { '_id.year': 1, '_id.month': 1 } },
   ]);
 
+  const periodDays = { weekly: 7, monthly: 30, yearly: 365 };
+  const hasCustomRange = req.query.period === 'custom' && req.query.startDate && req.query.endDate;
+  const period = hasCustomRange ? 'custom' : periodDays[req.query.period] ? req.query.period : 'monthly';
+  const currentPeriodEnd = hasCustomRange ? new Date(`${req.query.endDate}T23:59:59.999Z`) : new Date();
+  const currentPeriodStart = hasCustomRange ? new Date(`${req.query.startDate}T00:00:00.000Z`) : new Date(Date.now() - periodDays[period] * 24 * 60 * 60 * 1000);
+  const rangeLength = currentPeriodEnd.getTime() - currentPeriodStart.getTime();
+  const previousPeriodStart = new Date(currentPeriodStart.getTime() - rangeLength);
+  const periodStats = await Promise.all(
+    [
+      { start: currentPeriodStart, end: new Date() },
+      { start: previousPeriodStart, end: currentPeriodStart },
+    ].map(async ({ start, end }) => {
+      const periodFilter = {
+        ...reportFilter,
+        createdAt: { $gte: start, $lt: end },
+      };
+      const [inspectionCount, highRiskCount, riskSummary, inspections] = await Promise.all([
+        Inspection.countDocuments(periodFilter),
+        Inspection.countDocuments({ ...periodFilter, riskScore: { $gte: 60 } }),
+        Inspection.aggregate([
+          { $match: periodFilter },
+          { $group: { _id: null, avgRisk: { $avg: '$riskScore' } } },
+        ]),
+        Inspection.find(periodFilter).select('violations'),
+      ]);
+
+      return {
+        inspectionCount,
+        highRiskCount,
+        avgRisk: Math.round(riskSummary[0]?.avgRisk || 0),
+        violationCount: inspections.reduce(
+          (total, inspection) => total + inspection.violations.length,
+          0,
+        ),
+      };
+    }),
+  );
+
   res.json({
     success: true,
     data: {
       highRiskInspections: highRiskInspections.map(serializeInspectionMedia),
       recurringViolations,
       monthlyTrend,
+      periodComparison: {
+        period,
+        current: periodStats[0],
+        previous: periodStats[1],
+      },
     },
   });
 });

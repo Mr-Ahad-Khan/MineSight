@@ -4,6 +4,7 @@ const {
   markAttendance,
   createWorkerTask,
   updateWorkerTask,
+  reassignPendingTasks,
 } = require("../controllers/workerController");
 const { protect, authorize } = require("../middleware/auth");
 
@@ -29,6 +30,11 @@ router.patch(
   "/tasks/:id",
   authorize("admin", "corporate", "mine_official", "worker"),
   updateWorkerTask,
+);
+router.post(
+  "/:workerId/reassign-pending",
+  authorize("admin", "corporate", "mine_official"),
+  reassignPendingTasks,
 );
 
 module.exports = router;

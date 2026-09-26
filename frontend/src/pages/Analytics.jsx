@@ -1,25 +1,34 @@
 import { useEffect, useState } from 'react'
 import { getAnalytics } from '../services/api'
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, Legend
 } from 'recharts'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
 
 const COLORS = ['#10b981', '#f59e0b', '#f97316', '#ef4444']
 
+const getPercentChange = (current, previous) => {
+  if (previous === 0) return current === 0 ? 0 : 100
+  return Math.round(((current - previous) / previous) * 100)
+}
+
 export default function Analytics() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [period, setPeriod] = useState('monthly')
+  const [filters, setFilters] = useState({ startDate: '', endDate: '', severity: '', status: '' })
   const { language } = useLanguageStore()
   const t = translations[language]
 
   useEffect(() => {
-    getAnalytics()
+    setLoading(true)
+    getAnalytics({ period, ...filters, ...(period === 'custom' ? {} : { startDate: undefined, endDate: undefined }) })
       .then((res) => setData(res.data.data))
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [])
+  }, [period, filters])
 
   if (loading) {
     return (
@@ -40,12 +49,106 @@ export default function Analytics() {
     avgRisk: Math.round(t.avgRisk || 0),
   }))
 
+  const comparison = data?.periodComparison
+  const comparisonMetrics = comparison
+    ? [
+        { label: t.inspections, key: 'inspectionCount', suffix: '' },
+        { label: t.averageRisk, key: 'avgRisk', suffix: '' },
+        { label: t.highRiskCount, key: 'highRiskCount', suffix: '' },
+        { label: t.violationCount, key: 'violationCount', suffix: '' },
+      ]
+    : []
+
+  const comparisonChartData = comparisonMetrics.map(({ label, key }) => ({
+    name: label,
+    current: comparison?.current?.[key] || 0,
+    previous: comparison?.previous?.[key] || 0,
+  }))
+
+  const riskChartData = comparison
+    ? [
+        { name: t.inspections, value: comparison.current?.inspectionCount || 0, color: '#0f766e' },
+        { name: t.highRiskCount, value: comparison.current?.highRiskCount || 0, color: '#e11d48' },
+        { name: t.violationCount, value: comparison.current?.violationCount || 0, color: '#f59e0b' },
+      ].filter((item) => item.value > 0)
+    : []
+
+  const totalInspections = trendData.reduce((total, item) => total + item.inspections, 0)
+  let completedInspections = 0
+  const burndownData = trendData.map((item) => {
+    completedInspections += item.inspections
+    return {
+      name: item.name,
+      remaining: Math.max(totalInspections - completedInspections, 0),
+    }
+  })
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">{t.analytics}</h1>
         <p className="text-sm text-slate-500 mt-1">{t.insightSubtitle}</p>
       </div>
+
+      <section className="card p-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+          <div>
+            <h2 className="font-semibold">{t.periodComparison}</h2>
+            <p className="text-sm text-slate-500">{t.periodComparisonSubtitle}</p>
+          </div>
+          <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 p-1" role="tablist">
+            {[
+              ['weekly', t.weekly],
+              ['monthly', t.monthly],
+              ['yearly', t.yearly],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={period === value}
+                onClick={() => setPeriod(value)}
+                className={`px-3 py-1.5 text-sm rounded-md transition ${period === value ? 'bg-primary-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mb-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:grid-cols-2 lg:grid-cols-4">
+          <label className="text-sm"><span className="mb-1 block text-slate-500">From</span><input type="date" value={filters.startDate} onChange={(event) => { setPeriod('custom'); setFilters((current) => ({ ...current, startDate: event.target.value })) }} className="input-field w-full" /></label>
+          <label className="text-sm"><span className="mb-1 block text-slate-500">To</span><input type="date" value={filters.endDate} onChange={(event) => { setPeriod('custom'); setFilters((current) => ({ ...current, endDate: event.target.value })) }} className="input-field w-full" /></label>
+          <label className="text-sm"><span className="mb-1 block text-slate-500">Severity</span><select value={filters.severity} onChange={(event) => setFilters((current) => ({ ...current, severity: event.target.value }))} className="input-field w-full"><option value="">All severities</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label>
+          <label className="text-sm"><span className="mb-1 block text-slate-500">Status</span><select value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} className="input-field w-full"><option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></label>
+        </div>
+        {!comparison ? (
+          <p className="text-slate-400 text-sm">{t.noComparisonData}</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {comparisonMetrics.map(({ label, key }) => {
+              const current = comparison.current?.[key] || 0
+              const previous = comparison.previous?.[key] || 0
+              const change = getPercentChange(current, previous)
+              const isPositive = change > 0
+              const isNegative = change < 0
+              return (
+                <div key={key} className="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+                  <p className="text-sm text-slate-500">{label}</p>
+                  <div className="flex items-end justify-between gap-3 mt-2">
+                    <p className="text-2xl font-bold">{current}</p>
+                    <span className={`text-sm font-semibold ${isPositive ? 'text-rose-600' : isNegative ? 'text-emerald-600' : 'text-slate-500'}`}>
+                      {change > 0 ? '+' : ''}{change}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2">
+                    {t.previousPeriod}: {previous}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recurring Violations */}
@@ -83,6 +186,62 @@ export default function Analytics() {
             </ResponsiveContainer>
           )}
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="card p-5 xl:col-span-2">
+          <h2 className="font-semibold mb-4">Period comparison bar chart</h2>
+          {!comparisonChartData.length ? (
+            <p className="text-slate-400 text-sm">{t.noComparisonData}</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={comparisonChartData} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-12} textAnchor="end" height={55} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="current" fill="#0f766e" name={t.currentPeriod} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="previous" fill="#94a3b8" name={t.previousPeriod} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        <div className="card p-5">
+          <h2 className="font-semibold mb-4">Current period composition</h2>
+          {!riskChartData.length ? (
+            <p className="text-slate-400 text-sm">{t.noComparisonData}</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie data={riskChartData} dataKey="value" nameKey="name" innerRadius={58} outerRadius={92} paddingAngle={3}>
+                  {riskChartData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
+                </Pie>
+                <Tooltip />
+                <Legend verticalAlign="bottom" height={42} wrapperStyle={{ fontSize: 11 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
+      <div className="card p-5">
+        <h2 className="font-semibold mb-1">Inspection burndown</h2>
+        <p className="text-sm text-slate-500 mb-4">Remaining inspection workload across the reporting trend</p>
+        {!burndownData.length ? (
+          <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={burndownData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+              <Tooltip />
+              <Line type="monotone" dataKey="remaining" stroke="#e11d48" strokeWidth={3} dot={{ r: 4 }} name="Remaining" />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       {/* High Risk List */}

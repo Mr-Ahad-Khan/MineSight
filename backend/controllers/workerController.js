@@ -10,6 +10,15 @@ const startOfDay = (value = new Date()) => {
   return date;
 };
 
+const isWorkerAvailable = async (worker) => {
+  if (!worker || worker.isActive === false) return false;
+  const attendance = await Attendance.findOne({
+    workerId: worker._id,
+    date: { $gte: startOfDay() },
+  }).sort({ date: -1 });
+  return !attendance || !["absent", "leave"].includes(attendance.status);
+};
+
 const getWorkerQuery = (req) => {
   if (req.user.role === "worker") return { _id: req.user._id };
   if (req.user.role === "mine_official" && req.user.mineId) {
@@ -157,9 +166,51 @@ const updateWorkerTask = asyncHandler(async (req, res) => {
   res.json({ success: true, data: task });
 });
 
+const reassignPendingTasks = asyncHandler(async (req, res) => {
+  const sourceWorker = await User.findOne({ _id: req.params.workerId, role: "worker" });
+  if (!sourceWorker) {
+    res.status(404);
+    throw new Error("Worker not found");
+  }
+  if (await isWorkerAvailable(sourceWorker)) {
+    res.status(400);
+    throw new Error("Worker is available; reassignment is not required");
+  }
+
+  const candidates = await User.find({
+    role: "worker",
+    _id: { $ne: sourceWorker._id },
+    mineId: sourceWorker.mineId,
+    isActive: { $ne: false },
+  }).sort({ lastLogin: -1 });
+  let replacement = null;
+  for (const candidate of candidates) {
+    if (await isWorkerAvailable(candidate)) {
+      replacement = candidate;
+      break;
+    }
+  }
+  if (!replacement) {
+    res.status(409);
+    throw new Error("No available worker found for reassignment");
+  }
+
+  const result = await WorkerTask.updateMany(
+    { workerId: sourceWorker._id, status: "pending" },
+    { $set: { workerId: replacement._id } },
+  );
+
+  res.json({
+    success: true,
+    message: `${result.modifiedCount} pending task(s) reassigned to ${replacement.name}`,
+    data: { reassigned: result.modifiedCount, replacement },
+  });
+});
+
 module.exports = {
   getWorkerSummary,
   markAttendance,
   createWorkerTask,
   updateWorkerTask,
+  reassignPendingTasks,
 };

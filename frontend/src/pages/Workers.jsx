@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
+  Bell,
   CheckCircle2,
   ClipboardCheck,
   Clock3,
@@ -16,6 +17,7 @@ import {
   getWorkerSummary,
   markWorkerAttendance,
   updateWorkerTask,
+  reassignPendingWorkerTasks,
 } from "../services/api";
 
 const statusLabels = {
@@ -149,6 +151,16 @@ export default function Workers() {
     }
   };
 
+  const handleReassign = async (worker) => {
+    try {
+      const { data } = await reassignPendingWorkerTasks(worker._id);
+      toast.success(data.message || "Pending tasks reassigned");
+      await loadSummary();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Could not reassign pending tasks");
+    }
+  };
+
   if (loading) {
     return <section className="mx-auto max-w-7xl p-6 text-slate-500">Loading worker details...</section>;
   }
@@ -199,6 +211,17 @@ export default function Workers() {
       {isWorker ? (
         <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="space-y-6">
+            {!!currentWorker?.pendingTasks && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                <div className="flex items-start gap-3">
+                  <Bell className="mt-0.5 h-5 w-5 shrink-0" />
+                  <div>
+                    <h2 className="font-semibold">Pending work notification</h2>
+                    <p className="mt-1 text-sm">You have {currentWorker.pendingTasks} pending task{currentWorker.pendingTasks === 1 ? "" : "s"}. Review and update the status below.</p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 dark:border-slate-700 dark:bg-slate-900">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Worker profile</h2>
               <dl className="mt-4 space-y-3 text-sm">
@@ -330,7 +353,7 @@ export default function Workers() {
                 <tr><th className="px-5 py-4">Worker</th><th className="px-5 py-4">Department</th><th className="px-5 py-4">Mine sites</th><th className="px-5 py-4">Pending</th><th className="px-5 py-4">Completed</th><th className="px-5 py-4">Attendance</th></tr>
               </thead>
               <tbody className="divide-y divide-[#e2d6c4] dark:divide-slate-800">
-                {summary.workers.map((worker) => <tr key={worker._id} className="align-top"><td className="px-5 py-4"><div className="font-semibold text-slate-900 dark:text-white">{worker.name}</div><div className="text-xs text-slate-500">{worker.employeeId || worker.email}</div></td><td className="px-5 py-4">{worker.department || "Not assigned"}</td><td className="px-5 py-4"><div className="flex max-w-[220px] flex-wrap gap-1">{worker.mineSites.map((mine) => <span key={mine._id} className="rounded-full bg-slate-100 px-2 py-1 text-xs dark:bg-slate-800">{mine.name}</span>)}</div></td><td className="px-5 py-4 font-semibold text-amber-700 dark:text-amber-300">{worker.pendingTasks}</td><td className="px-5 py-4 font-semibold text-emerald-700 dark:text-emerald-300">{worker.completedTasks}</td><td className="px-5 py-4"><AttendanceBadge record={worker.attendance.latest} /></td></tr>)}
+                {summary.workers.map((worker) => <tr key={worker._id} className="align-top"><td className="px-5 py-4"><div className="font-semibold text-slate-900 dark:text-white">{worker.name}</div><div className="text-xs text-slate-500">{worker.employeeId || worker.email}</div></td><td className="px-5 py-4">{worker.department || "Not assigned"}</td><td className="px-5 py-4"><div className="flex max-w-[220px] flex-wrap gap-1">{worker.mineSites.map((mine) => <span key={mine._id} className="rounded-full bg-slate-100 px-2 py-1 text-xs dark:bg-slate-800">{mine.name}</span>)}</div></td><td className="px-5 py-4 font-semibold text-amber-700 dark:text-amber-300">{worker.pendingTasks}{worker.pendingTasks > 0 && ["absent", "leave"].includes(worker.attendance.latest?.status) && <button type="button" onClick={() => handleReassign(worker)} className="mt-2 block text-xs font-semibold text-primary-700 hover:underline dark:text-primary-300">Assign to available worker</button>}</td><td className="px-5 py-4 font-semibold text-emerald-700 dark:text-emerald-300">{worker.completedTasks}</td><td className="px-5 py-4"><AttendanceBadge record={worker.attendance.latest} /></td></tr>)}
               </tbody>
             </table>
           </div>

@@ -92,9 +92,15 @@ const createInspection = asyncHandler(async (req, res) => {
   const mineId = parsedBody.mineId;
   const type = parsedBody.type;
   const title = parsedBody.title;
-  const description = parsedBody.description;
+  const description =
+    parsedBody.description !== undefined && parsedBody.description !== null
+      ? String(parsedBody.description).trim()
+      : "";
   const coordinates = parseFormDataValue(parsedBody.coordinates, null);
-  const observations = parsedBody.observations;
+  const observations =
+    parsedBody.observations !== undefined && parsedBody.observations !== null
+      ? String(parsedBody.observations).trim()
+      : "";
   const severity = parsedBody.severity;
   const violations = parseFormDataValue(parsedBody.violations, []) || [];
   const existingPhotos = parseFormDataValue(parsedBody.photos, []) || [];

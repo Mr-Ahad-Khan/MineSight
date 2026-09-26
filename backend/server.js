@@ -58,6 +58,8 @@ app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 app.use("/api/alerts", require("./routes/alertRoutes"));
 app.use("/api/contractors", require("./routes/contractorRoutes"));
 app.use("/api/workers", require("./routes/workerRoutes"));
+app.use("/api/attendance", require("./routes/attendanceRoutes"));
+app.use("/api/support", require("./routes/supportRoutes"));
 app.use("/api/public", require("./routes/publicRoutes"));
 
 // Root and health endpoints
