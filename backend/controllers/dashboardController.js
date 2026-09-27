@@ -11,14 +11,18 @@ const { serializeInspectionMedia } = require('../utils/mediaStorage');
 // @access  Private
 const getDashboardSummary = asyncHandler(async (req, res) => {
   let mineFilter = {};
+  const mineQuery = {};
+
+  if (!['admin', 'corporate'].includes(req.user.role)) {
+    mineQuery.$or = [{ visibility: 'public' }, { visibility: { $exists: false } }];
+  }
 
   if (req.user.role === 'mine_official' && req.user.mineId) {
     mineFilter = { mineId: req.user.mineId };
+    mineQuery._id = req.user.mineId;
   }
 
-  const totalMines = await Mine.countDocuments(
-    req.user.role === 'mine_official' && req.user.mineId ? { _id: req.user.mineId } : {}
-  );
+  const totalMines = await Mine.countDocuments(mineQuery);
 
   const openInspections = await Inspection.countDocuments({
     ...mineFilter,
@@ -45,9 +49,7 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
   const activeContractors = await Contractor.countDocuments({ status: 'active' });
 
   // Average compliance score
-  const mines = await Mine.find(
-    req.user.role === 'mine_official' && req.user.mineId ? { _id: req.user.mineId } : {}
-  ).select('complianceScore riskLevel');
+  const mines = await Mine.find(mineQuery).select('complianceScore riskLevel');
 
   const avgComplianceScore =
     mines.length > 0

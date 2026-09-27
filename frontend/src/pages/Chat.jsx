@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bot, Send, ShieldCheck, Sparkles, User } from "lucide-react";
+import { Bot, MapPin, PhoneCall, Send, ShieldCheck, Sparkles, User } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -48,6 +48,25 @@ const getAssistantReply = (message, language = "en") => {
     return isHindi
       ? "मैं इन कामों में मदद कर सकता हूँ:\n• आज की प्राथमिकताएँ और critical alerts\n• निरीक्षण और corrective actions\n• overdue compliance और permits\n• mine risk और trend review\n• contractor compliance\n\nकिसी खदान का नाम, समस्या और deadline दें, मैं अगला action plan बनाऊँगा।"
       : "I can help with:\n• Today’s priorities and critical alerts\n• Inspections and corrective actions\n• Overdue compliance and permits\n• Mine risk and trend review\n• Contractor compliance\n\nShare the mine, issue, and deadline and I’ll turn it into a clear action plan.";
+  }
+
+  if (
+    has(
+      "customer care",
+      "customer support",
+      "support number",
+      "contact support",
+      "helpline",
+      "hotline",
+      "कस्टमर केयर",
+      "ग्राहक सेवा",
+      "हेल्पलाइन",
+      "संपर्क नंबर",
+    )
+  ) {
+    return isHindi
+      ? "MineSight तकनीकी ग्राहक सहायता: +91 800-419-7890 (24/7) या support@minesight.cil.gov.in। ऐप में ग्राहक सहायता कार्यालय का भौतिक पता उपलब्ध नहीं है।\n\nआपातकालीन बचाव सेवा: Central Coalfields Rescue Station, धनबाद / सिंगरौली — 0326-2202356 (धनबाद) या 07805-266120 (सिंगरौली), 24/7।\n\nराष्ट्रीय खान आपातकालीन नियंत्रण कक्ष: 1800-345-3467।"
+      : "MineSight technical customer care: +91 800-419-7890 (24/7) or support@minesight.cil.gov.in. The app does not list a physical customer-care office address.\n\nEmergency rescue service locations: Central Coalfields Rescue Station serves Dhanbad (0326-2202356) and Singrauli (07805-266120), 24/7.\n\nDGMS National Mine Emergency Control Room: 1800-345-3467.";
   }
 
   if (has("go", "open", "show", "demo", "navigate", "जाएँ", "खोलें")) {
@@ -166,11 +185,13 @@ const prompts = {
     "What needs attention today?",
     "How do I create a good inspection?",
     "How should I handle an overdue compliance?",
+    "Customer care number and location",
   ],
   hi: [
     "आज किस बात पर ध्यान देना चाहिए?",
     "मैं अच्छा निरीक्षण कैसे बनाऊँ?",
     "समय-सीमा पार अनुपालन को कैसे संभालूँ?",
+    "ग्राहक सेवा नंबर और स्थान",
   ],
 };
 
@@ -265,6 +286,46 @@ export default function Chat() {
           <div>
             <p className="font-semibold">{t.coalAiAssistant}</p>
             <p className="text-xs text-[#c9d8e2]">{t.readyToHelp}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 border-b border-gray-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900 sm:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
+              {language === "hi" ? "ग्राहक सहायता · 24/7" : "Customer care · 24/7"}
+            </p>
+            <a
+              href="tel:+918004197890"
+              className="mt-1 inline-flex items-center gap-2 font-semibold text-[#17314a] hover:text-[#ff6f00] dark:text-white"
+            >
+              <PhoneCall className="h-4 w-4" /> +91 800-419-7890
+            </a>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              support@minesight.cil.gov.in
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
+              {language === "hi" ? "बचाव सेवा स्थान" : "Emergency rescue locations"}
+            </p>
+            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Central+Coalfields+Rescue+Station+Dhanbad"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-[#17314a] hover:text-[#ff6f00] dark:text-white"
+              >
+                <MapPin className="h-4 w-4" /> Dhanbad · 0326-2202356
+              </a>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Central+Coalfields+Rescue+Station+Singrauli"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-medium text-[#17314a] hover:text-[#ff6f00] dark:text-white"
+              >
+                <MapPin className="h-4 w-4" /> Singrauli · 07805-266120
+              </a>
+            </div>
           </div>
         </div>
 

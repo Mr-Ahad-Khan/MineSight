@@ -39,6 +39,11 @@ const mineSchema = new mongoose.Schema(
       enum: ['active', 'closed', 'under_maintenance', 'undiscovered'],
       default: 'active',
     },
+    visibility: {
+      type: String,
+      enum: ['public', 'private'],
+      default: 'public',
+    },
     managerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

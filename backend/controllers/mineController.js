@@ -20,6 +20,9 @@ const getMines = asyncHandler(async (req, res) => {
   if (req.query.riskLevel) {
     query.riskLevel = req.query.riskLevel;
   }
+  if (!['admin', 'corporate'].includes(req.user.role)) {
+    query.$or = [{ visibility: 'public' }, { visibility: { $exists: false } }];
+  }
 
   const total = await Mine.countDocuments(query);
   const mines = await Mine.find(query)
@@ -42,7 +45,12 @@ const getMines = asyncHandler(async (req, res) => {
 // @route   GET /api/mines/:id
 // @access  Private
 const getMineById = asyncHandler(async (req, res) => {
-  const mine = await Mine.findById(req.params.id).populate(
+  const query = { _id: req.params.id };
+  if (!['admin', 'corporate'].includes(req.user.role)) {
+    query.$or = [{ visibility: 'public' }, { visibility: { $exists: false } }];
+  }
+
+  const mine = await Mine.findOne(query).populate(
     "managerId",
     "name email phone",
   );
@@ -62,7 +70,7 @@ const getMineById = asyncHandler(async (req, res) => {
 // @route   POST /api/mines
 // @access  Private (Admin / Corporate)
 const createMine = asyncHandler(async (req, res) => {
-  const { name, code, subsidiary, coordinates, address, managerId, status } = req.body;
+  const { name, code, subsidiary, coordinates, address, managerId, status, visibility } = req.body;
 
   if (!name || !code || !subsidiary || !coordinates) {
     res.status(400);
@@ -86,6 +94,7 @@ const createMine = asyncHandler(async (req, res) => {
     address,
     managerId,
     status,
+    visibility,
   });
 
   res.status(201).json({

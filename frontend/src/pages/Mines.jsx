@@ -29,6 +29,7 @@ export default function Mines() {
     longitude: '',
     address: '',
     status: 'undiscovered',
+    visibility: 'private',
   })
   const { language } = useLanguageStore()
   const t = translations[language]
@@ -60,6 +61,7 @@ export default function Mines() {
         coordinates: [Number(form.longitude), Number(form.latitude)],
         address: form.address,
         status: form.status,
+        visibility: form.visibility,
       })
       setMines((current) => [data.data, ...current])
       setSelectedMineId(data.data._id)
@@ -72,6 +74,7 @@ export default function Mines() {
         longitude: '',
         address: '',
         status: 'undiscovered',
+        visibility: 'private',
       })
     } catch (error) {
       setFormError(error.response?.data?.message || 'Unable to add mine. Please try again.')
@@ -125,6 +128,13 @@ export default function Mines() {
             </select>
           </label>
           <label className="text-sm font-medium">
+            Visibility
+            <select value={form.visibility} onChange={(event) => setForm({ ...form, visibility: event.target.value })} className="input mt-1 w-full">
+              <option value="private">Private (admin and corporate)</option>
+              <option value="public">Public (all logged-in roles)</option>
+            </select>
+          </label>
+          <label className="text-sm font-medium">
             Latitude
             <input required type="number" step="any" min="-90" max="90" value={form.latitude} onChange={(event) => setForm({ ...form, latitude: event.target.value })} className="input mt-1 w-full" />
           </label>
@@ -160,7 +170,7 @@ export default function Mines() {
                 >
                   <Popup>
                     <strong>{mine.name}</strong><br />
-                    {mine.code} • {mine.status?.replaceAll('_', ' ')} • Score: {mine.complianceScore}%
+                    {mine.code} • {mine.status?.replaceAll('_', ' ')} • {mine.visibility || 'public'}
                   </Popup>
                 </Marker>
               )
@@ -193,6 +203,7 @@ export default function Mines() {
               </div>
               <p className="text-sm text-slate-500 mb-2">{mine.code} • {mine.subsidiary}</p>
               <p className="mb-3 text-xs font-medium uppercase text-slate-500">{mine.status?.replaceAll('_', ' ')}</p>
+              <p className="mb-3 text-xs font-medium capitalize text-slate-500">{mine.visibility || 'public'}</p>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">{t.complianceScore}</span>
                 <span className="font-bold text-lg">
