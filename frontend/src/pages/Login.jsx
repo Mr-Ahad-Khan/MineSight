@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -20,12 +21,14 @@ import BrandLogo from "../components/common/BrandLogo";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, token, user } = useAuthStore();
   const { language, setLanguage } = useLanguageStore();
   const navigate = useNavigate();
   const location = useLocation();
   const t = translations[language];
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
   const redirectTo =
     new URLSearchParams(location.search).get("redirect") ||
     (user?.role === "worker" ? "/app/workers" : "/app");
@@ -41,7 +44,12 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await login(email.trim(), password);
+    if (recaptchaSiteKey && !recaptchaToken) {
+      toast.error("Please complete the reCAPTCHA.");
+      return;
+    }
+
+    const result = await login(email.trim(), password, recaptchaToken);
     if (result.success) {
       toast.success("Login successful!");
       navigate(destination, { replace: true });
@@ -208,9 +216,21 @@ export default function Login() {
                 </div>
               </div>
 
+              {recaptchaSiteKey ? (
+                <ReCAPTCHA
+                  sitekey={recaptchaSiteKey}
+                  onChange={setRecaptchaToken}
+                  onExpired={() => setRecaptchaToken(null)}
+                />
+              ) : import.meta.env.PROD ? (
+                <p className="text-sm text-red-600" role="alert">
+                  Login verification is not configured. Set VITE_RECAPTCHA_SITE_KEY.
+                </p>
+              ) : null}
+
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || (import.meta.env.PROD && !recaptchaSiteKey)}
                 className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {isLoading ? (

@@ -126,6 +126,7 @@ NODE_ENV=development
 MONGO_URI=mongodb://127.0.0.1:27017/coal_governance
 JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRE=7d
+RECAPTCHA_SECRET_KEY=your-google-recaptcha-secret-key
 
 # Optional in development; required when email OTP delivery is enabled
 EMAIL_HOST=smtp.example.com
@@ -135,6 +136,11 @@ EMAIL_USER=your-smtp-user
 EMAIL_PASSWORD=your-smtp-password
 EMAIL_FROM=no-reply@example.com
 ```
+
+Register a Google reCAPTCHA v2 checkbox, then set its site key as
+`VITE_RECAPTCHA_SITE_KEY` in `frontend/.env`. Keep the secret key only in
+`backend/.env`. Both keys are required for production login; local development
+can run without them.
 
 Seed the database and run both apps from separate terminals:
 

@@ -176,7 +176,7 @@
 
 
 
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ClipboardList,
@@ -198,6 +198,7 @@ import RecentAlerts from '../components/dashboard/RecentAlerts'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
 
+const Analytics = lazy(() => import('./Analytics'))
 
 export default function Dashboard() {
 
@@ -205,6 +206,8 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null)
   const [realtimeAttendance, setRealtimeAttendance] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const analyticsSectionRef = useRef(null)
   const [animatedOpenInspections, setAnimatedOpenInspections] = useState(0)
   const [animatedComplianceScore, setAnimatedComplianceScore] = useState(0)
   const [animatedRiskData, setAnimatedRiskData] = useState({
@@ -217,6 +220,12 @@ export default function Dashboard() {
 
   const { language } = useLanguageStore()
   const t = translations[language]
+
+  useEffect(() => {
+    if (showAnalytics) {
+      analyticsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [showAnalytics])
 
 
   // ============================================================
@@ -537,6 +546,30 @@ export default function Dashboard() {
       "
     >
 
+      <section
+        className="relative mb-6 flex min-h-[320px] w-full items-center justify-center overflow-hidden rounded-xl bg-cover bg-center px-5 py-10 text-center text-white shadow-md sm:min-h-[380px]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.BASE_URL}coal-miners.webp)`,
+        }}
+      >
+        <div className="relative z-10 max-w-3xl">
+          <p className="text-xs font-bold uppercase text-[#ff6f00] sm:text-sm">
+            MineSight Coal Governance
+          </p>
+          <h2 className="mt-3 text-4xl font-bold leading-tight text-white sm:text-5xl">
+            See the full picture underground
+          </h2>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link to="/app/inspections" className="btn-primary inline-flex items-center gap-2">
+              View inspections <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/app/analytics" className="inline-flex items-center gap-2 rounded-lg border border-white/70 bg-white/10 px-4 py-2.5 font-medium text-white transition hover:bg-white/20">
+              Explore analytics
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ======================================================
           HEADER
       ====================================================== */}
@@ -554,31 +587,6 @@ export default function Dashboard() {
       >
 
         <div>
-
-        <section
-          className="relative mb-6 flex min-h-[280px] items-center justify-center overflow-hidden rounded-xl bg-cover bg-center px-5 py-10 text-center text-white shadow-md sm:min-h-[320px]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.BASE_URL}coal-miners.webp)`,
-          }}
-        >
-          <div className="relative z-10 max-w-3xl">
-            <p className="text-xs font-bold uppercase text-[#ff6f00] sm:text-sm">
-              MineSight Coal Governance
-            </p>
-            <h2 className="mt-3 text-4xl font-bold leading-tight text-white sm:text-5xl">
-              See the full picture underground
-            </h2>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Link to="/app/inspections" className="btn-primary inline-flex items-center gap-2">
-                View inspections <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link to="/app/analytics" className="inline-flex items-center gap-2 rounded-lg border border-white/70 bg-white/10 px-4 py-2.5 font-medium text-white transition hover:bg-white/20">
-                Explore analytics
-              </Link>
-            </div>
-          </div>
-        </section>
-
           <h1
             className="
               text-[28px]
@@ -636,8 +644,8 @@ export default function Dashboard() {
               px-5
               py-2.5
               rounded-xl
-              bg-[#b18a57]
-              hover:bg-[#9d7748]
+              bg-[#ff6f00]
+              hover:bg-[#e65100]
               text-white
               text-[15px]
               font-medium
@@ -769,8 +777,10 @@ export default function Dashboard() {
             </h2>
 
 
-            <Link
-              to="/app/analytics"
+            <button
+              type="button"
+              aria-expanded={showAnalytics}
+              onClick={() => setShowAnalytics((isOpen) => !isOpen)}
               className="
                 flex
                 items-center
@@ -783,9 +793,9 @@ export default function Dashboard() {
 
               {t.viewAnalytics}
 
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className={`w-4 h-4 transition-transform ${showAnalytics ? 'rotate-90' : ''}`} />
 
-            </Link>
+            </button>
 
           </div>
 
@@ -1155,6 +1165,14 @@ export default function Dashboard() {
         </div>
 
       </div>
+
+      {showAnalytics && (
+        <section ref={analyticsSectionRef} className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-md">
+          <Suspense fallback={<div className="py-12 text-center text-slate-500">Loading analytics...</div>}>
+            <Analytics />
+          </Suspense>
+        </section>
+      )}
 
     </div>
 

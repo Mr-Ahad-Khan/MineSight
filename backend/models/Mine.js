@@ -36,7 +36,7 @@ const mineSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['active', 'closed', 'under_maintenance'],
+      enum: ['active', 'closed', 'under_maintenance', 'undiscovered'],
       default: 'active',
     },
     managerId: {

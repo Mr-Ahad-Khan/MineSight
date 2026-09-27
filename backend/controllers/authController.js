@@ -11,6 +11,40 @@ const normalizeEmail = (email) =>
     .trim()
     .toLowerCase();
 
+const verifyRecaptcha = async (token, res) => {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production" || token) {
+      res.status(503);
+      throw new Error("reCAPTCHA verification is not configured on the server");
+    }
+    return;
+  }
+
+  if (!token) {
+    res.status(400);
+    throw new Error("Please complete the reCAPTCHA");
+  }
+
+  let verification;
+  try {
+    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ secret, response: token }),
+    });
+    verification = await response.json();
+  } catch {
+    res.status(503);
+    throw new Error("Unable to verify reCAPTCHA. Please try again");
+  }
+
+  if (!verification.success) {
+    res.status(400);
+    throw new Error("reCAPTCHA verification failed. Please try again");
+  }
+};
+
 const getEmailTransport = () => {
   if (
     !process.env.EMAIL_HOST ||
@@ -198,7 +232,9 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, recaptchaToken } = req.body;
+
+  await verifyRecaptcha(recaptchaToken, res);
 
   if (!email || !password) {
     res.status(400);

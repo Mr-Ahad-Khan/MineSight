@@ -15,10 +15,10 @@ const useAuthStore = create((set) => ({
   token: localStorage.getItem('token') || null,
   isLoading: false,
 
-  login: async (email, password) => {
+  login: async (email, password, recaptchaToken) => {
     set({ isLoading: true })
     try {
-      const { data } = await loginApi({ email, password })
+      const { data } = await loginApi({ email, password, recaptchaToken })
       const authUser = data?.data || data
       const token = authUser?.token
 
