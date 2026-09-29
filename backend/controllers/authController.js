@@ -3,6 +3,7 @@ const User = require("../models/User");
 const EmailOtp = require("../models/EmailOtp");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
+const { randomInt } = require("crypto");
 const generateToken = require("../utils/generateToken");
 const { getStoredMediaPath } = require("../utils/mediaStorage");
 
@@ -80,11 +81,6 @@ const getEmailTransport = () => {
 const sendOtpEmail = async (email, code) => {
   const transport = getEmailTransport();
   if (!transport) {
-    if (
-      process.env.NODE_ENV !== "production" &&
-      process.env.EMAIL_PROVIDER !== "smtp"
-    )
-      return false;
     const error = new Error(
       "Email verification is not configured. Add email settings to backend/.env.",
     );
@@ -97,7 +93,6 @@ const sendOtpEmail = async (email, code) => {
     subject: "Coal Governance email verification code",
     text: `Your Coal Governance verification code is ${code}. It expires in 10 minutes.`,
   });
-  return true;
 };
 
 const requestEmailOtp = asyncHandler(async (req, res) => {
@@ -107,7 +102,7 @@ const requestEmailOtp = asyncHandler(async (req, res) => {
     throw new Error("Enter a valid email address");
   }
 
-  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const code = String(randomInt(100000, 1000000));
   const codeHash = await bcrypt.hash(code, 10);
   await EmailOtp.deleteMany({ email });
   await EmailOtp.create({
@@ -116,22 +111,15 @@ const requestEmailOtp = asyncHandler(async (req, res) => {
     expiresAt: new Date(Date.now() + 10 * 60 * 1000),
   });
 
-  let sentByEmail;
   try {
-    sentByEmail = await sendOtpEmail(email, code);
+    await sendOtpEmail(email, code);
   } catch (error) {
     await EmailOtp.deleteMany({ email });
     res.status(error.statusCode || 502);
     throw new Error(error.message || "Unable to send verification email");
   }
 
-  res.json({
-    success: true,
-    message: sentByEmail
-      ? "Verification code sent"
-      : "Demo verification code generated",
-    ...(sentByEmail ? {} : { devOtp: code }),
-  });
+  res.json({ success: true, message: "Verification code sent" });
 });
 
 const verifyEmailOtp = asyncHandler(async (req, res) => {

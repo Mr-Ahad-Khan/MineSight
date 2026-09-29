@@ -140,7 +140,7 @@ export default function Support() {
     },
     {
       q: "Can I use MineSight offline when disconnected inside deep pits?",
-      a: "Yes. MineSight supports offline cached inspections. When connectivity is restored at the pit-head surface wifi or 4G station, inspections sync automatically to the DGMS portal.",
+      a: "The app can reopen cached screens after it has been loaded online. Live data, creating or updating inspections, and syncing require a connection; changes made offline are not saved or queued.",
     },
   ];
 

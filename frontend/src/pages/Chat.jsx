@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Bot, MapPin, PhoneCall, Send, ShieldCheck, Sparkles, User } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Bot, Mic, MicOff, PhoneCall, Send, ShieldCheck, Sparkles, User, Volume2, VolumeX } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -197,10 +197,20 @@ const prompts = {
 
 export default function Chat() {
   const { user } = useAuthStore();
-  const { language } = useLanguageStore();
+  const { language, setLanguage } = useLanguageStore();
   const t = translations[language];
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [speechEnabled, setSpeechEnabled] = useState(
+    () => localStorage.getItem("speakChatReplies") === "true",
+  );
+  const recognitionRef = useRef(null);
+  const speechSupported =
+    typeof window !== "undefined" && "speechSynthesis" in window;
+  const recognitionSupported =
+    typeof window !== "undefined" &&
+    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -212,41 +222,112 @@ export default function Chat() {
     },
   ]);
 
-  const handleSend = async (event) => {
-    event.preventDefault();
-    const message = input.trim();
-    if (!message || sending) return;
+  useEffect(
+    () => () => recognitionRef.current?.stop(),
+    [],
+  );
 
-    const reply = getAssistantReply(message, language);
+  const speakReply = (text) => {
+    if (!speechEnabled || !speechSupported) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const toggleVoiceInput = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = language === "hi" ? "hi-IN" : "en-IN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0]?.transcript || "")
+        .join(" ")
+        .trim();
+      if (transcript) {
+        setInput(transcript);
+        void sendMessage(transcript);
+      }
+    };
+    recognition.onerror = () => {
+      toast.error(
+        language === "hi"
+          ? "वॉइस इनपुट उपलब्ध नहीं हो सका। माइक्रोफ़ोन अनुमति जाँचें।"
+          : "Voice input failed. Check microphone permission and try again.",
+      );
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      setListening(false);
+    };
+    recognitionRef.current = recognition;
+
+    try {
+      recognition.start();
+      setListening(true);
+    } catch {
+      recognitionRef.current = null;
+      setListening(false);
+      toast.error(
+        language === "hi"
+          ? "वॉइस इनपुट शुरू नहीं हो सका। फिर प्रयास करें।"
+          : "Could not start voice input. Please try again.",
+      );
+    }
+  };
+
+  const toggleVoiceConversation = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    if (speechSupported) {
+      window.speechSynthesis.cancel();
+      setSpeechEnabled(true);
+      localStorage.setItem("speakChatReplies", "true");
+    }
+    toggleVoiceInput();
+  };
+
+  const sendMessage = async (message) => {
+    const normalizedMessage = message.trim();
+    if (!normalizedMessage || sending) return;
+
+    const reply = getAssistantReply(normalizedMessage, language);
     setInput("");
     setMessages((current) => [
       ...current,
-      { id: Date.now(), sender: "user", text: message },
+      { id: Date.now(), sender: "user", text: normalizedMessage },
+      { id: Date.now() + 1, sender: "bot", text: reply },
     ]);
+    speakReply(reply);
     setSending(true);
 
     try {
-      await saveChatMessage({ email: user?.email, message, reply });
-      setMessages((current) => [
-        ...current,
-        { id: Date.now() + 1, sender: "bot", text: reply },
-      ]);
+      await saveChatMessage({ email: user?.email, message: normalizedMessage, reply });
     } catch (error) {
-      setMessages((current) => [
-        ...current,
-        {
-          id: Date.now() + 1,
-          sender: "bot",
-          text:
-            language === "hi"
-              ? "मैं अभी इसे संसाधित नहीं कर सका। कृपया फिर प्रयास करें।"
-              : "I could not process that right now. Please try again.",
-        },
-      ]);
-      toast.error("Could not send your message");
+      toast.error(
+        language === "hi"
+          ? "जवाब मिल गया, लेकिन चैट इतिहास सहेजा नहीं जा सका।"
+          : "Reply received, but chat history could not be saved.",
+      );
     } finally {
       setSending(false);
     }
+  };
+
+  const handleSend = (event) => {
+    event.preventDefault();
+    void sendMessage(input);
   };
 
   const askPrompt = (prompt) => {
@@ -257,10 +338,11 @@ export default function Chat() {
       { id: Date.now(), sender: "user", text: prompt },
       { id: Date.now() + 1, sender: "bot", text: reply },
     ]);
+    speakReply(reply);
   };
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-4xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
+    <section className="mx-auto flex h-[calc(100dvh-2rem)] min-h-[680px] max-w-4xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9b6b16]">
@@ -291,8 +373,8 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="flex min-h-[520px] flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
-        <div className="flex items-center gap-3 border-b border-blue-950 bg-[#1e3a8a] px-5 py-4 text-white">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-950 bg-[#1e3a8a] px-5 py-4 text-white">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
             <Bot className="h-5 w-5" />
           </div>
@@ -300,31 +382,69 @@ export default function Chat() {
             <p className="font-semibold">{t.coalAiAssistant}</p>
             <p className="text-xs text-[#c9d8e2]">{t.readyToHelp}</p>
           </div>
-        </div>
-
-        <div className="border-b border-gray-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
-          <div>
-            <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
-              {language === "hi" ? "बचाव सेवा स्थान" : "Emergency rescue locations"}
-            </p>
-            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-              <a
-                href="https://www.google.com/maps/search/?api=1&query=Central+Coalfields+Rescue+Station+Dhanbad"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-[#17314a] hover:text-[#ff6f00] dark:text-white"
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              role="group"
+              aria-label={language === "hi" ? "जवाब की भाषा चुनें" : "Choose reply language"}
+              className="inline-flex items-center rounded-lg border border-white/20 bg-white/5 p-0.5"
+            >
+              <button
+                type="button"
+                onClick={() => setLanguage("en")}
+                aria-pressed={language === "en"}
+                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${language === "en" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
               >
-                <MapPin className="h-4 w-4" /> Dhanbad · 0326-2202356
-              </a>
-              <a
-                href="https://www.google.com/maps/search/?api=1&query=Central+Coalfields+Rescue+Station+Singrauli"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-[#17314a] hover:text-[#ff6f00] dark:text-white"
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage("hi")}
+                aria-pressed={language === "hi"}
+                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${language === "hi" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
               >
-                <MapPin className="h-4 w-4" /> Singrauli · 07805-266120
-              </a>
+                हिंदी
+              </button>
             </div>
+            <button
+              type="button"
+              onClick={toggleVoiceConversation}
+              disabled={!speechSupported || !recognitionSupported || sending}
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${listening ? "bg-red-500 text-white" : "bg-white/10 text-white hover:bg-white/20"}`}
+              aria-label={
+                listening
+                  ? language === "hi"
+                    ? "वॉइस बातचीत रोकें"
+                    : "Stop voice chat"
+                  : language === "hi"
+                    ? "वॉइस बातचीत शुरू करें"
+                    : "Start voice chat"
+              }
+              aria-pressed={listening}
+              title={
+                !speechSupported || !recognitionSupported
+                  ? language === "hi"
+                    ? "इस ब्राउज़र में वॉइस चैट समर्थित नहीं है"
+                    : "Voice chat is not supported in this browser"
+                  : listening
+                    ? language === "hi"
+                      ? "सुनना रोकें"
+                      : "Stop listening"
+                    : language === "hi"
+                      ? "बोलने के लिए क्लिक करें"
+                      : "Click to speak"
+              }
+            >
+              {listening ? <Volume2 className="h-4 w-4" aria-hidden="true" /> : <VolumeX className="h-4 w-4" aria-hidden="true" />}
+              <span>
+                {listening
+                  ? language === "hi"
+                    ? "सुन रहा है..."
+                    : "Listening..."
+                  : language === "hi"
+                    ? "वॉइस चैट"
+                    : "Voice chat"}
+              </span>
+            </button>
           </div>
         </div>
 
@@ -383,6 +503,33 @@ export default function Chat() {
               disabled={sending}
               aria-label={t.messageCoalAi}
             />
+            <button
+              type="button"
+              onClick={toggleVoiceInput}
+              disabled={!recognitionSupported || sending}
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition disabled:cursor-not-allowed disabled:opacity-40 ${listening ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300" : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"}`}
+              aria-label={
+                listening
+                  ? language === "hi"
+                    ? "वॉइस इनपुट रोकें"
+                    : "Stop voice input"
+                  : language === "hi"
+                    ? "वॉइस इनपुट शुरू करें"
+                    : "Start voice input"
+              }
+              aria-pressed={listening}
+              title={
+                listening
+                  ? language === "hi"
+                    ? "वॉइस इनपुट रोकें"
+                    : "Stop voice input"
+                  : language === "hi"
+                    ? "वॉइस इनपुट शुरू करें"
+                    : "Start voice input"
+              }
+            >
+              {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </button>
             <button
               type="submit"
               disabled={sending || !input.trim()}

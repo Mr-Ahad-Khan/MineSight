@@ -1191,6 +1191,39 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section
+          id="partners"
+          className="border-b border-[#29414b] bg-[#0b171d] text-white"
+        >
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[0.8fr_1.6fr] md:items-center lg:px-8">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#e5a416]">
+                {language === "en" ? "Project ecosystem" : "परियोजना इकोसिस्टम"}
+              </p>
+              <h2 className="mt-2 text-xl font-bold sm:text-2xl">
+                {language === "en" ? "Built for India's coal sector" : "भारत के कोयला क्षेत्र के लिए निर्मित"}
+              </h2>
+              <p className="mt-2 text-sm text-[#9eafaf]">
+                Smart India Hackathon 2026
+              </p>
+            </div>
+            <div className="grid gap-6 border-t border-white/15 pt-6 sm:grid-cols-2 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+              <div className="border-l-2 border-[#39c7b0] pl-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#83d2c5]">
+                  {language === "en" ? "Institutional context" : "संस्थागत संदर्भ"}
+                </p>
+                <p className="mt-2 text-lg font-semibold">Ministry of Coal</p>
+              </div>
+              <div className="border-l-2 border-[#e5a416] pl-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#f3b323]">
+                  {language === "en" ? "Associated company" : "संबद्ध कंपनी"}
+                </p>
+                <p className="mt-2 text-lg font-semibold">Coal India Limited</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Features */}
         <section
           id="overview"
@@ -1725,6 +1758,12 @@ export default function HomePage() {
                   className="transition-colors hover:text-white"
                 >
                   {t.auditReadiness}
+                </a>
+                <a
+                  href="#partners"
+                  className="transition-colors hover:text-white"
+                >
+                  {language === "en" ? "Ecosystem" : "इकोसिस्टम"}
                 </a>
                 <a
                   href="#contact"

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   AlertOctagon,
   CheckCircle2,
@@ -102,7 +104,7 @@ export default function DisasterManagement() {
 
   const emergencyContacts = directory.flatMap((group) => group.contacts || []).slice(0, 3);
 
-  const exportRows = activeIncidents.map((incident) => ({
+  const exportRows = incidents.map((incident) => ({
     incident: incident.subject,
     ticket: incident.ticketNumber,
     mine: incident.mineId?.name || "Not specified",
@@ -118,8 +120,11 @@ export default function DisasterManagement() {
     const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
+    link.style.display = "none";
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const exportJson = () => {
@@ -135,12 +140,111 @@ export default function DisasterManagement() {
   };
 
   const exportCsv = () => {
-    const headers = ["Incident", "Ticket", "Mine", "Priority", "Status", "Description", "Reported At"];
-    const rows = exportRows.map((row) => Object.values(row).map(escapeCsv).join(","));
-    downloadFile([headers.map(escapeCsv).join(","), ...rows].join("\n"), "disaster-management-report.csv", "text/csv;charset=utf-8");
+    if (loading) {
+      toast.error("Wait for emergency incidents to finish loading before exporting");
+      return;
+    }
+    if (exportRows.length === 0) {
+      toast.error("No emergency incidents are available to export. Report an incident first.");
+      return;
+    }
+
+    const columns = [
+      ["Incident", "incident"],
+      ["Ticket", "ticket"],
+      ["Mine", "mine"],
+      ["Priority", "priority"],
+      ["Status", "status"],
+      ["Description", "description"],
+      ["Reported At", "reportedAt"],
+    ];
+    const rows = exportRows.map((row) => columns.map(([, key]) => escapeCsv(row[key])).join(","));
+    const csv = [columns.map(([label]) => escapeCsv(label)).join(","), ...rows].join("\r\n");
+    downloadFile(`\uFEFF${csv}`, "disaster-management-report.csv", "text/csv;charset=utf-8");
   };
 
-  const printReport = () => window.print();
+  const exportPdf = () => {
+    try {
+      const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+      const readiness = Math.round((checkedItems.length / checklistItems.length) * 100);
+      const columns = ["Incident", "Ticket", "Mine", "Priority", "Status", "Description", "Reported At"];
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(18);
+      pdf.text("Disaster Management Report", 36, 40);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.text(`Generated: ${new Date().toLocaleString()}  |  Response readiness: ${readiness}%  |  Incidents: ${exportRows.length}`, 36, 58);
+
+      autoTable(pdf, {
+        head: [columns],
+        body: exportRows.map((row) => [
+          row.incident,
+          row.ticket,
+          row.mine,
+          row.priority,
+          row.status,
+          row.description,
+          row.reportedAt,
+        ]),
+        startY: 72,
+        margin: { left: 36, right: 36 },
+        styles: { font: "helvetica", fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+        headStyles: { fillColor: [190, 35, 55] },
+        columnStyles: {
+          0: { cellWidth: 90 },
+          1: { cellWidth: 58 },
+          2: { cellWidth: 90 },
+          3: { cellWidth: 58 },
+          4: { cellWidth: 58 },
+          5: { cellWidth: 305 },
+          6: { cellWidth: 105 },
+        },
+      });
+
+      let sectionY = pdf.lastAutoTable.finalY + 24;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      if (sectionY > pageHeight - 60) {
+        pdf.addPage();
+        sectionY = 40;
+      }
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(12);
+      pdf.text("Response checklist", 36, sectionY);
+      autoTable(pdf, {
+        body: checklistItems.map((item, index) => [
+          `${checkedItems.includes(index) ? "[x]" : "[ ]"} ${item}`,
+        ]),
+        startY: sectionY + 8,
+        margin: { left: 36, right: 36 },
+        styles: { font: "helvetica", fontSize: 9, cellPadding: 4 },
+        columnStyles: { 0: { cellWidth: 380 } },
+      });
+
+      sectionY = pdf.lastAutoTable.finalY + 22;
+      if (sectionY > pageHeight - 60) {
+        pdf.addPage();
+        sectionY = 40;
+      }
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(12);
+      pdf.text("Emergency contacts", 36, sectionY);
+      autoTable(pdf, {
+        head: [["Contact", "Phone", "Timing"]],
+        body: emergencyContacts.map((contact) => [contact.title, contact.number, contact.timing]),
+        startY: sectionY + 8,
+        margin: { left: 36, right: 36 },
+        styles: { font: "helvetica", fontSize: 9, cellPadding: 4 },
+        headStyles: { fillColor: [14, 116, 144] },
+        columnStyles: { 0: { cellWidth: 180 }, 1: { cellWidth: 120 }, 2: { cellWidth: 220 } },
+      });
+
+      pdf.save("disaster-management-report.pdf");
+      toast.success("PDF report downloaded");
+    } catch {
+      toast.error("Unable to generate the PDF report");
+    }
+  };
 
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -156,7 +260,7 @@ export default function DisasterManagement() {
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={exportCsv} className="btn-secondary">Export CSV</button>
           <button type="button" onClick={exportJson} className="btn-secondary">Export JSON</button>
-          <button type="button" onClick={printReport} className="btn-secondary">Print / PDF</button>
+          <button type="button" onClick={exportPdf} className="btn-secondary">Export PDF</button>
           <button type="button" onClick={() => setFormOpen((open) => !open)} className="btn-primary inline-flex items-center gap-2">
             <Plus className="h-4 w-4" /> Report incident
           </button>

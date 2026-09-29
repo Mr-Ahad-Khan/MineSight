@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Mic, Plus, Trash2, X } from "lucide-react";
+import { Mic, Plus, Search, Trash2, X } from "lucide-react";
 import { deleteInspection, getInspections, getMediaUrl } from "../services/api";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
@@ -25,9 +25,13 @@ export default function Inspections() {
   const [inspections, setInspections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ status: "", severity: "" });
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const { language } = useLanguageStore();
   const t = translations[language];
+  const filteredInspections = inspections.filter((inspection) =>
+    inspection.title?.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()),
+  );
 
   useEffect(() => {
     fetchInspections();
@@ -84,7 +88,18 @@ export default function Inspections() {
             {t.inspections}
           </h1>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="relative min-w-[220px] flex-1 sm:flex-none">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#786f63]" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder={language === "hi" ? "निरीक्षण का नाम खोजें" : "Search inspection name"}
+                aria-label={language === "hi" ? "निरीक्षण का नाम खोजें" : "Search inspection name"}
+                className="w-full rounded-full border border-[#bca98e] bg-[#f8f4ed] py-2.5 pl-10 pr-4 text-[16px] text-[#1f1f1f] outline-none placeholder:text-[#786f63] focus:border-[#8a7156] sm:w-64"
+              />
+            </label>
             <select
               id="inspection-status-filter"
               name="status"
@@ -163,17 +178,21 @@ export default function Inspections() {
                       {t.loading}
                     </td>
                   </tr>
-                ) : inspections.length === 0 ? (
+                ) : filteredInspections.length === 0 ? (
                   <tr>
                     <td
                       colSpan="8"
                       className="px-4 py-12 text-center text-slate-400"
                     >
-                      {t.noInspections}
+                      {searchQuery.trim()
+                        ? language === "hi"
+                          ? "इस नाम से कोई निरीक्षण नहीं मिला।"
+                          : "No inspections match that name."
+                        : t.noInspections}
                     </td>
                   </tr>
                 ) : (
-                  inspections.map((insp) => {
+                  filteredInspections.map((insp) => {
                     const audioUrl = getMediaUrl(insp.audio);
 
                     return (
