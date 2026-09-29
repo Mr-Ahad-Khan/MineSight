@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -19,6 +20,8 @@ export default function Register() {
     department: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const recaptchaRef = useRef(null);
   const [otp, setOtp] = useState("");
   const [emailVerificationToken, setEmailVerificationToken] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -28,6 +31,11 @@ export default function Register() {
   const { language } = useLanguageStore();
   const navigate = useNavigate();
   const t = translations[language];
+  const recaptchaSiteKey =
+    import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+    (import.meta.env.DEV
+      ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+      : "");
 
   useEffect(() => {
     if (token) {
@@ -53,7 +61,7 @@ export default function Register() {
       if (data.devOtp) {
         toast.success(`Demo OTP: ${data.devOtp}`);
       } else {
-        toast.success("Verification code sent to your mobile");
+        toast.success("Verification code sent to your email");
       }
     } catch (error) {
       const message =
@@ -89,6 +97,11 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!recaptchaToken) {
+      toast.error("Please complete the reCAPTCHA.");
+      return;
+    }
+
     const payload = {
       name: form.name.trim(),
       email: form.email.trim(),
@@ -98,6 +111,7 @@ export default function Register() {
       employeeId: form.employeeId.trim(),
       department: form.department.trim(),
       emailVerificationToken,
+      recaptchaToken,
     };
 
     if (!emailVerificationToken) {
@@ -112,6 +126,8 @@ export default function Register() {
       navigate("/app", { replace: true });
     } else {
       toast.error(result.message);
+      setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
     }
   };
 
@@ -336,9 +352,22 @@ export default function Register() {
                 </div>
               </div>
 
+              {recaptchaSiteKey ? (
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={recaptchaSiteKey}
+                  onChange={setRecaptchaToken}
+                  onExpired={() => setRecaptchaToken(null)}
+                />
+              ) : (
+                <p className="text-sm text-red-600" role="alert">
+                  Account verification is not configured. Set VITE_RECAPTCHA_SITE_KEY.
+                </p>
+              )}
+
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !recaptchaToken || !recaptchaSiteKey}
                 className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {isLoading ? (

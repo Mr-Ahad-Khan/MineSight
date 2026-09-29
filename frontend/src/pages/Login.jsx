@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -23,12 +23,17 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const recaptchaRef = useRef(null);
   const { login, isLoading, token, user } = useAuthStore();
   const { language, setLanguage } = useLanguageStore();
   const navigate = useNavigate();
   const location = useLocation();
   const t = translations[language];
-  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  const recaptchaSiteKey =
+    import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+    (import.meta.env.DEV
+      ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+      : "");
   const redirectTo =
     new URLSearchParams(location.search).get("redirect") ||
     (user?.role === "worker" ? "/app/workers" : "/app");
@@ -36,9 +41,7 @@ export default function Login() {
 
   useEffect(() => {
     if (token) {
-      navigate(result.user?.role === "worker" ? "/app/workers" : destination, {
-        replace: true,
-      });
+      navigate(destination, { replace: true });
     }
   }, [token, navigate, destination]);
 
@@ -55,6 +58,8 @@ export default function Login() {
       navigate(destination, { replace: true });
     } else {
       toast.error(result.message);
+      setRecaptchaToken(null);
+      recaptchaRef.current?.reset();
     }
   };
 
@@ -218,6 +223,7 @@ export default function Login() {
 
               {recaptchaSiteKey ? (
                 <ReCAPTCHA
+                  ref={recaptchaRef}
                   sitekey={recaptchaSiteKey}
                   onChange={setRecaptchaToken}
                   onExpired={() => setRecaptchaToken(null)}
@@ -230,7 +236,7 @@ export default function Login() {
 
               <button
                 type="submit"
-                disabled={isLoading || (import.meta.env.PROD && !recaptchaSiteKey)}
+                disabled={isLoading || !recaptchaSiteKey}
                 className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {isLoading ? (

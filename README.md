@@ -137,10 +137,12 @@ EMAIL_PASSWORD=your-smtp-password
 EMAIL_FROM=no-reply@example.com
 ```
 
-Register a Google reCAPTCHA v2 checkbox, then set its site key as
-`VITE_RECAPTCHA_SITE_KEY` in `frontend/.env`. Keep the secret key only in
-`backend/.env`. Both keys are required for production login; local development
-can run without them.
+Register a Google reCAPTCHA v2 checkbox and add your production frontend domain
+to its allowed domains. Set the **site key** as `VITE_RECAPTCHA_SITE_KEY` in the
+frontend build environment and the **secret key** as `RECAPTCHA_SECRET_KEY` in
+the backend environment. Both keys must come from the same reCAPTCHA registration.
+Local development uses Google's public test keys; they always pass and are not
+protection. Production requires your real keys.
 
 Seed the database and run both apps from separate terminals:
 
@@ -271,6 +273,7 @@ The backend can run on any Node.js host that supports persistent MongoDB connect
 - `JWT_SECRET`
 - `JWT_EXPIRE`
 - `NODE_ENV=production`
+- `RECAPTCHA_SECRET_KEY` (Google reCAPTCHA secret key; keep it server-side)
 - SMTP variables if email OTP delivery is enabled
 
 Uploaded media use local `/uploads` storage in development. Configure these Render environment variables to store inspection photos, audio, and profile pictures durably in Cloudinary:
@@ -286,6 +289,11 @@ The frontend is configured for Vercel. For direct browser-to-backend calls, set 
 - `VITE_API_BASE_URL`
 - `VITE_BACKEND_URI`
 - `VITE_API_URL`
+
+Also set `VITE_RECAPTCHA_SITE_KEY` in Vercel's environment variables for every
+environment where you deploy the frontend. Vite embeds this public site key at
+build time, so redeploy after changing it. Never put `RECAPTCHA_SECRET_KEY` in
+Vercel or in frontend code.
 
 Example:
 

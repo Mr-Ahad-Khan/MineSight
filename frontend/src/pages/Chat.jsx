@@ -261,7 +261,7 @@ export default function Chat() {
 
   return (
     <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-4xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9b6b16]">
             {t.operationsAssistant}
@@ -273,8 +273,21 @@ export default function Chat() {
             {t.chatSubtitle}
           </p>
         </div>
-        <div className="hidden items-center gap-2 rounded-full border border-[#bfd9c8] bg-[#edf8f0] px-3 py-2 text-xs font-semibold text-[#267044] sm:flex">
-          <ShieldCheck className="h-4 w-4" /> {t.secureSession}
+        <div className="flex w-full flex-col items-start gap-2 sm:w-auto sm:items-end">
+          <div className="sm:text-right">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {language === "hi" ? "ग्राहक सहायता · 24/7" : "Customer care · 24/7"}
+            </p>
+            <a
+              href="tel:+918004197890"
+              className="mt-0.5 inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-bold text-[#17314a] transition-colors hover:text-[#d45b00] dark:text-white dark:hover:text-orange-300"
+            >
+              <PhoneCall className="h-4 w-4 text-[#d45b00]" /> +91 800-419-7890
+            </a>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#bfd9c8] bg-[#edf8f0] px-3 py-1.5 text-xs font-semibold text-[#267044]">
+            <ShieldCheck className="h-4 w-4" /> {t.secureSession}
+          </div>
         </div>
       </div>
 
@@ -289,21 +302,7 @@ export default function Chat() {
           </div>
         </div>
 
-        <div className="grid gap-4 border-b border-gray-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900 sm:grid-cols-2">
-          <div>
-            <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
-              {language === "hi" ? "ग्राहक सहायता · 24/7" : "Customer care · 24/7"}
-            </p>
-            <a
-              href="tel:+918004197890"
-              className="mt-1 inline-flex items-center gap-2 font-semibold text-[#17314a] hover:text-[#ff6f00] dark:text-white"
-            >
-              <PhoneCall className="h-4 w-4" /> +91 800-419-7890
-            </a>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              support@minesight.cil.gov.in
-            </p>
-          </div>
+        <div className="border-b border-gray-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
           <div>
             <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
               {language === "hi" ? "बचाव सेवा स्थान" : "Emergency rescue locations"}
@@ -329,7 +328,7 @@ export default function Chat() {
           </div>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto bg-[#f5f7fa] p-4 sm:p-6 dark:bg-slate-800">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[#f5f7fa] p-4 sm:p-6 dark:bg-slate-800">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -351,20 +350,20 @@ export default function Chat() {
           {sending && (
             <p className="pl-6 text-xs text-[#786f63]">{t.thinking}</p>
           )}
-          {messages.length === 1 && (
-            <div className="ml-6 flex flex-wrap gap-2 pt-1">
-              {prompts[language].map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  onClick={() => askPrompt(prompt)}
-                  className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-[#ff6f00] hover:bg-orange-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-                >
-                  <Sparkles className="h-3 w-3 text-[#ff6f00]" /> {prompt}
-                </button>
-              ))}
-            </div>
-          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2 border-t border-gray-200 bg-[#f5f7fa] px-4 py-3 dark:border-slate-700 dark:bg-slate-800 sm:px-6">
+          {prompts[language].map((prompt) => (
+            <button
+              key={prompt}
+              type="button"
+              onClick={() => askPrompt(prompt)}
+              disabled={sending}
+              className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-[#ff6f00] hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+            >
+              <Sparkles className="h-3 w-3 text-[#ff6f00]" /> {prompt}
+            </button>
+          ))}
         </div>
 
         <form

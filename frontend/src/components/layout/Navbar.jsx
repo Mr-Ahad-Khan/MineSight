@@ -105,10 +105,10 @@ export default function Navbar() {
     ));
 
   return (
-    <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-[#212121] text-white shadow-md">
+    <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-[#121a21]/95 text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)] backdrop-blur-lg">
       <div className="grid h-16 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center">
-        <div className="flex h-full min-w-0 items-center bg-[#212121] px-3 sm:px-5 xl:pr-8">
-          <BrandLogo imageClassName="h-10 w-[clamp(7.5rem,38vw,9rem)] max-w-full sm:h-16 sm:w-64 lg:h-20 lg:w-72" />
+        <div className="flex h-full min-w-0 items-center px-3 sm:px-5 xl:pr-8">
+          <BrandLogo imageClassName="h-10 w-[clamp(7.5rem,30vw,9.5rem)] max-w-full sm:h-12 sm:w-48" />
         </div>
 
         <nav
@@ -201,7 +201,7 @@ export default function Navbar() {
       </div>
 
       {navigationMenuOpen && (
-        <div className="border-t border-white/10 bg-[#212121] p-3 shadow-lg xl:hidden">
+        <div className="border-t border-white/10 bg-[#121a21] p-3 shadow-lg xl:hidden">
           <nav
             className="grid grid-cols-2 gap-2"
             aria-label="Mobile navigation"

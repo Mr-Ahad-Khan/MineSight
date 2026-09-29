@@ -206,6 +206,7 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null)
   const [realtimeAttendance, setRealtimeAttendance] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [summaryUnavailable, setSummaryUnavailable] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
   const analyticsSectionRef = useRef(null)
   const [animatedOpenInspections, setAnimatedOpenInspections] = useState(0)
@@ -238,21 +239,32 @@ export default function Dashboard() {
 
       try {
 
-        const [summaryRes, analyticsRes, attRes] = await Promise.all([
+        const results = await Promise.allSettled([
           getDashboardSummary(),
           getAnalytics(),
-          getRealtimeAttendance().catch(() => ({ data: { data: null } }))
+          getRealtimeAttendance(),
         ])
 
-        setSummary(summaryRes.data.data)
-        setAnalytics(analyticsRes.data.data)
-        setRealtimeAttendance(attRes.data?.data)
+        const [summaryResult, analyticsResult, attendanceResult] = results
 
-      } catch {
+        if (summaryResult.status === 'fulfilled') {
+          setSummary(summaryResult.value.data.data)
+        } else {
+          setSummaryUnavailable(true)
+          console.error('Failed to load dashboard summary:', summaryResult.reason)
+        }
 
-        // Keep the dashboard usable with its zero-value state if the remote
-        // service is temporarily unavailable. The request error is handled in
-        // the UI rather than being surfaced as a browser console failure.
+        if (analyticsResult.status === 'fulfilled') {
+          setAnalytics(analyticsResult.value.data.data)
+        } else {
+          console.error('Failed to load dashboard analytics:', analyticsResult.reason)
+        }
+
+        if (attendanceResult.status === 'fulfilled') {
+          setRealtimeAttendance(attendanceResult.value.data.data)
+        } else {
+          console.error('Failed to load realtime attendance:', attendanceResult.reason)
+        }
 
       } finally {
 
@@ -622,7 +634,7 @@ export default function Dashboard() {
             </span>
             <UserCheck className="w-4 h-4 text-emerald-600" />
             <span>
-              Live Attendance: <strong>{realtimeAttendance?.insideMineCount ?? 7}</strong> Inside
+              Live Attendance: <strong>{realtimeAttendance?.insideMineCount ?? '—'}</strong> Inside
             </span>
           </Link>
 
@@ -662,6 +674,12 @@ export default function Dashboard() {
 
       </div>
 
+
+      {summaryUnavailable && (
+        <p role="alert" className="mb-5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Dashboard summary data could not be loaded. Please check your connection and try again.
+        </p>
+      )}
 
       {/* ======================================================
           MAIN GRID

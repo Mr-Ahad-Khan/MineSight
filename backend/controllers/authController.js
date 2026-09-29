@@ -12,13 +12,14 @@ const normalizeEmail = (email) =>
     .toLowerCase();
 
 const verifyRecaptcha = async (token, res) => {
-  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  const secret =
+    process.env.RECAPTCHA_SECRET_KEY ||
+    (process.env.NODE_ENV === "development"
+      ? "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+      : "");
   if (!secret) {
-    if (process.env.NODE_ENV === "production" || token) {
-      res.status(503);
-      throw new Error("reCAPTCHA verification is not configured on the server");
-    }
-    return;
+    res.status(503);
+    throw new Error("reCAPTCHA verification is not configured on the server");
   }
 
   if (!token) {
@@ -40,7 +41,23 @@ const verifyRecaptcha = async (token, res) => {
   }
 
   if (!verification.success) {
+    const errorCodes = verification["error-codes"] || [];
+    console.warn("Google reCAPTCHA verification failed:", errorCodes.join(", "));
+
+    if (errorCodes.includes("invalid-input-secret") || errorCodes.includes("missing-input-secret")) {
+      res.status(503);
+      throw new Error("The reCAPTCHA secret key is invalid or missing on the backend.");
+    }
+
+    if (errorCodes.includes("timeout-or-duplicate")) {
+      res.status(400);
+      throw new Error("The reCAPTCHA expired. Complete the checkbox again and retry.");
+    }
+
     res.status(400);
+    if (errorCodes.includes("invalid-input-response")) {
+      throw new Error("The reCAPTCHA token was rejected. Check that both keys belong to the same v2 checkbox and that localhost is allowed.");
+    }
     throw new Error("reCAPTCHA verification failed. Please try again");
   }
 };
@@ -166,7 +183,10 @@ const registerUser = asyncHandler(async (req, res) => {
     employeeId,
     department,
     emailVerificationToken,
+    recaptchaToken,
   } = req.body;
+
+  await verifyRecaptcha(recaptchaToken, res);
 
   if (!name || !email || !password) {
     res.status(400);
