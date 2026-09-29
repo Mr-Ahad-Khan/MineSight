@@ -69,9 +69,9 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 lg:flex-row">
+    <div className="flex h-dvh flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 lg:flex-row">
       {/* Left panel */}
-      <div className="relative hidden overflow-hidden bg-[#071827] text-white lg:flex lg:w-1/2">
+      <div className="relative hidden h-full overflow-hidden bg-[#071827] text-white lg:flex lg:w-1/2">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -79,7 +79,7 @@ export default function Login() {
               "linear-gradient(90deg, rgba(5,23,38,0.94) 0%, rgba(5,23,38,0.74) 42%, rgba(5,23,38,0.35) 100%), linear-gradient(0deg, rgba(5,23,38,0.86), transparent 58%), url('/coal-miners.webp')",
           }}
         />
-        <div className="relative z-10 flex min-h-screen w-full flex-col justify-between px-[8.5%] py-12 xl:px-14">
+        <div className="relative z-10 flex min-h-full w-full flex-col justify-between px-[8.5%] py-8 xl:px-14 xl:py-10">
           <div>
             <div className="mb-14 flex items-center justify-between gap-3">
               <BrandLogo imageClassName="h-16 w-64 rounded" />
@@ -140,7 +140,8 @@ export default function Login() {
       </div>
 
       {/* Right panel */}
-      <div className="flex flex-1 items-center justify-center p-4 sm:p-6">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-md">
           <Link
             to="/"
@@ -149,18 +150,6 @@ export default function Login() {
             <ArrowLeft className="h-4 w-4" />
             {t.backToLanding}
           </Link>
-          <div
-            className="relative mb-5 h-28 overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900 bg-cover bg-center lg:hidden"
-            style={{
-              backgroundImage:
-                "linear-gradient(90deg, rgba(7,18,34,0.92), rgba(7,18,34,0.42)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80')",
-            }}
-          >
-            <div className="absolute inset-0 flex items-center gap-3 px-5 text-white">
-              <BrandLogo imageClassName="h-12 w-40 rounded" />
-            </div>
-          </div>
-
           <div className="card p-5 sm:p-8">
             <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
               {t.welcomeBack}
@@ -255,10 +244,10 @@ export default function Login() {
             </p>
 
             {/* Optional seeded demo accounts */}
-            <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-              <p className="mb-3 text-center text-xs font-medium text-slate-600 dark:text-slate-300">
+            <details className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700">
+              <summary className="cursor-pointer text-center text-xs font-medium text-slate-600 dark:text-slate-300">
                 {t.quickDemo} ({t.optional})
-              </p>
+              </summary>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -306,17 +295,15 @@ export default function Login() {
                 </button>
               </div>
 
-              <div className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">
-                {t.dontHaveAccount}{" "}
-                <Link
-                  to="/register"
-                  className="font-semibold text-primary-700 hover:text-primary-800"
-                >
-                  Sign up
-                </Link>
-              </div>
+            </details>
+            <div className="mt-4 text-center text-sm text-slate-600 dark:text-slate-300">
+              {t.dontHaveAccount}{" "}
+              <Link to="/register" className="font-semibold text-primary-700 hover:text-primary-800">
+                Sign up
+              </Link>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

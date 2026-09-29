@@ -8,6 +8,9 @@ import {
   X,
   Trash2,
   FileText,
+  ShieldAlert,
+  ShieldCheck,
+  RefreshCw,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -16,6 +19,7 @@ import {
   updateInspection,
   closeViolation,
   getMediaUrl,
+  getInspectionAuditHistory,
 } from "../services/api";
 import { format } from "date-fns";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
@@ -39,9 +43,12 @@ export default function InspectionDetail() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [auditTrail, setAuditTrail] = useState(null);
+  const [auditError, setAuditError] = useState("");
 
   useEffect(() => {
     fetchInspection();
+    fetchAuditTrail();
   }, [id]);
 
   useEffect(() => {
@@ -67,11 +74,22 @@ export default function InspectionDetail() {
     }
   };
 
+  const fetchAuditTrail = async () => {
+    try {
+      const response = await getInspectionAuditHistory(id);
+      setAuditTrail(response.data.data);
+      setAuditError("");
+    } catch (error) {
+      setAuditError(error.response?.data?.message || "Could not verify the audit chain.");
+    }
+  };
+
   const handleStatusChange = async (status) => {
     setUpdating(true);
     try {
       const res = await updateInspection(id, { status });
       setInspection(res.data.data);
+      await fetchAuditTrail();
       toast.success(`${t.statusUpdated} ${status}`);
     } catch (error) {
       toast.error(t.failedUpdate);
@@ -84,6 +102,7 @@ export default function InspectionDetail() {
     try {
       const res = await closeViolation(id, violationId);
       setInspection(res.data.data);
+      await fetchAuditTrail();
       toast.success(t.violationClosed);
     } catch (error) {
       toast.error(t.failedClose);
@@ -352,6 +371,54 @@ export default function InspectionDetail() {
               <Trash2 className="h-4 w-4" />
               Delete Inspection
             </button>
+          </div>
+
+          <div className="card space-y-3 p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="font-semibold">Blockchain audit trail</h2>
+                <p className="mt-1 text-xs text-slate-500">SHA-256 hash-linked inspection changes</p>
+              </div>
+              <button
+                type="button"
+                onClick={fetchAuditTrail}
+                className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label="Refresh audit trail verification"
+                title="Refresh verification"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            </div>
+
+            {auditError ? (
+              <p role="alert" className="text-sm text-rose-600">{auditError}</p>
+            ) : auditTrail ? (
+              <>
+                <div className={`flex items-center gap-2 text-sm font-semibold ${auditTrail.integrity.valid ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}`}>
+                  {auditTrail.integrity.valid ? <ShieldCheck className="h-4 w-4" /> : <ShieldAlert className="h-4 w-4" />}
+                  {auditTrail.integrity.valid ? "Chain verified" : `Integrity issue at block ${auditTrail.integrity.brokenAt}`}
+                </div>
+                <p className="text-xs text-slate-500">{auditTrail.integrity.checkedBlocks} blocks checked. This hash chain is stored in this app's database; it is not a decentralized public blockchain.</p>
+                <div className="max-h-80 space-y-3 overflow-y-auto border-t border-slate-200 pt-3 dark:border-slate-700">
+                  {(auditTrail.blocks || []).map((block) => (
+                    <div key={block._id} className="border-l-2 border-teal-700 pl-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs font-semibold">#{block.sequence} · {block.action?.replaceAll("_", " ").toLowerCase()}</p>
+                        <time className="text-xs text-slate-500" dateTime={block.blockTimestamp}>
+                          {format(new Date(block.blockTimestamp), "dd MMM yyyy, HH:mm")}
+                        </time>
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500">{block.userId?.name || "Unknown user"}</p>
+                      <p className="mt-1 break-all font-mono text-[10px] text-slate-500" title={block.blockHash}>Hash: {block.blockHash?.slice(0, 20)}...</p>
+                      <p className="break-all font-mono text-[10px] text-slate-400" title={block.previousHash}>Previous: {block.previousHash?.slice(0, 20)}...</p>
+                    </div>
+                  ))}
+                  {!auditTrail.blocks?.length && <p className="text-xs text-slate-500">No blockchain audit blocks exist for this inspection yet.</p>}
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-slate-500">Verifying audit chain...</p>
+            )}
           </div>
 
           {/* Map */}

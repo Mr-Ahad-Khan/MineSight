@@ -26,6 +26,20 @@ const auditLogSchema = new mongoose.Schema(
     ip: {
       type: String,
     },
+    sequence: {
+      type: Number,
+      unique: true,
+      sparse: true,
+    },
+    previousHash: {
+      type: String,
+    },
+    blockHash: {
+      type: String,
+    },
+    blockTimestamp: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -33,5 +47,6 @@ const auditLogSchema = new mongoose.Schema(
 );
 
 auditLogSchema.index({ createdAt: -1 });
+auditLogSchema.index({ entityType: 1, entityId: 1, sequence: 1 });
 
 module.exports = mongoose.model('AuditLog', auditLogSchema);

@@ -132,8 +132,8 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950">
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden text-white">
+    <div className="flex h-dvh overflow-hidden bg-slate-50 dark:bg-slate-950">
+      <div className="relative hidden h-full overflow-hidden text-white lg:flex lg:w-1/2">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -143,7 +143,7 @@ export default function Register() {
         ></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.25),transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.28),transparent_28%)]" />
 
-        <div className="relative z-10 flex w-full flex-col justify-between p-12">
+        <div className="relative z-10 flex min-h-full w-full flex-col justify-between p-8 xl:p-12">
           <div>
             <div className="mb-12">
               <BrandLogo imageClassName="h-16 w-48 rounded" />
@@ -183,9 +183,10 @@ export default function Register() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center p-3 sm:p-6">
         <div className="w-full max-w-md">
-          <div className="card p-8">
+          <div className="card p-5 sm:p-7">
             <div className="mb-6 text-center">
               <h2 className="text-2xl font-bold mb-1">Create account</h2>
               <p className="text-slate-500 text-sm">
@@ -391,6 +392,7 @@ export default function Register() {
               </Link>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

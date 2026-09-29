@@ -42,6 +42,16 @@ const formatDate = (value) =>
       }).format(new Date(value))
     : "No record";
 
+  const formatTrackedDuration = (value) => {
+    if (!value) return "No activity recorded";
+    const start = new Date(value);
+    const days = Math.max(0, Math.floor((Date.now() - start.getTime()) / 86400000));
+    const duration = days < 30
+      ? `${days} day${days === 1 ? "" : "s"}`
+      : `${Math.floor(days / 30)} month${Math.floor(days / 30) === 1 ? "" : "s"}`;
+    return `Tracked since ${formatDate(value)} · ${duration}`;
+  };
+
 function Stat({ icon: Icon, label, value, tone }) {
   return (
     <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 shadow-[0_2px_5px_rgba(80,60,30,0.08)] dark:border-slate-700 dark:bg-slate-900">
@@ -232,11 +242,14 @@ export default function Workers() {
               </dl>
             </div>
             <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 dark:border-slate-700 dark:bg-slate-900">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Mine sites</h2>
-              <div className="mt-4 space-y-3">
-                {(currentWorker?.mineSites || []).map((mine) => <div key={mine._id} className="flex items-center gap-3 text-sm"><MapPin className="h-4 w-4 text-primary-600" /><span>{mine.name} {mine.code ? `(${mine.code})` : ""}</span></div>)}
-                {!currentWorker?.mineSites?.length && <p className="text-sm text-slate-500">No mine site assigned yet.</p>}
-              </div>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Work by mine</h2>
+              <MineWorkList items={currentWorker?.mineWork || []} />
+              {!currentWorker?.mineWork?.length && currentWorker?.mineSites?.length > 0 && (
+                <p className="mt-3 text-sm text-slate-500">Assigned sites: {currentWorker.mineSites.map((mine) => mine.name).join(", ")}. No task or attendance history recorded yet.</p>
+              )}
+              {!currentWorker?.mineSites?.length && !currentWorker?.mineWork?.length && (
+                <p className="mt-3 text-sm text-slate-500">No mine site assigned yet.</p>
+              )}
             </div>
           </div>
           <TaskList tasks={allTasks} onStatusChange={handleTaskStatus} />
@@ -348,12 +361,12 @@ export default function Workers() {
 
           <div className="overflow-hidden rounded-2xl border border-[#cbbda7] bg-[#fffdf8] shadow-[0_2px_5px_rgba(80,60,30,0.08)] dark:border-slate-700 dark:bg-slate-900">
           <div className="overflow-x-auto">
-            <table className="min-w-[900px] w-full text-left text-sm">
+            <table className="min-w-[1120px] w-full text-left text-sm">
               <thead className="border-b border-[#cbbda7] text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700">
-                <tr><th className="px-5 py-4">Worker</th><th className="px-5 py-4">Department</th><th className="px-5 py-4">Mine sites</th><th className="px-5 py-4">Pending</th><th className="px-5 py-4">Completed</th><th className="px-5 py-4">Attendance</th></tr>
+                <tr><th className="px-5 py-4">Worker</th><th className="px-5 py-4">Department</th><th className="px-5 py-4">Work by mine</th><th className="px-5 py-4">Pending</th><th className="px-5 py-4">Completed</th><th className="px-5 py-4">Attendance</th></tr>
               </thead>
               <tbody className="divide-y divide-[#e2d6c4] dark:divide-slate-800">
-                {summary.workers.map((worker) => <tr key={worker._id} className="align-top"><td className="px-5 py-4"><div className="font-semibold text-slate-900 dark:text-white">{worker.name}</div><div className="text-xs text-slate-500">{worker.employeeId || worker.email}</div></td><td className="px-5 py-4">{worker.department || "Not assigned"}</td><td className="px-5 py-4"><div className="flex max-w-[220px] flex-wrap gap-1">{worker.mineSites.map((mine) => <span key={mine._id} className="rounded-full bg-slate-100 px-2 py-1 text-xs dark:bg-slate-800">{mine.name}</span>)}</div></td><td className="px-5 py-4 font-semibold text-amber-700 dark:text-amber-300">{worker.pendingTasks}{worker.pendingTasks > 0 && ["absent", "leave"].includes(worker.attendance.latest?.status) && <button type="button" onClick={() => handleReassign(worker)} className="mt-2 block text-xs font-semibold text-primary-700 hover:underline dark:text-primary-300">Assign to available worker</button>}</td><td className="px-5 py-4 font-semibold text-emerald-700 dark:text-emerald-300">{worker.completedTasks}</td><td className="px-5 py-4"><AttendanceBadge record={worker.attendance.latest} /></td></tr>)}
+                {summary.workers.map((worker) => <tr key={worker._id} className="align-top"><td className="px-5 py-4"><div className="font-semibold text-slate-900 dark:text-white">{worker.name}</div><div className="text-xs text-slate-500">{worker.employeeId || worker.email}</div></td><td className="px-5 py-4">{worker.department || "Not assigned"}</td><td className="px-5 py-4"><MineWorkList items={worker.mineWork || []} compact /></td><td className="px-5 py-4 font-semibold text-amber-700 dark:text-amber-300">{worker.pendingTasks}{worker.pendingTasks > 0 && ["absent", "leave"].includes(worker.attendance.latest?.status) && <button type="button" onClick={() => handleReassign(worker)} className="mt-2 block text-xs font-semibold text-primary-700 hover:underline dark:text-primary-300">Assign to available worker</button>}</td><td className="px-5 py-4 font-semibold text-emerald-700 dark:text-emerald-300">{worker.completedTasks}</td><td className="px-5 py-4"><AttendanceBadge record={worker.attendance.latest} /></td></tr>)}
               </tbody>
             </table>
           </div>
@@ -369,6 +382,32 @@ function AttendanceBadge({ record }) {
   if (!record) return <span className="text-slate-400">Not marked</span>;
   const positive = ["present", "late"].includes(record.status);
   return <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${positive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300"}`}>{positive ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}{attendanceLabels[record.status]} · {formatDate(record.date)}</span>;
+}
+
+function MineWorkList({ items, compact = false }) {
+  if (!items.length) {
+    return <p className="mt-3 text-sm text-slate-500">No task or attendance history.</p>;
+  }
+
+  return (
+    <div className={`mt-3 space-y-3 ${compact ? "min-w-[230px]" : ""}`}>
+      {items.map((item) => (
+        <div key={item.mine._id} className="border-l-2 border-primary-500 pl-3">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-white">
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-primary-600" />
+            {item.mine.name} {item.mine.code ? `(${item.mine.code})` : ""}
+          </p>
+          <p className="mt-1 text-xs text-slate-500">{formatTrackedDuration(item.trackedSince)}</p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            Tasks: {item.completedTasks} completed · {item.inProgressTasks} in progress · {item.pendingTasks} pending
+          </p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            Attendance: {item.attendanceDays} days · {item.workedHours} logged hours
+          </p>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function TaskList({ tasks, onStatusChange }) {

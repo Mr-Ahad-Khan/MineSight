@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   getInspections,
   getInspectionById,
+  getInspectionAuditHistory,
   createInspection,
   updateInspection,
   deleteInspection,
@@ -42,6 +43,8 @@ router
     ]),
     createInspection,
   );
+
+router.get("/:id/audit", getInspectionAuditHistory);
 
 router
   .route("/:id")

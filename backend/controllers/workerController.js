@@ -41,6 +41,36 @@ const getWorkerSummary = asyncHandler(async (req, res) => {
       date: { $gte: startOfDay(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) },
     }).sort({ date: -1 }),
   ]);
+  const attendanceByMine = await Attendance.aggregate([
+    { $match: { workerId: { $in: workerIds }, mineId: { $ne: null } } },
+    {
+      $group: {
+        _id: { workerId: "$workerId", mineId: "$mineId" },
+        firstAttendance: { $min: "$date" },
+        attendanceDays: {
+          $sum: { $cond: [{ $in: ["$status", ["present", "late"]] }, 1, 0] },
+        },
+        workedMilliseconds: {
+          $sum: {
+            $cond: [
+              {
+                $and: [
+                  { $in: ["$status", ["present", "late"]] },
+                  { $ne: ["$checkIn", null] },
+                  { $ne: ["$checkOut", null] },
+                ],
+              },
+              { $max: [0, { $subtract: ["$checkOut", "$checkIn"] }] },
+              0,
+            ],
+          },
+        },
+      },
+    },
+  ]);
+  const attendanceMineIds = [...new Set(attendanceByMine.map((entry) => String(entry._id.mineId)))];
+  const attendanceMines = await Mine.find({ _id: { $in: attendanceMineIds } }).select("name code");
+  const attendanceMineMap = new Map(attendanceMines.map((mine) => [String(mine._id), mine]));
 
   const workerData = workers.map((worker) => {
     const workerTasks = tasks.filter(
@@ -49,6 +79,54 @@ const getWorkerSummary = asyncHandler(async (req, res) => {
     const workerAttendance = attendance.filter(
       (record) => String(record.workerId) === String(worker._id),
     );
+    const mineWorkMap = new Map();
+    workerTasks.forEach((task) => {
+      if (!task.mineId) return;
+      const mineId = String(task.mineId._id);
+      const mineWork = mineWorkMap.get(mineId) || {
+        mine: task.mineId,
+        totalTasks: 0,
+        pendingTasks: 0,
+        inProgressTasks: 0,
+        completedTasks: 0,
+        attendanceDays: 0,
+        workedHours: 0,
+        trackedSince: null,
+      };
+      mineWork.totalTasks += 1;
+      if (task.status === "pending") mineWork.pendingTasks += 1;
+      if (task.status === "in_progress") mineWork.inProgressTasks += 1;
+      if (task.status === "completed") mineWork.completedTasks += 1;
+      if (!mineWork.trackedSince || task.createdAt < mineWork.trackedSince) {
+        mineWork.trackedSince = task.createdAt;
+      }
+      mineWorkMap.set(mineId, mineWork);
+    });
+
+    attendanceByMine
+      .filter((entry) => String(entry._id.workerId) === String(worker._id))
+      .forEach((entry) => {
+        const mineId = String(entry._id.mineId);
+        const mine = attendanceMineMap.get(mineId);
+        if (!mine) return;
+        const mineWork = mineWorkMap.get(mineId) || {
+          mine,
+          totalTasks: 0,
+          pendingTasks: 0,
+          inProgressTasks: 0,
+          completedTasks: 0,
+          attendanceDays: 0,
+          workedHours: 0,
+          trackedSince: null,
+        };
+        mineWork.attendanceDays = entry.attendanceDays;
+        mineWork.workedHours = Math.round((entry.workedMilliseconds / 3600000) * 10) / 10;
+        if (!mineWork.trackedSince || entry.firstAttendance < mineWork.trackedSince) {
+          mineWork.trackedSince = entry.firstAttendance;
+        }
+        mineWorkMap.set(mineId, mineWork);
+      });
+
     const mineMap = new Map();
     workerTasks.forEach((task) => {
       if (task.mineId) mineMap.set(String(task.mineId._id), task.mineId);
@@ -69,6 +147,9 @@ const getWorkerSummary = asyncHandler(async (req, res) => {
         latest: workerAttendance[0] || null,
       },
       mineSites: [...mineMap.values()],
+      mineWork: [...mineWorkMap.values()].sort((left, right) =>
+        left.mine.name.localeCompare(right.mine.name),
+      ),
       tasks: workerTasks,
     };
   });

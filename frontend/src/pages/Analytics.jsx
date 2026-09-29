@@ -14,6 +14,50 @@ const getPercentChange = (current, previous) => {
   return Math.round(((current - previous) / previous) * 100)
 }
 
+const buildRiskForecast = (monthlyTrend) => {
+  const observations = (monthlyTrend || [])
+    .filter((item) => Number.isFinite(item.avgRisk) && item.count > 0)
+    .map((item) => ({
+      monthIndex: item._id.year * 12 + item._id.month - 1,
+      risk: item.avgRisk,
+    }))
+    .sort((left, right) => left.monthIndex - right.monthIndex)
+
+  if (observations.length < 3) return null
+
+  const meanX = observations.reduce((sum, item) => sum + item.monthIndex, 0) / observations.length
+  const meanY = observations.reduce((sum, item) => sum + item.risk, 0) / observations.length
+  const denominator = observations.reduce((sum, item) => sum + (item.monthIndex - meanX) ** 2, 0)
+  if (!denominator) return null
+
+  const slope = observations.reduce(
+    (sum, item) => sum + (item.monthIndex - meanX) * (item.risk - meanY),
+    0,
+  ) / denominator
+  const intercept = meanY - slope * meanX
+  const currentDate = new Date()
+  const nextCalendarMonth = currentDate.getFullYear() * 12 + currentDate.getMonth() + 1
+  const forecastMonth = Math.max(observations[observations.length - 1].monthIndex + 1, nextCalendarMonth)
+  const observedRisk = new Map(observations.map((item) => [item.monthIndex, item.risk]))
+  const chartData = []
+
+  for (let monthIndex = observations[0].monthIndex; monthIndex <= forecastMonth; monthIndex += 1) {
+    const date = new Date(Math.floor(monthIndex / 12), monthIndex % 12, 1)
+    chartData.push({
+      month: date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' }),
+      actualRisk: observedRisk.get(monthIndex) ?? null,
+      modelRisk: Math.min(100, Math.max(0, Math.round(intercept + slope * monthIndex))),
+    })
+  }
+
+  return {
+    chartData,
+    score: chartData[chartData.length - 1].modelRisk,
+    month: chartData[chartData.length - 1].month,
+    sampleCount: observations.length,
+  }
+}
+
 export default function Analytics() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -48,6 +92,7 @@ export default function Analytics() {
     inspections: t.count,
     avgRisk: Math.round(t.avgRisk || 0),
   }))
+  const riskForecast = buildRiskForecast(data?.monthlyTrend)
 
   const comparison = data?.periodComparison
   const comparisonMetrics = comparison
@@ -187,6 +232,36 @@ export default function Analytics() {
           )}
         </div>
       </div>
+
+      <section className="card p-5">
+        <div className="mb-4">
+          <h2 className="font-semibold">ML risk forecast (prototype)</h2>
+          <p className="text-sm text-slate-500">Linear regression on monthly average inspection risk</p>
+        </div>
+        {!riskForecast ? (
+          <p className="text-sm text-slate-400">At least three months with inspection data are needed to estimate a trend.</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={riskForecast.chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="actualRisk" stroke="#0f766e" strokeWidth={2} dot={{ r: 3 }} connectNulls name="Observed risk" />
+                <Line type="linear" dataKey="modelRisk" stroke="#e11d48" strokeWidth={2} strokeDasharray="6 4" dot={false} name="Model trend and estimate" />
+              </LineChart>
+            </ResponsiveContainer>
+            <aside className="border-t border-slate-200 pt-4 dark:border-slate-700 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+              <p className="text-sm text-slate-500">Estimated average risk</p>
+              <p className="mt-1 text-3xl font-bold">{riskForecast.score}<span className="ml-1 text-base font-normal text-slate-400">/100</span></p>
+              <p className="mt-1 text-sm text-slate-500">{riskForecast.month} · next estimate</p>
+              <p className="mt-3 text-xs text-slate-500">Based on {riskForecast.sampleCount} observed months. Trend-only estimate, not a safety decision.</p>
+            </aside>
+          </div>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="card p-5 xl:col-span-2">

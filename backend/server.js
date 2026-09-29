@@ -52,6 +52,7 @@ app.use(
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/mines", require("./routes/mineRoutes"));
+app.use("/api/mineral-resources", require("./routes/mines"));
 app.use("/api/inspections", require("./routes/inspectionRoutes"));
 app.use("/api/compliances", require("./routes/complianceRoutes"));
 app.use("/api/dashboard", require("./routes/dashboardRoutes"));

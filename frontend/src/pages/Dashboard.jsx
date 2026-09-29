@@ -192,7 +192,7 @@ import {
   LifeBuoy,
 } from 'lucide-react'
 
-import { getDashboardSummary, getAnalytics, getRealtimeAttendance } from '../services/api'
+import { getDashboardSummary, getAnalytics, getRealtimeAttendance, getMineralResourceSummary } from '../services/api'
 import HighRiskList from '../components/dashboard/HighRiskList'
 import RecentAlerts from '../components/dashboard/RecentAlerts'
 import { useLanguageStore } from '../store/themeStore'
@@ -205,6 +205,7 @@ export default function Dashboard() {
   const [summary, setSummary] = useState(null)
   const [analytics, setAnalytics] = useState(null)
   const [realtimeAttendance, setRealtimeAttendance] = useState(null)
+  const [datasetMineCount, setDatasetMineCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [summaryUnavailable, setSummaryUnavailable] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
@@ -243,9 +244,10 @@ export default function Dashboard() {
           getDashboardSummary(),
           getAnalytics(),
           getRealtimeAttendance(),
+          getMineralResourceSummary(),
         ])
 
-        const [summaryResult, analyticsResult, attendanceResult] = results
+        const [summaryResult, analyticsResult, attendanceResult, resourceResult] = results
 
         if (summaryResult.status === 'fulfilled') {
           setSummary(summaryResult.value.data.data)
@@ -264,6 +266,12 @@ export default function Dashboard() {
           setRealtimeAttendance(attendanceResult.value.data.data)
         } else {
           console.error('Failed to load realtime attendance:', attendanceResult.reason)
+        }
+
+        if (resourceResult.status === 'fulfilled') {
+          setDatasetMineCount(resourceResult.value.data.data.totalRecords)
+        } else {
+          console.error('Failed to load mineral resource dataset summary:', resourceResult.reason)
         }
 
       } finally {
@@ -717,7 +725,8 @@ export default function Dashboard() {
 
           <StatCard
             title={t.totalMines}
-            value={summary?.totalMines || 0}
+            value={datasetMineCount ?? summary?.totalMines ?? 0}
+            subtitle={datasetMineCount === null ? 'Project database count' : 'Historical directory records; includes quarries'}
             icon={Building2}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />

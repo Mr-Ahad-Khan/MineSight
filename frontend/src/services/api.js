@@ -98,10 +98,14 @@ export const getMines = (params) => api.get("/mines", { params });
 export const getMine = (id) => api.get(`/mines/${id}`);
 export const createMine = (data) => api.post("/mines", data);
 export const updateMine = (id, data) => api.put(`/mines/${id}`, data);
+export const getMineralResourceSummary = () => api.get("/mineral-resources");
+export const getMineralResourceRecords = (params) =>
+  api.get("/mineral-resources/records", { params });
 
 // Inspections
 export const getInspections = (params) => api.get("/inspections", { params });
 export const getInspection = (id) => api.get(`/inspections/${id}`);
+export const getInspectionAuditHistory = (id) => api.get(`/inspections/${id}/audit`);
 export const createInspection = (data) => {
   if (data instanceof FormData) {
     return api.post("/inspections", data, {

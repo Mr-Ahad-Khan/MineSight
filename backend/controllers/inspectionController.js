@@ -2,7 +2,9 @@ const asyncHandler = require("express-async-handler");
 const Inspection = require("../models/Inspection");
 const Mine = require("../models/Mine");
 const Alert = require("../models/Alert");
+const AuditLog = require("../models/AuditLog");
 const { calculateRiskScore, getRiskLevel } = require("../utils/riskCalculator");
+const { appendAuditBlock, verifyAuditChain } = require("../utils/auditChain");
 const {
   getStoredMediaPath,
   serializeInspectionMedia,
@@ -24,6 +26,30 @@ const parseFormDataValue = (value, fallback = null) => {
 
   return value;
 };
+
+const toAuditSnapshot = (inspection) => ({
+  mineId: String(inspection.mineId?._id || inspection.mineId),
+  inspectorId: String(inspection.inspectorId?._id || inspection.inspectorId),
+  type: inspection.type,
+  title: inspection.title,
+  description: inspection.description,
+  observations: inspection.observations,
+  status: inspection.status,
+  severity: inspection.severity,
+  riskScore: inspection.riskScore,
+  violations: (inspection.violations || []).map((violation) => ({
+    id: violation._id ? String(violation._id) : null,
+    description: violation.description,
+    category: violation.category,
+    severity: violation.severity,
+    status: violation.status,
+    correctiveAction: violation.correctiveAction,
+    dueDate: violation.dueDate ? new Date(violation.dueDate).toISOString() : null,
+    closedAt: violation.closedAt ? new Date(violation.closedAt).toISOString() : null,
+  })),
+  createdAt: inspection.createdAt ? new Date(inspection.createdAt).toISOString() : null,
+  closedAt: inspection.closedAt ? new Date(inspection.closedAt).toISOString() : null,
+});
 
 // @desc    Get all inspections
 // @route   GET /api/inspections
@@ -81,6 +107,37 @@ const getInspectionById = asyncHandler(async (req, res) => {
     success: true,
     data: serializeInspectionMedia(inspection),
   });
+});
+
+const getInspectionAuditHistory = asyncHandler(async (req, res) => {
+  const inspection = await Inspection.findById(req.params.id).select("mineId");
+  if (!inspection) {
+    res.status(404);
+    throw new Error("Inspection not found");
+  }
+
+  if (
+    req.user.role === "mine_official" &&
+    req.user.mineId &&
+    String(inspection.mineId) !== String(req.user.mineId)
+  ) {
+    res.status(403);
+    throw new Error("You are not allowed to view this inspection audit trail");
+  }
+
+  const [integrity, blocks] = await Promise.all([
+    verifyAuditChain(),
+    AuditLog.find({
+      entityType: "Inspection",
+      entityId: inspection._id,
+      sequence: { $exists: true },
+    })
+      .populate("userId", "name email")
+      .sort({ sequence: -1 })
+      .lean(),
+  ]);
+
+  res.json({ success: true, data: { integrity, blocks } });
 });
 
 // @desc    Create new inspection (supports offlineId)
@@ -153,6 +210,14 @@ const createInspection = asyncHandler(async (req, res) => {
   inspectionData.riskScore = calculateRiskScore(inspectionData);
 
   const inspection = await Inspection.create(inspectionData);
+  await appendAuditBlock({
+    userId: req.user._id,
+    action: "INSPECTION_CREATED",
+    entityType: "Inspection",
+    entityId: inspection._id,
+    newValue: toAuditSnapshot(inspection),
+    ip: req.ip,
+  });
 
   // Create alert if high risk
   if (inspection.riskScore >= 60) {
@@ -205,6 +270,8 @@ const updateInspection = asyncHandler(async (req, res) => {
     throw new Error("Inspection not found");
   }
 
+  const oldValue = toAuditSnapshot(inspection);
+
   // Recalculate risk if violations or severity changed
   if (req.body.violations || req.body.severity) {
     const temp = {
@@ -225,6 +292,16 @@ const updateInspection = asyncHandler(async (req, res) => {
   })
     .populate("mineId", "name code")
     .populate("inspectorId", "name");
+
+  await appendAuditBlock({
+    userId: req.user._id,
+    action: "INSPECTION_UPDATED",
+    entityType: "Inspection",
+    entityId: inspection._id,
+    oldValue,
+    newValue: toAuditSnapshot(inspection),
+    ip: req.ip,
+  });
 
   // Create escalation alert
   if (req.body.status === "escalated") {
@@ -255,7 +332,16 @@ const deleteInspection = asyncHandler(async (req, res) => {
     throw new Error("Inspection not found");
   }
 
+  const oldValue = toAuditSnapshot(inspection);
   await inspection.deleteOne();
+  await appendAuditBlock({
+    userId: req.user._id,
+    action: "INSPECTION_DELETED",
+    entityType: "Inspection",
+    entityId: inspection._id,
+    oldValue,
+    ip: req.ip,
+  });
 
   res.json({
     success: true,
@@ -281,12 +367,22 @@ const closeViolation = asyncHandler(async (req, res) => {
     throw new Error("Violation not found");
   }
 
+  const oldValue = toAuditSnapshot(inspection);
   violation.status = "closed";
   violation.closedAt = Date.now();
 
   // Recalculate risk
   inspection.riskScore = calculateRiskScore(inspection);
   await inspection.save();
+  await appendAuditBlock({
+    userId: req.user._id,
+    action: "INSPECTION_VIOLATION_CLOSED",
+    entityType: "Inspection",
+    entityId: inspection._id,
+    oldValue,
+    newValue: toAuditSnapshot(inspection),
+    ip: req.ip,
+  });
 
   res.json({
     success: true,
@@ -297,6 +393,7 @@ const closeViolation = asyncHandler(async (req, res) => {
 module.exports = {
   getInspections,
   getInspectionById,
+  getInspectionAuditHistory,
   createInspection,
   updateInspection,
   deleteInspection,

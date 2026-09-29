@@ -20,6 +20,7 @@ const CreateInspection = lazy(() => import("./pages/CreateInspection"));
 const InspectionDetail = lazy(() => import("./pages/InspectionDetail"));
 const Compliances = lazy(() => import("./pages/Compliances"));
 const Mines = lazy(() => import("./pages/Mines"));
+const MineralResourcesDashboard = lazy(() => import("./pages/MineralResourcesDashboard"));
 const Contractors = lazy(() => import("./pages/Contractors"));
 const Alerts = lazy(() => import("./pages/Alerts"));
 const Analytics = lazy(() => import("./pages/Analytics"));
@@ -95,6 +96,7 @@ function App() {
           <Route path="inspections/:id" element={<InspectionDetail />} />
           <Route path="compliances" element={<Compliances />} />
           <Route path="mines" element={<Mines />} />
+          <Route path="mineral-resources" element={<MineralResourcesDashboard />} />
           <Route path="contractors" element={<Contractors />} />
           <Route path="alerts" element={<Alerts />} />
           <Route path="analytics" element={<Analytics />} />
