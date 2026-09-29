@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Bot, MapPin, PhoneCall, Send, ShieldCheck, Sparkles, User } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Bot, MapPin, Mic, MicOff, PhoneCall, Send, ShieldCheck, Sparkles, User, Volume2 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -201,6 +201,16 @@ export default function Chat() {
   const t = translations[language];
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [speechEnabled, setSpeechEnabled] = useState(
+    () => localStorage.getItem("speakChatReplies") === "true",
+  );
+  const recognitionRef = useRef(null);
+  const speechSupported =
+    typeof window !== "undefined" && "speechSynthesis" in window;
+  const recognitionSupported =
+    typeof window !== "undefined" &&
+    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -212,41 +222,105 @@ export default function Chat() {
     },
   ]);
 
-  const handleSend = async (event) => {
-    event.preventDefault();
-    const message = input.trim();
-    if (!message || sending) return;
+  useEffect(
+    () => () => recognitionRef.current?.stop(),
+    [],
+  );
 
-    const reply = getAssistantReply(message, language);
+  const speakReply = (text) => {
+    if (!speechEnabled || !speechSupported) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const toggleSpeech = (event) => {
+    const enabled = event.target.checked;
+    setSpeechEnabled(enabled);
+    localStorage.setItem("speakChatReplies", String(enabled));
+    if (!enabled && speechSupported) window.speechSynthesis.cancel();
+  };
+
+  const toggleVoiceInput = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = language === "hi" ? "hi-IN" : "en-IN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0]?.transcript || "")
+        .join(" ")
+        .trim();
+      if (transcript) {
+        setInput(transcript);
+        void sendMessage(transcript);
+      }
+    };
+    recognition.onerror = () => {
+      toast.error(
+        language === "hi"
+          ? "वॉइस इनपुट उपलब्ध नहीं हो सका। माइक्रोफ़ोन अनुमति जाँचें।"
+          : "Voice input failed. Check microphone permission and try again.",
+      );
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      setListening(false);
+    };
+    recognitionRef.current = recognition;
+
+    try {
+      recognition.start();
+      setListening(true);
+    } catch {
+      recognitionRef.current = null;
+      setListening(false);
+      toast.error(
+        language === "hi"
+          ? "वॉइस इनपुट शुरू नहीं हो सका। फिर प्रयास करें।"
+          : "Could not start voice input. Please try again.",
+      );
+    }
+  };
+
+  const sendMessage = async (message) => {
+    const normalizedMessage = message.trim();
+    if (!normalizedMessage || sending) return;
+
+    const reply = getAssistantReply(normalizedMessage, language);
     setInput("");
     setMessages((current) => [
       ...current,
-      { id: Date.now(), sender: "user", text: message },
+      { id: Date.now(), sender: "user", text: normalizedMessage },
+      { id: Date.now() + 1, sender: "bot", text: reply },
     ]);
+    speakReply(reply);
     setSending(true);
 
     try {
-      await saveChatMessage({ email: user?.email, message, reply });
-      setMessages((current) => [
-        ...current,
-        { id: Date.now() + 1, sender: "bot", text: reply },
-      ]);
+      await saveChatMessage({ email: user?.email, message: normalizedMessage, reply });
     } catch (error) {
-      setMessages((current) => [
-        ...current,
-        {
-          id: Date.now() + 1,
-          sender: "bot",
-          text:
-            language === "hi"
-              ? "मैं अभी इसे संसाधित नहीं कर सका। कृपया फिर प्रयास करें।"
-              : "I could not process that right now. Please try again.",
-        },
-      ]);
-      toast.error("Could not send your message");
+      toast.error(
+        language === "hi"
+          ? "जवाब मिल गया, लेकिन चैट इतिहास सहेजा नहीं जा सका।"
+          : "Reply received, but chat history could not be saved.",
+      );
     } finally {
       setSending(false);
     }
+  };
+
+  const handleSend = (event) => {
+    event.preventDefault();
+    void sendMessage(input);
   };
 
   const askPrompt = (prompt) => {
@@ -257,6 +331,7 @@ export default function Chat() {
       { id: Date.now(), sender: "user", text: prompt },
       { id: Date.now() + 1, sender: "bot", text: reply },
     ]);
+    speakReply(reply);
   };
 
   return (
@@ -292,7 +367,7 @@ export default function Chat() {
       </div>
 
       <div className="flex min-h-[520px] flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
-        <div className="flex items-center gap-3 border-b border-blue-950 bg-[#1e3a8a] px-5 py-4 text-white">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-950 bg-[#1e3a8a] px-5 py-4 text-white">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
             <Bot className="h-5 w-5" />
           </div>
@@ -300,6 +375,19 @@ export default function Chat() {
             <p className="font-semibold">{t.coalAiAssistant}</p>
             <p className="text-xs text-[#c9d8e2]">{t.readyToHelp}</p>
           </div>
+          <label className={`inline-flex items-center gap-2 text-xs font-medium ${speechSupported ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}>
+            <Volume2 className="h-4 w-4" aria-hidden="true" />
+            <span>{language === "hi" ? "जवाब बोलकर सुनाएँ" : "Speak replies"}</span>
+            <input
+              type="checkbox"
+              checked={speechEnabled}
+              onChange={toggleSpeech}
+              disabled={!speechSupported}
+              className="peer sr-only"
+              aria-label={language === "hi" ? "जवाब बोलकर सुनाएँ" : "Speak replies"}
+            />
+            <span className="relative h-5 w-9 rounded-full bg-white/30 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-white" aria-hidden="true" />
+          </label>
         </div>
 
         <div className="border-b border-gray-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
@@ -383,6 +471,33 @@ export default function Chat() {
               disabled={sending}
               aria-label={t.messageCoalAi}
             />
+            <button
+              type="button"
+              onClick={toggleVoiceInput}
+              disabled={!recognitionSupported || sending}
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition disabled:cursor-not-allowed disabled:opacity-40 ${listening ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300" : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"}`}
+              aria-label={
+                listening
+                  ? language === "hi"
+                    ? "वॉइस इनपुट रोकें"
+                    : "Stop voice input"
+                  : language === "hi"
+                    ? "वॉइस इनपुट शुरू करें"
+                    : "Start voice input"
+              }
+              aria-pressed={listening}
+              title={
+                listening
+                  ? language === "hi"
+                    ? "वॉइस इनपुट रोकें"
+                    : "Stop voice input"
+                  : language === "hi"
+                    ? "वॉइस इनपुट शुरू करें"
+                    : "Start voice input"
+              }
+            >
+              {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </button>
             <button
               type="submit"
               disabled={sending || !input.trim()}

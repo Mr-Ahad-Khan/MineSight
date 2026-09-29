@@ -405,6 +405,13 @@
   color: #374151;
 }
 
+/* Keep Leaflet panes and controls inside the map's stacking layer. */
+.leaflet-container {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+}
+
 /* Leaflet dark mode fix */
 .dark .leaflet-container {
   background: #0f172a;
