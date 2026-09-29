@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, MapPin, Mic, MicOff, PhoneCall, Send, ShieldCheck, Sparkles, User, Volume2 } from "lucide-react";
+import { Bot, MapPin, Mic, MicOff, PhoneCall, Send, ShieldCheck, Sparkles, User, Volume2, VolumeX } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -197,7 +197,7 @@ const prompts = {
 
 export default function Chat() {
   const { user } = useAuthStore();
-  const { language } = useLanguageStore();
+  const { language, setLanguage } = useLanguageStore();
   const t = translations[language];
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -233,13 +233,6 @@ export default function Chat() {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
     window.speechSynthesis.speak(utterance);
-  };
-
-  const toggleSpeech = (event) => {
-    const enabled = event.target.checked;
-    setSpeechEnabled(enabled);
-    localStorage.setItem("speakChatReplies", String(enabled));
-    if (!enabled && speechSupported) window.speechSynthesis.cancel();
   };
 
   const toggleVoiceInput = () => {
@@ -289,6 +282,20 @@ export default function Chat() {
           : "Could not start voice input. Please try again.",
       );
     }
+  };
+
+  const toggleVoiceConversation = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    if (speechSupported) {
+      window.speechSynthesis.cancel();
+      setSpeechEnabled(true);
+      localStorage.setItem("speakChatReplies", "true");
+    }
+    toggleVoiceInput();
   };
 
   const sendMessage = async (message) => {
@@ -375,19 +382,70 @@ export default function Chat() {
             <p className="font-semibold">{t.coalAiAssistant}</p>
             <p className="text-xs text-[#c9d8e2]">{t.readyToHelp}</p>
           </div>
-          <label className={`inline-flex items-center gap-2 text-xs font-medium ${speechSupported ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}>
-            <Volume2 className="h-4 w-4" aria-hidden="true" />
-            <span>{language === "hi" ? "जवाब बोलकर सुनाएँ" : "Speak replies"}</span>
-            <input
-              type="checkbox"
-              checked={speechEnabled}
-              onChange={toggleSpeech}
-              disabled={!speechSupported}
-              className="peer sr-only"
-              aria-label={language === "hi" ? "जवाब बोलकर सुनाएँ" : "Speak replies"}
-            />
-            <span className="relative h-5 w-9 rounded-full bg-white/30 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-white" aria-hidden="true" />
-          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              role="group"
+              aria-label={language === "hi" ? "जवाब की भाषा चुनें" : "Choose reply language"}
+              className="inline-flex items-center rounded-lg border border-white/20 bg-white/5 p-0.5"
+            >
+              <button
+                type="button"
+                onClick={() => setLanguage("en")}
+                aria-pressed={language === "en"}
+                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${language === "en" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage("hi")}
+                aria-pressed={language === "hi"}
+                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${language === "hi" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
+              >
+                हिंदी
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={toggleVoiceConversation}
+              disabled={!speechSupported || !recognitionSupported || sending}
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${listening ? "bg-red-500 text-white" : "bg-white/10 text-white hover:bg-white/20"}`}
+              aria-label={
+                listening
+                  ? language === "hi"
+                    ? "वॉइस बातचीत रोकें"
+                    : "Stop voice chat"
+                  : language === "hi"
+                    ? "वॉइस बातचीत शुरू करें"
+                    : "Start voice chat"
+              }
+              aria-pressed={listening}
+              title={
+                !speechSupported || !recognitionSupported
+                  ? language === "hi"
+                    ? "इस ब्राउज़र में वॉइस चैट समर्थित नहीं है"
+                    : "Voice chat is not supported in this browser"
+                  : listening
+                    ? language === "hi"
+                      ? "सुनना रोकें"
+                      : "Stop listening"
+                    : language === "hi"
+                      ? "बोलने के लिए क्लिक करें"
+                      : "Click to speak"
+              }
+            >
+              {listening ? <Volume2 className="h-4 w-4" aria-hidden="true" /> : <VolumeX className="h-4 w-4" aria-hidden="true" />}
+              <span>
+                {listening
+                  ? language === "hi"
+                    ? "सुन रहा है..."
+                    : "Listening..."
+                  : language === "hi"
+                    ? "वॉइस चैट"
+                    : "Voice chat"}
+              </span>
+            </button>
+          </div>
         </div>
 
         <div className="border-b border-gray-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
