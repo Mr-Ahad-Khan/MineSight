@@ -1,5 +1,6 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { WifiOff } from "lucide-react";
 import useAuthStore from "./store/authStore";
 import useThemeStore from "./store/themeStore";
 
@@ -42,6 +43,18 @@ function AppIndex() {
 
 function App() {
   const { initTheme } = useThemeStore();
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  useEffect(() => {
+    const updateConnection = () => setIsOffline(!navigator.onLine);
+
+    window.addEventListener("online", updateConnection);
+    window.addEventListener("offline", updateConnection);
+    return () => {
+      window.removeEventListener("online", updateConnection);
+      window.removeEventListener("offline", updateConnection);
+    };
+  }, []);
 
   useEffect(() => {
     initTheme();
@@ -68,47 +81,60 @@ function App() {
   }, []);
 
   return (
-    <Suspense
-      fallback={
-        <main
-          className="min-h-screen bg-slate-50 dark:bg-slate-950"
-          aria-label="Loading page"
-        />
-      }
-    >
-      <Routes>
-        <Route path="/" element={<PublicHomeRoute />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        <Route
-          path="/app"
-          element={
-            <PrivateRoute>
-              <Layout />
-            </PrivateRoute>
-          }
+    <>
+      {isOffline && (
+        <div
+          className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 bg-amber-100 px-4 py-2 text-center text-xs font-semibold text-amber-950 shadow-sm dark:bg-amber-950 dark:text-amber-100 sm:text-sm"
+          role="status"
         >
-          <Route index element={<AppIndex />} />
-          <Route path="inspections" element={<Inspections />} />
-          <Route path="inspections/new" element={<CreateInspection />} />
-          <Route path="inspections/:id" element={<InspectionDetail />} />
-          <Route path="compliances" element={<Compliances />} />
-          <Route path="mines" element={<Mines />} />
-          <Route path="contractors" element={<Contractors />} />
-          <Route path="alerts" element={<Alerts />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="attendance" element={<Attendance />} />
-          <Route path="support" element={<Support />} />
-          <Route path="disaster-management" element={<DisasterManagement />} />
-          <Route path="chat" element={<Chat />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="workers" element={<Workers />} />
-        </Route>
+          <WifiOff className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>
+            You are offline. Cached screens are available; live data and changes need a connection.
+          </span>
+        </div>
+      )}
+      <Suspense
+        fallback={
+          <main
+            className="min-h-screen bg-slate-50 dark:bg-slate-950"
+            aria-label="Loading page"
+          />
+        }
+      >
+        <Routes>
+          <Route path="/" element={<PublicHomeRoute />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+          <Route
+            path="/app"
+            element={
+              <PrivateRoute>
+                <Layout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<AppIndex />} />
+            <Route path="inspections" element={<Inspections />} />
+            <Route path="inspections/new" element={<CreateInspection />} />
+            <Route path="inspections/:id" element={<InspectionDetail />} />
+            <Route path="compliances" element={<Compliances />} />
+            <Route path="mines" element={<Mines />} />
+            <Route path="contractors" element={<Contractors />} />
+            <Route path="alerts" element={<Alerts />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="attendance" element={<Attendance />} />
+            <Route path="support" element={<Support />} />
+            <Route path="disaster-management" element={<DisasterManagement />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="workers" element={<Workers />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </>
   );
 }
 

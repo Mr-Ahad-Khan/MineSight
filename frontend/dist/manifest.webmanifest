@@ -1,0 +1,18 @@
+{
+  "name": "MineSight Coal Governance",
+  "short_name": "MineSight",
+  "description": "Mine safety and compliance operations platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/minesight-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

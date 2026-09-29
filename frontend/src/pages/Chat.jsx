@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, MapPin, Mic, MicOff, PhoneCall, Send, ShieldCheck, Sparkles, User, Volume2, VolumeX } from "lucide-react";
+import { Bot, Mic, MicOff, PhoneCall, Send, ShieldCheck, Sparkles, User, Volume2, VolumeX } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -342,7 +342,7 @@ export default function Chat() {
   };
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-4xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
+    <section className="mx-auto flex h-[calc(100dvh-2rem)] min-h-[680px] max-w-4xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9b6b16]">
@@ -373,7 +373,7 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="flex min-h-[520px] flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-950 bg-[#1e3a8a] px-5 py-4 text-white">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
             <Bot className="h-5 w-5" />
@@ -445,32 +445,6 @@ export default function Chat() {
                     : "Voice chat"}
               </span>
             </button>
-          </div>
-        </div>
-
-        <div className="border-b border-gray-200 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
-          <div>
-            <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
-              {language === "hi" ? "बचाव सेवा स्थान" : "Emergency rescue locations"}
-            </p>
-            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-              <a
-                href="https://www.google.com/maps/search/?api=1&query=Central+Coalfields+Rescue+Station+Dhanbad"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-[#17314a] hover:text-[#ff6f00] dark:text-white"
-              >
-                <MapPin className="h-4 w-4" /> Dhanbad · 0326-2202356
-              </a>
-              <a
-                href="https://www.google.com/maps/search/?api=1&query=Central+Coalfields+Rescue+Station+Singrauli"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-[#17314a] hover:text-[#ff6f00] dark:text-white"
-              >
-                <MapPin className="h-4 w-4" /> Singrauli · 07805-266120
-              </a>
-            </div>
           </div>
         </div>
 

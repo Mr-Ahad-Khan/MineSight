@@ -56,13 +56,9 @@ export default function Register() {
   const handleSendOtp = async () => {
     setIsSendingOtp(true);
     try {
-      const { data } = await requestEmailOtp({ email: form.email.trim() });
+      await requestEmailOtp({ email: form.email.trim() });
       setOtpSent(true);
-      if (data.devOtp) {
-        toast.success(`Demo OTP: ${data.devOtp}`);
-      } else {
-        toast.success("Verification code sent to your email");
-      }
+      toast.success("Verification code sent to your email");
     } catch (error) {
       const message =
         error.response?.data?.message ||
