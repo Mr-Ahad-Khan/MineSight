@@ -1,12 +1,6 @@
 import { create } from "zustand";
-import i18n from "../i18n/config";
-import { languageOptions } from "../i18n/translations";
 
-const supportedLanguages = languageOptions.map(({ code }) => code);
-const storedLanguage = localStorage.getItem("language");
-const initialLanguage = supportedLanguages.includes(storedLanguage)
-  ? storedLanguage
-  : "en";
+const initialLanguage = localStorage.getItem("language") || "en";
 
 if (typeof document !== "undefined") {
   document.documentElement.lang = initialLanguage;
@@ -43,11 +37,9 @@ export const useLanguageStore = create((set) => ({
   language: initialLanguage,
 
   setLanguage: (language) => {
-    if (!supportedLanguages.includes(language)) return;
     localStorage.setItem("language", language);
     document.documentElement.lang = language;
-    window.dispatchEvent(new Event("minesight:language-changing"));
-    void i18n.changeLanguage(language).then(() => set({ language }));
+    set({ language });
   },
 }));
 

@@ -79,10 +79,34 @@ const getEmailTransport = () => {
 };
 
 const sendOtpEmail = async (email, code) => {
+  if (process.env.RESEND_API_KEY) {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: process.env.EMAIL_FROM,
+        to: [email],
+        subject: "Coal Governance email verification code",
+        text: `Your Coal Governance verification code is ${code}. It expires in 10 minutes.`,
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(result.message || "Email provider rejected the request");
+      error.statusCode = 502;
+      throw error;
+    }
+    return;
+  }
+
   const transport = getEmailTransport();
   if (!transport) {
     const error = new Error(
-      "Email verification is not configured. Add email settings to backend/.env.",
+      "Email verification is not configured. Set RESEND_API_KEY or add SMTP settings.",
     );
     error.statusCode = 503;
     throw error;
@@ -170,7 +194,6 @@ const registerUser = asyncHandler(async (req, res) => {
     phone,
     employeeId,
     department,
-    emailVerificationToken,
     recaptchaToken,
   } = req.body;
 
@@ -179,22 +202,6 @@ const registerUser = asyncHandler(async (req, res) => {
   if (!name || !email || !password) {
     res.status(400);
     throw new Error("Please provide name, email and password");
-  }
-
-  if (!emailVerificationToken) {
-    res.status(400);
-    throw new Error("Please verify your email before creating an account");
-  }
-  try {
-    const verifiedEmail = require("jsonwebtoken").verify(
-      emailVerificationToken,
-      process.env.JWT_SECRET,
-    );
-    if (verifiedEmail.id !== normalizeEmail(email))
-      throw new Error("Invalid email verification");
-  } catch {
-    res.status(400);
-    throw new Error("Please verify your email before creating an account");
   }
 
   const userExists = await User.findOne({ email });

@@ -11,6 +11,8 @@ import {
   ShieldAlert,
   ShieldCheck,
   RefreshCw,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -43,8 +45,13 @@ export default function InspectionDetail() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [photoZoom, setPhotoZoom] = useState(1);
   const [auditTrail, setAuditTrail] = useState(null);
   const [auditError, setAuditError] = useState("");
+
+  const adjustPhotoZoom = (amount) => {
+    setPhotoZoom((current) => Math.min(4, Math.max(1, current + amount)));
+  };
 
   useEffect(() => {
     fetchInspection();
@@ -256,7 +263,10 @@ export default function InspectionDetail() {
                       <button
                         key={`${photo}-${index}`}
                         type="button"
-                        onClick={() => setSelectedPhoto(photoSrc)}
+                        onClick={() => {
+                          setSelectedPhoto(photoSrc);
+                          setPhotoZoom(1);
+                        }}
                         className="group overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
                       >
                         <img
@@ -448,12 +458,44 @@ export default function InspectionDetail() {
 
       {selectedPhoto && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 sm:p-8"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-slate-950/85 p-4 sm:p-8"
           role="dialog"
           aria-modal="true"
           aria-label="Enlarged inspection photo"
           onClick={() => setSelectedPhoto(null)}
+          onWheel={(event) => {
+            event.preventDefault();
+            adjustPhotoZoom(event.deltaY < 0 ? 0.25 : -0.25);
+          }}
         >
+          <div
+            className="absolute top-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-lg bg-slate-900/80 p-1.5 text-white"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => adjustPhotoZoom(-0.25)}
+              disabled={photoZoom <= 1}
+              className="rounded p-2 transition hover:bg-white/15 disabled:opacity-40"
+              aria-label="Zoom out"
+              title="Zoom out"
+            >
+              <ZoomOut className="h-5 w-5" />
+            </button>
+            <span className="min-w-12 text-center text-sm tabular-nums">
+              {Math.round(photoZoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={() => adjustPhotoZoom(0.25)}
+              disabled={photoZoom >= 4}
+              className="rounded p-2 transition hover:bg-white/15 disabled:opacity-40"
+              aria-label="Zoom in"
+              title="Zoom in"
+            >
+              <ZoomIn className="h-5 w-5" />
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setSelectedPhoto(null)}
@@ -465,7 +507,8 @@ export default function InspectionDetail() {
           <img
             src={selectedPhoto}
             alt="Enlarged inspection site"
-            className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl"
+            className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl transition-transform duration-150"
+            style={{ transform: `scale(${photoZoom})` }}
             onClick={(event) => event.stopPropagation()}
           />
         </div>

@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { login as loginApi, register as registerApi, updateProfile as updateProfileApi } from '../services/api'
-import { clearOfflineCache, getOfflineCacheScope } from '../services/offlineCache'
 
 const getStoredUser = () => {
   try {
@@ -78,7 +77,6 @@ const useAuthStore = create((set) => ({
   },
 
   logout: () => {
-    void clearOfflineCache(getOfflineCacheScope()).catch(() => {})
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     set({ user: null, token: null })

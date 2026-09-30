@@ -3,7 +3,7 @@ import { Bot, Mic, MicOff, PhoneCall, Send, ShieldCheck, Sparkles, User, Volume2
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
-import { languageOptions, translations } from "../i18n/translations";
+import { translations } from "../i18n/translations";
 import { saveChatMessage } from "../services/api";
 
 const getAssistantReply = (message, language = "en") => {
@@ -180,21 +180,6 @@ const getAssistantReply = (message, language = "en") => {
     : "I need a little more context to give a useful answer. Are you asking about alerts, inspections, compliance, risk, contractors, or the dashboard? Include the mine, issue, and deadline when you can.";
 };
 
-const speechLocales = {
-  en: "en-IN",
-  hi: "hi-IN",
-  bn: "bn-IN",
-  te: "te-IN",
-  mr: "mr-IN",
-  ta: "ta-IN",
-  gu: "gu-IN",
-  ur: "ur-IN",
-  kn: "kn-IN",
-  or: "or-IN",
-  ml: "ml-IN",
-  pa: "pa-IN",
-};
-
 const prompts = {
   en: [
     "What needs attention today?",
@@ -246,7 +231,7 @@ export default function Chat() {
     if (!speechEnabled || !speechSupported) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = speechLocales[language] || "en-IN";
+    utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
     window.speechSynthesis.speak(utterance);
   };
 
@@ -259,7 +244,7 @@ export default function Chat() {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = speechLocales[language] || "en-IN";
+    recognition.lang = language === "hi" ? "hi-IN" : "en-IN";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     recognition.onresult = (event) => {
@@ -398,21 +383,28 @@ export default function Chat() {
             <p className="text-xs text-[#c9d8e2]">{t.readyToHelp}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="inline-flex h-9 items-center gap-1 rounded-lg border border-white/20 bg-white/5 px-2 text-xs font-semibold text-white">
-              <span className="sr-only">Choose reply language</span>
-              <select
-                value={language}
-                onChange={(event) => setLanguage(event.target.value)}
-                aria-label="Choose reply language"
-                className="max-w-[8rem] cursor-pointer bg-transparent text-xs font-semibold outline-none"
+            <div
+              role="group"
+              aria-label={language === "hi" ? "जवाब की भाषा चुनें" : "Choose reply language"}
+              className="inline-flex items-center rounded-lg border border-white/20 bg-white/5 p-0.5"
+            >
+              <button
+                type="button"
+                onClick={() => setLanguage("en")}
+                aria-pressed={language === "en"}
+                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${language === "en" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
               >
-                {languageOptions.map((option) => (
-                  <option key={option.code} value={option.code} className="text-slate-900">
-                    {option.nativeLabel} / {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage("hi")}
+                aria-pressed={language === "hi"}
+                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${language === "hi" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
+              >
+                हिंदी
+              </button>
+            </div>
             <button
               type="button"
               onClick={toggleVoiceConversation}

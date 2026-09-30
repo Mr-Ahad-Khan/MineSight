@@ -128,7 +128,11 @@ JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRE=7d
 RECAPTCHA_SECRET_KEY=your-google-recaptcha-secret-key
 
-# Optional in development; required when email OTP delivery is enabled
+# Recommended for deployment; verify the sender domain with Resend
+RESEND_API_KEY=your-resend-api-key
+EMAIL_FROM=MineSight <verification@your-verified-domain.com>
+
+# Optional SMTP fallback for local development
 EMAIL_HOST=smtp.example.com
 EMAIL_PORT=587
 EMAIL_SECURE=false

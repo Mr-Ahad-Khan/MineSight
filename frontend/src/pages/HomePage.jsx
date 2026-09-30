@@ -439,6 +439,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Browser } from "@capacitor/browser";
+import { Capacitor } from "@capacitor/core";
 import {
   ArrowRight,
   ArrowUp,
@@ -462,12 +464,11 @@ import {
   Sun,
   Mail,
   Send,
-  X,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import useThemeStore, { useLanguageStore } from "../store/themeStore";
-import { languageOptions, translations } from "../i18n/translations";
+import { translations } from "../i18n/translations";
 import { getPublicHomeStats, saveChatMessage } from "../services/api";
 import BrandLogo from "../components/common/BrandLogo";
 
@@ -498,7 +499,7 @@ const slides = [
   },
 ];
 
-const demoVideoId = "IyvTMzeYq8M";
+const capabilityStatementUrl = "https://www.youtube.com/watch?v=IyvTMzeYq8M";
 
 const features = [
   {
@@ -533,7 +534,6 @@ const stats = [
 
 export default function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [isDemoVideoOpen, setIsDemoVideoOpen] = useState(false);
   const swipeStart = useRef(null);
   const [metricValues, setMetricValues] = useState({
     production: 0,
@@ -725,6 +725,13 @@ export default function HomePage() {
     swipeStart.current = null;
   };
 
+  const handleDemoClick = async (event) => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    event.preventDefault();
+    await Browser.open({ url: capabilityStatementUrl });
+  };
+
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
       return undefined;
@@ -736,22 +743,6 @@ export default function HomePage() {
     const timer = window.setInterval(advanceSlide, 5000);
     return () => window.clearInterval(timer);
   }, []);
-
-  useEffect(() => {
-    if (!isDemoVideoOpen) return undefined;
-
-    const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event) => {
-      if (event.key === "Escape") setIsDemoVideoOpen(false);
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [isDemoVideoOpen]);
 
   useEffect(() => {
     let isMounted = true;
@@ -1024,24 +1015,25 @@ export default function HomePage() {
                 <Moon className="h-4 w-4" />
               )}
             </button>
-            <label
-              className={`inline-flex h-9 items-center gap-1 rounded-full border px-2 text-[10px] font-bold transition hover:border-[#e5a416] ${darkMode ? "border-white/20 bg-white/5 text-[#e5ded2]" : "border-[#b99a72] bg-white/60 text-[#4d5b62]"}`}
+            <button
+              type="button"
+              onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+              className={`inline-flex h-9 items-center gap-0.5 rounded-full border p-1 text-[10px] font-bold tracking-wide transition hover:border-[#e5a416] sm:gap-1 ${darkMode ? "border-white/20 bg-white/5 text-[#e5ded2]" : "border-[#b99a72] bg-white/60 text-[#4d5b62]"}`}
+              aria-label="Change language"
+              title="Change language"
             >
-              <Languages className="h-3.5 w-3.5 text-[#e5a416]" />
-              <span className="sr-only">Change language</span>
-              <select
-                value={language}
-                onChange={(event) => setLanguage(event.target.value)}
-                aria-label="Change language"
-                className="max-w-[7.5rem] cursor-pointer bg-transparent text-[11px] font-bold outline-none"
+              <Languages className="mx-0.5 h-3.5 w-3.5 text-[#e5a416] sm:mx-1" />
+              <span
+                className={`rounded-full px-2 py-1 ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
               >
-                {languageOptions.map((option) => (
-                  <option key={option.code} value={option.code}>
-                    {option.nativeLabel} / {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                EN
+              </span>
+              <span
+                className={`rounded-full px-2 py-1 ${language === "hi" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+              >
+                हिंदी
+              </span>
+            </button>
 
             <button
               type="button"
@@ -1104,14 +1096,18 @@ export default function HomePage() {
                     {activeSlide === 0 ? "Explore Operations" : t.explorePortal}
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsDemoVideoOpen(true)}
+                  <a
+                    href={capabilityStatementUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handleDemoClick}
                     className="inline-flex items-center justify-center gap-3 rounded-md border border-white/70 bg-black/25 px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/10"
                   >
                     <PlayCircle className="h-5 w-5" />
-                    {t.watchDemo}
-                  </button>
+                    {activeSlide === 0
+                      ? "Download Capability Statement"
+                      : t.watchDemo}
+                  </a>
                 </div>
 
                 <div className="hero-text-reveal hero-text-reveal-delay-5 mt-9 flex items-center justify-center gap-2 sm:mt-11 sm:gap-3">
@@ -1217,10 +1213,10 @@ export default function HomePage() {
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[0.8fr_1.6fr] md:items-center lg:px-8">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#e5a416]">
-                {language === "hi" ? "परियोजना इकोसिस्टम" : "Project ecosystem"}
+                {language === "en" ? "Project ecosystem" : "परियोजना इकोसिस्टम"}
               </p>
               <h2 className="mt-2 text-xl font-bold sm:text-2xl">
-                {language === "hi" ? "भारत के कोयला क्षेत्र के लिए निर्मित" : "Built for India's coal sector"}
+                {language === "en" ? "Built for India's coal sector" : "भारत के कोयला क्षेत्र के लिए निर्मित"}
               </h2>
               <p className="mt-2 text-sm text-[#9eafaf]">
                 Smart India Hackathon 2026
@@ -1229,13 +1225,13 @@ export default function HomePage() {
             <div className="grid gap-6 border-t border-white/15 pt-6 sm:grid-cols-2 md:border-l md:border-t-0 md:pl-8 md:pt-0">
               <div className="border-l-2 border-[#39c7b0] pl-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#83d2c5]">
-                  {language === "hi" ? "संस्थागत संदर्भ" : "Institutional context"}
+                  {language === "en" ? "Institutional context" : "संस्थागत संदर्भ"}
                 </p>
                 <p className="mt-2 text-lg font-semibold">Ministry of Coal</p>
               </div>
               <div className="border-l-2 border-[#e5a416] pl-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#f3b323]">
-                  {language === "hi" ? "संबद्ध कंपनी" : "Associated company"}
+                  {language === "en" ? "Associated company" : "संबद्ध कंपनी"}
                 </p>
                 <p className="mt-2 text-lg font-semibold">Coal India Limited</p>
               </div>
@@ -2008,46 +2004,6 @@ export default function HomePage() {
         >
           <ArrowUp className="h-4 w-4" />
         </button>
-      )}
-
-      {isDemoVideoOpen && (
-        <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm sm:p-8"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setIsDemoVideoOpen(false);
-          }}
-        >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-label={t.watchDemo}
-            className="w-full max-w-5xl overflow-hidden rounded-lg border border-white/15 bg-[#101416] shadow-2xl"
-          >
-            <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
-              <h2 className="truncate text-sm font-semibold text-white sm:text-base">
-                {t.watchDemo}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsDemoVideoOpen(false)}
-                aria-label={language === "hi" ? "वीडियो बंद करें" : "Close video"}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white/75 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#e5a416]"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="aspect-video w-full bg-black">
-              <iframe
-                className="h-full w-full"
-                src={`https://www.youtube-nocookie.com/embed/${demoVideoId}?autoplay=1&rel=0`}
-                title={t.watchDemo}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              />
-            </div>
-          </section>
-        </div>
       )}
     </div>
   );

@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 import BrandLogo from "../components/common/BrandLogo";
-import { requestEmailOtp, verifyEmailOtp } from "../services/api";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -22,11 +21,6 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const recaptchaRef = useRef(null);
-  const [otp, setOtp] = useState("");
-  const [emailVerificationToken, setEmailVerificationToken] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const { register, isLoading, token } = useAuthStore();
   const { language } = useLanguageStore();
   const navigate = useNavigate();
@@ -46,48 +40,6 @@ export default function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    if (name === "email") {
-      setOtp("");
-      setOtpSent(false);
-      setEmailVerificationToken("");
-    }
-  };
-
-  const handleSendOtp = async () => {
-    setIsSendingOtp(true);
-    try {
-      await requestEmailOtp({ email: form.email.trim() });
-      setOtpSent(true);
-      toast.success("Verification code sent to your email");
-    } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        (error.response?.status === 503
-          ? "Email service is not configured. Add email settings to backend/.env."
-          : "Unable to send verification code");
-      toast.error(message);
-    } finally {
-      setIsSendingOtp(false);
-    }
-  };
-
-  const handleOtpChange = async (e) => {
-    const code = e.target.value.replace(/\D/g, "").slice(0, 6);
-    setOtp(code);
-    if (code.length !== 6 || isVerifyingOtp || emailVerificationToken) return;
-
-    setIsVerifyingOtp(true);
-    try {
-      const { data } = await verifyEmailOtp({ email: form.email.trim(), code });
-      setEmailVerificationToken(data.emailVerificationToken);
-      toast.success("Email verified");
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Incorrect verification code",
-      );
-    } finally {
-      setIsVerifyingOtp(false);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -106,14 +58,8 @@ export default function Register() {
       phone: form.phone.trim(),
       employeeId: form.employeeId.trim(),
       department: form.department.trim(),
-      emailVerificationToken,
       recaptchaToken,
     };
-
-    if (!emailVerificationToken) {
-      toast.error("Verify your email before creating an account");
-      return;
-    }
 
     const result = await register(payload);
 
@@ -183,6 +129,13 @@ export default function Register() {
         <div className="flex min-h-full items-center justify-center p-3 sm:p-6">
         <div className="w-full max-w-md">
           <div className="card p-5 sm:p-7">
+            <Link
+              to="/"
+              className="mb-5 inline-flex items-center gap-2 rounded-md text-sm font-medium text-slate-600 transition hover:text-[#0d3f6b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0d3f6b] dark:text-slate-300 dark:hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {language === "hi" ? "लैंडिंग पेज पर वापस जाएं" : "Back to landing page"}
+            </Link>
             <div className="mb-6 text-center">
               <h2 className="text-2xl font-bold mb-1">Create account</h2>
               <p className="text-slate-500 text-sm">
@@ -215,58 +168,18 @@ export default function Register() {
                 <label className="label" htmlFor="email">
                   Email address
                 </label>
-                <div className="flex gap-2">
+                <div>
                   <input
                     id="email"
                     type="email"
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    className="input-field min-w-0 flex-1"
+                    className="input-field"
                     placeholder="you@cil.gov.in"
                     required
                   />
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={
-                      isSendingOtp ||
-                      !/^\S+@\S+\.\S+$/.test(form.email.trim()) ||
-                      Boolean(emailVerificationToken)
-                    }
-                    className={`shrink-0 rounded-lg px-3 text-sm font-semibold transition ${emailVerificationToken ? "bg-emerald-100 text-emerald-700" : "bg-[#0d3f6b] text-white hover:bg-[#092f52] disabled:cursor-not-allowed disabled:opacity-50"}`}
-                  >
-                    {emailVerificationToken ? (
-                      <CheckCircle2 className="h-5 w-5" />
-                    ) : isSendingOtp ? (
-                      "Sending..."
-                    ) : (
-                      "Verify"
-                    )}
-                  </button>
                 </div>
-                {otpSent && !emailVerificationToken && (
-                  <div className="mt-2">
-                    <input
-                      id="email-otp"
-                      name="emailOtp"
-                      type="text"
-                      inputMode="numeric"
-                      value={otp}
-                      onChange={handleOtpChange}
-                      className="input-field tracking-[0.4em]"
-                      placeholder="Enter 6-digit OTP"
-                      maxLength={6}
-                      autoComplete="one-time-code"
-                      aria-label="Email verification code"
-                    />
-                    <p className="mt-1 text-xs text-slate-500">
-                      {isVerifyingOtp
-                        ? "Verifying code..."
-                        : "Code expires in 10 minutes."}
-                    </p>
-                  </div>
-                )}
               </div>
 
               <div>

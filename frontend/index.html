@@ -22,29 +22,7 @@
     />
   </head>
   <body class="bg-slate-50 dark:bg-slate-950">
-    <div id="google_translate_element"></div>
     <div id="root"></div>
-    <script>
-      (function () {
-        var savedLanguage = localStorage.getItem("language");
-        if (savedLanguage && savedLanguage !== "en") {
-          document.cookie = "googtrans=/en/" + savedLanguage + ";path=/";
-        }
-      })();
-    </script>
-    <script>
-      window.googleTranslateElementInit = function () {
-        new google.translate.TranslateElement(
-          {
-            pageLanguage: "en",
-            includedLanguages: "en,hi,bn,te,mr,ta,gu,ur,kn,or,ml,pa",
-            autoDisplay: false,
-          },
-          "google_translate_element",
-        );
-      };
-    </script>
-    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
