@@ -188,22 +188,18 @@ export default function Attendance() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-extrabold tracking-tight text-[#1a1a1a] sm:text-4xl dark:text-white">
-                {language === "hi"
-                  ? "वास्तविक समय खदान उपस्थिति"
-                  : "Mine Attendance & Real-Time Presence"}
+                {t.attendancePageTitle}
               </h1>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 </span>
-                LIVE TELEMETRY
+                {t.liveTelemetry}
               </span>
             </div>
             <p className="mt-1 text-sm text-[#5d5345] dark:text-slate-400">
-              {language === "hi"
-                ? "भूमिगत खनिकों की सुरक्षा, पीपीई अनुपालन और वास्तविक समय शिफ्ट ट्रैकिंग।"
-                : "Real-time biometric & RFID presence monitor for underground miners and surface crew."}
+              {t.attendancePageSubtitle}
             </p>
           </div>
 
@@ -213,14 +209,14 @@ export default function Attendance() {
               onClick={() => fetchRealtime(true)}
               disabled={refreshing}
               className="inline-flex items-center gap-2 rounded-xl border border-[#bfa78a] bg-[#fbf7f0] px-4 py-2.5 text-sm font-semibold text-[#2c2c2c] shadow-sm transition hover:bg-[#eae0d0] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-              title="Refresh real-time attendance"
+              title={t.refreshAttendance}
             >
               <RefreshCw
                 className={`h-4 w-4 text-[#0d3f6d] dark:text-sky-400 ${
                   refreshing ? "animate-spin" : ""
                 }`}
               />
-              <span>{refreshing ? "Refreshing..." : "Live Sync"}</span>
+              <span>{refreshing ? t.refreshing : t.liveSync}</span>
             </button>
 
             <button
@@ -236,7 +232,7 @@ export default function Attendance() {
             >
               <Plus className="h-4 w-4" />
               <span>
-                {language === "hi" ? "उपस्थिति दर्ज करें" : "Mark Clock-In"}
+                {t.markClockIn}
               </span>
             </button>
           </div>
@@ -248,7 +244,7 @@ export default function Attendance() {
           <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-50 to-[#ebf7f0] p-4 shadow-sm dark:border-emerald-500/20 dark:from-emerald-950/20 dark:to-slate-900">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
-                Inside Mine
+                {t.insideMine}
               </span>
               <span className="relative flex h-3 w-3">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
@@ -260,11 +256,11 @@ export default function Attendance() {
                 {realtime?.insideMineCount ?? 0}
               </span>
               <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                miners
+                {t.miners}
               </span>
             </div>
             <p className="mt-1 text-[11px] font-medium text-emerald-700/80 dark:text-emerald-400/80">
-              Active underground right now
+              {t.activeUnderground}
             </p>
           </div>
 
@@ -272,7 +268,7 @@ export default function Attendance() {
           <div className="rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-xs font-bold uppercase tracking-wider text-[#695d4d] dark:text-slate-400">
-                Present Today
+                {t.presentToday}
               </span>
               <UserCheck className="h-4 w-4 text-[#0d3f6d] dark:text-sky-400" />
             </div>
@@ -281,11 +277,11 @@ export default function Attendance() {
                 {realtime?.presentTodayCount ?? 0}
               </span>
               <span className="text-xs font-medium text-slate-500">
-                checked in
+                {t.checkedIn}
               </span>
             </div>
             <p className="mt-1 text-[11px] text-[#716554] dark:text-slate-400">
-              Across all shift operations
+              {t.acrossShifts}
             </p>
           </div>
 
@@ -293,7 +289,7 @@ export default function Attendance() {
           <div className="rounded-2xl border border-amber-300/60 bg-[#fffdf5] p-4 shadow-sm dark:border-amber-500/20 dark:bg-slate-900">
             <div className="flex items-center justify-between text-amber-700 dark:text-amber-400">
               <span className="text-xs font-bold uppercase tracking-wider">
-                Late Entries
+                {t.lateEntries}
               </span>
               <Clock className="h-4 w-4" />
             </div>
@@ -301,10 +297,10 @@ export default function Attendance() {
               <span className="text-3xl font-black text-amber-900 dark:text-amber-300">
                 {realtime?.lateTodayCount ?? 0}
               </span>
-              <span className="text-xs font-medium text-amber-700">workers</span>
+                <span className="text-xs font-medium text-amber-700">{t.workers}</span>
             </div>
             <p className="mt-1 text-[11px] text-amber-800/80 dark:text-amber-400/80">
-              Beyond standard shift gate
+              {t.beyondShiftGate}
             </p>
           </div>
 
@@ -312,7 +308,7 @@ export default function Attendance() {
           <div className="rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between text-[#0d3f6d] dark:text-sky-400">
               <span className="text-xs font-bold uppercase tracking-wider text-[#695d4d] dark:text-slate-400">
-                PPE Compliance
+                {t.ppeCompliance}
               </span>
               <HardHat className="h-4 w-4" />
             </div>
@@ -321,11 +317,11 @@ export default function Attendance() {
                 {realtime?.ppeComplianceRate ?? 100}%
               </span>
               <span className="text-xs font-medium text-emerald-600">
-                verified
+                {t.verified}
               </span>
             </div>
             <p className="mt-1 text-[11px] text-[#716554] dark:text-slate-400">
-              Lamp, detector, helmet check
+              {t.lampDetectorHelmet}
             </p>
           </div>
 
@@ -333,7 +329,7 @@ export default function Attendance() {
           <div className="col-span-2 sm:col-span-1 rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-xs font-bold uppercase tracking-wider text-[#695d4d] dark:text-slate-400">
-                Surface / Exited
+                {t.surfaceExited}
               </span>
               <LogOut className="h-4 w-4 text-slate-400" />
             </div>
@@ -343,11 +339,11 @@ export default function Attendance() {
                   (realtime?.checkedOutCount || 0)}
               </span>
               <span className="text-xs font-medium text-slate-500">
-                safe zone
+                {t.safeZone}
               </span>
             </div>
             <p className="mt-1 text-[11px] text-[#716554] dark:text-slate-400">
-              Outside dangerous extraction zone
+              {t.outsideExtractionZone}
             </p>
           </div>
         </div>
@@ -367,7 +363,7 @@ export default function Attendance() {
             >
               <Radio className="h-3.5 w-3.5" />
               <span>
-                Inside Underground Mine ({realtime?.insideMineCount || 0})
+                {t.insideUnderground} ({realtime?.insideMineCount || 0})
               </span>
             </button>
             <button
@@ -380,7 +376,7 @@ export default function Attendance() {
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
-              <span>Full Attendance Roster ({records.length})</span>
+              <span>{t.fullAttendanceRoster} ({records.length})</span>
             </button>
           </div>
 
@@ -392,7 +388,7 @@ export default function Attendance() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search worker or ID..."
+                placeholder={t.searchWorkerId}
                 className="w-full rounded-xl border border-[#cbb79d] bg-white py-1.5 pl-9 pr-3 text-xs text-slate-800 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               />
             </div>
@@ -402,7 +398,7 @@ export default function Attendance() {
               onChange={(e) => setSelectedShift(e.target.value)}
               className="rounded-xl border border-[#cbb79d] bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             >
-              <option value="">All Shifts</option>
+              <option value="">{t.allShifts}</option>
               <option value="Shift A (Morning)">Shift A (Morning)</option>
               <option value="Shift B (Evening)">Shift B (Evening)</option>
               <option value="Shift C (Night)">Shift C (Night)</option>
@@ -413,7 +409,7 @@ export default function Attendance() {
               onChange={(e) => setSelectedMine(e.target.value)}
               className="rounded-xl border border-[#cbb79d] bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             >
-              <option value="">All Mines</option>
+              <option value="">{t.allMines}</option>
               {mines.map((m) => (
                 <option key={m._id} value={m._id}>
                   {m.name} ({m.code})
@@ -430,25 +426,25 @@ export default function Attendance() {
               <thead className="border-b border-[#e5d8c3] bg-[#f4ebdc] text-[#554a3b] dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-300">
                 <tr>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Worker Details
+                    {t.workerDetails}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Mine & Zone
+                    {t.mineZone}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Shift & Role
+                    {t.shiftRole}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Clock-In Time
+                    {t.clockInTime}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Live Status
+                    {t.liveStatus}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Safety & Temp
+                    {t.safetyTemp}
                   </th>
                   <th className="px-4 py-3.5 text-right font-bold uppercase tracking-wider">
-                    Actions
+                    {t.actions}
                   </th>
                 </tr>
               </thead>
@@ -460,7 +456,7 @@ export default function Attendance() {
                       colSpan="7"
                       className="px-4 py-12 text-center text-slate-400"
                     >
-                      Loading attendance telemetry...
+                      {t.loadingAttendance}
                     </td>
                   </tr>
                 ) : filteredRecords.length === 0 ? (
@@ -470,8 +466,8 @@ export default function Attendance() {
                       className="px-4 py-12 text-center text-slate-400"
                     >
                       {activeTab === "inside"
-                        ? "No miners currently logged inside the underground shaft."
-                        : "No attendance records match your filter."}
+                        ? t.noMinersInside
+                        : t.noAttendanceMatch}
                     </td>
                   </tr>
                 ) : (
@@ -554,16 +550,16 @@ export default function Attendance() {
                           {isInside ? (
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
                               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              Inside Pit / Seam
+                              {t.insidePitSeam}
                             </span>
                           ) : isSurface ? (
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-2.5 py-1 text-[11px] font-bold text-sky-700 dark:bg-sky-500/20 dark:text-sky-300">
                               <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-                              Surface Workshop
+                              {t.surfaceWorkshop}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 rounded-full bg-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                              Checked Out ({format(new Date(worker.checkOut || worker.updatedAt), "hh:mm a")})
+                              {t.checkedOut} ({format(new Date(worker.checkOut || worker.updatedAt), "hh:mm a")})
                             </span>
                           )}
                         </td>
@@ -579,7 +575,7 @@ export default function Attendance() {
                               }`}
                             >
                               <Shield className="h-3 w-3" />
-                              {worker.safetyGearVerified ? "PPE PASS" : "PPE PENDING"}
+                              {worker.safetyGearVerified ? t.ppePass : t.ppePending}
                             </span>
                             <span className="flex items-center gap-0.5 text-[11px] font-mono text-slate-500">
                               <Thermometer className="h-3 w-3 text-orange-500" />
@@ -598,9 +594,9 @@ export default function Attendance() {
                                   handleToggleZone(worker._id, worker.liveStatus)
                                 }
                                 className="rounded-lg border border-[#cbb79d] bg-white px-2 py-1 text-[11px] font-semibold text-[#2c2c2c] transition hover:bg-[#ede3d3] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                                title="Toggle worker position"
+                                title={isInside ? t.toSurface : t.toPit}
                               >
-                                {isInside ? "To Surface" : "To Pit"}
+                                {isInside ? t.toSurface : t.toPit}
                               </button>
                             )}
 
@@ -611,10 +607,10 @@ export default function Attendance() {
                                   handleCheckOut(worker._id, worker.workerName)
                                 }
                                 className="inline-flex items-center gap-1 rounded-lg border border-red-300/80 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-700 transition hover:bg-red-100 dark:border-red-500/30 dark:bg-red-950/20 dark:text-red-400"
-                                title="Clock out worker"
+                                title={t.checkOut}
                               >
                                 <LogOut className="h-3 w-3" />
-                                <span>Check Out</span>
+                                <span>{t.checkOut}</span>
                               </button>
                             ) : (
                               <span className="text-[11px] text-slate-400 italic">

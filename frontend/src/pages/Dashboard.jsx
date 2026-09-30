@@ -909,7 +909,7 @@ export default function Dashboard() {
                         leading-tight
                       "
                     >
-                      Mine Risk
+                      {t.mineRiskTitle || "Mine Risk"}
                     </p>
 
                     <p
@@ -919,7 +919,7 @@ export default function Dashboard() {
                         leading-tight
                       "
                     >
-                      Distribution
+                      {t.distribution || "Distribution"}
                     </p>
 
                   </div>
@@ -947,28 +947,28 @@ export default function Dashboard() {
 
             <RiskLegend
               color="#28a66f"
-              label="Low"
+              label={t.low}
               value={riskData.low}
               textColor="#287c59"
             />
 
             <RiskLegend
               color="#f5a313"
-              label="Medium"
+              label={t.medium}
               value={riskData.medium}
               textColor="#a86d0c"
             />
 
             <RiskLegend
               color="#e87916"
-              label="High"
+              label={t.high}
               value={riskData.high}
               textColor="#a95114"
             />
 
             <RiskLegend
               color="#d33c3c"
-              label="Critical"
+              label={t.criticalLabel}
               value={riskData.critical}
               textColor="#a42e2e"
             />

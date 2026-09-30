@@ -23,7 +23,7 @@ import {
 import { NavLink, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import useThemeStore, { useLanguageStore } from "../../store/themeStore";
-import { translations } from "../../i18n/translations";
+import { languageOptions, translations } from "../../i18n/translations";
 import BrandLogo from "../common/BrandLogo";
 
 export default function Navbar() {
@@ -59,25 +59,22 @@ export default function Navbar() {
   };
 
   const languageControl = (
-    <button
-      type="button"
-      onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-      className="inline-flex h-9 shrink-0 items-center gap-0.5 rounded-full border border-[#b99a72] bg-[#f4ecdf] p-1 text-[10px] font-bold tracking-wide text-[#5d554b] transition hover:border-[#0d3f6b] max-[380px]:gap-0 max-[380px]:px-0.5 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-sky-400"
-      title="Change language"
-      aria-label="Change language"
-    >
-      <Languages className="mx-1 h-3.5 w-3.5 text-[#0d3f6b] max-[380px]:mx-0.5 max-[380px]:h-3 max-[380px]:w-3 dark:text-sky-300" />
-      <span
-        className={`rounded-full px-2 py-1 transition-colors max-[380px]:px-1.5 ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+    <label className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-[#b99a72] bg-[#f4ecdf] px-2 text-[10px] font-bold text-[#5d554b] transition hover:border-[#0d3f6b] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-sky-400">
+      <Languages className="h-3.5 w-3.5 text-[#0d3f6b] dark:text-sky-300" />
+      <span className="sr-only">Change language</span>
+      <select
+        value={language}
+        onChange={(event) => setLanguage(event.target.value)}
+        aria-label="Change language"
+        className="max-w-[7.5rem] cursor-pointer bg-transparent text-[11px] font-bold outline-none dark:bg-slate-800"
       >
-        EN
-      </span>
-      <span
-        className={`rounded-full px-2 py-1 transition-colors max-[380px]:px-1.5 ${language === "hi" ? "bg-[#e5a416] text-[#151719]" : ""}`}
-      >
-        हिंदी
-      </span>
-    </button>
+        {languageOptions.map((option) => (
+          <option key={option.code} value={option.code}>
+            {option.nativeLabel} / {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 
   const navLinks = (variant) =>

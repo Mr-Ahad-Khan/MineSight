@@ -4,6 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+#google_translate_element {
+  position: fixed;
+  left: -10000px;
+  top: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.goog-te-banner-frame,
+.skiptranslate iframe {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
 @layer base {
   html,
   body,

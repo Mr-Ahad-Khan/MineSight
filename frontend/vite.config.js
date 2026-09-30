@@ -20,7 +20,7 @@ function offlineShellPlugin() {
       this.emitFile({
         type: 'asset',
         fileName: 'sw.js',
-        source: `const CACHE_NAME = 'minesight-offline-v1';
+        source: `const CACHE_NAME = 'minesight-offline-v2';
 const PRECACHE_URLS = ${JSON.stringify(precacheUrls)};
 
 self.addEventListener('install', (event) => {
@@ -51,13 +51,13 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match('/index.html')),
+      fetch(request).catch(() => caches.match('/index.html', { ignoreVary: true })),
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
+    caches.match(request, { ignoreVary: true }).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
 
       return fetch(request).then((response) => {

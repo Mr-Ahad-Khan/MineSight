@@ -1,4 +1,15 @@
 import axios from "axios";
+import {
+  getApiCacheKey,
+  getOfflineCacheScope,
+  getOfflineMutations,
+  notifyCachedResponse,
+  queueOfflineMutation,
+  readApiCache,
+  removeOfflineMutation,
+  saveApiResponse,
+  clearOfflineCache,
+} from "./offlineCache";
 
 // 1. Resolve and sanitize the base URL to prevent double slashes or broken paths
 const rawBackendUrl =
@@ -27,12 +38,17 @@ const api = axios.create({
   },
 });
 
+let offlineSyncPromise;
+
 // Request interceptor - add token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.method?.toLowerCase() === "get") {
+      config.__offlineCacheKey = getApiCacheKey(config);
     }
     return config;
   },
@@ -41,8 +57,69 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response) => {
+    if (response.config?.__offlineCacheKey) {
+      void saveApiResponse(response).catch(() => {});
+      notifyCachedResponse("minesight:api-live", {
+        key: response.config.__offlineCacheKey,
+      });
+    }
+    return response;
+  },
+  async (error) => {
+    const config = error.config;
+    if (
+      config &&
+      !config.__offlineReplay &&
+      config.method?.toLowerCase() !== "get" &&
+      !error.response &&
+      typeof navigator !== "undefined" &&
+      !navigator.onLine
+    ) {
+      try {
+        await queueOfflineMutation(config);
+        error.isOfflineQueued = true;
+        error.response = {
+          data: {
+            message: "Saved on this device. It will sync automatically when connection returns.",
+          },
+          status: 202,
+        };
+        return Promise.reject(error);
+      } catch (queueError) {
+        if (queueError.message === "This action requires a live connection.") {
+          error.response = {
+            data: { message: queueError.message },
+            status: 503,
+          };
+        }
+      }
+    }
+
+    const cacheKey = error.config?.__offlineCacheKey;
+    if (cacheKey && (!error.response || error.response.status >= 500)) {
+      try {
+        const cachedResponse = await readApiCache(cacheKey);
+        if (cachedResponse) {
+          notifyCachedResponse("minesight:api-cache-hit", {
+            key: cacheKey,
+            updatedAt: cachedResponse.updatedAt,
+          });
+          return {
+            data: cachedResponse.data,
+            status: cachedResponse.status,
+            statusText: cachedResponse.statusText,
+            headers: cachedResponse.headers,
+            config: error.config,
+            request: null,
+            cachedOffline: true,
+          };
+        }
+      } catch {
+        // A cache failure should not hide the original API error.
+      }
+    }
+
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -53,6 +130,72 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+export function syncOfflineMutations() {
+  if (typeof navigator === "undefined" || !navigator.onLine) {
+    return Promise.resolve(0);
+  }
+  if (offlineSyncPromise) return offlineSyncPromise;
+
+  offlineSyncPromise = (async () => {
+    const records = await getOfflineMutations();
+    let syncedCount = 0;
+    if (records.length > 0) {
+      notifyCachedResponse("minesight:offline-queue-updated", {
+        count: records.length,
+        syncing: true,
+      });
+    }
+
+    for (const record of records) {
+      let data = record.data;
+      if (record.isFormData) {
+        data = new FormData();
+        record.data.forEach(({ name, value, filename }) => {
+          if (filename) data.append(name, value, filename);
+          else data.append(name, value);
+        });
+      }
+
+      try {
+        await api.request({
+          url: record.url,
+          method: record.method,
+          params: record.params,
+          data,
+          headers: record.headers,
+          __offlineReplay: true,
+        });
+        await removeOfflineMutation(record.id);
+        syncedCount += 1;
+      } catch {
+        break;
+      }
+    }
+
+    if (syncedCount > 0) {
+      await clearOfflineCache(getOfflineCacheScope());
+    }
+    const remaining = await getOfflineMutations();
+    notifyCachedResponse("minesight:offline-queue-updated", {
+      count: remaining.length,
+      syncing: false,
+    });
+    if (syncedCount > 0) {
+      notifyCachedResponse("minesight:offline-queue-synced", {
+        syncedCount,
+        remainingCount: remaining.length,
+      });
+    }
+    return syncedCount;
+  })()
+    .catch(() => 0)
+    .finally(() => {
+      offlineSyncPromise = null;
+    });
+
+  return offlineSyncPromise;
+}
 
 // Resolve media stored by the API without ever falling back to localhost in a
 // deployed build. This keeps voice notes and inspection photos usable on Vercel.

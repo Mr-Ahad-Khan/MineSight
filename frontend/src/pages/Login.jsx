@@ -15,7 +15,7 @@ import {
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
-import { translations } from "../i18n/translations";
+import { languageOptions, translations } from "../i18n/translations";
 import BrandLogo from "../components/common/BrandLogo";
 
 export default function Login() {
@@ -84,25 +84,22 @@ export default function Login() {
             <div className="mb-14 flex items-center justify-between gap-3">
               <BrandLogo imageClassName="h-16 w-64 rounded" />
 
-              <button
-                type="button"
-                onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-                className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-black/20 p-1 text-[10px] font-bold tracking-wide text-white/75 transition hover:border-amber-300/70"
-                aria-label="Change language"
-                title="Change language"
-              >
-                <Languages className="mx-1 h-3.5 w-3.5 text-amber-300" />
-                <span
-                  className={`rounded-full px-2 py-1 ${language === "en" ? "bg-amber-400 text-slate-950" : ""}`}
+              <label className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-black/20 px-2 text-[10px] font-bold text-white/75 transition hover:border-amber-300/70">
+                <Languages className="h-3.5 w-3.5 text-amber-300" />
+                <span className="sr-only">Change language</span>
+                <select
+                  value={language}
+                  onChange={(event) => setLanguage(event.target.value)}
+                  aria-label="Change language"
+                  className="max-w-[7.5rem] cursor-pointer bg-transparent text-[11px] font-bold outline-none"
                 >
-                  EN
-                </span>
-                <span
-                  className={`rounded-full px-2 py-1 ${language === "hi" ? "bg-amber-400 text-slate-950" : ""}`}
-                >
-                  हिंदी
-                </span>
-              </button>
+                  {languageOptions.map((option) => (
+                    <option key={option.code} value={option.code}>
+                      {option.nativeLabel} / {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             <h2 className="mb-4 max-w-[540px] whitespace-pre-line text-4xl font-extrabold leading-[1.12] tracking-tight xl:text-[2.65rem]">
