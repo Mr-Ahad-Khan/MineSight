@@ -22,8 +22,10 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const [recaptchaScale, setRecaptchaScale] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const recaptchaRef = useRef(null);
+  const recaptchaContainerRef = useRef(null);
   const { login, isLoading, token, user } = useAuthStore();
   const { language, setLanguage } = useLanguageStore();
   const navigate = useNavigate();
@@ -38,6 +40,18 @@ export default function Login() {
     new URLSearchParams(location.search).get("redirect") ||
     (user?.role === "worker" ? "/app/workers" : "/app");
   const destination = redirectTo.startsWith("/app") ? redirectTo : "/app";
+
+  useEffect(() => {
+    const container = recaptchaContainerRef.current;
+    if (!container) return;
+
+    const updateScale = () => setRecaptchaScale(container.clientWidth / 304);
+    updateScale();
+
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [recaptchaSiteKey]);
 
   useEffect(() => {
     if (token) {
@@ -211,12 +225,26 @@ export default function Login() {
               </div>
 
               {recaptchaSiteKey ? (
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={recaptchaSiteKey}
-                  onChange={setRecaptchaToken}
-                  onExpired={() => setRecaptchaToken(null)}
-                />
+                <div
+                  ref={recaptchaContainerRef}
+                  className="w-full overflow-hidden"
+                  style={{ height: 78 * recaptchaScale }}
+                >
+                  <div
+                    style={{
+                      width: 304,
+                      transform: `scale(${recaptchaScale})`,
+                      transformOrigin: "top left",
+                    }}
+                  >
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey={recaptchaSiteKey}
+                      onChange={setRecaptchaToken}
+                      onExpired={() => setRecaptchaToken(null)}
+                    />
+                  </div>
+                </div>
               ) : import.meta.env.PROD ? (
                 <p className="text-sm text-red-600" role="alert">
                   Login verification is not configured. Set VITE_RECAPTCHA_SITE_KEY.

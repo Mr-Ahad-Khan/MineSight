@@ -84,48 +84,91 @@
     }
   }
 
-  .dark main > div {
-    background-color: #0f1720;
-  }
-
-  .dark main [class*="bg-[#f3eadb]"],
-  .dark main [class*="bg-[#f8f4ed]"],
-  .dark main [class*="bg-[#f7f3ed]"],
-  .dark main [class*="bg-[#f5efe8]"],
-  .dark main [class*="bg-[#f1e8dc]"],
-  .dark main [class*="bg-[#f6f0e5]"],
-  .dark main [class*="bg-[#fffdf8]"],
-  .dark main [class*="bg-[#eee5d5]"],
-  .dark main [class*="bg-[#f6f0e5]"] {
+  .dark .app-shell main [class~="bg-white"],
+  .dark .app-shell main [class~="bg-gray-50"],
+  .dark .app-shell main [class~="bg-gray-100"],
+  .dark .app-shell main [class~="bg-slate-50"],
+  .dark .app-shell main [class~="bg-slate-100"],
+  .dark .app-shell main [class*="bg-[#f3eadb]"],
+  .dark .app-shell main [class*="bg-[#f8f4ed]"],
+  .dark .app-shell main [class*="bg-[#f7f3ed]"],
+  .dark .app-shell main [class*="bg-[#f5efe8]"],
+  .dark .app-shell main [class*="bg-[#f1e8dc]"],
+  .dark .app-shell main [class*="bg-[#f6f0e5]"],
+  .dark .app-shell main [class*="bg-[#fffdf8]"],
+  .dark .app-shell main [class*="bg-[#eee5d5]"],
+  .dark .app-shell main [class*="bg-[#f5f7fa]"],
+  .dark .app-shell main [class*="bg-[#fbf7f0]"],
+  .dark .app-shell main [class*="bg-[#fbf8f2]"],
+  .dark .app-shell main [class*="bg-[#fffdf5]"],
+  .dark .app-shell main [class*="bg-[#ede3d3]"],
+  .dark .app-shell main [class*="bg-[#eae0d0]"],
+  .dark .app-shell main [class*="bg-[#f6efe1]"],
+  .dark .app-shell main [class*="bg-[#eee4d4]"],
+  .dark .app-shell main [class*="bg-[#f4ebdc]"],
+  .dark .app-shell main [class*="bg-[#f8f4ec]"],
+  .dark .app-shell main [class*="bg-[#faf4ea]"],
+  .dark .app-shell main [class*="bg-[#ece4d5]"],
+  .dark .app-shell main [class*="bg-[#f0f1f3]"] {
     background-color: #17232d !important;
   }
 
-  .dark main [class*="border-[#c9b69d]"],
-  .dark main [class*="border-[#bca98e]"],
-  .dark main [class*="border-[#d8c6a6]"],
-  .dark main [class*="border-[#d7c8b0]"],
-  .dark main [class*="border-[#cbbda7]"] {
+  .dark .app-shell main [class~="border-gray-100"],
+  .dark .app-shell main [class~="border-gray-200"],
+  .dark .app-shell main [class~="border-slate-100"],
+  .dark .app-shell main [class~="border-slate-200"],
+  .dark .app-shell main [class*="border-[#d6c4a8]"],
+  .dark .app-shell main [class*="border-[#e5d8c3]"],
+  .dark .app-shell main [class*="border-[#bfa78a]"],
+  .dark .app-shell main [class*="border-[#cbb79d]"],
+  .dark .app-shell main [class*="border-[#ebdcc7]"],
+  .dark .app-shell main [class*="border-[#c9b69d]"],
+  .dark .app-shell main [class*="border-[#bca98e]"],
+  .dark .app-shell main [class*="border-[#d8c6a6]"],
+  .dark .app-shell main [class*="border-[#d7c8b0]"],
+  .dark .app-shell main [class*="border-[#cbbda7]"] {
     border-color: #334657 !important;
   }
 
-  .dark main [class*="text-[#1b1b1b]"],
-  .dark main [class*="text-[#1f1f1f]"],
-  .dark main [class*="text-[#1d1d1d]"],
-  .dark main [class*="text-[#1e1e1e]"],
-  .dark main [class*="text-[#2d2d2d]"],
-  .dark main [class*="text-[#474747]"],
-  .dark main [class*="text-[#252525]"],
-  .dark main [class*="text-[#222]"],
-  .dark main [class*="text-[#111]"],
-  .dark main [class*="text-[#151515]"],
-  .dark main [class*="text-[#272727]"],
-  .dark main [class*="text-[#72583c]"] {
+  .dark .app-shell main [class~="text-gray-900"],
+  .dark .app-shell main [class~="text-gray-800"],
+  .dark .app-shell main [class~="text-gray-700"],
+  .dark .app-shell main [class~="text-slate-900"],
+  .dark .app-shell main [class~="text-slate-800"],
+  .dark .app-shell main [class~="text-slate-700"],
+  .dark .app-shell main [class*="text-[#1b1b1b]"],
+  .dark .app-shell main [class*="text-[#1f1f1f]"],
+  .dark .app-shell main [class*="text-[#1d1d1d]"],
+  .dark .app-shell main [class*="text-[#1e1e1e]"],
+  .dark .app-shell main [class*="text-[#2d2d2d]"],
+  .dark .app-shell main [class*="text-[#474747]"],
+  .dark .app-shell main [class*="text-[#252525]"],
+  .dark .app-shell main [class*="text-[#222]"],
+  .dark .app-shell main [class*="text-[#111]"],
+  .dark .app-shell main [class*="text-[#151515]"],
+  .dark .app-shell main [class*="text-[#272727]"],
+  .dark .app-shell main [class*="text-[#72583c]"],
+  .dark .app-shell main [class*="text-[#554a3b]"],
+  .dark .app-shell main [class*="text-[#655b4e]"],
+  .dark .app-shell main [class*="text-[#4c433d]"],
+  .dark .app-shell main [class*="text-[#5d5345]"],
+  .dark .app-shell main [class*="text-[#695d4d]"],
+  .dark .app-shell main [class*="text-[#716554]"],
+  .dark .app-shell main [class*="text-[#3a3a3a]"],
+  .dark .app-shell main [class*="text-[#786f63]"] {
     color: #e2e8f0 !important;
   }
 
-  .dark main select,
-  .dark main input,
-  .dark main textarea {
+  .dark .app-shell main [class~="text-gray-500"],
+  .dark .app-shell main [class~="text-gray-600"],
+  .dark .app-shell main [class~="text-slate-500"],
+  .dark .app-shell main [class~="text-slate-600"] {
+    color: #94a3b8 !important;
+  }
+
+  .dark .app-shell main select,
+  .dark .app-shell main input,
+  .dark .app-shell main textarea {
     color-scheme: dark;
   }
 
@@ -401,8 +444,9 @@
   background-color: #f5f7fa;
 }
 
-.app-shell main {
-  color: #374151;
+.dark .app-shell {
+  background-color: #0f1720;
+  color: #e2e8f0;
 }
 
 /* Keep Leaflet panes and controls inside the map's stacking layer. */
