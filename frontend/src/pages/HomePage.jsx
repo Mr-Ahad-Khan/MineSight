@@ -1125,15 +1125,19 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="border-t border-white/15 bg-[#101416]">
-            <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y divide-white/20 sm:grid-cols-4 sm:divide-y-0">
+          <div
+            className={`border-t ${darkMode ? "border-white/15 bg-[#101416]" : "border-[#c9b69d] bg-[#f8f4ec]"}`}
+          >
+            <div
+              className={`mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y sm:grid-cols-4 sm:divide-y-0 ${darkMode ? "divide-white/20" : "divide-[#d8cbb8]"}`}
+            >
               {[
                 {
                   value: metricValues.production,
                   suffix: "",
                   label: t.activeMinesLabel,
                   detail: t.activeMinesDetail,
-                  progress: Math.min(metricValues.production * 10, 100),
+                  progress: metricValues.production,
                 },
                 {
                   value: `${metricValues.availability}%`,
@@ -1147,19 +1151,19 @@ export default function HomePage() {
                   suffix: "",
                   label: t.openInspectionsLabel,
                   detail: t.openInspectionsDetail,
-                  progress: Math.min(metricValues.ltis * 5, 100),
+                  progress: metricValues.ltis,
                 },
                 {
                   value: metricValues.experience,
                   suffix: "",
                   label: t.totalReportsLabel,
                   detail: t.totalReportsDetail,
-                  progress: Math.min(metricValues.experience * 5, 100),
+                  progress: metricValues.experience,
                 },
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="home-metric group relative overflow-hidden px-5 py-5 text-center transition-colors duration-300 hover:bg-[#fffaf0] sm:px-8 sm:py-6 lg:px-12 dark:hover:bg-[#1a1e1f]"
+                  className={`home-metric group relative overflow-hidden px-5 py-5 text-center transition-colors duration-300 sm:px-8 sm:py-6 lg:px-12 ${darkMode ? "hover:bg-[#1a1e1f]" : "hover:bg-[#fffaf0]"}`}
                 >
                   <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-[#e5a416] transition-transform duration-500 group-hover:scale-x-100" />
                   <div className="flex items-end justify-center gap-3 text-center">
@@ -1179,10 +1183,21 @@ export default function HomePage() {
                   <div className="mt-1 text-[11px] text-[#52636a] dark:text-[#aaa69e]">
                     {item.detail}
                   </div>
-                  <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10">
+                  <div className={`mt-3 flex items-center justify-end text-[10px] font-semibold ${darkMode ? "text-[#aaa69e]" : "text-[#52636a]"}`}>
+                    {Math.round(item.progress)}%
+                  </div>
+                  <div
+                    role="progressbar"
+                    aria-label={item.label}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.min(Math.max(item.progress, 0), 100)}
+                    aria-valuetext={`${Math.round(item.progress)}%`}
+                    className="mt-1 h-1 overflow-hidden rounded-full bg-[#e5a416]/25"
+                  >
                     <div
                       className="h-full rounded-full bg-[#e5a416] transition-[width] duration-700"
-                      style={{ width: `${item.progress}%` }}
+                      style={{ width: `${Math.min(Math.max(item.progress, 0), 100)}%` }}
                     />
                   </div>
                 </div>
