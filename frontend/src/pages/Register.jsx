@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -190,6 +190,13 @@ export default function Register() {
         <div className="flex min-h-full items-center justify-center p-3 sm:p-6">
         <div className="w-full max-w-md">
           <div className="card p-5 sm:p-7">
+            <Link
+              to="/"
+              className="mb-5 inline-flex items-center gap-2 rounded-md text-sm font-medium text-slate-600 transition hover:text-[#0d3f6b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0d3f6b] dark:text-slate-300 dark:hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {language === "hi" ? "लैंडिंग पेज पर वापस जाएं" : "Back to landing page"}
+            </Link>
             <div className="mb-6 text-center">
               <h2 className="text-2xl font-bold mb-1">Create account</h2>
               <p className="text-slate-500 text-sm">
@@ -222,17 +229,19 @@ export default function Register() {
                 <label className="label" htmlFor="email">
                   Email address
                 </label>
-                <div className="flex gap-2">
+                <div>
                   <input
                     id="email"
                     type="email"
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    className="input-field min-w-0 flex-1"
+                    className="input-field"
                     placeholder="you@cil.gov.in"
                     required
                   />
+                </div>
+                <div className="mt-2 flex gap-2">
                   <button
                     type="button"
                     onClick={handleSendOtp}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Mic, Plus, Search, Trash2, X } from "lucide-react";
+import { Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
 import { deleteInspection, getInspections, getMediaUrl } from "../services/api";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
@@ -27,8 +27,14 @@ export default function Inspections() {
   const [filters, setFilters] = useState({ status: "", severity: "" });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [selectedPhotos, setSelectedPhotos] = useState([]);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const [photoZoom, setPhotoZoom] = useState(1);
   const { language } = useLanguageStore();
   const t = translations[language];
+  const adjustPhotoZoom = (amount) => {
+    setPhotoZoom((current) => Math.min(4, Math.max(1, current + amount)));
+  };
   const filteredInspections = inspections.filter((inspection) =>
     inspection.title?.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()),
   );
@@ -38,15 +44,18 @@ export default function Inspections() {
   }, [filters]);
 
   useEffect(() => {
-    if (!selectedPhoto) return undefined;
+    if (selectedPhotos.length === 0) return undefined;
 
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") setSelectedPhoto(null);
+      if (event.key === "Escape") {
+        if (selectedPhoto) setSelectedPhoto(null);
+        else setSelectedPhotos([]);
+      }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectedPhoto]);
+  }, [selectedPhoto, selectedPhotos.length]);
 
   const fetchInspections = async () => {
     setLoading(true);
@@ -237,33 +246,45 @@ export default function Inspections() {
 
                             {insp.photos?.length > 0 ? (
                               <div className="flex items-center gap-1">
-                                {insp.photos.slice(0, 3).map((photo, idx) => (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const photos = insp.photos.map(getMediaUrl);
+                                    setSelectedPhotos(photos);
+                                    setSelectedPhotoIndex(0);
+                                    setSelectedPhoto(null);
+                                    setPhotoZoom(1);
+                                  }}
+                                  className="group relative h-9 w-9 shrink-0 overflow-hidden rounded-md border border-[#d9c7a7] shadow-sm"
+                                  aria-label="Open inspection photos"
+                                >
+                                  <img
+                                    src={getMediaUrl(insp.photos[0])}
+                                    alt="Inspection preview"
+                                    className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
+                                    onError={(event) => {
+                                      event.currentTarget.closest("button").style.display = "none";
+                                    }}
+                                  />
+                                </button>
+                                {insp.photos.length > 1 && (
                                   <button
-                                    key={`${photo}-${idx}`}
                                     type="button"
-                                    onClick={() =>
-                                      setSelectedPhoto(getMediaUrl(photo))
-                                    }
-                                    className="group h-9 w-9 overflow-hidden rounded-md border border-[#d9c7a7] shadow-sm"
-                                    aria-label={`Enlarge inspection photo ${idx + 1}`}
+                                    onClick={() => {
+                                      const photos = insp.photos.map(getMediaUrl);
+                                      setSelectedPhotos(photos);
+                                      setSelectedPhotoIndex(0);
+                                      setSelectedPhoto(null);
+                                      setPhotoZoom(1);
+                                    }}
+                                    className="inline-flex h-8 min-w-8 items-center justify-center gap-0.5 rounded-md bg-[#ece4d5] px-2 text-xs font-semibold text-[#4c433d] transition hover:bg-[#ded0bb]"
+                                    aria-label={`Open ${insp.photos.length} inspection photos`}
+                                    title={`Open ${insp.photos.length} photos`}
                                   >
-                                    <img
-                                      src={getMediaUrl(photo)}
-                                      alt="Inspection preview"
-                                      className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
-                                      onError={(event) => {
-                                        event.currentTarget.closest(
-                                          "button",
-                                        ).style.display = "none";
-                                      }}
-                                    />
+                                    <Plus className="h-3.5 w-3.5" />
+                                    <span>{insp.photos.length - 1}</span>
                                   </button>
-                                ))}
-                                {insp.photos.length > 3 ? (
-                                  <span className="ml-1 rounded-md bg-[#ece4d5] px-1.5 py-0.5 text-[10px] font-medium text-[#4c433d]">
-                                    +{insp.photos.length - 3}
-                                  </span>
-                                ) : null}
+                                )}
                               </div>
                             ) : (
                               <span className="text-slate-400 text-xs">—</span>
@@ -330,28 +351,141 @@ export default function Inspections() {
           </div>
         </div>
 
-        {selectedPhoto && (
+        {selectedPhotos.length > 0 && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 sm:p-8"
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-950/85 p-3 sm:p-6"
             role="dialog"
             aria-modal="true"
-            aria-label="Enlarged inspection photo"
-            onClick={() => setSelectedPhoto(null)}
+            aria-label="Inspection photo gallery"
+            onClick={() => {
+              setSelectedPhoto(null);
+              setSelectedPhotos([]);
+            }}
           >
-            <button
-              type="button"
-              onClick={() => setSelectedPhoto(null)}
-              className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
-              aria-label="Close enlarged photo"
-            >
-              <X className="h-6 w-6" />
-            </button>
-            <img
-              src={selectedPhoto}
-              alt="Enlarged inspection site"
-              className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl"
+            <div
+              className="flex max-h-[80vh] w-[min(1100px,90vw)] flex-col overflow-hidden rounded-xl bg-slate-900 shadow-2xl"
               onClick={(event) => event.stopPropagation()}
-            />
+            >
+              <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3 text-white">
+                {selectedPhoto ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPhoto(null)}
+                    className="rounded-md px-2 py-1 text-sm transition hover:bg-white/10"
+                  >
+                    Back to photos
+                  </button>
+                ) : (
+                  <span className="text-sm font-medium">Inspection photos</span>
+                )}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-slate-300">
+                    {selectedPhoto ? `${selectedPhotoIndex + 1} / ` : ""}{selectedPhotos.length}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedPhoto(null);
+                      setSelectedPhotos([]);
+                    }}
+                    className="rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+                    aria-label="Close photo gallery"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              {selectedPhoto ? (
+                <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-4">
+                  <div className="flex items-center gap-2 rounded-lg bg-slate-800 p-1 text-white">
+                    <button
+                      type="button"
+                      onClick={() => adjustPhotoZoom(-0.25)}
+                      disabled={photoZoom <= 1}
+                      className="rounded p-2 transition hover:bg-white/15 disabled:opacity-40"
+                      aria-label="Zoom out"
+                    >
+                      <ZoomOut className="h-5 w-5" />
+                    </button>
+                    <span className="min-w-12 text-center text-sm tabular-nums">
+                      {Math.round(photoZoom * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => adjustPhotoZoom(0.25)}
+                      disabled={photoZoom >= 4}
+                      className="rounded p-2 transition hover:bg-white/15 disabled:opacity-40"
+                      aria-label="Zoom in"
+                    >
+                      <ZoomIn className="h-5 w-5" />
+                    </button>
+                  </div>
+                  {selectedPhotos.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextIndex = (selectedPhotoIndex - 1 + selectedPhotos.length) % selectedPhotos.length;
+                          setSelectedPhotoIndex(nextIndex);
+                          setSelectedPhoto(selectedPhotos[nextIndex]);
+                          setPhotoZoom(1);
+                        }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/10 px-3 py-2 text-xl text-white transition hover:bg-white/20"
+                        aria-label="Previous photo"
+                      >
+                        &#8249;
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextIndex = (selectedPhotoIndex + 1) % selectedPhotos.length;
+                          setSelectedPhotoIndex(nextIndex);
+                          setSelectedPhoto(selectedPhotos[nextIndex]);
+                          setPhotoZoom(1);
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/10 px-3 py-2 text-xl text-white transition hover:bg-white/20"
+                        aria-label="Next photo"
+                      >
+                        &#8250;
+                      </button>
+                    </>
+                  )}
+                  <img
+                    src={selectedPhoto}
+                    alt="Enlarged inspection site"
+                    className="max-h-[65vh] max-w-[80vw] rounded-lg object-contain shadow-2xl transition-transform duration-150"
+                    style={{ transform: `scale(${photoZoom})` }}
+                    onWheel={(event) => {
+                      event.preventDefault();
+                      adjustPhotoZoom(event.deltaY < 0 ? 0.25 : -0.25);
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="grid min-h-0 grid-cols-2 gap-3 overflow-y-auto p-3">
+                  {selectedPhotos.map((photo, index) => (
+                    <button
+                      key={`${photo}-${index}`}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPhotoIndex(index);
+                        setSelectedPhoto(photo);
+                        setPhotoZoom(1);
+                      }}
+                      className="group h-[min(28vh,250px)] overflow-hidden rounded-lg border border-white/10 bg-slate-800"
+                      aria-label={`View inspection photo ${index + 1}`}
+                    >
+                      <img
+                        src={photo}
+                        alt={`Inspection photo ${index + 1}`}
+                        className="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -110,7 +110,7 @@ export default function Navbar() {
     <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-[#121a21]/95 text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)] backdrop-blur-lg">
       <div className="grid h-16 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center">
         <div className="flex h-full min-w-0 items-center px-3 sm:px-5 xl:pr-8">
-          <BrandLogo imageClassName="h-10 w-[clamp(7.5rem,30vw,9.5rem)] max-w-full max-[380px]:w-[5.5rem] sm:h-12 sm:w-48" />
+          <BrandLogo imageClassName="h-10 w-[clamp(7.5rem,30vw,9.5rem)] max-w-full rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f00] max-[380px]:w-[5.5rem] sm:h-12 sm:w-48" />
         </div>
 
         <nav

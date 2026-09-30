@@ -10,6 +10,9 @@ import {
   Upload,
   FileText,
   ArrowRight,
+  X,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { createInspection, getMines } from "../services/api";
@@ -44,10 +47,16 @@ export default function CreateInspection() {
   const [audioUrl, setAudioUrl] = useState("");
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [selectedPhotos, setSelectedPhotos] = useState([]);
+  const [selectedPreview, setSelectedPreview] = useState(null);
+  const [previewZoom, setPreviewZoom] = useState(1);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
+
+  const adjustPreviewZoom = (amount) => {
+    setPreviewZoom((current) => Math.min(4, Math.max(1, current + amount)));
+  };
 
   const [form, setForm] = useState({
     mineId: "",
@@ -483,7 +492,11 @@ export default function CreateInspection() {
                           <img
                             src={preview}
                             alt={`Preview ${index + 1}`}
-                            className="h-24 w-full object-cover"
+                            className="h-24 w-full cursor-zoom-in object-cover"
+                            onClick={() => {
+                              setSelectedPreview(preview);
+                              setPreviewZoom(1);
+                            }}
                           />
                           <button
                             type="button"
@@ -715,6 +728,63 @@ export default function CreateInspection() {
           </div>
         </aside>
       </form>
+      {selectedPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-slate-950/85 p-4 sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Uploaded inspection photo preview"
+          onClick={() => setSelectedPreview(null)}
+          onWheel={(event) => {
+            event.preventDefault();
+            adjustPreviewZoom(event.deltaY < 0 ? 0.25 : -0.25);
+          }}
+        >
+          <div
+            className="absolute top-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-lg bg-slate-900/80 p-1.5 text-white"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => adjustPreviewZoom(-0.25)}
+              disabled={previewZoom <= 1}
+              className="rounded p-2 transition hover:bg-white/15 disabled:opacity-40"
+              aria-label="Zoom out"
+              title="Zoom out"
+            >
+              <ZoomOut className="h-5 w-5" />
+            </button>
+            <span className="min-w-12 text-center text-sm tabular-nums">
+              {Math.round(previewZoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={() => adjustPreviewZoom(0.25)}
+              disabled={previewZoom >= 4}
+              className="rounded p-2 transition hover:bg-white/15 disabled:opacity-40"
+              aria-label="Zoom in"
+              title="Zoom in"
+            >
+              <ZoomIn className="h-5 w-5" />
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSelectedPreview(null)}
+            className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+            aria-label="Close photo preview"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img
+            src={selectedPreview}
+            alt="Uploaded inspection site"
+            className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl transition-transform duration-150"
+            style={{ transform: `scale(${previewZoom})` }}
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
