@@ -128,7 +128,7 @@ JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRE=7d
 RECAPTCHA_SECRET_KEY=your-google-recaptcha-secret-key
 
-# Optional in development; required when email OTP delivery is enabled
+# SMTP settings are only needed when OTP_DELIVERY is not "display"
 EMAIL_HOST=smtp.example.com
 EMAIL_PORT=587
 EMAIL_SECURE=false
@@ -136,6 +136,11 @@ EMAIL_USER=your-smtp-user
 EMAIL_PASSWORD=your-smtp-password
 EMAIL_FROM=no-reply@example.com
 ```
+
+For a public demo deployment, set `OTP_DELIVERY=display` in the backend
+environment to show the OTP on the signup page instead of sending email. This
+exposes the code to anyone who requests it, so leave this setting unset for
+real user accounts and configure SMTP instead.
 
 Register a Google reCAPTCHA v2 checkbox and add your production frontend domain
 to its allowed domains. Set the **site key** as `VITE_RECAPTCHA_SITE_KEY` in the

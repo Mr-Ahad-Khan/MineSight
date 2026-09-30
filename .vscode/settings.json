@@ -19,6 +19,11 @@
       "approve": true,
       "matchCommandLine": true
     },
-    ".\\gradlew.bat": true
+    ".\\gradlew.bat": true,
+    "npm --prefix frontend": true,
+    "/^node --check backend/controllers/authController\\.js$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
   }
 }

@@ -23,6 +23,7 @@ export default function Register() {
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const recaptchaRef = useRef(null);
   const [otp, setOtp] = useState("");
+  const [developmentOtp, setDevelopmentOtp] = useState("");
   const [emailVerificationToken, setEmailVerificationToken] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
@@ -49,6 +50,7 @@ export default function Register() {
     if (name === "email") {
       setOtp("");
       setOtpSent(false);
+      setDevelopmentOtp("");
       setEmailVerificationToken("");
     }
   };
@@ -56,9 +58,14 @@ export default function Register() {
   const handleSendOtp = async () => {
     setIsSendingOtp(true);
     try {
-      await requestEmailOtp({ email: form.email.trim() });
+      const { data } = await requestEmailOtp({ email: form.email.trim() });
       setOtpSent(true);
-      toast.success("Verification code sent to your email");
+      setDevelopmentOtp(data.verificationCode || "");
+      toast.success(
+        data.verificationCode
+          ? "Verification code displayed below"
+          : "Verification code sent to your email",
+      );
     } catch (error) {
       const message =
         error.response?.data?.message ||
@@ -247,6 +254,14 @@ export default function Register() {
                 </div>
                 {otpSent && !emailVerificationToken && (
                   <div className="mt-2">
+                    {developmentOtp && (
+                      <p
+                        className="mb-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                        role="status"
+                      >
+                        Development verification code: <strong>{developmentOtp}</strong>
+                      </p>
+                    )}
                     <input
                       id="email-otp"
                       name="emailOtp"

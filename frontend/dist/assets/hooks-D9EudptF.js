@@ -1,0 +1,1 @@
+import{r as n}from"./index-CygAeyt7.js";import{u as o}from"./leafletAssets--Evi68St.js";function r(){return o().map}function p(e){const t=r();return n.useEffect(function(){return t.on(e),function(){t.off(e)}},[t,e]),t}export{p as a,r as u};

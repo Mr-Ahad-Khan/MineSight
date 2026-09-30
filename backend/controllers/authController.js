@@ -111,6 +111,17 @@ const requestEmailOtp = asyncHandler(async (req, res) => {
     expiresAt: new Date(Date.now() + 10 * 60 * 1000),
   });
 
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.OTP_DELIVERY === "display"
+  ) {
+    return res.json({
+      success: true,
+      message: "Verification code ready",
+      verificationCode: code,
+    });
+  }
+
   try {
     await sendOtpEmail(email, code);
   } catch (error) {
