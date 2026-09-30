@@ -27,7 +27,7 @@ if (rawBackendUrl) {
 } else {
   // Fallbacks: Development uses localhost, Production points directly to Render
   apiBaseUrl = import.meta.env.DEV
-    ? "http://localhost:5000/api"
+    ? "http://localhost:5001/api"
     : "https://minesight.onrender.com/api";
 }
 
