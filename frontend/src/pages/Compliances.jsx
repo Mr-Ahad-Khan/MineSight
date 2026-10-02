@@ -46,8 +46,8 @@ export default function Compliances() {
       )}
 
       <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="table-scroll-container">
+          <table className="mobile-readable-table text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800/50 text-left">
               <tr>
                 <th className="px-4 py-3 font-medium">{t.title}</th>

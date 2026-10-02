@@ -20,20 +20,20 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-white/10 bg-[#212121] pb-16 text-white/75 xl:pb-0">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
-          <div>
+      <div className="mx-auto max-w-7xl px-4 py-10 text-center sm:px-6 sm:text-left lg:px-8">
+        <div className="grid justify-items-center gap-8 md:grid-cols-[1.5fr_1fr_1fr_1.2fr] md:justify-items-stretch">
+          <div className="flex flex-col items-center md:items-start">
             <BrandLogo imageClassName="h-16 w-44 rounded" />
             <p className="mt-4 max-w-sm text-sm leading-6 text-[#9eafaf]">
               {t.footerTagline}
             </p>
           </div>
 
-          <div>
+          <div className="w-full">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
               {t.platform}
             </h3>
-            <div className="mt-4 flex flex-col gap-2.5 text-sm text-[#b5c2c1]">
+            <div className="mt-4 flex flex-col items-center gap-2.5 text-sm text-[#b5c2c1] md:items-start">
               <span>{t.riskSafety}</span>
               <span>{t.complianceRecords}</span>
               <span>{t.fieldInspections}</span>
@@ -41,11 +41,11 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
+          <div className="w-full">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
               {t.support}
             </h3>
-            <div className="mt-4 flex flex-col gap-2.5 text-sm text-[#b5c2c1]">
+            <div className="mt-4 flex flex-col items-center gap-2.5 text-sm text-[#b5c2c1] md:items-start">
               <a
                 href="mailto:support@coalgovernance.in"
                 className="transition-colors hover:text-white"
@@ -58,7 +58,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
+          <div className="w-full">
             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
               {t.systemStatus}
             </h3>
@@ -70,7 +70,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-4 text-xs text-[#758b8e] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col items-center gap-2 border-t border-white/10 pt-4 text-xs text-[#758b8e] sm:flex-row sm:items-center sm:justify-between">
           <p>{t.footerCopyright}</p>
           <p>{t.version}</p>
         </div>

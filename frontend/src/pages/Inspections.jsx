@@ -146,8 +146,8 @@ export default function Inspections() {
         </div>
 
         <div className="overflow-hidden rounded-[24px] border border-[#d8c6a6] bg-[#f5efe8] shadow-[0_2px_8px_rgba(76,60,43,0.08)]">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-[15px] text-[#1d1d1d]">
+          <div className="table-scroll-container">
+            <table className="mobile-readable-table text-[15px] text-[#1d1d1d]">
               <thead className="bg-[#f1e8dc] text-left">
                 <tr>
                   <th className="px-4 py-4 font-semibold text-[#1e1e1e]">

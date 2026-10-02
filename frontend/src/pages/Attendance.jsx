@@ -421,8 +421,8 @@ export default function Attendance() {
 
         {/* Attendance Roster Table */}
         <div className="overflow-hidden rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-xs">
+          <div className="table-scroll-container">
+            <table className="mobile-readable-table text-xs">
               <thead className="border-b border-[#e5d8c3] bg-[#f4ebdc] text-[#554a3b] dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-300">
                 <tr>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">

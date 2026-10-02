@@ -449,6 +449,33 @@
     @apply bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300;
   }
 
+  .table-scroll-container {
+    @apply w-full overflow-x-auto;
+    scrollbar-color: #94a3b8 transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-readable-table {
+    @apply min-w-[680px] text-left;
+  }
+
+  .mobile-readable-table th,
+  .mobile-readable-table td {
+    @apply whitespace-normal break-words;
+  }
+
+  @media (max-width: 639px) {
+    .table-scroll-container {
+      padding-bottom: 0.35rem;
+    }
+
+    .mobile-readable-table th,
+    .mobile-readable-table td {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+
   .stat-card {
     @apply card flex flex-col gap-1 border-t-4 border-t-[#ff6f00] p-5;
   }

@@ -322,8 +322,8 @@ export default function Analytics() {
       {/* High Risk List */}
       <div className="card p-5">
         <h2 className="font-semibold mb-4">{t.highRiskInspections}</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="table-scroll-container">
+          <table className="mobile-readable-table text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800/50 text-left">
               <tr>
                 <th className="px-4 py-3 font-medium">Title</th>

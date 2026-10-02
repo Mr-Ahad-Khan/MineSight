@@ -289,8 +289,8 @@ export default function MineralResourcesDashboard() {
 
         {recordsError && <p role="alert" className="mt-4 text-sm text-rose-600">{recordsError}</p>}
 
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+        <div className="table-scroll-container mt-4">
+          <table className="mobile-readable-table min-w-[760px] text-sm">
             <thead className="border-y border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-700">
               <tr>
                 {PREVIEW_FIELDS.map((field) => <th key={field} className="px-3 py-3 font-semibold">{field}</th>)}
@@ -310,7 +310,7 @@ export default function MineralResourcesDashboard() {
                   <Fragment key={recordId}>
                     <tr key={recordId}>
                       {PREVIEW_FIELDS.map((field) => (
-                        <td key={field} className="max-w-64 truncate px-3 py-3" title={record[field] || ''}>
+                        <td key={field} className="max-w-64 break-words px-3 py-3" title={record[field] || ''}>
                           {record[field] || '—'}
                         </td>
                       ))}
