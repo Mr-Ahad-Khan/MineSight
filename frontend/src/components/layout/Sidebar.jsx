@@ -6,6 +6,7 @@ import {
   MapPin,
   Users,
   UserCheck,
+  UserCircle,
   LifeBuoy,
   Siren,
   Bell,
@@ -24,6 +25,7 @@ export default function Sidebar({ open, setOpen }) {
 
   const navigation = user?.role === "worker" ? [
     { name: "My Work & Attendance", href: "/app/workers", icon: ClipboardList },
+    { name: t.profile || "Profile", href: "/app/profile", icon: UserCircle },
   ] : [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
@@ -95,19 +97,22 @@ export default function Sidebar({ open, setOpen }) {
         </nav>
 
         {/* User info */}
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-primary-600 flex items-center justify-center text-sm font-semibold">
-              {user?.name?.charAt(0) || "U"}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium truncate">{user?.name}</p>
-              <p className="text-xs text-slate-400 capitalize">
-                {user?.role?.replace("_", " ")}
-              </p>
-            </div>
+        <NavLink
+          to="/app/profile"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-3 p-4 border-t border-white/10 hover:bg-white/5 transition group"
+          title="Open Profile"
+        >
+          <div className="w-9 h-9 rounded-full bg-primary-600 flex items-center justify-center text-sm font-semibold">
+            {user?.name?.charAt(0) || "U"}
           </div>
-        </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate group-hover:text-primary-300 transition">{user?.name}</p>
+            <p className="text-xs text-slate-400 capitalize">
+              {user?.role?.replace("_", " ")}
+            </p>
+          </div>
+        </NavLink>
       </aside>
     </>
   );

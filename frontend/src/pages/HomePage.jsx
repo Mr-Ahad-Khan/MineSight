@@ -1125,16 +1125,15 @@ export default function HomePage() {
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
                   <a
-                    href={capabilityStatementUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={handleDemoClick}
+                    href="#demo-video"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      document.getElementById("demo-video")?.scrollIntoView({ behavior: "smooth" });
+                    }}
                     className="inline-flex items-center justify-center gap-3 rounded-md border border-white/70 bg-black/25 px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/10"
                   >
                     <PlayCircle className="h-5 w-5" />
-                    {activeSlide === 0
-                      ? "Download Capability Statement"
-                      : t.watchDemo}
+                    {t.watchDemo}
                   </a>
                 </div>
 
@@ -1423,6 +1422,39 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Video Demonstration Section with iframe */}
+        <section
+          id="demo-video"
+          className={`scroll-mt-[76px] border-t py-16 sm:py-20 ${darkMode ? "border-white/10 bg-[#0d1216]" : "border-[#c9b69d] bg-[#f5ede2]"}`}
+        >
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-8 text-center">
+              <span className="inline-block rounded-full bg-[#e5a416]/20 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#e5a416]">
+                {language === "en" ? "Live Demonstration" : "लाइव प्रदर्शन"}
+              </span>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-[#17314a] dark:text-white sm:text-4xl">
+                {language === "en" ? "Watch MineSight in Action" : "माइनसाइट को क्रियान्वित देखें"}
+              </h2>
+              <p className="mx-auto mt-2 max-w-2xl text-sm text-[#52636a] dark:text-[#aaa69e] sm:text-base">
+                {language === "en"
+                  ? "Explore how connected intelligence, dynamic risk scoring, and statutory compliance monitoring safeguard operations."
+                  : "देखें कि कैसे डिजिटल बुद्धिमत्ता और अनुपालन निगरानी खदान संचालन को सुरक्षित बनाती हैं।"}
+              </p>
+            </div>
+
+            <div className="relative mx-auto aspect-video w-full max-w-4xl overflow-hidden rounded-2xl border-2 border-[#e5a416]/40 bg-black shadow-2xl">
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/IyvTMzeYq8M?rel=0"
+                title="MineSight Platform Demonstration"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="h-full w-full border-0"
+                loading="lazy"
+              />
             </div>
           </div>
         </section>

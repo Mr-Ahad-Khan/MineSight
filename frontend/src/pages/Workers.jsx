@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Activity,
   Bell,
@@ -233,7 +234,15 @@ export default function Workers() {
               </div>
             )}
             <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 dark:border-slate-700 dark:bg-slate-900">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Worker profile</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Worker profile</h2>
+                <Link
+                  to="/app/profile"
+                  className="rounded-md border border-primary-600/30 px-2.5 py-1 text-xs font-semibold text-primary-700 transition hover:bg-primary-50 dark:border-primary-400/30 dark:text-primary-300 dark:hover:bg-primary-950/40"
+                >
+                  Manage account &rarr;
+                </Link>
+              </div>
               <dl className="mt-4 space-y-3 text-sm">
                 <div className="flex justify-between gap-4"><dt className="text-slate-500">Name</dt><dd className="font-semibold">{currentWorker?.name || user.name}</dd></div>
                 <div className="flex justify-between gap-4"><dt className="text-slate-500">Employee ID</dt><dd className="font-semibold">{currentWorker?.employeeId || "Not assigned"}</dd></div>

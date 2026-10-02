@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:frontend/dist/assets/BrandLogo-CXkD0lKk.js
-import{j as o,L as i}from"./index-D-RMcW2n.js";function r({className:a="",imageClassName:e=""}){return o.jsx(i,{to:"/app","aria-label":"MineSight dashboard",title:"Dashboard",onClick:t=>t.stopPropagation(),className:`flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-transparent p-0 ${e} ${a}`,children:o.jsx("img",{src:"/minesight-logo.svg",alt:"MineSight logo",loading:"eager",className:"block h-full w-full object-contain"})})}export{r as B};
-========
-import{j as o,L as i}from"./index-CAMI7djg.js";function r({className:a="",imageClassName:e=""}){return o.jsx(i,{to:"/app","aria-label":"MineSight dashboard",title:"Dashboard",onClick:t=>t.stopPropagation(),className:`flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-transparent p-0 ${e} ${a}`,children:o.jsx("img",{src:"/minesight-logo.svg",alt:"MineSight logo",loading:"eager",className:"block h-full w-full object-contain"})})}export{r as B};
->>>>>>>> cb475083dc89b4ebcc03406caf4bfad62d618468:frontend/dist/assets/BrandLogo-Dl54niuv.js

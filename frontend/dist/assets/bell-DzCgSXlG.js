@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:frontend/dist/assets/bell-DzCgSXlG.js
-import{c as e}from"./index-D-RMcW2n.js";const o=e("Bell",[["path",{d:"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9",key:"1qo2s2"}],["path",{d:"M10.3 21a1.94 1.94 0 0 0 3.4 0",key:"qgo35s"}]]);export{o as B};
-========
-import{c as e}from"./index-CAMI7djg.js";const o=e("Bell",[["path",{d:"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9",key:"1qo2s2"}],["path",{d:"M10.3 21a1.94 1.94 0 0 0 3.4 0",key:"qgo35s"}]]);export{o as B};
->>>>>>>> cb475083dc89b4ebcc03406caf4bfad62d618468:frontend/dist/assets/bell-DWLmKDaj.js

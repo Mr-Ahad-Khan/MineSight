@@ -69,7 +69,10 @@ export default function Login() {
     const result = await login(email.trim(), password, recaptchaToken);
     if (result.success) {
       toast.success("Login successful!");
-      navigate(destination, { replace: true });
+      const target =
+        new URLSearchParams(location.search).get("redirect") ||
+        (result.user?.role === "worker" ? "/app/workers" : "/app");
+      navigate(target.startsWith("/app") ? target : "/app", { replace: true });
     } else {
       toast.error(result.message);
       setRecaptchaToken(null);
@@ -309,22 +312,24 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => quickLogin("worker@cil.gov.in", "worker123", t.worker || "Worker")}
-                  className="col-span-2 flex items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
-                  <span>{t.workerDemo}</span>
-                  <span className="text-[10px] font-normal text-slate-400">worker@cil.gov.in</span>
+                  {t.worker || "Worker"}
                 </button>
                 <button
                   type="button"
                   onClick={() =>
-                    quickLogin("ananya@shakticontractors.in", "contract123", "Contractor")
+                    quickLogin("ananya@shakticontractors.in", "contract123", t.contractor || "Contractor")
                   }
-                  className="col-span-2 flex items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
-                  <span>{t.contractorDemo}</span>
-                  <span className="text-[10px] font-normal text-slate-400">ananya@shakticontractors.in</span>
+                  {t.contractor || "Contractor"}
                 </button>
               </div>
+
+              <p className="mt-3 text-center text-[11px] font-semibold text-red-600 dark:text-red-400">
+                * {t.demoNotice}
+              </p>
             </details>
             <div className="mt-4 text-center text-sm text-slate-600 dark:text-slate-300">
               {t.dontHaveAccount}{" "}

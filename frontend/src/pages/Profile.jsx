@@ -23,6 +23,18 @@ export default function Profile() {
     getMediaUrl(user?.profilePicture),
   );
 
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      }));
+      setPreviewUrl(getMediaUrl(user.profilePicture));
+    }
+  }, [user]);
+
   useEffect(
     () => () => {
       if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);

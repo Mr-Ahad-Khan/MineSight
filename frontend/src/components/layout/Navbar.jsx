@@ -37,6 +37,7 @@ export default function Navbar() {
 
   const navigation = user?.role === "worker" ? [
     { name: "My Work & Attendance", href: "/app/workers", icon: ClipboardList },
+    { name: t.profile || "Profile", href: "/app/profile", icon: UserCircle },
   ] : [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
