@@ -28,7 +28,7 @@ export default function CoalAiLauncher() {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+    <div className="pointer-events-none fixed bottom-20 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-20 sm:right-6 xl:bottom-6 xl:right-6">
       <div
         className={`pointer-events-auto w-[min(320px,calc(100vw-2rem))] origin-bottom-right overflow-hidden rounded-2xl border border-[#29414b] bg-[#101c24] text-white shadow-[0_16px_35px_rgba(0,0,0,0.3)] transition-all duration-500 ease-out dark:border-slate-700 dark:bg-slate-900 ${open && ready ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-95 opacity-0"}`}
         aria-hidden={!open}

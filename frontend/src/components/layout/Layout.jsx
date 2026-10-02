@@ -10,7 +10,7 @@ export default function Layout() {
     <div className="app-shell flex min-h-screen flex-col bg-[#f5f7fa] text-gray-700 dark:bg-[#0f1720] dark:text-slate-100">
       <Navbar />
 
-      <main className="flex-1 overflow-x-hidden pb-16 pt-16 xl:pb-0">
+      <main className="flex-1 overflow-x-hidden pb-16 pt-14 xl:pb-0 xl:pt-[100px]">
         <Outlet />
       </main>
       <Footer />
