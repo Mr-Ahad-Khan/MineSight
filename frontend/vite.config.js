@@ -25,7 +25,12 @@ const PRECACHE_URLS = ${JSON.stringify(precacheUrls)};
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)),
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const results = await Promise.allSettled(
+        PRECACHE_URLS.map((url) => cache.add(url).catch(() => null)),
+      );
+      return results;
+    }),
   );
   self.skipWaiting();
 });
@@ -51,7 +56,14 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match('/index.html')),
+      fetch(request).catch(async () => {
+        const cachedIndex = await caches.match('/index.html');
+        return cachedIndex || new Response('Offline app shell unavailable', {
+          status: 503,
+          statusText: 'Offline',
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        });
+      }),
     );
     return;
   }
@@ -60,16 +72,18 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
 
-      return fetch(request).then((response) => {
-        if (response.ok) {
-          const responseCopy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseCopy));
-        }
-        return response;
-      });
+      return fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            const responseCopy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseCopy));
+          }
+          return response;
+        })
+        .catch(() => caches.match('/index.html'));
     }),
   );
-});`,
+});`
       })
     },
   }
