@@ -77,9 +77,10 @@ export default function Login() {
     }
   };
 
-  const quickLogin = (roleEmail, rolePass) => {
+  const quickLogin = (roleEmail, rolePass, label) => {
     setEmail(roleEmail);
     setPassword(rolePass);
+    if (label) toast.success(`${label} credentials loaded`);
   };
 
   return (
@@ -272,57 +273,58 @@ export default function Login() {
             </p>
 
             {/* Optional seeded demo accounts */}
-            <details className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700">
+            <details className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700" open>
               <summary className="cursor-pointer text-center text-xs font-medium text-slate-600 dark:text-slate-300">
                 {t.quickDemo} ({t.optional})
               </summary>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => quickLogin("rajesh@ncl.gov.in", "mine123")}
-                  className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                  onClick={() => quickLogin("rajesh@ncl.gov.in", "mine123", t.mineOfficial)}
+                  className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
                   {t.mineOfficial}
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickLogin("corporate@cil.gov.in", "corp123")}
-                  className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                  onClick={() => quickLogin("corporate@cil.gov.in", "corp123", t.corporate)}
+                  className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
                   {t.corporate}
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickLogin("admin@cil.gov.in", "admin123")}
-                  className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                  onClick={() => quickLogin("admin@cil.gov.in", "admin123", t.admin)}
+                  className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
                   {t.admin}
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickLogin("regulator@dgms.gov.in", "reg123")}
-                  className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                  onClick={() => quickLogin("regulator@dgms.gov.in", "reg123", t.regulator)}
+                  className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
                   {t.regulator}
                 </button>
                 <button
                   type="button"
-                  onClick={() => quickLogin("worker@cil.gov.in", "worker123")}
-                  className="text-xs py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                  onClick={() => quickLogin("worker@cil.gov.in", "worker123", t.worker || "Worker")}
+                  className="col-span-2 flex items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
-                  Worker demo
+                  <span>{t.workerDemo}</span>
+                  <span className="text-[10px] font-normal text-slate-400">worker@cil.gov.in</span>
                 </button>
                 <button
                   type="button"
                   onClick={() =>
-                    quickLogin("ananya@shakticontractors.in", "contract123")
+                    quickLogin("ananya@shakticontractors.in", "contract123", "Contractor")
                   }
-                  className="col-span-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  className="col-span-2 flex items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
-                  {t.contractorDemo}
+                  <span>{t.contractorDemo}</span>
+                  <span className="text-[10px] font-normal text-slate-400">ananya@shakticontractors.in</span>
                 </button>
               </div>
-
             </details>
             <div className="mt-4 text-center text-sm text-slate-600 dark:text-slate-300">
               {t.dontHaveAccount}{" "}

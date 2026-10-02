@@ -62,23 +62,30 @@ function App() {
   }, []);
 
   useEffect(() => {
+    let timeoutId;
     const enhanceControls = () => {
-      document.querySelectorAll("button").forEach((button) => {
-        if (button.title) return;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        document.querySelectorAll("button").forEach((button) => {
+          if (button.title) return;
 
-        const label =
-          button.getAttribute("aria-label") ||
-          button.textContent?.replace(/\s+/g, " ").trim() ||
-          "Button";
-        button.setAttribute("title", label);
-      });
+          const label =
+            button.getAttribute("aria-label") ||
+            button.textContent?.replace(/\s+/g, " ").trim() ||
+            "Button";
+          button.setAttribute("title", label);
+        });
+      }, 400);
     };
 
     enhanceControls();
     const observer = new MutationObserver(enhanceControls);
     observer.observe(document.body, { childList: true, subtree: true });
 
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+    };
   }, []);
 
   return (

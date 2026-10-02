@@ -770,21 +770,40 @@ export default function HomePage() {
     };
     const duration = 1400;
     const startedAt = Date.now();
-    const timer = setInterval(() => {
+    let animationFrame;
+
+    const animateCounters = () => {
       const progress = Math.min((Date.now() - startedAt) / duration, 1);
       const easedProgress = 1 - (1 - progress) ** 3;
 
-      setMetricValues({
-        production: Math.round(targets.production * easedProgress),
-        availability: Number((targets.availability * easedProgress).toFixed(1)),
-        ltis: targets.ltis,
-        experience: Math.round(targets.experience * easedProgress),
+      const nextProd = Math.round(targets.production * easedProgress);
+      const nextAvail = Number((targets.availability * easedProgress).toFixed(1));
+      const nextExp = Math.round(targets.experience * easedProgress);
+
+      setMetricValues((prev) => {
+        if (
+          prev.production === nextProd &&
+          prev.availability === nextAvail &&
+          prev.experience === nextExp &&
+          prev.ltis === targets.ltis
+        ) {
+          return prev;
+        }
+        return {
+          production: nextProd,
+          availability: nextAvail,
+          ltis: targets.ltis,
+          experience: nextExp,
+        };
       });
 
-      if (progress === 1) clearInterval(timer);
-    }, 32);
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animateCounters);
+      }
+    };
 
-    return () => clearInterval(timer);
+    animationFrame = requestAnimationFrame(animateCounters);
+    return () => cancelAnimationFrame(animationFrame);
   }, [homeStats]);
 
   useEffect(() => {
@@ -793,7 +812,16 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => setShowScrollTop(window.scrollY > 360);
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setShowScrollTop(window.scrollY > 360);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -1183,17 +1211,14 @@ export default function HomePage() {
                   <div className="mt-1 text-[11px] text-[#52636a] dark:text-[#aaa69e]">
                     {item.detail}
                   </div>
-                  <div className={`mt-3 flex items-center justify-end text-[10px] font-semibold ${darkMode ? "text-[#aaa69e]" : "text-[#52636a]"}`}>
-                    {Math.round(item.progress)}%
-                  </div>
                   <div
                     role="progressbar"
                     aria-label={item.label}
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-valuenow={Math.min(Math.max(item.progress, 0), 100)}
-                    aria-valuetext={`${Math.round(item.progress)}%`}
-                    className="mt-1 h-1 overflow-hidden rounded-full bg-[#e5a416]/25"
+                    aria-valuetext={`${Math.round(item.progress)}`}
+                    className="mt-4 h-1 overflow-hidden rounded-full bg-[#e5a416]/25"
                   >
                     <div
                       className="h-full rounded-full bg-[#e5a416] transition-[width] duration-700"
