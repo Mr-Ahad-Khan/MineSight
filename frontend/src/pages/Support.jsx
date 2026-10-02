@@ -26,10 +26,12 @@ import {
   getMines,
 } from "../services/api";
 import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
 import { format } from "date-fns";
 
 export default function Support() {
   const { language } = useLanguageStore();
+  const t = translations[language] || translations.en;
 
   const [directory, setDirectory] = useState([]);
   const [tickets, setTickets] = useState([]);
@@ -80,14 +82,14 @@ export default function Support() {
   const handleCreateTicket = async (e) => {
     e.preventDefault();
     if (!ticketForm.subject || !ticketForm.description) {
-      return toast.error("Please fill in subject and description");
+      return toast.error(t.fillSubjectDescription);
     }
 
     setSubmitting(true);
     try {
       const res = await createSupportTicket(ticketForm);
       toast.success(
-        res.data.message || "Support ticket created successfully!"
+        res.data.message || t.ticketCreated
       );
       setTicketForm({
         subject: "",
@@ -99,7 +101,7 @@ export default function Support() {
       setFormOpen(false);
       loadSupportData();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to submit ticket");
+      toast.error(err.response?.data?.message || t.failedSubmitTicket);
     } finally {
       setSubmitting(false);
     }
@@ -116,10 +118,10 @@ export default function Support() {
       });
       setSelectedTicket(res.data.data);
       setReplyText("");
-      toast.success("Response posted");
+      toast.success(t.responsePosted);
       loadSupportData();
     } catch (err) {
-      toast.error("Failed to post reply");
+      toast.error(t.failedPostReply);
     } finally {
       setSendingReply(false);
     }
@@ -127,20 +129,20 @@ export default function Support() {
 
   const FAQS = [
     {
-      q: "How does real-time attendance telemetry track miners underground?",
-      a: "MineSight integrates with pit-head RFID and biometric check-in gates. When a miner clocks in, their location is automatically assigned to their working pit face. The system tracks active personnel underground for DGMS safety protocols and emergency evacuations.",
+      q: t.faqAttendanceQuestion,
+      a: t.faqAttendanceAnswer,
     },
     {
-      q: "What should I do during an underground gas or roof emergency?",
-      a: "Immediately activate the SOS Hotline button at the top of this Support Panel to dispatch Central Coalfields Rescue Station. All miners in the affected sector will be flagged on the Real-Time Attendance screen.",
+      q: t.faqEmergencyQuestion,
+      a: t.faqEmergencyAnswer,
     },
     {
-      q: "How are inspection descriptions and risk scores calculated?",
-      a: "Inspection reports combine environmental observations, statutory safety violations, and geo-coordinates. The risk score (0-100) is calculated dynamically based on violation severity.",
+      q: t.faqInspectionQuestion,
+      a: t.faqInspectionAnswer,
     },
     {
-      q: "Can I use MineSight offline when disconnected inside deep pits?",
-      a: "The app can reopen cached screens after it has been loaded online. Live data, creating or updating inspections, and syncing require a connection; changes made offline are not saved or queued.",
+      q: t.faqOfflineQuestion,
+      a: t.faqOfflineAnswer,
     },
   ];
 
@@ -155,13 +157,11 @@ export default function Support() {
                 <LifeBuoy className="h-5 w-5" />
               </div>
               <h1 className="text-3xl font-extrabold tracking-tight text-[#1a1a1a] sm:text-4xl dark:text-white">
-                {language === "hi" ? "खदान सहायता और सहायता केंद्र" : "Mine Operations Support Panel"}
+                {t.supportPanelTitle}
               </h1>
             </div>
             <p className="mt-1 text-sm text-[#5d5345] dark:text-slate-400">
-              {language === "hi"
-                ? "24/7 आपातकालीन खान नियंत्रण कक्ष, तकनीकी सहायता और डीजीएमएस विनियामक सहायता।"
-                : "24/7 National Mine Emergency Control Room, DGMS helpdesk, and technical incident reporting."}
+              {t.supportPanelSubtitle}
             </p>
           </div>
 
@@ -172,13 +172,13 @@ export default function Support() {
               className="inline-flex items-center gap-2 rounded-lg bg-[#ff6f00] px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-[#e65100] active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
-              <span>Raise Support Ticket</span>
+              <span>{t.raiseSupportTicket}</span>
             </button>
           </div>
         </div>
 
         {/* Emergency SOS & Hotlines Banner */}
-        <div className="rounded-xl border-2 border-red-300 bg-red-50 p-5 shadow-md dark:border-red-500/30 dark:from-red-950/30 dark:via-slate-900 dark:to-amber-950/20">
+        <div className="rounded-xl border-2 border-red-300 bg-red-50 p-4 shadow-md dark:border-red-500/30 dark:bg-red-950/20 sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-3.5">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-600/30 animate-pulse">
@@ -186,15 +186,15 @@ export default function Support() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-black text-red-950 dark:text-red-300">
-                    EMERGENCY MINE DISPATCH & RESCUE HOTLINES
+                  <h2 className="text-base font-black leading-tight text-red-950 dark:text-red-300 sm:text-lg">
+                    {t.emergencyHotlines}
                   </h2>
                   <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
-                    24/7 Active
+                    {t.active247}
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-red-900/80 dark:text-red-300/80">
-                  For immediate roof falls, toxic gas inundations (CH4/CO), or worker entombment, dial national rescue stations immediately.
+                  {t.emergencyHotlineDescription}
                 </p>
               </div>
             </div>
@@ -205,13 +205,13 @@ export default function Support() {
                 className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-md shadow-red-600/25 transition hover:bg-red-700 active:scale-95"
               >
                 <PhoneCall className="h-4 w-4" />
-                <span>DGMS SOS: 1800-345-3467</span>
+                <span>{t.dgmsSos}: 1800-345-3467</span>
               </a>
               <a
                 href="tel:03262202356"
                 className="inline-flex items-center gap-2 rounded-xl border border-red-300 bg-white/90 px-3.5 py-2.5 text-xs font-bold text-red-900 shadow-sm transition hover:bg-red-50 dark:border-red-800 dark:bg-slate-800 dark:text-red-300"
               >
-                <span>Rescue Dhanbad: 0326-2202356</span>
+                <span>{t.rescueDhanbad}: 0326-2202356</span>
               </a>
             </div>
           </div>
@@ -227,39 +227,39 @@ export default function Support() {
                 <div className="flex items-center gap-2">
                   <Server className="h-4 w-4 text-[#0d3f6d] dark:text-sky-400" />
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    System Telemetry Status
+                    {t.systemTelemetryStatus}
                   </h3>
                 </div>
                 <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  All Systems Normal
+                  {t.allSystemsNormal}
                 </span>
               </div>
 
               <div className="mt-3 space-y-2.5 text-xs">
                 <div className="flex items-center justify-between py-1 border-b border-[#f0e5d4] dark:border-slate-800/60">
                   <span className="text-slate-600 dark:text-slate-400">
-                    Real-Time Biometric Gateway
+                    {t.realTimeBiometricGateway}
                   </span>
-                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">Operational</span>
+                    <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">{t.operational}</span>
                 </div>
                 <div className="flex items-center justify-between py-1 border-b border-[#f0e5d4] dark:border-slate-800/60">
                   <span className="text-slate-600 dark:text-slate-400">
-                    DGMS Statutory Sync Server
+                    {t.dgmsSyncServer}
                   </span>
-                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">Connected</span>
+                    <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">{t.connected}</span>
                 </div>
                 <div className="flex items-center justify-between py-1 border-b border-[#f0e5d4] dark:border-slate-800/60">
                   <span className="text-slate-600 dark:text-slate-400">
-                    IoT Telemetry Ingestion
+                    {t.iotTelemetryIngestion}
                   </span>
                   <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">99.98% SLA</span>
                 </div>
                 <div className="flex items-center justify-between py-1">
                   <span className="text-slate-600 dark:text-slate-400">
-                    Field Media & Voice Storage
+                    {t.fieldMediaVoiceStorage}
                   </span>
-                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">Synced</span>
+                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">{t.synced}</span>
                 </div>
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function Support() {
             {/* Support Directory */}
             <div className="rounded-xl border border-sky-200 bg-white p-5 shadow-md dark:border-slate-800 dark:bg-slate-900">
               <h3 className="mb-3 text-sm font-bold text-slate-900 dark:text-white">
-                Technical & Statutory Contacts
+                {t.technicalStatutoryContacts}
               </h3>
               <div className="space-y-3">
                 {directory.map((sec, idx) => (
@@ -308,7 +308,7 @@ export default function Support() {
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-[#0d3f6d] dark:text-sky-400" />
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    Logged Support Tickets ({tickets.length})
+                    {t.loggedSupportTickets} ({tickets.length})
                   </h3>
                 </div>
                 <button
@@ -316,14 +316,14 @@ export default function Support() {
                   onClick={() => setFormOpen(true)}
                   className="text-xs font-bold text-[#0d3f6d] hover:underline dark:text-sky-400"
                 >
-                  + New Incident / Query
+                  + {t.newIncidentQuery}
                 </button>
               </div>
 
               <div className="mt-4 space-y-3">
                 {tickets.length === 0 ? (
                   <p className="py-6 text-center text-xs text-slate-400">
-                    No active support tickets logged. Click "Raise Support Ticket" to report an issue.
+                    {t.noActiveSupportTickets}
                   </p>
                 ) : (
                   tickets.map((t) => {
@@ -381,14 +381,14 @@ export default function Support() {
 
                             <div className="mt-2 flex items-center gap-3 text-[10px] text-slate-400">
                               <span>
-                                Logged by: <strong>{t.userName || "Official"}</strong>
+                                {t.loggedBy}: <strong>{t.userName || t.official}</strong>
                               </span>
                               <span>•</span>
                               <span>
                                 {format(new Date(t.createdAt), "dd MMM yyyy, hh:mm a")}
                               </span>
                               <span>•</span>
-                              <span>{t.responses?.length || 0} messages</span>
+                                <span>{t.responses?.length || 0} {translations[language].messages}</span>
                             </div>
                           </div>
 
@@ -411,7 +411,7 @@ export default function Support() {
                         {isSelected && (
                           <div className="mt-4 border-t border-[#e5d6bf] pt-4 dark:border-slate-700">
                             <h5 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
-                              Conversation History
+                              {translations[language].conversationHistory}
                             </h5>
                             <div className="max-h-60 space-y-2.5 overflow-y-auto pr-1">
                               {t.responses?.map((r, rIdx) => (
@@ -447,7 +447,7 @@ export default function Support() {
                                 type="text"
                                 value={replyText}
                                 onChange={(e) => setReplyText(e.target.value)}
-                                placeholder="Type response or status update..."
+                                placeholder={translations[language].typeResponse}
                                 className="flex-1 rounded-xl border border-[#cbb79d] bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                               />
                               <button
@@ -456,7 +456,7 @@ export default function Support() {
                                 className="inline-flex items-center gap-1 rounded-xl bg-[#0d3f6d] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[#155a9b] disabled:opacity-50"
                               >
                                 <Send className="h-3 w-3" />
-                                <span>{sendingReply ? "Sending..." : "Reply"}</span>
+                                <span>{sendingReply ? translations[language].sending : translations[language].reply}</span>
                               </button>
                             </form>
                           </div>
@@ -473,7 +473,7 @@ export default function Support() {
               <div className="flex items-center gap-2 border-b border-[#ebdcc7] pb-3 dark:border-slate-800">
                 <FileQuestion className="h-4 w-4 text-[#0d3f6d] dark:text-sky-400" />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Mining Knowledge & Regulatory FAQs
+                  {t.miningKnowledgeFaqs}
                 </h3>
               </div>
 
@@ -520,16 +520,16 @@ export default function Support() {
         >
           <div className="w-full max-w-lg rounded-2xl border border-[#cbb79d] bg-[#fbf7f0] p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              Submit Support Ticket or Incident
+              {t.submitSupportTicket}
             </h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              Notify safety directors, IoT technicians, or portal administrators.
+              {t.supportTicketDescription}
             </p>
 
             <form onSubmit={handleCreateTicket} className="mt-4 space-y-3.5">
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                  Subject *
+                  {t.subjectRequired}
                 </label>
                 <input
                   type="text"
@@ -538,7 +538,7 @@ export default function Support() {
                   onChange={(e) =>
                     setTicketForm({ ...ticketForm, subject: e.target.value })
                   }
-                  placeholder="e.g. Methane sensor reading spike at Pit-2"
+                  placeholder={t.supportSubjectPlaceholder}
                   className="w-full rounded-xl border border-[#cbb79d] bg-white px-3 py-2 text-xs font-medium text-slate-900 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
               </div>
@@ -546,7 +546,7 @@ export default function Support() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                    Category
+                    {t.category}
                   </label>
                   <select
                     value={ticketForm.category}
@@ -555,18 +555,18 @@ export default function Support() {
                     }
                     className="w-full rounded-xl border border-[#cbb79d] bg-white px-3 py-2 text-xs font-medium text-slate-900 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   >
-                    <option value="safety_alert">Mine Safety Incident</option>
-                    <option value="emergency">Emergency / SOS</option>
-                    <option value="hardware_iot">IoT / Sensor Telemetry</option>
-                    <option value="portal_bug">Portal / Form Defect</option>
-                    <option value="compliance_query">Compliance & Filing</option>
-                    <option value="general">General Support</option>
+                    <option value="safety_alert">{t.mineSafetyIncident}</option>
+                    <option value="emergency">{t.emergencySos}</option>
+                    <option value="hardware_iot">{t.iotSensorTelemetry}</option>
+                    <option value="portal_bug">{t.portalFormDefect}</option>
+                    <option value="compliance_query">{t.complianceFiling}</option>
+                    <option value="general">{t.generalSupport}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                    Priority
+                    {t.priority}
                   </label>
                   <select
                     value={ticketForm.priority}
@@ -575,17 +575,17 @@ export default function Support() {
                     }
                     className="w-full rounded-xl border border-[#cbb79d] bg-white px-3 py-2 text-xs font-medium text-slate-900 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   >
-                    <option value="low">Low (General inquiry)</option>
-                    <option value="medium">Medium (Routine defect)</option>
-                    <option value="high">High (Field blocker)</option>
-                    <option value="critical">Critical (Immediate danger)</option>
+                    <option value="low">{t.lowGeneralInquiry}</option>
+                    <option value="medium">{t.mediumRoutineDefect}</option>
+                    <option value="high">{t.highFieldBlocker}</option>
+                    <option value="critical">{t.criticalImmediateDanger}</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                  Associated Coal Mine
+                  {t.associatedCoalMine}
                 </label>
                 <select
                   value={ticketForm.mineId}
@@ -604,7 +604,7 @@ export default function Support() {
 
               <div>
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                  Detailed Description *
+                  {t.detailedDescriptionRequired}
                 </label>
                 <textarea
                   required
@@ -616,7 +616,7 @@ export default function Support() {
                       description: e.target.value,
                     })
                   }
-                  placeholder="Detail the exact incident, location coordinates, symptoms, or requested assistance..."
+                  placeholder={t.supportDescriptionPlaceholder}
                   className="w-full rounded-xl border border-[#cbb79d] bg-white px-3 py-2 text-xs font-medium text-slate-900 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
               </div>
@@ -627,14 +627,14 @@ export default function Support() {
                   onClick={() => setFormOpen(false)}
                   className="rounded-xl border border-[#cbb79d] px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
                   className="inline-flex items-center gap-2 rounded-xl bg-[#0d3f6d] px-5 py-2 text-xs font-bold text-white shadow transition hover:bg-[#155a9b]"
                 >
-                  {submitting ? "Submitting..." : "Submit Ticket"}
+                  {submitting ? t.submitting : t.submitTicket}
                 </button>
               </div>
             </form>
