@@ -476,6 +476,9 @@ export default function Attendance() {
                     const isInside = worker.liveStatus === "inside_mine";
                     const isSurface = worker.liveStatus === "surface_area";
                     const isCheckedOut = worker.liveStatus === "checked_out";
+                    const displayName = String(
+                      worker.workerName || worker.workerId || "Unknown worker"
+                    );
 
                     return (
                       <tr
@@ -494,11 +497,11 @@ export default function Attendance() {
                                     : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                               }`}
                             >
-                              {worker.workerName.charAt(0)}
+                              {displayName.charAt(0)}
                             </div>
                             <div>
                               <div className="font-bold text-[#1a1a1a] text-sm dark:text-white">
-                                {worker.workerName}
+                                {displayName}
                               </div>
                               <div className="font-mono text-[11px] text-slate-500">
                                 {worker.workerId}
