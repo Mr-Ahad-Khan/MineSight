@@ -36,7 +36,7 @@ export default function Navbar() {
   const t = translations[language];
 
   const navigation = user?.role === "worker" ? [
-    { name: "My Work & Attendance", href: "/app/workers", icon: ClipboardList },
+    { name: t.myWorkAttendance, href: "/app/workers", icon: ClipboardList },
     { name: t.profile || "Profile", href: "/app/profile", icon: UserCircle },
   ] : [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },
@@ -44,13 +44,13 @@ export default function Navbar() {
     { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
     { name: t.mines, href: "/app/mines", icon: MapPin },
-    { name: "Mineral Resources", href: "/app/mineral-resources", icon: Gem },
+    { name: t.mineralResources, href: "/app/mineral-resources", icon: Gem },
     { name: t.contractors, href: "/app/contractors", icon: Users },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
     { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
-    { name: "Workers", href: "/app/workers", icon: Users },
+    { name: t.workersTitle, href: "/app/workers", icon: Users },
     { name: t.support || "Support", href: "/app/support", icon: LifeBuoy },
-    { name: "Disaster Management", href: "/app/disaster-management", icon: Siren },
+    { name: t.disasterManagement, href: "/app/disaster-management", icon: Siren },
     { name: t.coalAi, href: "/app/chat", icon: MessageCircle },
   ];
 
@@ -64,8 +64,8 @@ export default function Navbar() {
       type="button"
       onClick={() => setLanguage(language === "en" ? "hi" : "en")}
       className="inline-flex h-9 shrink-0 items-center gap-0.5 rounded-full border border-[#b99a72] bg-[#f4ecdf] p-1 text-[10px] font-bold tracking-wide text-[#5d554b] transition hover:border-[#0d3f6b] max-[380px]:gap-0 max-[380px]:px-0.5 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-sky-400"
-      title="Change language"
-      aria-label="Change language"
+      title={t.changeLanguage}
+      aria-label={t.changeLanguage}
     >
       <Languages className="mx-1 h-3.5 w-3.5 text-[#0d3f6b] max-[380px]:mx-0.5 max-[380px]:h-3 max-[380px]:w-3 dark:text-sky-300" />
       <span
@@ -92,7 +92,7 @@ export default function Navbar() {
         onClick={() => setNavigationMenuOpen(false)}
         className={({ isActive }) =>
           variant === "desktop"
-              ? `relative flex min-w-0 items-center justify-center gap-1 whitespace-nowrap rounded-none px-1 py-3 text-[10px] font-semibold transition-colors after:absolute after:inset-x-1 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-[#ff6f00] after:transition-transform 2xl:text-xs ${
+              ? `relative flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-none px-1 py-3 text-[10px] font-semibold transition-colors after:absolute after:inset-x-1 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-[#ff6f00] after:transition-transform 2xl:text-xs ${
                 isActive
                   ? "text-white after:scale-x-100"
                   : "text-white/70 hover:text-white hover:after:scale-x-100"
@@ -105,7 +105,7 @@ export default function Navbar() {
         }
       >
         <item.icon className="h-4 w-4 shrink-0" />
-        <span className="truncate">{item.name}</span>
+        <span>{item.name}</span>
       </NavLink>
     ));
 
@@ -128,17 +128,17 @@ export default function Navbar() {
             type="button"
             onClick={() => navigate("/app/support")}
             className="inline-flex items-center gap-1 rounded-full border border-red-300/80 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 transition hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300"
-            title="Emergency Support Panel"
+            title={t.emergencySupportPanel}
           >
             <LifeBuoy className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">SOS Help</span>
+            <span className="hidden sm:inline">{t.sosHelp}</span>
           </button>
           {languageControl}
           <button
             onClick={toggleDarkMode}
             className="rounded-lg p-2 hover:bg-white/10 max-[380px]:p-1.5"
-            title="Toggle theme"
-            aria-label="Toggle theme"
+            title={t.toggleTheme}
+            aria-label={t.toggleTheme}
           >
             {darkMode ? (
               <Sun className="h-4 w-4" />
@@ -154,7 +154,7 @@ export default function Navbar() {
             }}
             className="inline-flex shrink-0 rounded-lg p-2 hover:bg-white/10 max-[380px]:p-1.5 xl:hidden"
             aria-expanded={navigationMenuOpen}
-            aria-label="Open navigation menu"
+            aria-label={t.openNavigationMenu}
           >
             {navigationMenuOpen ? (
               <X className="h-5 w-5" />
@@ -170,7 +170,7 @@ export default function Navbar() {
             }}
             className="hidden rounded-lg p-2 hover:bg-white/10 xl:inline-flex"
             aria-expanded={accountMenuOpen}
-            aria-label="Open account menu"
+            aria-label={t.openAccountMenu}
           >
             <UserCircle className="h-5 w-5" />
           </button>

@@ -10,7 +10,7 @@ export default function Footer() {
   const { language } = useLanguageStore();
   const t = translations[language];
   const navigation = user?.role === "worker" ? [
-    { name: "My Work & Attendance", href: "/app/workers", icon: ClipboardList },
+    { name: t.myWorkAttendance, href: "/app/workers", icon: ClipboardList },
   ] : [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
