@@ -20,7 +20,7 @@ function offlineShellPlugin() {
       this.emitFile({
         type: 'asset',
         fileName: 'sw.js',
-        source: `const CACHE_NAME = 'minesight-offline-v1';
+        source: `const CACHE_NAME = 'minesight-offline-v' + ${Date.now()};
 const PRECACHE_URLS = ${JSON.stringify(precacheUrls)};
 
 self.addEventListener('install', (event) => {

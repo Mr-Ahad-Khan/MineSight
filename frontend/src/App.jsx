@@ -59,6 +59,12 @@ function App() {
 
   useEffect(() => {
     initTheme();
+
+    const handlePreloadError = () => {
+      window.location.reload();
+    };
+    window.addEventListener("vite:preloadError", handlePreloadError);
+    return () => window.removeEventListener("vite:preloadError", handlePreloadError);
   }, []);
 
   useEffect(() => {

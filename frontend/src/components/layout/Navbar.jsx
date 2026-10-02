@@ -10,7 +10,6 @@ import {
   LogOut,
   MapPin,
   Menu,
-  MessageCircle,
   Moon,
   ShieldCheck,
   Sun,
@@ -62,7 +61,6 @@ export default function Navbar() {
     { name: t.workersTitle, href: "/app/workers", icon: Users },
     { name: t.support || "Support", href: "/app/support", icon: LifeBuoy },
     { name: t.disasterManagement, href: "/app/disaster-management", icon: Siren },
-    { name: t.coalAi, href: "/app/chat", icon: MessageCircle },
   ];
 
   const allNavigation = [...primaryNavigation, ...secondaryNavigation];
