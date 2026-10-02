@@ -41,6 +41,7 @@ export default function Navbar() {
   const location = useLocation();
   const t = translations[language];
 
+  // Core/Primary navigation items always shown directly on desktop navbar
   const primaryNavigation = user?.role === "worker" ? [
     { name: t.myWorkAttendance, href: "/app/workers", icon: ClipboardList },
     { name: t.profile || "Profile", href: "/app/profile", icon: UserCircle },
@@ -50,13 +51,14 @@ export default function Navbar() {
     { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
     { name: t.mines, href: "/app/mines", icon: MapPin },
-    { name: t.mineralResources, href: "/app/mineral-resources", icon: Gem },
-    { name: t.contractors, href: "/app/contractors", icon: Users },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
-    { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
   ];
 
+  // Non-important / secondary tabs shifted to "More ▾" dropdown on desktop
   const secondaryNavigation = user?.role === "worker" ? [] : [
+    { name: t.mineralResources, href: "/app/mineral-resources", icon: Gem },
+    { name: t.contractors, href: "/app/contractors", icon: Users },
+    { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
     { name: t.workersTitle, href: "/app/workers", icon: Users },
     { name: t.support || "Support", href: "/app/support", icon: LifeBuoy },
     { name: t.disasterManagement, href: "/app/disaster-management", icon: Siren },
@@ -118,9 +120,9 @@ export default function Navbar() {
           <BrandLogo imageClassName="h-9 w-[clamp(7.5rem,24vw,9.5rem)] max-w-full rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f00] max-[380px]:w-[5.5rem] sm:h-10 sm:w-40" />
         </div>
 
-        {/* Desktop Single-Line Navigation: Primary Tabs + More Dropdown */}
+        {/* Desktop Single-Line Navigation: Core Tabs + More Dropdown */}
         <nav
-          className="navbar-scrollbar-hidden hidden min-w-0 flex-1 items-center justify-start xl:justify-center gap-0.5 px-3 overflow-x-auto xl:flex"
+          className="navbar-scrollbar-hidden hidden min-w-0 flex-1 items-center justify-start xl:justify-center gap-1 px-3 overflow-x-auto xl:flex"
           aria-label="Primary navigation"
         >
           {primaryNavigation.map((item) => (
@@ -141,7 +143,7 @@ export default function Navbar() {
             </NavLink>
           ))}
 
-          {/* "More" Dropdown Button for Secondary Tabs */}
+          {/* "More" Dropdown Button for Secondary Tabs and Options */}
           {secondaryNavigation.length > 0 && (
             <div className="relative shrink-0" ref={moreMenuRef}>
               <button
@@ -160,11 +162,11 @@ export default function Navbar() {
                 <ChevronDown className={`h-3 w-3 shrink-0 transition-transform ${moreMenuOpen ? "rotate-180" : ""}`} />
               </button>
 
-              {/* More Dropdown Popover */}
+              {/* More Dropdown Popover with 100% Solid Opaque Background */}
               {moreMenuOpen && (
-                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-56 rounded-xl border border-slate-700 bg-[#141e27] p-1.5 text-white shadow-2xl backdrop-blur-md">
-                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white/50 border-b border-white/10">
-                    {language === "hi" ? "अतिरिक्त मॉड्यूल" : "Additional Modules"}
+                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-60 rounded-xl border border-slate-700 bg-[#101923] p-1.5 text-white shadow-2xl ring-1 ring-black/20">
+                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-700/70">
+                    {language === "hi" ? "अतिरिक्त मॉड्यूल और विकल्प" : "Additional Modules & Options"}
                   </div>
                   <div className="mt-1 space-y-0.5">
                     {secondaryNavigation.map((item) => (
@@ -173,9 +175,9 @@ export default function Navbar() {
                         to={item.href}
                         onClick={() => setMoreMenuOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                          `flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${
                             isActive
-                              ? "bg-[#ff6f00] text-white font-semibold"
+                              ? "bg-[#ff6f00] text-white font-semibold shadow-sm"
                               : "text-slate-200 hover:bg-white/10 hover:text-white"
                           }`
                         }
@@ -244,8 +246,8 @@ export default function Navbar() {
             </button>
 
             {accountMenuOpen && (
-              <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-56 rounded-xl border border-slate-700 bg-[#141e27] p-1.5 text-white shadow-2xl backdrop-blur-md">
-                <div className="border-b border-white/10 px-3 py-2">
+              <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-56 rounded-xl border border-slate-700 bg-[#101923] p-1.5 text-white shadow-2xl">
+                <div className="border-b border-slate-700/70 px-3 py-2">
                   <p className="truncate text-sm font-semibold text-white">
                     {user?.name || "User"}
                   </p>
@@ -292,20 +294,20 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Hamburger Dropdown: Uses ONLY ~30% of Mobile Screen Height */}
+      {/* Mobile Hamburger Dropdown: 100% Solid Opaque Background (Zero Transparency) & Compact ~30% Screen Height */}
       {navigationMenuOpen && (
         <>
-          {/* Dimmed backdrop covering remaining 70% of screen */}
+          {/* Deep dimmed backdrop covering remaining screen */}
           <div
-            className="fixed inset-x-0 bottom-0 top-16 z-40 bg-black/50 backdrop-blur-[2px] transition-opacity xl:hidden"
+            className="fixed inset-0 top-16 z-40 bg-black/80 backdrop-blur-sm transition-opacity xl:hidden"
             onClick={() => setNavigationMenuOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Compact 30% Mobile Screen Dropdown Panel */}
-          <div className="fixed inset-x-0 top-16 z-50 max-h-[32vh] overflow-y-auto border-b border-white/10 bg-[#121a21]/98 p-3 shadow-2xl backdrop-blur-xl xl:hidden">
-            {/* 2-Column Grid of ALL Navigation Items */}
-            <div className="grid grid-cols-2 gap-1.5">
+          {/* Compact 30% Mobile Screen Dropdown Panel with 100% SOLID OPAQUE BACKGROUND */}
+          <div className="fixed inset-x-0 top-16 z-50 max-h-[35vh] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] xl:hidden">
+            {/* 2-Column Grid of ALL Navigation Items with SOLID OPAQUE Card Backgrounds */}
+            <div className="grid grid-cols-2 gap-2">
               {allNavigation.map((item) => (
                 <NavLink
                   key={item.name}
@@ -313,33 +315,33 @@ export default function Navbar() {
                   end={item.href === "/app"}
                   onClick={() => setNavigationMenuOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${
+                    `flex items-center gap-2 rounded-lg px-2.5 py-2.5 text-xs font-semibold transition-all ${
                       isActive
-                        ? "bg-[#ff6f00] text-white font-semibold shadow-sm"
-                        : "bg-white/5 text-white/85 hover:bg-white/10 hover:text-white"
+                        ? "bg-[#ff6f00] text-white shadow-md border border-[#ffa040]"
+                        : "bg-[#162330] text-slate-100 border border-slate-700/70 hover:bg-[#1f3042] hover:text-white"
                     }`
                   }
                 >
-                  <item.icon className="h-3.5 w-3.5 shrink-0 text-[#ff9a3c]" />
+                  <item.icon className="h-4 w-4 shrink-0 text-[#ff9a3c]" />
                   <span className="truncate">{item.name}</span>
                 </NavLink>
               ))}
             </div>
 
             {/* Quick Profile & Logout Footer inside the 30% panel */}
-            <div className="mt-2.5 flex items-center justify-between border-t border-white/10 pt-2 text-xs">
+            <div className="mt-3 flex items-center justify-between border-t border-slate-700/80 pt-2.5 text-xs">
               <button
                 type="button"
                 onClick={() => {
                   navigate("/app/profile");
                   setNavigationMenuOpen(false);
                 }}
-                className="inline-flex items-center gap-1.5 text-white/80 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-md bg-[#162330] px-2.5 py-1.5 font-medium text-slate-200 border border-slate-700 hover:bg-[#1f3042] hover:text-white transition"
               >
                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6f00] text-[10px] font-bold text-white">
                   {user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
-                <span className="max-w-[130px] truncate">{user?.name || t.profile}</span>
+                <span className="max-w-[120px] truncate">{user?.name || t.profile}</span>
               </button>
 
               <button
@@ -348,7 +350,7 @@ export default function Navbar() {
                   setNavigationMenuOpen(false);
                   handleLogout();
                 }}
-                className="inline-flex items-center gap-1 text-red-400 hover:text-red-300"
+                className="inline-flex items-center gap-1 rounded-md bg-red-950/40 px-2.5 py-1.5 font-medium text-red-400 border border-red-900/60 hover:bg-red-900/50 hover:text-red-200 transition"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 <span>{t.logout}</span>
