@@ -120,7 +120,7 @@ export default function Navbar() {
 
         {/* Desktop Single-Line Navigation: Core Tabs + More Dropdown */}
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden px-1 xl:flex"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-visible px-1 xl:flex"
           aria-label="Primary navigation"
         >
           {primaryNavigation.map((item) => (
@@ -129,7 +129,7 @@ export default function Navbar() {
               to={item.href}
               end={item.href === "/app"}
               className={({ isActive }) =>
-                `relative flex min-w-0 shrink items-center justify-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 text-xs font-semibold tracking-wide transition-all ${
+                `relative flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 text-xs font-semibold tracking-wide transition-all ${
                   isActive
                     ? "bg-[#ff6f00] text-white shadow-sm"
                     : "text-white/80 hover:bg-white/10 hover:text-white"
@@ -137,7 +137,7 @@ export default function Navbar() {
               }
             >
               <item.icon className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{item.name}</span>
+              <span className="shrink-0">{item.name}</span>
             </NavLink>
           ))}
 
