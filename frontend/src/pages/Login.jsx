@@ -293,12 +293,6 @@ export default function Login() {
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.mineOfficial}
                     </span>
-                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      rajesh@ncl.gov.in
-                    </span>
-                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      mine123
-                    </span>
                   </button>
                   <button
                     type="button"
@@ -309,12 +303,6 @@ export default function Login() {
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.corporate}
-                    </span>
-                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      corporate@cil.gov.in
-                    </span>
-                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      corp123
                     </span>
                   </button>
                   <button
@@ -327,12 +315,6 @@ export default function Login() {
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.admin}
                     </span>
-                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      admin@cil.gov.in
-                    </span>
-                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      admin123
-                    </span>
                   </button>
                   <button
                     type="button"
@@ -343,12 +325,6 @@ export default function Login() {
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.regulator}
-                    </span>
-                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      regulator@dgms.gov.in
-                    </span>
-                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      reg123
                     </span>
                   </button>
                   <button
@@ -365,12 +341,6 @@ export default function Login() {
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.worker || "Worker"}
                     </span>
-                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      worker@cil.gov.in
-                    </span>
-                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      worker123
-                    </span>
                   </button>
                   <button
                     type="button"
@@ -385,12 +355,6 @@ export default function Login() {
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.contractor || "Contractor"}
-                    </span>
-                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      ananya@shakticontractors.in
-                    </span>
-                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                      contract123
                     </span>
                   </button>
                 </div>
