@@ -277,65 +277,59 @@ export default function Login() {
 
             {/* Optional seeded demo accounts */}
             <details className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700" open>
-              <summary className="cursor-pointer text-center text-xs font-medium text-slate-600 dark:text-slate-300">
+              <summary className="cursor-pointer text-center text-base font-semibold text-slate-700 dark:text-slate-200">
                 {t.quickDemo} ({t.optional})
               </summary>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <button
                   type="button"
                   onClick={() => quickLogin("rajesh@ncl.gov.in", "mine123", t.mineOfficial)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.mineOfficial}</span>
-                  <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">rajesh@ncl.gov.in</span>
-                  <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">mine123</span>
+                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: mine123</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => quickLogin("corporate@cil.gov.in", "corp123", t.corporate)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.corporate}</span>
-                  <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">corporate@cil.gov.in</span>
-                  <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">corp123</span>
+                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: corp123</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => quickLogin("admin@cil.gov.in", "admin123", t.admin)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.admin}</span>
-                  <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">admin@cil.gov.in</span>
-                  <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">admin123</span>
+                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: admin123</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => quickLogin("regulator@dgms.gov.in", "reg123", t.regulator)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.regulator}</span>
-                  <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">regulator@dgms.gov.in</span>
-                  <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">reg123</span>
+                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: reg123</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => quickLogin("worker@cil.gov.in", "worker123", t.worker || "Worker")}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.worker || "Worker"}</span>
-                  <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">worker@cil.gov.in</span>
-                  <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">worker123</span>
+                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: worker123</span>
                 </button>
                 <button
                   type="button"
                   onClick={() =>
                     quickLogin("ananya@shakticontractors.in", "contract123", t.contractor || "Contractor")
                   }
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.contractor || "Contractor"}</span>
-                  <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">ananya@shakticontractors.in</span>
-                  <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">contract123</span>
+                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: contract123</span>
                 </button>
               </div>
 

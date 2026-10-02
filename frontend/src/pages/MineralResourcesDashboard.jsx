@@ -17,6 +17,8 @@ import {
 } from 'recharts'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { getMineralResourceRecords, getMineralResourceSummary } from '../services/api'
+import { useLanguageStore } from '../store/themeStore'
+import { translations } from '../i18n/translations'
 
 const CHART_COLORS = ['#0f766e', '#e05d2b', '#2563eb', '#ca8a04', '#be185d', '#4d7c0f', '#0891b2', '#7c3aed', '#64748b']
 const CLUSTER_COLORS = ['#0f766e', '#e05d2b', '#2563eb', '#ca8a04', '#be185d']
@@ -35,6 +37,8 @@ const buildIndustryChartData = (industryClasses) => {
 }
 
 export default function MineralResourcesDashboard() {
+  const { language } = useLanguageStore()
+  const t = translations[language] || translations.en
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -93,7 +97,7 @@ export default function MineralResourcesDashboard() {
   if (error) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10" role="alert">
-        <h1 className="text-xl font-semibold">Mineral Resources</h1>
+        <h1 className="text-xl font-semibold">{t.mineralResources}</h1>
         <p className="mt-2 text-sm text-rose-600">{error}</p>
       </div>
     )
@@ -107,21 +111,21 @@ export default function MineralResourcesDashboard() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Mineral Resources</h1>
-        <p className="mt-1 text-sm text-slate-500">Mine and quarry locations summarized from the supplied CSV dataset.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t.mineralResources}</h1>
+        <p className="mt-1 text-sm text-slate-500">{t.mineralResourcesSubtitle}</p>
       </header>
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label="Dataset summary">
         <div className="border-l-4 border-teal-700 bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
-          <p className="text-sm text-slate-500">Dataset records</p>
+          <p className="text-sm text-slate-500">{t.datasetRecords}</p>
           <p className="mt-1 text-2xl font-semibold">{summary?.totalRecords?.toLocaleString()}</p>
         </div>
         <div className="border-l-4 border-orange-600 bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
-          <p className="text-sm text-slate-500">States / territories</p>
+          <p className="text-sm text-slate-500">{t.statesTerritories}</p>
           <p className="mt-1 text-2xl font-semibold">{stateData.length}</p>
         </div>
         <div className="border-l-4 border-blue-700 bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
-          <p className="text-sm text-slate-500">Industry classifications</p>
+          <p className="text-sm text-slate-500">{t.industryClassifications}</p>
           <p className="mt-1 text-2xl font-semibold">{industryClasses.length}</p>
         </div>
       </section>
@@ -129,8 +133,8 @@ export default function MineralResourcesDashboard() {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <section className="min-w-0 border-t-2 border-teal-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
           <div className="mb-4">
-            <h2 className="font-semibold">Mine and quarry records by state</h2>
-            <p className="mt-1 text-sm text-slate-500">All {stateData.length} state and territory codes; scroll to see the full list.</p>
+            <h2 className="font-semibold">{t.recordsByState}</h2>
+            <p className="mt-1 text-sm text-slate-500">{t.allStateCodes}</p>
           </div>
           {stateData.length === 0 ? (
             <p className="text-sm text-slate-400">No state records found.</p>
@@ -151,8 +155,8 @@ export default function MineralResourcesDashboard() {
 
         <section className="min-w-0 border-t-2 border-orange-600 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
           <div className="mb-2">
-            <h2 className="font-semibold">Mineral-wise distribution</h2>
-            <p className="mt-1 text-sm text-slate-500">Based on the dataset's NAICS industry descriptions; top 8 classes plus remaining classes.</p>
+            <h2 className="font-semibold">{t.mineralWiseDistribution}</h2>
+            <p className="mt-1 text-sm text-slate-500">{t.industryDescription}</p>
           </div>
           {industryChartData.length === 0 ? (
             <p className="text-sm text-slate-400">No industry classifications found.</p>

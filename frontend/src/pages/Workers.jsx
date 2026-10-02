@@ -20,6 +20,8 @@ import {
   updateWorkerTask,
   reassignPendingWorkerTasks,
 } from "../services/api";
+import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
 
 const statusLabels = {
   pending: "Pending",
@@ -66,6 +68,8 @@ function Stat({ icon: Icon, label, value, tone }) {
 }
 
 export default function Workers() {
+  const { language } = useLanguageStore();
+  const t = translations[language] || translations.en;
   const { user } = useAuthStore();
   const [summary, setSummary] = useState({ workers: [], totals: {} });
   const [loading, setLoading] = useState(true);
@@ -181,13 +185,13 @@ export default function Workers() {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-700 dark:text-primary-300">
-            Workforce operations
+            {t.workforceOperations}
           </p>
           <h1 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
-            {isWorker ? "My work and attendance" : "Workers"}
+            {isWorker ? t.myWorkAttendance : t.workersTitle}
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Track departments, mine assignments, work progress, and daily attendance.
+            {t.workersSubtitle}
           </p>
         </div>
         {isWorker && (
@@ -213,10 +217,10 @@ export default function Workers() {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={Users} label="Total workers" value={isWorker ? 1 : totals.workers || 0} tone="bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300" />
-        <Stat icon={Activity} label="Pending work" value={isWorker ? currentWorker?.pendingTasks || 0 : totals.pendingTasks || 0} tone="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
-        <Stat icon={CheckCircle2} label="Completed work" value={isWorker ? currentWorker?.completedTasks || 0 : totals.completedTasks || 0} tone="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" />
-        <Stat icon={ClipboardCheck} label="Present today" value={isWorker ? ["present", "late"].includes(currentWorker?.attendance?.latest?.status) ? 1 : 0 : totals.presentToday || 0} tone="bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300" />
+        <Stat icon={Users} label={t.totalWorkers} value={isWorker ? 1 : totals.workers || 0} tone="bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300" />
+        <Stat icon={Activity} label={t.pendingWork} value={isWorker ? currentWorker?.pendingTasks || 0 : totals.pendingTasks || 0} tone="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
+        <Stat icon={CheckCircle2} label={t.completedWork} value={isWorker ? currentWorker?.completedTasks || 0 : totals.completedTasks || 0} tone="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" />
+        <Stat icon={ClipboardCheck} label={t.presentToday} value={isWorker ? ["present", "late"].includes(currentWorker?.attendance?.latest?.status) ? 1 : 0 : totals.presentToday || 0} tone="bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300" />
       </div>
 
       {isWorker ? (
@@ -235,7 +239,7 @@ export default function Workers() {
             )}
             <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 dark:border-slate-700 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Worker profile</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{language === "hi" ? "श्रमिक प्रोफ़ाइल" : "Worker profile"}</h2>
                 <Link
                   to="/app/profile"
                   className="rounded-md border border-primary-600/30 px-2.5 py-1 text-xs font-semibold text-primary-700 transition hover:bg-primary-50 dark:border-primary-400/30 dark:text-primary-300 dark:hover:bg-primary-950/40"

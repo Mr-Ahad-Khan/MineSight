@@ -19,6 +19,8 @@ import {
   getSupportDirectory,
   getSupportTickets,
 } from "../services/api";
+import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
 
 const checklistItems = [
   "Account for all workers and confirm attendance",
@@ -30,6 +32,8 @@ const checklistItems = [
 const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
 
 export default function DisasterManagement() {
+  const { language } = useLanguageStore();
+  const t = translations[language] || translations.en;
   const [incidents, setIncidents] = useState([]);
   const [mines, setMines] = useState([]);
   const [directory, setDirectory] = useState([]);
@@ -252,25 +256,25 @@ export default function DisasterManagement() {
         <div>
           <div className="flex items-center gap-2 text-rose-600">
             <Siren className="h-5 w-5" />
-            <span className="text-sm font-semibold uppercase tracking-wide">Emergency operations</span>
+            <span className="text-sm font-semibold uppercase tracking-wide">{t.emergencyOperations}</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold">Disaster Management</h1>
-          <p className="mt-1 text-sm text-slate-500">Coordinate mine incidents, evacuation readiness, and emergency response.</p>
+          <h1 className="mt-1 text-2xl font-bold">{t.disasterManagement}</h1>
+          <p className="mt-1 text-sm text-slate-500">{t.disasterSubtitle}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={exportCsv} className="btn-secondary">Export CSV</button>
-          <button type="button" onClick={exportJson} className="btn-secondary">Export JSON</button>
-          <button type="button" onClick={exportPdf} className="btn-secondary">Export PDF</button>
+          <button type="button" onClick={exportCsv} className="btn-secondary">{t.exportCsv}</button>
+          <button type="button" onClick={exportJson} className="btn-secondary">{t.exportJson}</button>
+          <button type="button" onClick={exportPdf} className="btn-secondary">{t.exportPdf}</button>
           <button type="button" onClick={() => setFormOpen((open) => !open)} className="btn-primary inline-flex items-center gap-2">
-            <Plus className="h-4 w-4" /> Report incident
+            <Plus className="h-4 w-4" /> {t.reportIncident}
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <div className="card border-t-4 border-t-rose-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">Active incidents</p><AlertOctagon className="h-5 w-5 text-rose-600" /></div><p className="mt-3 text-3xl font-bold text-rose-600">{activeIncidents.length}</p></div>
-        <div className="card border-t-4 border-t-amber-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">Response readiness</p><CheckCircle2 className="h-5 w-5 text-amber-600" /></div><p className="mt-3 text-3xl font-bold text-amber-600">{Math.round((checkedItems.length / checklistItems.length) * 100)}%</p></div>
-        <div className="card border-t-4 border-t-emerald-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">Emergency channels</p><PhoneCall className="h-5 w-5 text-emerald-600" /></div><p className="mt-3 text-3xl font-bold text-emerald-600">{emergencyContacts.length}</p></div>
+        <div className="card border-t-4 border-t-rose-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">{t.activeIncidents}</p><AlertOctagon className="h-5 w-5 text-rose-600" /></div><p className="mt-3 text-3xl font-bold text-rose-600">{activeIncidents.length}</p></div>
+        <div className="card border-t-4 border-t-amber-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">{t.responseReadiness}</p><CheckCircle2 className="h-5 w-5 text-amber-600" /></div><p className="mt-3 text-3xl font-bold text-amber-600">{Math.round((checkedItems.length / checklistItems.length) * 100)}%</p></div>
+        <div className="card border-t-4 border-t-emerald-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">{t.emergencyChannels}</p><PhoneCall className="h-5 w-5 text-emerald-600" /></div><p className="mt-3 text-3xl font-bold text-emerald-600">{emergencyContacts.length}</p></div>
       </div>
 
       {formOpen && (
@@ -298,12 +302,12 @@ export default function DisasterManagement() {
         </section>
 
         <section className="card p-5">
-          <div className="mb-4 flex items-center gap-2"><ClipboardCheck className="h-5 w-5 text-amber-600" /><h2 className="font-semibold">Response checklist</h2></div>
+          <div className="mb-4 flex items-center gap-2"><ClipboardCheck className="h-5 w-5 text-amber-600" /><h2 className="font-semibold">{t.responseChecklist}</h2></div>
           <div className="space-y-3">{checklistItems.map((item, index) => <label key={item} className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={checkedItems.includes(index)} onChange={() => toggleChecklist(index)} className="mt-0.5 h-4 w-4 accent-amber-600" /><span className={checkedItems.includes(index) ? "text-slate-400 line-through" : ""}>{item}</span></label>)}</div>
         </section>
       </div>
 
-      <section className="card p-5"><div className="mb-4 flex items-center gap-2"><LifeBuoy className="h-5 w-5 text-sky-600" /><h2 className="font-semibold">Emergency contacts</h2></div><div className="grid grid-cols-1 gap-3 md:grid-cols-3">{emergencyContacts.map((contact) => <a key={contact.title} href={`tel:${contact.number}`} className="rounded-lg border border-slate-200 p-4 transition hover:border-sky-400 dark:border-slate-700"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold">{contact.title}</p><PhoneCall className="h-4 w-4 shrink-0 text-sky-600" /></div><p className="mt-2 font-mono text-sm text-sky-700 dark:text-sky-300">{contact.number}</p><p className="mt-1 text-xs text-slate-500">{contact.timing}</p></a>)}</div></section>
+      <section className="card p-5"><div className="mb-4 flex items-center gap-2"><LifeBuoy className="h-5 w-5 text-sky-600" /><h2 className="font-semibold">{t.emergencyContacts}</h2></div><div className="grid grid-cols-1 gap-3 md:grid-cols-3">{emergencyContacts.map((contact) => <a key={contact.title} href={`tel:${contact.number}`} className="rounded-lg border border-slate-200 p-4 transition hover:border-sky-400 dark:border-slate-700"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold">{contact.title}</p><PhoneCall className="h-4 w-4 shrink-0 text-sky-600" /></div><p className="mt-2 font-mono text-sm text-sky-700 dark:text-sky-300">{contact.number}</p><p className="mt-1 text-xs text-slate-500">{contact.timing}</p></a>)}</div></section>
     </div>
   );
 }

@@ -188,9 +188,7 @@ export default function Attendance() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-extrabold tracking-tight text-[#1a1a1a] sm:text-4xl dark:text-white">
-                {language === "hi"
-                  ? "वास्तविक समय खदान उपस्थिति"
-                  : "Mine Attendance & Real-Time Presence"}
+                {t.attendanceTitle}
               </h1>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
                 <span className="relative flex h-2 w-2">
@@ -201,9 +199,7 @@ export default function Attendance() {
               </span>
             </div>
             <p className="mt-1 text-sm text-[#5d5345] dark:text-slate-400">
-              {language === "hi"
-                ? "भूमिगत खनिकों की सुरक्षा, पीपीई अनुपालन और वास्तविक समय शिफ्ट ट्रैकिंग।"
-                : "Real-time biometric & RFID presence monitor for underground miners and surface crew."}
+              {t.attendanceSubtitle}
             </p>
           </div>
 
@@ -248,7 +244,7 @@ export default function Attendance() {
           <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-50 to-[#ebf7f0] p-4 shadow-sm dark:border-emerald-500/20 dark:from-emerald-950/20 dark:to-slate-900">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
-                Inside Mine
+                {t.insideMine}
               </span>
               <span className="relative flex h-3 w-3">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
@@ -260,11 +256,11 @@ export default function Attendance() {
                 {realtime?.insideMineCount ?? 0}
               </span>
               <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                miners
+                {t.miners}
               </span>
             </div>
             <p className="mt-1 text-[11px] font-medium text-emerald-700/80 dark:text-emerald-400/80">
-              Active underground right now
+              {t.activeUnderground}
             </p>
           </div>
 
@@ -272,7 +268,7 @@ export default function Attendance() {
           <div className="rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-xs font-bold uppercase tracking-wider text-[#695d4d] dark:text-slate-400">
-                Present Today
+                {t.presentToday}
               </span>
               <UserCheck className="h-4 w-4 text-[#0d3f6d] dark:text-sky-400" />
             </div>
@@ -281,11 +277,11 @@ export default function Attendance() {
                 {realtime?.presentTodayCount ?? 0}
               </span>
               <span className="text-xs font-medium text-slate-500">
-                checked in
+                {t.checkedIn}
               </span>
             </div>
             <p className="mt-1 text-[11px] text-[#716554] dark:text-slate-400">
-              Across all shift operations
+              {t.acrossShifts}
             </p>
           </div>
 
@@ -293,7 +289,7 @@ export default function Attendance() {
           <div className="rounded-2xl border border-amber-300/60 bg-[#fffdf5] p-4 shadow-sm dark:border-amber-500/20 dark:bg-slate-900">
             <div className="flex items-center justify-between text-amber-700 dark:text-amber-400">
               <span className="text-xs font-bold uppercase tracking-wider">
-                Late Entries
+                {t.lateEntries}
               </span>
               <Clock className="h-4 w-4" />
             </div>
@@ -304,7 +300,7 @@ export default function Attendance() {
               <span className="text-xs font-medium text-amber-700">workers</span>
             </div>
             <p className="mt-1 text-[11px] text-amber-800/80 dark:text-amber-400/80">
-              Beyond standard shift gate
+              {t.beyondShiftGate}
             </p>
           </div>
 
@@ -312,7 +308,7 @@ export default function Attendance() {
           <div className="rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between text-[#0d3f6d] dark:text-sky-400">
               <span className="text-xs font-bold uppercase tracking-wider text-[#695d4d] dark:text-slate-400">
-                PPE Compliance
+                {t.ppeCompliance}
               </span>
               <HardHat className="h-4 w-4" />
             </div>
@@ -321,7 +317,7 @@ export default function Attendance() {
                 {realtime?.ppeComplianceRate ?? 100}%
               </span>
               <span className="text-xs font-medium text-emerald-600">
-                verified
+                {t.verified}
               </span>
             </div>
             <p className="mt-1 text-[11px] text-[#716554] dark:text-slate-400">
@@ -333,7 +329,7 @@ export default function Attendance() {
           <div className="col-span-2 sm:col-span-1 rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between text-slate-500">
               <span className="text-xs font-bold uppercase tracking-wider text-[#695d4d] dark:text-slate-400">
-                Surface / Exited
+                {t.surfaceExited}
               </span>
               <LogOut className="h-4 w-4 text-slate-400" />
             </div>
@@ -343,11 +339,11 @@ export default function Attendance() {
                   (realtime?.checkedOutCount || 0)}
               </span>
               <span className="text-xs font-medium text-slate-500">
-                safe zone
+                {t.safeZone}
               </span>
             </div>
             <p className="mt-1 text-[11px] text-[#716554] dark:text-slate-400">
-              Outside dangerous extraction zone
+              {t.outsideExtractionZone}
             </p>
           </div>
         </div>
@@ -367,7 +363,7 @@ export default function Attendance() {
             >
               <Radio className="h-3.5 w-3.5" />
               <span>
-                Inside Underground Mine ({realtime?.insideMineCount || 0})
+                {language === "hi" ? "भूमिगत खदान के अंदर" : "Inside Underground Mine"} ({realtime?.insideMineCount || 0})
               </span>
             </button>
             <button
@@ -380,7 +376,7 @@ export default function Attendance() {
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
-              <span>Full Attendance Roster ({records.length})</span>
+              <span>{language === "hi" ? "पूरी उपस्थिति सूची" : "Full Attendance Roster"} ({records.length})</span>
             </button>
           </div>
 
@@ -392,7 +388,7 @@ export default function Attendance() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search worker or ID..."
+                placeholder={language === "hi" ? "श्रमिक या आईडी खोजें..." : "Search worker or ID..."}
                 className="w-full rounded-xl border border-[#cbb79d] bg-white py-1.5 pl-9 pr-3 text-xs text-slate-800 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               />
             </div>
@@ -402,7 +398,7 @@ export default function Attendance() {
               onChange={(e) => setSelectedShift(e.target.value)}
               className="rounded-xl border border-[#cbb79d] bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             >
-              <option value="">All Shifts</option>
+              <option value="">{language === "hi" ? "सभी शिफ्ट" : "All Shifts"}</option>
               <option value="Shift A (Morning)">Shift A (Morning)</option>
               <option value="Shift B (Evening)">Shift B (Evening)</option>
               <option value="Shift C (Night)">Shift C (Night)</option>
@@ -413,7 +409,7 @@ export default function Attendance() {
               onChange={(e) => setSelectedMine(e.target.value)}
               className="rounded-xl border border-[#cbb79d] bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             >
-              <option value="">All Mines</option>
+              <option value="">{language === "hi" ? "सभी खदानें" : "All Mines"}</option>
               {mines.map((m) => (
                 <option key={m._id} value={m._id}>
                   {m.name} ({m.code})
@@ -460,7 +456,7 @@ export default function Attendance() {
                       colSpan="7"
                       className="px-4 py-12 text-center text-slate-400"
                     >
-                      Loading attendance telemetry...
+                      {language === "hi" ? "उपस्थिति डेटा लोड हो रहा है..." : "Loading attendance telemetry..."}
                     </td>
                   </tr>
                 ) : filteredRecords.length === 0 ? (
@@ -470,8 +466,8 @@ export default function Attendance() {
                       className="px-4 py-12 text-center text-slate-400"
                     >
                       {activeTab === "inside"
-                        ? "No miners currently logged inside the underground shaft."
-                        : "No attendance records match your filter."}
+                        ? language === "hi" ? "अभी भूमिगत सुरंग में कोई खनिक दर्ज नहीं है।" : "No miners currently logged inside the underground shaft."
+                        : language === "hi" ? "आपके फ़िल्टर से कोई उपस्थिति रिकॉर्ड नहीं मिला।" : "No attendance records match your filter."}
                     </td>
                   </tr>
                 ) : (
