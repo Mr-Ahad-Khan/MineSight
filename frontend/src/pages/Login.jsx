@@ -279,16 +279,16 @@ export default function Login() {
                 className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700"
                 open
               >
-                <summary className="cursor-pointer text-center text-xs font-medium text-slate-600 dark:text-slate-300">
+                <summary className="cursor-pointer rounded-lg border border-primary-200 bg-primary-50 px-3 py-3 text-center text-sm font-semibold text-primary-800 transition hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-950/40 dark:text-primary-200 dark:hover:bg-primary-950/70">
                   {t.quickDemo} ({t.optional})
                 </summary>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() =>
                       quickLogin("rajesh@ncl.gov.in", "mine123", t.mineOfficial)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.mineOfficial}
@@ -299,7 +299,7 @@ export default function Login() {
                     onClick={() =>
                       quickLogin("corporate@cil.gov.in", "corp123", t.corporate)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.corporate}
@@ -310,7 +310,7 @@ export default function Login() {
                     onClick={() =>
                       quickLogin("admin@cil.gov.in", "admin123", t.admin)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.admin}
@@ -321,7 +321,7 @@ export default function Login() {
                     onClick={() =>
                       quickLogin("regulator@dgms.gov.in", "reg123", t.regulator)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.regulator}
@@ -336,7 +336,7 @@ export default function Login() {
                         t.worker || "Worker",
                       )
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.worker || "Worker"}
@@ -351,7 +351,7 @@ export default function Login() {
                         t.contractor || "Contractor",
                       )
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.contractor || "Contractor"}

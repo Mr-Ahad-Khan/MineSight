@@ -150,7 +150,7 @@ export default function Navbar() {
                 className={`relative flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-xs font-semibold tracking-wide transition-all ${
                   isMoreActive
                     ? "bg-[#ff6f00] text-white shadow-sm"
-                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                    : "border border-[#ff9a3c]/70 bg-[#ff6f00]/90 text-white shadow-sm hover:bg-[#ff8a33]"
                 }`}
                 aria-expanded={moreMenuOpen}
                 aria-label="More navigation options"
