@@ -10,6 +10,19 @@ const startOfDay = (value = new Date()) => {
   return date;
 };
 
+const distanceInMeters = (firstLatitude, firstLongitude, secondLatitude, secondLongitude) => {
+  const earthRadius = 6371000;
+  const latitudeDelta = ((secondLatitude - firstLatitude) * Math.PI) / 180;
+  const longitudeDelta = ((secondLongitude - firstLongitude) * Math.PI) / 180;
+  const latitude = (firstLatitude * Math.PI) / 180;
+  const targetLatitude = (secondLatitude * Math.PI) / 180;
+  const haversine =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.cos(latitude) * Math.cos(targetLatitude) * Math.sin(longitudeDelta / 2) ** 2;
+
+  return 2 * earthRadius * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+};
+
 const isWorkerAvailable = async (worker) => {
   if (!worker || worker.isActive === false) return false;
   const attendance = await Attendance.findOne({
@@ -174,7 +187,7 @@ const getWorkerSummary = asyncHandler(async (req, res) => {
 });
 
 const markAttendance = asyncHandler(async (req, res) => {
-  const { workerId, mineId, date, status, checkIn, checkOut, notes } = req.body;
+  const { workerId, mineId, date, status, checkIn, checkOut, notes, latitude, longitude } = req.body;
   const targetWorkerId = req.user.role === "worker" ? req.user._id : workerId;
   if (!targetWorkerId || !status) {
     res.status(400);
@@ -186,17 +199,67 @@ const markAttendance = asyncHandler(async (req, res) => {
     throw new Error("Worker not found");
   }
 
+  let attendanceData = {
+    workerId: targetWorkerId,
+    mineId: mineId || worker.mineId || null,
+    date: startOfDay(date || new Date()),
+    status,
+    checkIn,
+    checkOut,
+    notes,
+    markedBy: req.user._id,
+  };
+
+  if (req.user.role === "worker") {
+    if (!worker.mineId) {
+      res.status(400);
+      throw new Error("Your account is not assigned to a mine");
+    }
+    if (!["present", "late"].includes(status)) {
+      res.status(400);
+      throw new Error("Workers can only mark present or late");
+    }
+    if (startOfDay(date || new Date()).getTime() !== startOfDay().getTime()) {
+      res.status(400);
+      throw new Error("Workers can only mark attendance for today");
+    }
+
+    const mine = await Mine.findById(worker.mineId).select("status location");
+    if (!mine || mine.status !== "active" || !mine.location?.coordinates?.length) {
+      res.status(400);
+      throw new Error("Your assigned mine is not available for attendance");
+    }
+    if (!Number.isFinite(Number(latitude)) || !Number.isFinite(Number(longitude))) {
+      res.status(400);
+      throw new Error("Location permission is required to mark attendance");
+    }
+
+    const [mineLongitude, mineLatitude] = mine.location.coordinates;
+    const distance = distanceInMeters(
+      Number(latitude),
+      Number(longitude),
+      mineLatitude,
+      mineLongitude,
+    );
+    const allowedDistance = Number(process.env.ATTENDANCE_GEOFENCE_METERS) || 500;
+    if (distance > allowedDistance) {
+      res.status(403);
+      throw new Error("You must be at your assigned mine to mark attendance");
+    }
+
+    attendanceData = {
+      ...attendanceData,
+      mineId: worker.mineId,
+      date: startOfDay(),
+      checkIn: checkIn || new Date(),
+      checkOut: undefined,
+      notes: notes || "Self-marked at mine geofence",
+    };
+  }
+
   const record = await Attendance.findOneAndUpdate(
-    { workerId: targetWorkerId, date: startOfDay(date || new Date()) },
-    {
-      workerId: targetWorkerId,
-      mineId: mineId || worker.mineId || null,
-      date: startOfDay(date || new Date()),
-      status,
-      checkIn,
-      checkOut,
-      notes,
-    },
+    { workerId: targetWorkerId, date: attendanceData.date },
+    attendanceData,
     { new: true, upsert: true, runValidators: true },
   );
 

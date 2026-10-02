@@ -120,15 +120,31 @@ export default function Workers() {
   const handleAttendance = async (status) => {
     setSavingAttendance(true);
     try {
+      if (!navigator.geolocation) {
+        throw new Error("Location permission is required to mark attendance");
+      }
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        });
+      });
       await markWorkerAttendance({
         status,
         workerId: user._id,
-        mineId: user.mineId?._id || user.mineId,
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
       });
       toast.success(`Attendance marked ${attendanceLabels[status].toLowerCase()}`);
       await loadSummary();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Could not save attendance");
+      toast.error(
+        error.response?.data?.message ||
+          (error.code === 1
+            ? "Location permission is required to mark attendance"
+            : error.message || "Could not save attendance"),
+      );
     } finally {
       setSavingAttendance(false);
     }
