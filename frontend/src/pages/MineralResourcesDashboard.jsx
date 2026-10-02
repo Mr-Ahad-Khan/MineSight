@@ -137,7 +137,7 @@ export default function MineralResourcesDashboard() {
             <p className="mt-1 text-sm text-slate-500">{t.allStateCodes}</p>
           </div>
           {stateData.length === 0 ? (
-            <p className="text-sm text-slate-400">No state records found.</p>
+            <p className="text-sm text-slate-400">{t.noStateRecords}</p>
           ) : (
             <div className="max-h-[520px] overflow-y-auto pr-2" aria-label="Scrollable chart of records by state">
               <ResponsiveContainer width="100%" height={Math.max(stateData.length * 25, 280)}>
@@ -159,7 +159,7 @@ export default function MineralResourcesDashboard() {
             <p className="mt-1 text-sm text-slate-500">{t.industryDescription}</p>
           </div>
           {industryChartData.length === 0 ? (
-            <p className="text-sm text-slate-400">No industry classifications found.</p>
+            <p className="text-sm text-slate-400">{t.noIndustryClassifications}</p>
           ) : (
             <ResponsiveContainer width="100%" height={390}>
               <PieChart>
@@ -191,11 +191,11 @@ export default function MineralResourcesDashboard() {
 
       <section className="border-t-2 border-blue-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
         <div className="mb-4">
-          <h2 className="font-semibold">Machine learning: geographic site clusters</h2>
-          <p className="mt-1 text-sm text-slate-500">K-means groups facilities by longitude and latitude into five geographic clusters. This shows location patterns, not mine safety or risk.</p>
+          <h2 className="font-semibold">{t.geographicClusters}</h2>
+          <p className="mt-1 text-sm text-slate-500">{t.geographicClustersDescription}</p>
         </div>
         {spatialClusters.length === 0 ? (
-          <p className="text-sm text-slate-400">No coordinate clusters available.</p>
+          <p className="text-sm text-slate-400">{t.noCoordinateClusters}</p>
         ) : (
           <>
             <ResponsiveContainer width="100%" height={340}>
@@ -253,15 +253,15 @@ export default function MineralResourcesDashboard() {
       </section>
 
       <details className="border-t border-slate-300 py-3 dark:border-slate-700">
-        <summary className="cursor-pointer text-sm font-medium">CSV columns ({summary?.columns?.length || 0})</summary>
+        <summary className="cursor-pointer text-sm font-medium">{t.csvColumns} ({summary?.columns?.length || 0})</summary>
         <p className="mt-3 break-words text-xs leading-6 text-slate-500">{(summary?.columns || []).join(', ')}</p>
       </details>
 
       <section className="border-t-2 border-teal-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="font-semibold">Dataset records</h2>
-            <p className="mt-1 text-sm text-slate-500">Search across all CSV fields, then expand a row to view every column.</p>
+            <h2 className="font-semibold">{t.datasetRecordsTitle}</h2>
+            <p className="mt-1 text-sm text-slate-500">{t.datasetRecordsDescription}</p>
           </div>
           <form
             className="flex w-full gap-2 sm:max-w-md"
@@ -271,18 +271,18 @@ export default function MineralResourcesDashboard() {
               setSearch(searchInput.trim())
             }}
           >
-            <label className="sr-only" htmlFor="mineral-resource-search">Search dataset records</label>
+            <label className="sr-only" htmlFor="mineral-resource-search">{t.searchDatasetRecords}</label>
             <input
               id="mineral-resource-search"
               type="search"
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search any field"
+              placeholder={t.searchAnyField}
               className="input-field min-w-0 flex-1"
             />
             <button type="submit" className="btn-primary inline-flex shrink-0 items-center gap-2">
               <Search className="h-4 w-4" />
-              Search
+              {t.search}
             </button>
           </form>
         </div>
@@ -294,14 +294,14 @@ export default function MineralResourcesDashboard() {
             <thead className="border-y border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-700">
               <tr>
                 {PREVIEW_FIELDS.map((field) => <th key={field} className="px-3 py-3 font-semibold">{field}</th>)}
-                <th className="px-3 py-3 font-semibold">Details</th>
+                <th className="px-3 py-3 font-semibold">{t.details}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {recordsLoading ? (
-                <tr><td colSpan={PREVIEW_FIELDS.length + 1} className="px-3 py-8 text-center text-slate-500">Loading records...</td></tr>
+                <tr><td colSpan={PREVIEW_FIELDS.length + 1} className="px-3 py-8 text-center text-slate-500">{t.loadingRecords}</td></tr>
               ) : records.length === 0 ? (
-                <tr><td colSpan={PREVIEW_FIELDS.length + 1} className="px-3 py-8 text-center text-slate-500">No matching records.</td></tr>
+                <tr><td colSpan={PREVIEW_FIELDS.length + 1} className="px-3 py-8 text-center text-slate-500">{t.noMatchingRecords}</td></tr>
               ) : records.map((record) => {
                 const recordId = String(record.FID || record.index)
                 const isExpanded = expandedRecordId === recordId
@@ -321,7 +321,7 @@ export default function MineralResourcesDashboard() {
                           aria-expanded={isExpanded}
                           onClick={() => setExpandedRecordId(isExpanded ? null : recordId)}
                         >
-                          {isExpanded ? 'Hide fields' : 'View all fields'}
+                          {isExpanded ? t.hideFields : t.viewAllFields}
                         </button>
                       </td>
                     </tr>
@@ -349,8 +349,8 @@ export default function MineralResourcesDashboard() {
         <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-slate-500">
             {pagination.totalRecords === 0
-              ? 'No records'
-              : `Showing ${(page - 1) * RECORDS_PER_PAGE + 1}-${Math.min(page * RECORDS_PER_PAGE, pagination.totalRecords)} of ${pagination.totalRecords.toLocaleString()} records`}
+              ? t.noRecords
+              : `${t.showingRecords} ${(page - 1) * RECORDS_PER_PAGE + 1}-${Math.min(page * RECORDS_PER_PAGE, pagination.totalRecords)} ${t.of} ${pagination.totalRecords.toLocaleString()} ${t.records}`}
           </p>
           <div className="flex items-center gap-2">
             <button
@@ -359,16 +359,16 @@ export default function MineralResourcesDashboard() {
               disabled={page <= 1 || recordsLoading}
               className="inline-flex h-9 items-center gap-1 border border-slate-300 px-3 text-sm disabled:opacity-40 dark:border-slate-600"
             >
-              <ChevronLeft className="h-4 w-4" /> Previous
+              <ChevronLeft className="h-4 w-4" /> {t.previous}
             </button>
-            <span className="min-w-20 text-center text-sm text-slate-500">Page {page} of {pagination.totalPages || 1}</span>
+            <span className="min-w-20 text-center text-sm text-slate-500">{t.page} {page} {t.of} {pagination.totalPages || 1}</span>
             <button
               type="button"
               onClick={() => setPage((current) => current + 1)}
               disabled={page >= pagination.totalPages || recordsLoading}
               className="inline-flex h-9 items-center gap-1 border border-slate-300 px-3 text-sm disabled:opacity-40 dark:border-slate-600"
             >
-              Next <ChevronRight className="h-4 w-4" />
+              {t.next} <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>

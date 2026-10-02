@@ -1,11 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { getHomeStats, createChatMessage, createContactMessage, getChatMessages } = require('../controllers/publicController');
-const { protect } = require('../middleware/auth');
+const {
+  getHomeStats,
+  createChatMessage,
+  getChatMessages,
+} = require("../controllers/publicController");
+const { protect } = require("../middleware/auth");
 
-router.get('/home-stats', getHomeStats);
-router.post('/chat-messages', createChatMessage);
-router.post('/contact', createContactMessage);
-router.get('/chat-messages', protect, getChatMessages);
+router.get("/home-stats", getHomeStats);
+router.post("/chat-messages", createChatMessage);
+router.post("/contact", createContactMessage);
+router.get("/chat-messages", protect, getChatMessages);
 
 module.exports = router;

@@ -34,6 +34,12 @@ const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
 export default function DisasterManagement() {
   const { language } = useLanguageStore();
   const t = translations[language] || translations.en;
+  const translatedChecklistItems = [
+    t.accountForWorkers,
+    t.raiseControlRoomAlert,
+    t.secureIncidentZone,
+    t.assignIncidentCommander,
+  ];
   const [incidents, setIncidents] = useState([]);
   const [mines, setMines] = useState([]);
   const [directory, setDirectory] = useState([]);
@@ -279,31 +285,31 @@ export default function DisasterManagement() {
 
       {formOpen && (
         <form onSubmit={submitIncident} className="card space-y-4 border border-rose-200 p-5 dark:border-rose-900">
-          <div className="flex items-center gap-2"><AlertOctagon className="h-5 w-5 text-rose-600" /><h2 className="font-semibold">Escalate an emergency incident</h2></div>
+            <div className="flex items-center gap-2"><AlertOctagon className="h-5 w-5 text-rose-600" /><h2 className="font-semibold">{t.escalateEmergencyIncident}</h2></div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <input className="input" placeholder="Incident title" value={form.subject} onChange={(event) => updateForm("subject", event.target.value)} />
+            <input className="input" placeholder={t.incidentTitle} value={form.subject} onChange={(event) => updateForm("subject", event.target.value)} />
             <select className="input" value={form.mineId} onChange={(event) => updateForm("mineId", event.target.value)}>
-              <option value="">Select affected mine</option>
+              <option value="">{t.selectAffectedMine}</option>
               {mines.map((mine) => <option key={mine._id} value={mine._id}>{mine.name} {mine.code ? `(${mine.code})` : ""}</option>)}
             </select>
           </div>
           <select className="input md:w-1/2" value={form.priority} onChange={(event) => updateForm("priority", event.target.value)}>
-            <option value="critical">Critical - immediate response</option><option value="high">High - urgent response</option>
+            <option value="critical">{t.criticalImmediateResponse}</option><option value="high">{t.highUrgentResponse}</option>
           </select>
-          <textarea className="input min-h-28" placeholder="Describe location, people at risk, and immediate actions taken" value={form.description} onChange={(event) => updateForm("description", event.target.value)} />
-          <button disabled={submitting} className="btn-primary inline-flex items-center gap-2" type="submit"><Radio className="h-4 w-4" /> {submitting ? "Escalating..." : "Escalate incident"}</button>
+          <textarea className="input min-h-28" placeholder={t.incidentDescriptionPlaceholder} value={form.description} onChange={(event) => updateForm("description", event.target.value)} />
+          <button disabled={submitting} className="btn-primary inline-flex items-center gap-2" type="submit"><Radio className="h-4 w-4" /> {submitting ? t.escalating : t.escalateIncident}</button>
         </form>
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <section className="card p-5 lg:col-span-2">
-          <div className="mb-4 flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-600" /><h2 className="font-semibold">Active incident register</h2></div>
-          {loading ? <p className="text-sm text-slate-500">Loading incidents...</p> : activeIncidents.length === 0 ? <p className="text-sm text-slate-500">No active emergency incidents.</p> : <div className="space-y-3">{activeIncidents.map((incident) => <article key={incident._id} className="rounded-lg border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900 dark:bg-rose-950/20"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold">{incident.subject}</h3><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{incident.mineId?.name || "Mine not specified"}</p></div><span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold uppercase text-rose-700">{incident.status}</span></div><p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{incident.description}</p></article>)}</div>}
+          <div className="mb-4 flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-600" /><h2 className="font-semibold">{t.activeIncidentRegister}</h2></div>
+          {loading ? <p className="text-sm text-slate-500">{t.loadingIncidents}</p> : activeIncidents.length === 0 ? <p className="text-sm text-slate-500">{t.noActiveIncidents}</p> : <div className="space-y-3">{activeIncidents.map((incident) => <article key={incident._id} className="rounded-lg border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900 dark:bg-rose-950/20"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold">{incident.subject}</h3><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{incident.mineId?.name || t.mineNotSpecified}</p></div><span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold uppercase text-rose-700">{incident.status}</span></div><p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{incident.description}</p></article>)}</div>}
         </section>
 
         <section className="card p-5">
           <div className="mb-4 flex items-center gap-2"><ClipboardCheck className="h-5 w-5 text-amber-600" /><h2 className="font-semibold">{t.responseChecklist}</h2></div>
-          <div className="space-y-3">{checklistItems.map((item, index) => <label key={item} className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={checkedItems.includes(index)} onChange={() => toggleChecklist(index)} className="mt-0.5 h-4 w-4 accent-amber-600" /><span className={checkedItems.includes(index) ? "text-slate-400 line-through" : ""}>{item}</span></label>)}</div>
+          <div className="space-y-3">{translatedChecklistItems.map((item, index) => <label key={item} className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={checkedItems.includes(index)} onChange={() => toggleChecklist(index)} className="mt-0.5 h-4 w-4 accent-amber-600" /><span className={checkedItems.includes(index) ? "text-slate-400 line-through" : ""}>{item}</span></label>)}</div>
         </section>
       </div>
 

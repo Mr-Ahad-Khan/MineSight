@@ -195,7 +195,7 @@ export default function Attendance() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 </span>
-                LIVE TELEMETRY
+                {t.liveTelemetry}
               </span>
             </div>
             <p className="mt-1 text-sm text-[#5d5345] dark:text-slate-400">
@@ -209,14 +209,14 @@ export default function Attendance() {
               onClick={() => fetchRealtime(true)}
               disabled={refreshing}
               className="inline-flex items-center gap-2 rounded-xl border border-[#bfa78a] bg-[#fbf7f0] px-4 py-2.5 text-sm font-semibold text-[#2c2c2c] shadow-sm transition hover:bg-[#eae0d0] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-              title="Refresh real-time attendance"
+              title={t.refresh}
             >
               <RefreshCw
                 className={`h-4 w-4 text-[#0d3f6d] dark:text-sky-400 ${
                   refreshing ? "animate-spin" : ""
                 }`}
               />
-              <span>{refreshing ? "Refreshing..." : "Live Sync"}</span>
+              <span>{refreshing ? t.refreshing : t.liveSync}</span>
             </button>
 
             <button
@@ -232,7 +232,7 @@ export default function Attendance() {
             >
               <Plus className="h-4 w-4" />
               <span>
-                {language === "hi" ? "उपस्थिति दर्ज करें" : "Mark Clock-In"}
+                {t.markClockIn}
               </span>
             </button>
           </div>
@@ -297,7 +297,7 @@ export default function Attendance() {
               <span className="text-3xl font-black text-amber-900 dark:text-amber-300">
                 {realtime?.lateTodayCount ?? 0}
               </span>
-              <span className="text-xs font-medium text-amber-700">workers</span>
+                <span className="text-xs font-medium text-amber-700">{t.workers}</span>
             </div>
             <p className="mt-1 text-[11px] text-amber-800/80 dark:text-amber-400/80">
               {t.beyondShiftGate}
@@ -321,7 +321,7 @@ export default function Attendance() {
               </span>
             </div>
             <p className="mt-1 text-[11px] text-[#716554] dark:text-slate-400">
-              Lamp, detector, helmet check
+              {t.ppeChecks}
             </p>
           </div>
 
@@ -363,7 +363,7 @@ export default function Attendance() {
             >
               <Radio className="h-3.5 w-3.5" />
               <span>
-                {language === "hi" ? "भूमिगत खदान के अंदर" : "Inside Underground Mine"} ({realtime?.insideMineCount || 0})
+                {t.insideUndergroundMine} ({realtime?.insideMineCount || 0})
               </span>
             </button>
             <button
@@ -376,7 +376,7 @@ export default function Attendance() {
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
-              <span>{language === "hi" ? "पूरी उपस्थिति सूची" : "Full Attendance Roster"} ({records.length})</span>
+              <span>{t.fullAttendanceRoster} ({records.length})</span>
             </button>
           </div>
 
@@ -398,7 +398,7 @@ export default function Attendance() {
               onChange={(e) => setSelectedShift(e.target.value)}
               className="rounded-xl border border-[#cbb79d] bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             >
-              <option value="">{language === "hi" ? "सभी शिफ्ट" : "All Shifts"}</option>
+              <option value="">{t.allShifts}</option>
               <option value="Shift A (Morning)">Shift A (Morning)</option>
               <option value="Shift B (Evening)">Shift B (Evening)</option>
               <option value="Shift C (Night)">Shift C (Night)</option>
@@ -409,7 +409,7 @@ export default function Attendance() {
               onChange={(e) => setSelectedMine(e.target.value)}
               className="rounded-xl border border-[#cbb79d] bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-[#0d3f6d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             >
-              <option value="">{language === "hi" ? "सभी खदानें" : "All Mines"}</option>
+              <option value="">{t.allMines}</option>
               {mines.map((m) => (
                 <option key={m._id} value={m._id}>
                   {m.name} ({m.code})
@@ -426,25 +426,25 @@ export default function Attendance() {
               <thead className="border-b border-[#e5d8c3] bg-[#f4ebdc] text-[#554a3b] dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-300">
                 <tr>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Worker Details
+                    {t.workerDetails}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Mine & Zone
+                    {t.mineAndZone}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Shift & Role
+                    {t.shiftAndRole}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Clock-In Time
+                    {t.clockInTime}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Live Status
+                    {t.liveStatus}
                   </th>
                   <th className="px-4 py-3.5 font-bold uppercase tracking-wider">
-                    Safety & Temp
+                    {t.safetyAndTemp}
                   </th>
                   <th className="px-4 py-3.5 text-right font-bold uppercase tracking-wider">
-                    Actions
+                    {t.actions}
                   </th>
                 </tr>
               </thead>
@@ -456,7 +456,7 @@ export default function Attendance() {
                       colSpan="7"
                       className="px-4 py-12 text-center text-slate-400"
                     >
-                      {language === "hi" ? "उपस्थिति डेटा लोड हो रहा है..." : "Loading attendance telemetry..."}
+                      {t.loadingAttendance}
                     </td>
                   </tr>
                 ) : filteredRecords.length === 0 ? (
@@ -466,8 +466,8 @@ export default function Attendance() {
                       className="px-4 py-12 text-center text-slate-400"
                     >
                       {activeTab === "inside"
-                        ? language === "hi" ? "अभी भूमिगत सुरंग में कोई खनिक दर्ज नहीं है।" : "No miners currently logged inside the underground shaft."
-                        : language === "hi" ? "आपके फ़िल्टर से कोई उपस्थिति रिकॉर्ड नहीं मिला।" : "No attendance records match your filter."}
+                        ? t.noInsideWorkers
+                        : t.noAttendanceMatches}
                     </td>
                   </tr>
                 ) : (
@@ -550,12 +550,12 @@ export default function Attendance() {
                           {isInside ? (
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
                               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              Inside Pit / Seam
+                              {t.insidePitSeam}
                             </span>
                           ) : isSurface ? (
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-2.5 py-1 text-[11px] font-bold text-sky-700 dark:bg-sky-500/20 dark:text-sky-300">
                               <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-                              Surface Workshop
+                              {t.surfaceWorkshop}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 rounded-full bg-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
@@ -610,11 +610,11 @@ export default function Attendance() {
                                 title="Clock out worker"
                               >
                                 <LogOut className="h-3 w-3" />
-                                <span>Check Out</span>
+                                <span>{t.checkOut}</span>
                               </button>
                             ) : (
                               <span className="text-[11px] text-slate-400 italic">
-                                Shift Finished
+                                {t.shiftFinished}
                               </span>
                             )}
                           </div>
@@ -641,7 +641,7 @@ export default function Attendance() {
               <div className="flex items-center gap-2">
                 <HardHat className="h-5 w-5 text-[#0d3f6d] dark:text-sky-400" />
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Mark Worker Clock-In (Gate Entry)
+                  {t.workerClockInTitle}
                 </h2>
               </div>
               <button

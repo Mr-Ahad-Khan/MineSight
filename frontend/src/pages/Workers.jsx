@@ -177,7 +177,7 @@ export default function Workers() {
   };
 
   if (loading) {
-    return <section className="mx-auto max-w-7xl p-6 text-slate-500">Loading worker details...</section>;
+    return <section className="mx-auto max-w-7xl p-6 text-slate-500">{t.loading}</section>;
   }
 
   return (
@@ -202,7 +202,7 @@ export default function Workers() {
               onClick={() => handleAttendance("present")}
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
             >
-              <CheckCircle2 className="h-4 w-4" /> Mark present
+              <CheckCircle2 className="h-4 w-4" /> {t.markPresent}
             </button>
             <button
               type="button"
@@ -210,7 +210,7 @@ export default function Workers() {
               onClick={() => handleAttendance("late")}
               className="inline-flex items-center gap-2 rounded-lg border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-50 disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-950/30"
             >
-              <Clock3 className="h-4 w-4" /> Mark late
+              <Clock3 className="h-4 w-4" /> {t.markLate}
             </button>
           </div>
         )}
@@ -231,7 +231,7 @@ export default function Workers() {
                 <div className="flex items-start gap-3">
                   <Bell className="mt-0.5 h-5 w-5 shrink-0" />
                   <div>
-                    <h2 className="font-semibold">Pending work notification</h2>
+                    <h2 className="font-semibold">{t.pendingWorkNotification}</h2>
                     <p className="mt-1 text-sm">You have {currentWorker.pendingTasks} pending task{currentWorker.pendingTasks === 1 ? "" : "s"}. Review and update the status below.</p>
                   </div>
                 </div>
@@ -239,23 +239,23 @@ export default function Workers() {
             )}
             <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 dark:border-slate-700 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{language === "hi" ? "श्रमिक प्रोफ़ाइल" : "Worker profile"}</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t.workerProfile}</h2>
                 <Link
                   to="/app/profile"
                   className="rounded-md border border-primary-600/30 px-2.5 py-1 text-xs font-semibold text-primary-700 transition hover:bg-primary-50 dark:border-primary-400/30 dark:text-primary-300 dark:hover:bg-primary-950/40"
                 >
-                  Manage account &rarr;
+                  {t.manageAccountShort} &rarr;
                 </Link>
               </div>
               <dl className="mt-4 space-y-3 text-sm">
-                <div className="flex justify-between gap-4"><dt className="text-slate-500">Name</dt><dd className="font-semibold">{currentWorker?.name || user.name}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-slate-500">Employee ID</dt><dd className="font-semibold">{currentWorker?.employeeId || "Not assigned"}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-slate-500">Department</dt><dd className="font-semibold">{currentWorker?.department || "Not assigned"}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-slate-500">Latest attendance</dt><dd className="font-semibold">{currentWorker?.attendance?.latest ? attendanceLabels[currentWorker.attendance.latest.status] : "Not marked"}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="text-slate-500">{t.name}</dt><dd className="font-semibold">{currentWorker?.name || user.name}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="text-slate-500">{t.employeeId}</dt><dd className="font-semibold">{currentWorker?.employeeId || t.notAssigned}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="text-slate-500">{t.department}</dt><dd className="font-semibold">{currentWorker?.department || t.notAssigned}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="text-slate-500">{t.latestAttendance}</dt><dd className="font-semibold">{currentWorker?.attendance?.latest ? attendanceLabels[currentWorker.attendance.latest.status] : t.notMarked}</dd></div>
               </dl>
             </div>
             <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 dark:border-slate-700 dark:bg-slate-900">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Work by mine</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t.workByMine}</h2>
               <MineWorkList items={currentWorker?.mineWork || []} />
               {!currentWorker?.mineWork?.length && currentWorker?.mineSites?.length > 0 && (
                 <p className="mt-3 text-sm text-slate-500">Assigned sites: {currentWorker.mineSites.map((mine) => mine.name).join(", ")}. No task or attendance history recorded yet.</p>

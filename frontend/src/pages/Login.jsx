@@ -33,9 +33,7 @@ export default function Login() {
   const t = translations[language];
   const recaptchaSiteKey =
     import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
-    (import.meta.env.DEV
-      ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-      : "");
+    (import.meta.env.DEV ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" : "");
   const redirectTo =
     new URLSearchParams(location.search).get("redirect") ||
     (user?.role === "worker" ? "/app/workers" : "/app");
@@ -128,7 +126,7 @@ export default function Login() {
                 ? "Smarter Monitoring\nfor a Safer Tomorrow"
                 : "स्मार्ट निगरानी\nएक सुरक्षित कल के लिए"}
             </h2>
-              <p className="max-w-[390px] whitespace-pre-line text-base leading-7 text-slate-200 xl:text-[17px]">
+            <p className="max-w-[390px] whitespace-pre-line text-base leading-7 text-slate-200 xl:text-[17px]">
               {language === "en"
                 ? "Coal MineSight helps you monitor, manage and\nimprove coal mine operations with real-time data,\nAI insights and collaborative tools."
                 : "कोल माइनसाइट आपको वास्तविक समय के डेटा,\nएआई अंतर्दृष्टि और सहयोगी उपकरणों के साथ\nखदान संचालन की निगरानी और प्रबंधन में मदद करता है।"}
@@ -160,185 +158,258 @@ export default function Login() {
       {/* Right panel */}
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
-        <div className="w-full max-w-md">
-          <Link
-            to="/"
-            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-primary-700 dark:text-slate-300 dark:hover:text-primary-300"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t.backToLanding}
-          </Link>
-          <div className="card p-5 sm:p-8">
-            <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
-              {t.welcomeBack}
-            </h2>
-            <p className="mb-6 text-sm text-slate-600 dark:text-slate-300">
-              {t.signInToAccount}
-            </p>
-
-            <form
-              onSubmit={handleSubmit}
-              autoComplete="on"
-              className="space-y-4"
+          <div className="w-full max-w-md">
+            <Link
+              to="/"
+              className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-primary-700 dark:text-slate-300 dark:hover:text-primary-300"
             >
-              <div>
-                <label className="label" htmlFor="login-email">
-                  {t.email}
-                </label>
-                <input
-                  id="login-email"
-                  name="email"
-                  type="email"
-                  autoComplete="username"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field"
-                  placeholder="you@cil.gov.in"
-                  required
-                />
-              </div>
+              <ArrowLeft className="h-4 w-4" />
+              {t.backToLanding}
+            </Link>
+            <div className="card p-5 sm:p-8">
+              <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
+                {t.welcomeBack}
+              </h2>
+              <p className="mb-6 text-sm text-slate-600 dark:text-slate-300">
+                {t.signInToAccount}
+              </p>
 
-              <div>
-                <label className="label" htmlFor="login-password">
-                  {t.password}
-                </label>
-                <div className="relative">
+              <form
+                onSubmit={handleSubmit}
+                autoComplete="on"
+                className="space-y-4"
+              >
+                <div>
+                  <label className="label" htmlFor="login-email">
+                    {t.email}
+                  </label>
                   <input
-                    id="login-password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pr-10"
-                    placeholder="••••••••"
+                    id="login-email"
+                    name="email"
+                    type="email"
+                    autoComplete="username"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-field"
+                    placeholder="you@cil.gov.in"
                     required
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
                 </div>
-              </div>
 
-              {recaptchaSiteKey ? (
-                <div
-                  ref={recaptchaContainerRef}
-                  className="w-full overflow-hidden"
-                  style={{ height: 78 * recaptchaScale }}
-                >
-                  <div
-                    style={{
-                      width: 304,
-                      transform: `scale(${recaptchaScale})`,
-                      transformOrigin: "top left",
-                    }}
-                  >
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      sitekey={recaptchaSiteKey}
-                      onChange={setRecaptchaToken}
-                      onExpired={() => setRecaptchaToken(null)}
+                <div>
+                  <label className="label" htmlFor="login-password">
+                    {t.password}
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="login-password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="input-field pr-10"
+                      placeholder="••••••••"
+                      required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
-              ) : import.meta.env.PROD ? (
-                <p className="text-sm text-red-600" role="alert">
-                  Login verification is not configured. Set VITE_RECAPTCHA_SITE_KEY.
-                </p>
-              ) : null}
 
-              <button
-                type="submit"
-                disabled={isLoading || !recaptchaSiteKey}
-                className="btn-primary w-full flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {t.sending}
-                  </>
-                ) : (
-                  t.signIn
-                )}
-              </button>
-            </form>
+                {recaptchaSiteKey ? (
+                  <div
+                    ref={recaptchaContainerRef}
+                    className="w-full overflow-hidden"
+                    style={{ height: 78 * recaptchaScale }}
+                  >
+                    <div
+                      style={{
+                        width: 304,
+                        transform: `scale(${recaptchaScale})`,
+                        transformOrigin: "top left",
+                      }}
+                    >
+                      <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey={recaptchaSiteKey}
+                        onChange={setRecaptchaToken}
+                        onExpired={() => setRecaptchaToken(null)}
+                      />
+                    </div>
+                  </div>
+                ) : import.meta.env.PROD ? (
+                  <p className="text-sm text-red-600" role="alert">
+                    Login verification is not configured. Set
+                    VITE_RECAPTCHA_SITE_KEY.
+                  </p>
+                ) : null}
 
-            <p className="mt-4 text-center text-xs leading-5 text-slate-600 dark:text-slate-300">
-              {t.signInHint}
-            </p>
+                <button
+                  type="submit"
+                  disabled={isLoading || !recaptchaSiteKey}
+                  className="btn-primary w-full flex items-center justify-center gap-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t.sending}
+                    </>
+                  ) : (
+                    t.signIn
+                  )}
+                </button>
+              </form>
 
-            {/* Optional seeded demo accounts */}
-            <details className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700" open>
-              <summary className="cursor-pointer text-center text-base font-semibold text-slate-700 dark:text-slate-200">
-                {t.quickDemo} ({t.optional})
-              </summary>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => quickLogin("rajesh@ncl.gov.in", "mine123", t.mineOfficial)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
-                >
-                  <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.mineOfficial}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => quickLogin("corporate@cil.gov.in", "corp123", t.corporate)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
-                >
-                  <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.corporate}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => quickLogin("admin@cil.gov.in", "admin123", t.admin)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
-                >
-                  <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.admin}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => quickLogin("regulator@dgms.gov.in", "reg123", t.regulator)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
-                >
-                  <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.regulator}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => quickLogin("worker@cil.gov.in", "worker123", t.worker || "Worker")}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
-                >
-                  <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.worker || "Worker"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    quickLogin("ananya@shakticontractors.in", "contract123", t.contractor || "Contractor")
-                  }
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
-                >
-                  <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.contractor || "Contractor"}</span>
-                </button>
-              </div>
-
-              <p className="mt-3 text-center text-[11px] font-semibold text-red-600 dark:text-red-400">
-                * {t.demoNotice}
+              <p className="mt-4 text-center text-xs leading-5 text-slate-600 dark:text-slate-300">
+                {t.signInHint}
               </p>
-            </details>
-            <div className="mt-4 text-center text-sm text-slate-600 dark:text-slate-300">
-              {t.dontHaveAccount}{" "}
-              <Link to="/register" className="font-semibold text-primary-700 hover:text-primary-800">
+
+              {/* Optional seeded demo accounts */}
+              <details
+                className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700"
+                open
+              >
+                <summary className="cursor-pointer text-center text-xs font-medium text-slate-600 dark:text-slate-300">
+                  {t.quickDemo} ({t.optional})
+                </summary>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      quickLogin("rajesh@ncl.gov.in", "mine123", t.mineOfficial)
+                    }
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  >
+                    <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
+                      {t.mineOfficial}
+                    </span>
+                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      rajesh@ncl.gov.in
+                    </span>
+                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      mine123
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      quickLogin("corporate@cil.gov.in", "corp123", t.corporate)
+                    }
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  >
+                    <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
+                      {t.corporate}
+                    </span>
+                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      corporate@cil.gov.in
+                    </span>
+                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      corp123
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      quickLogin("admin@cil.gov.in", "admin123", t.admin)
+                    }
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  >
+                    <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
+                      {t.admin}
+                    </span>
+                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      admin@cil.gov.in
+                    </span>
+                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      admin123
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      quickLogin("regulator@dgms.gov.in", "reg123", t.regulator)
+                    }
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  >
+                    <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
+                      {t.regulator}
+                    </span>
+                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      regulator@dgms.gov.in
+                    </span>
+                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      reg123
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      quickLogin(
+                        "worker@cil.gov.in",
+                        "worker123",
+                        t.worker || "Worker",
+                      )
+                    }
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  >
+                    <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
+                      {t.worker || "Worker"}
+                    </span>
+                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      worker@cil.gov.in
+                    </span>
+                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      worker123
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      quickLogin(
+                        "ananya@shakticontractors.in",
+                        "contract123",
+                        t.contractor || "Contractor",
+                      )
+                    }
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  >
+                    <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
+                      {t.contractor || "Contractor"}
+                    </span>
+                    <span className="mt-1 block break-all font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      ananya@shakticontractors.in
+                    </span>
+                    <span className="block font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                      contract123
+                    </span>
+                  </button>
+                </div>
+
+                <p className="mt-3 text-center text-[11px] font-semibold text-red-600 dark:text-red-400">
+                  * {t.demoNotice}
+                </p>
+              </details>
+              <div className="mt-4 text-center text-sm text-slate-600 dark:text-slate-300">
+                {t.dontHaveAccount}{" "}
+                <Link
+                  to="/register"
+                  className="font-semibold text-primary-700 hover:text-primary-800"
+                >
                   {t.signUp}
-              </Link>
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
