@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getHomeStats,
   createChatMessage,
+  createContactMessage,
   getChatMessages,
 } = require("../controllers/publicController");
 const { protect } = require("../middleware/auth");

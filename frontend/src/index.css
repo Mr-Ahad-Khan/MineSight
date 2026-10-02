@@ -241,6 +241,18 @@
     color: #52636a !important;
   }
 
+  .home-page.theme-light #partners [class*="text-[#b8f3e7]"] {
+    color: #b8f3e7 !important;
+  }
+
+  .home-page.theme-light #partners [class*="text-[#c5ddf5]"] {
+    color: #c5ddf5 !important;
+  }
+
+  .home-page.theme-light #partners [class*="text-[#9eafaf]"] {
+    color: #b7c8c9 !important;
+  }
+
   @keyframes coal-ai-nudge {
     0%,
     72%,
