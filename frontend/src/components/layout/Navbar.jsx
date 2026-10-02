@@ -81,8 +81,6 @@ export default function Navbar() {
     </button>
   );
 
-  const mobileOverflowNavigation = navigation.slice(4);
-
   const navLinks = (variant, items = navigation) =>
     items.map((item) => (
       <NavLink
@@ -92,7 +90,7 @@ export default function Navbar() {
         onClick={() => setNavigationMenuOpen(false)}
         className={({ isActive }) =>
           variant === "desktop"
-              ? `relative flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-none px-1 py-3 text-[10px] font-semibold transition-colors after:absolute after:inset-x-1 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-[#ff6f00] after:transition-transform 2xl:text-xs ${
+              ? `relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-none px-2 py-3 text-[11px] font-semibold transition-colors after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-[#ff6f00] after:transition-transform 2xl:text-xs ${
                 isActive
                   ? "text-white after:scale-x-100"
                   : "text-white/70 hover:text-white hover:after:scale-x-100"
@@ -117,7 +115,7 @@ export default function Navbar() {
         </div>
 
         <nav
-          className="navbar-scrollbar-hidden hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto px-1 xl:flex"
+          className="navbar-scrollbar-hidden hidden min-w-0 flex-1 items-center justify-start gap-1 overflow-x-auto px-2 lg:flex"
           aria-label="Primary navigation"
         >
           {navLinks("desktop")}
@@ -208,10 +206,10 @@ export default function Navbar() {
       {navigationMenuOpen && (
         <div className="border-t border-white/10 bg-[#121a21] p-3 shadow-lg xl:hidden">
           <nav
-            className="grid grid-cols-2 gap-2"
+            className="grid grid-cols-1 gap-2 sm:grid-cols-2"
             aria-label="Mobile navigation"
           >
-            {navLinks("mobile", mobileOverflowNavigation)}
+            {navLinks("mobile", navigation)}
           </nav>
           <div className="mt-3 flex items-center justify-between border-t border-[#e1d3bc] pt-3 dark:border-slate-700">
             <button

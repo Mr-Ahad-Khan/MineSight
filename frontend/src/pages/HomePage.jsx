@@ -452,6 +452,7 @@ import {
   PlayCircle,
   CheckCircle2,
   BarChart3,
+  Cloud,
   Flame,
   Factory,
   Shield,
@@ -1248,7 +1249,7 @@ export default function HomePage() {
                 <p className="mt-2 text-lg font-semibold">{t.coalIndiaLimited}</p>
               </div>
             </div>
-            <div className="grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2 md:col-span-2">
+            <div className="grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2 lg:grid-cols-3 md:col-span-2">
               <div className="flex items-center gap-3 border border-[#39c7b0]/25 bg-[#102b32] px-4 py-3 text-sm font-semibold text-[#b8f3e7]">
                 <Bot className="h-5 w-5 shrink-0 text-[#61dfca]" aria-hidden="true" />
                 {t.aiPowered}
@@ -1256,6 +1257,10 @@ export default function HomePage() {
               <div className="flex items-center gap-3 border border-[#e5a416]/25 bg-[#2b2513] px-4 py-3 text-sm font-semibold text-[#f6d98d]">
                 <ShieldCheck className="h-5 w-5 shrink-0 text-[#f3b323]" aria-hidden="true" />
                 {t.blockchainAudit}
+              </div>
+              <div className="flex items-center gap-3 border border-[#7aa7d9]/25 bg-[#152a3d] px-4 py-3 text-sm font-semibold text-[#c5ddf5]">
+                <Cloud className="h-5 w-5 shrink-0 text-[#8fc5f4]" aria-hidden="true" />
+                {t.cloudComputing}
               </div>
             </div>
           </div>
