@@ -49,7 +49,6 @@ export default function Navbar() {
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
     { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
-    { name: t.mines, href: "/app/mines", icon: MapPin },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
     { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
     { name: t.disasterManagement, href: "/app/disaster-management", icon: Siren },
@@ -57,6 +56,7 @@ export default function Navbar() {
 
   // Non-important / secondary tabs shifted to "More ▾" dropdown on desktop
   const secondaryNavigation = user?.role === "worker" ? [] : [
+    { name: t.mines, href: "/app/mines", icon: MapPin },
     { name: t.mineralResources, href: "/app/mineral-resources", icon: Gem },
     { name: t.contractors, href: "/app/contractors", icon: Users },
     { name: t.workersTitle, href: "/app/workers", icon: Users },

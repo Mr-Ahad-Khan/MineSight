@@ -131,16 +131,16 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+      <div className="flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.analytics}</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.insightSubtitle}</p>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{t.insightSubtitle}</p>
       </div>
 
       <section className="card p-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
           <div>
             <h2 className="font-semibold">{t.periodComparison}</h2>
-            <p className="text-sm text-slate-500">{t.periodComparisonSubtitle}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300">{t.periodComparisonSubtitle}</p>
           </div>
           <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 p-1" role="tablist">
             {[
@@ -162,10 +162,10 @@ export default function Analytics() {
           </div>
         </div>
         <div className="mb-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="text-sm"><span className="mb-1 block text-slate-500">From</span><input type="date" value={filters.startDate} onChange={(event) => { setPeriod('custom'); setFilters((current) => ({ ...current, startDate: event.target.value })) }} className="input-field w-full" /></label>
-          <label className="text-sm"><span className="mb-1 block text-slate-500">To</span><input type="date" value={filters.endDate} onChange={(event) => { setPeriod('custom'); setFilters((current) => ({ ...current, endDate: event.target.value })) }} className="input-field w-full" /></label>
-          <label className="text-sm"><span className="mb-1 block text-slate-500">Severity</span><select value={filters.severity} onChange={(event) => setFilters((current) => ({ ...current, severity: event.target.value }))} className="input-field w-full"><option value="">All severities</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label>
-          <label className="text-sm"><span className="mb-1 block text-slate-500">Status</span><select value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} className="input-field w-full"><option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></label>
+          <label className="text-sm"><span className="mb-1 block text-slate-600 dark:text-slate-300">From</span><input type="date" value={filters.startDate} onChange={(event) => { setPeriod('custom'); setFilters((current) => ({ ...current, startDate: event.target.value })) }} className="input-field w-full" /></label>
+          <label className="text-sm"><span className="mb-1 block text-slate-600 dark:text-slate-300">To</span><input type="date" value={filters.endDate} onChange={(event) => { setPeriod('custom'); setFilters((current) => ({ ...current, endDate: event.target.value })) }} className="input-field w-full" /></label>
+          <label className="text-sm"><span className="mb-1 block text-slate-600 dark:text-slate-300">Severity</span><select value={filters.severity} onChange={(event) => setFilters((current) => ({ ...current, severity: event.target.value }))} className="input-field w-full"><option value="">All severities</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label>
+          <label className="text-sm"><span className="mb-1 block text-slate-600 dark:text-slate-300">Status</span><select value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} className="input-field w-full"><option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></label>
         </div>
         {!comparison ? (
           <p className="text-slate-400 text-sm">{t.noComparisonData}</p>
@@ -179,7 +179,7 @@ export default function Analytics() {
               const isNegative = change < 0
               return (
                 <div key={key} className="card border-t-4 border-t-[#ff6f00] p-4">
-                  <p className="text-sm text-slate-500">{label}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">{label}</p>
                   <div className="flex items-end justify-between gap-3 mt-2">
                     <p className="text-2xl font-bold">{current}</p>
                     <span className={`rounded-full bg-emerald-50 px-2 py-1 text-sm font-semibold ${isPositive ? 'text-emerald-700' : isNegative ? 'text-rose-600' : 'text-slate-500'}`}>
@@ -206,9 +206,9 @@ export default function Analytics() {
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={recurringData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a' }} labelStyle={{ color: '#0f172a' }} itemStyle={{ color: '#0f172a' }} />
                 <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -224,9 +224,9 @@ export default function Analytics() {
             <ResponsiveContainer width="100%" height={250}>
               <AreaChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a' }} labelStyle={{ color: '#0f172a' }} itemStyle={{ color: '#0f172a' }} />
                 <Area type="monotone" dataKey="inspections" stroke="#0d9488" fill="#0d9488" fillOpacity={0.16} strokeWidth={3} name="Inspections" />
               </AreaChart>
             </ResponsiveContainer>
