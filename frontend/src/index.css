@@ -383,15 +383,16 @@
     .dashboard-panel,
     .dashboard-subcard {
       position: relative;
+      transform: translateZ(0);
       transition:
-        scale 200ms ease,
+        transform 200ms ease,
         box-shadow 200ms ease,
         background-color 200ms ease;
     }
 
     .dashboard-panel:hover,
     .dashboard-subcard:hover {
-      scale: 1.02;
+      transform: translateY(-2px) translateZ(0);
       z-index: 10;
       box-shadow: 0 12px 24px rgb(80 60 30 / 0.14);
     }
@@ -399,12 +400,13 @@
 
   .card {
     @apply relative rounded-xl border border-gray-200 bg-white shadow-md transition-shadow duration-200 dark:border-slate-800 dark:bg-slate-900;
+    transform: translateZ(0);
   }
 
   @media (hover: hover) and (pointer: fine) {
     .card:hover,
     .stat-card:hover {
-      scale: 1.02;
+      transform: translateY(-2px) translateZ(0);
       z-index: 10;
       @apply shadow-card-hover;
     }

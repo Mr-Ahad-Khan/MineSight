@@ -209,16 +209,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [summaryUnavailable, setSummaryUnavailable] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
-  const analyticsSectionRef = useRef(null)
-  const [animatedOpenInspections, setAnimatedOpenInspections] = useState(0)
-  const [animatedComplianceScore, setAnimatedComplianceScore] = useState(0)
-  const [animatedRiskData, setAnimatedRiskData] = useState({
-    low: 0,
-    medium: 0,
-    high: 0,
-    critical: 0,
-  })
-  const [riskAnimationProgress, setRiskAnimationProgress] = useState(0)
+  const openInspections = Number(summary?.openInspections) || 0
+  const complianceScore = Number(summary?.avgComplianceScore) || 0
 
   const { language } = useLanguageStore()
   const t = translations[language]
@@ -286,30 +278,7 @@ export default function Dashboard() {
 
   }, [])
 
-  useEffect(() => {
-    if (!summary) return undefined
 
-    const openInspections = Number(summary.openInspections) || 0
-    const complianceScore = Number(summary.avgComplianceScore) || 0
-    const duration = 900
-    const startedAt = performance.now()
-    let animationFrame
-
-    const animateCounters = (timestamp) => {
-      const progress = Math.min((timestamp - startedAt) / duration, 1)
-      const easedProgress = 1 - (1 - progress) ** 3
-
-      setAnimatedOpenInspections(Math.round(openInspections * easedProgress))
-      setAnimatedComplianceScore(Number((complianceScore * easedProgress).toFixed(1)))
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animateCounters)
-      }
-    }
-
-    animationFrame = requestAnimationFrame(animateCounters)
-    return () => cancelAnimationFrame(animationFrame)
-  }, [summary])
 
 
   // ============================================================
@@ -413,40 +382,11 @@ export default function Dashboard() {
 
   }, [summary])
 
-  useEffect(() => {
-    const duration = 1000
-    const startedAt = performance.now()
-    let animationFrame
-    setRiskAnimationProgress(0)
-
-    const animateRiskSegments = (timestamp) => {
-      const progress = Math.min((timestamp - startedAt) / duration, 1)
-      const easedProgress = 1 - (1 - progress) ** 3
-      setRiskAnimationProgress(easedProgress)
-
-      setAnimatedRiskData({
-        low: riskData.low * easedProgress,
-        medium: riskData.medium * easedProgress,
-        high: riskData.high * easedProgress,
-        critical: riskData.critical * easedProgress,
-      })
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animateRiskSegments)
-      }
-    }
-
-    animationFrame = requestAnimationFrame(animateRiskSegments)
-    return () => cancelAnimationFrame(animationFrame)
-  }, [riskData])
-
-
   const totalRisk =
     riskData.low +
     riskData.medium +
     riskData.high +
     riskData.critical
-
 
   const lowPercent =
     totalRisk > 0
@@ -468,37 +408,20 @@ export default function Dashboard() {
       ? (riskData.critical / totalRisk) * 100
       : 0
 
-  const animatedLowPercent = lowPercent * riskAnimationProgress
-  const animatedMediumPercent = mediumPercent * riskAnimationProgress
-  const animatedHighPercent = highPercent * riskAnimationProgress
-  const animatedCriticalPercent = criticalPercent * riskAnimationProgress
-
-  const mediumStart = animatedLowPercent
-
-  const highStart =
-    animatedLowPercent +
-    animatedMediumPercent
-
-  const criticalStart =
-    animatedLowPercent +
-    animatedMediumPercent +
-    animatedHighPercent
-
+  const mediumStart = lowPercent
+  const highStart = lowPercent + mediumPercent
+  const criticalStart = lowPercent + mediumPercent + highPercent
 
   const donutBackground =
     totalRisk > 0
-
       ? `conic-gradient(
-          #28a66f 0% ${animatedLowPercent}%,
-          #f5a313 ${mediumStart}% ${mediumStart + animatedMediumPercent}%,
-          #e87916 ${highStart}% ${highStart + animatedHighPercent}%,
-          #d33c3c ${criticalStart}% ${criticalStart + animatedCriticalPercent}%,
-          #e9dfcf ${criticalStart + animatedCriticalPercent}% 100%
+          #28a66f 0% ${lowPercent}%,
+          #f5a313 ${mediumStart}% ${mediumStart + mediumPercent}%,
+          #e87916 ${highStart}% ${highStart + highPercent}%,
+          #d33c3c ${criticalStart}% ${criticalStart + criticalPercent}%,
+          #e9dfcf ${criticalStart + criticalPercent}% 100%
         )`
-
-      : `conic-gradient(
-          #e9dfcf 0% 100%
-        )`
+      : `conic-gradient(#e9dfcf 0% 100%)`
 
 
   // ============================================================
@@ -736,9 +659,9 @@ export default function Dashboard() {
 
           <StatCard
             title={t.openInspections}
-            value={animatedOpenInspections}
+            value={openInspections}
             subtitle={`${summary?.criticalInspections || 0} ${t.critical}`}
-            secondary={`Updated inspections: ${animatedOpenInspections + 1}`}
+            secondary={`Updated inspections: ${openInspections + 1}`}
             icon={ClipboardList}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
@@ -758,7 +681,7 @@ export default function Dashboard() {
 
           <StatCard
             title={t.avgComplianceScore}
-            value={`${animatedComplianceScore}%`}
+            value={`${complianceScore}%`}
             icon={TrendingUp}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />

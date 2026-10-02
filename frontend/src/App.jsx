@@ -67,32 +67,7 @@ function App() {
     return () => window.removeEventListener("vite:preloadError", handlePreloadError);
   }, []);
 
-  useEffect(() => {
-    let timeoutId;
-    const enhanceControls = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        document.querySelectorAll("button").forEach((button) => {
-          if (button.title) return;
 
-          const label =
-            button.getAttribute("aria-label") ||
-            button.textContent?.replace(/\s+/g, " ").trim() ||
-            "Button";
-          button.setAttribute("title", label);
-        });
-      }, 400);
-    };
-
-    enhanceControls();
-    const observer = new MutationObserver(enhanceControls);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => {
-      clearTimeout(timeoutId);
-      observer.disconnect();
-    };
-  }, []);
 
   return (
     <>

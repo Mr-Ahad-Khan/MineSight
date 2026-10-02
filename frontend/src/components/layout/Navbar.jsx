@@ -110,7 +110,7 @@ export default function Navbar() {
   );
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-[#121a21]/95 text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)] backdrop-blur-lg">
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-[#121a21] text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)]">
       {/* Single-Row Clean Desktop & Mobile Header */}
       <div className="flex h-16 min-w-0 items-center justify-between px-3 sm:px-5 xl:px-6">
         {/* Left: Brand Logo */}
@@ -120,7 +120,7 @@ export default function Navbar() {
 
         {/* Desktop Single-Line Navigation: Core Tabs + More Dropdown */}
         <nav
-          className="navbar-scrollbar-hidden hidden min-w-0 flex-1 items-center justify-start xl:justify-center gap-1 px-3 overflow-x-auto xl:flex"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-3 overflow-visible xl:flex"
           aria-label="Primary navigation"
         >
           {primaryNavigation.map((item) => (
@@ -131,8 +131,8 @@ export default function Navbar() {
               className={({ isActive }) =>
                 `relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-xs font-semibold tracking-wide transition-all ${
                   isActive
-                    ? "bg-white/10 text-[#ff9a3c] shadow-sm after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:bg-[#ff6f00]"
-                    : "text-white/75 hover:bg-white/5 hover:text-white"
+                    ? "bg-[#ff6f00] text-white shadow-sm"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
                 }`
               }
             >
@@ -149,31 +149,31 @@ export default function Navbar() {
                 onClick={() => setMoreMenuOpen((open) => !open)}
                 className={`relative flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-xs font-semibold tracking-wide transition-all ${
                   isMoreActive
-                    ? "bg-white/10 text-[#ff9a3c] shadow-sm after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:bg-[#ff6f00]"
-                    : "text-white/75 hover:bg-white/5 hover:text-white"
+                    ? "bg-[#ff6f00] text-white shadow-sm"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
                 }`}
                 aria-expanded={moreMenuOpen}
                 aria-label="More navigation options"
               >
                 <Menu className="h-3.5 w-3.5 shrink-0" />
                 <span>{language === "hi" ? "अन्य" : "More"}</span>
-                <ChevronDown className={`h-3 w-3 shrink-0 transition-transform ${moreMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`h-3 w-3 shrink-0 transition-transform duration-200 ${moreMenuOpen ? "rotate-180" : ""}`} />
               </button>
 
               {/* More Dropdown Popover with 100% Solid Opaque Background */}
               {moreMenuOpen && (
-                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-60 rounded-xl border border-slate-700 bg-[#101923] p-1.5 text-white shadow-2xl ring-1 ring-black/20">
-                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-700/70">
+                <div className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-slate-700 bg-[#0d151e] p-2 text-white shadow-2xl ring-1 ring-white/10">
+                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
                     {language === "hi" ? "अतिरिक्त मॉड्यूल और विकल्प" : "Additional Modules & Options"}
                   </div>
-                  <div className="mt-1 space-y-0.5">
+                  <div className="mt-1 space-y-1">
                     {secondaryNavigation.map((item) => (
                       <NavLink
                         key={item.name}
                         to={item.href}
                         onClick={() => setMoreMenuOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${
+                          `flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                             isActive
                               ? "bg-[#ff6f00] text-white font-semibold shadow-sm"
                               : "text-slate-200 hover:bg-white/10 hover:text-white"
@@ -292,20 +292,20 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Hamburger Dropdown: 100% Solid Opaque Background (Zero Transparency) & Compact ~30% Screen Height */}
+      {/* Mobile Hamburger Dropdown: 100% Solid Opaque Background & uses available screen space without forced scrolling */}
       {navigationMenuOpen && (
         <>
           {/* Deep dimmed backdrop covering remaining screen */}
           <div
-            className="fixed inset-0 top-16 z-40 bg-black/80 backdrop-blur-sm transition-opacity xl:hidden"
+            className="fixed inset-0 top-16 z-40 bg-black/75 transition-opacity xl:hidden"
             onClick={() => setNavigationMenuOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Compact 30% Mobile Screen Dropdown Panel with 100% SOLID OPAQUE BACKGROUND */}
-          <div className="fixed inset-x-0 top-16 z-50 max-h-[35vh] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] xl:hidden">
+          {/* Mobile Screen Dropdown Panel with 100% SOLID OPAQUE BACKGROUND - expands naturally so all items fit without scrolling */}
+          <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100vh-4.5rem)] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] xl:hidden">
             {/* 2-Column Grid of ALL Navigation Items with SOLID OPAQUE Card Backgrounds */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {allNavigation.map((item) => (
                 <NavLink
                   key={item.name}
@@ -326,7 +326,7 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Quick Profile & Logout Footer inside the 30% panel */}
+            {/* Quick Profile & Logout Footer */}
             <div className="mt-3 flex items-center justify-between border-t border-slate-700/80 pt-2.5 text-xs">
               <button
                 type="button"
@@ -339,7 +339,7 @@ export default function Navbar() {
                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6f00] text-[10px] font-bold text-white">
                   {user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
-                <span className="max-w-[120px] truncate">{user?.name || t.profile}</span>
+                <span className="max-w-[140px] truncate">{user?.name || t.profile}</span>
               </button>
 
               <button
