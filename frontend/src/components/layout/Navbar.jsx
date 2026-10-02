@@ -80,8 +80,10 @@ export default function Navbar() {
     </button>
   );
 
-  const navLinks = (variant) =>
-    navigation.map((item) => (
+  const mobileOverflowNavigation = navigation.slice(4);
+
+  const navLinks = (variant, items = navigation) =>
+    items.map((item) => (
       <NavLink
         key={item.name}
         to={item.href}
@@ -208,7 +210,7 @@ export default function Navbar() {
             className="grid grid-cols-2 gap-2"
             aria-label="Mobile navigation"
           >
-            {navLinks("mobile")}
+            {navLinks("mobile", mobileOverflowNavigation)}
           </nav>
           <div className="mt-3 flex items-center justify-between border-t border-[#e1d3bc] pt-3 dark:border-slate-700">
             <button
@@ -229,6 +231,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
     </header>
   );
 }

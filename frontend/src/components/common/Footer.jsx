@@ -1,13 +1,25 @@
 import BrandLogo from "./BrandLogo";
+import { LayoutDashboard, ClipboardList, UserCheck, ShieldCheck } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import useAuthStore from "../../store/authStore";
 import { useLanguageStore } from "../../store/themeStore";
 import { translations } from "../../i18n/translations";
 
 export default function Footer() {
+  const { user } = useAuthStore();
   const { language } = useLanguageStore();
   const t = translations[language];
+  const navigation = user?.role === "worker" ? [
+    { name: "My Work & Attendance", href: "/app/workers", icon: ClipboardList },
+  ] : [
+    { name: t.dashboard, href: "/app", icon: LayoutDashboard },
+    { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
+    { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
+    { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
+  ];
 
   return (
-    <footer className="border-t border-white/10 bg-[#212121] text-white/75">
+    <footer className="border-t border-white/10 bg-[#212121] pb-16 text-white/75 xl:pb-0">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
@@ -63,6 +75,27 @@ export default function Footer() {
           <p>{t.version}</p>
         </div>
       </div>
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-4 border-t border-white/10 bg-[#121a21]/95 px-1 text-white shadow-[0_-8px_24px_rgba(12,18,24,0.22)] backdrop-blur-lg xl:hidden"
+        aria-label="Footer navigation"
+      >
+        {navigation.map((item) => (
+          <NavLink
+            key={item.href}
+            to={item.href}
+            end={item.href === "/app"}
+            aria-label={item.name}
+            className={({ isActive }) =>
+              `flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-3 text-[10px] font-semibold transition-colors ${
+                isActive ? "text-[#ff9a3c]" : "text-white/65 hover:text-white"
+              }`
+            }
+          >
+            <item.icon className="h-5 w-5 shrink-0" />
+            <span className="w-full truncate text-center">{item.name}</span>
+          </NavLink>
+        ))}
+      </nav>
     </footer>
   );
 }
