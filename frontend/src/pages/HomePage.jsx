@@ -1225,27 +1225,37 @@ export default function HomePage() {
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[0.8fr_1.6fr] md:items-center lg:px-8">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#e5a416]">
-                {language === "en" ? "Project ecosystem" : "परियोजना इकोसिस्टम"}
+                {t.projectEcosystem}
               </p>
               <h2 className="mt-2 text-xl font-bold sm:text-2xl">
-                {language === "en" ? "Built for India's coal sector" : "भारत के कोयला क्षेत्र के लिए निर्मित"}
+                {t.coalSectorHeading}
               </h2>
               <p className="mt-2 text-sm text-[#9eafaf]">
-                Smart India Hackathon 2026
+                {t.hackathon}
               </p>
             </div>
             <div className="grid gap-6 border-t border-white/15 pt-6 sm:grid-cols-2 md:border-l md:border-t-0 md:pl-8 md:pt-0">
               <div className="border-l-2 border-[#39c7b0] pl-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#83d2c5]">
-                  {language === "en" ? "Institutional context" : "संस्थागत संदर्भ"}
+                  {t.institutionalContext}
                 </p>
-                <p className="mt-2 text-lg font-semibold">Ministry of Coal</p>
+                <p className="mt-2 text-lg font-semibold">{t.ministryOfCoal}</p>
               </div>
               <div className="border-l-2 border-[#e5a416] pl-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#f3b323]">
-                  {language === "en" ? "Associated company" : "संबद्ध कंपनी"}
+                  {t.associatedCompany}
                 </p>
-                <p className="mt-2 text-lg font-semibold">Coal India Limited</p>
+                <p className="mt-2 text-lg font-semibold">{t.coalIndiaLimited}</p>
+              </div>
+            </div>
+            <div className="grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2 md:col-span-2">
+              <div className="flex items-center gap-3 border border-[#39c7b0]/25 bg-[#102b32] px-4 py-3 text-sm font-semibold text-[#b8f3e7]">
+                <Bot className="h-5 w-5 shrink-0 text-[#61dfca]" aria-hidden="true" />
+                {t.aiPowered}
+              </div>
+              <div className="flex items-center gap-3 border border-[#e5a416]/25 bg-[#2b2513] px-4 py-3 text-sm font-semibold text-[#f6d98d]">
+                <ShieldCheck className="h-5 w-5 shrink-0 text-[#f3b323]" aria-hidden="true" />
+                {t.blockchainAudit}
               </div>
             </div>
           </div>
