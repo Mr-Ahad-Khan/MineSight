@@ -14,6 +14,8 @@ const riskBadge = {
   critical: 'badge-critical',
 }
 
+const riskLevels = ['low', 'medium', 'high', 'critical']
+
 export default function Mines() {
   const [mines, setMines] = useState([])
   const [loading, setLoading] = useState(true)
@@ -30,6 +32,8 @@ export default function Mines() {
     address: '',
     status: 'undiscovered',
     visibility: 'private',
+    disasterProne: false,
+    disasterSeason: '',
   })
   const { language } = useLanguageStore()
   const t = translations[language]
@@ -62,6 +66,8 @@ export default function Mines() {
         address: form.address,
         status: form.status,
         visibility: form.visibility,
+        disasterProne: form.disasterProne,
+        disasterSeason: form.disasterSeason,
       })
       setMines((current) => [data.data, ...current])
       setSelectedMineId(data.data._id)
@@ -75,6 +81,8 @@ export default function Mines() {
         address: '',
         status: 'undiscovered',
         visibility: 'private',
+        disasterProne: false,
+        disasterSeason: '',
       })
     } catch (error) {
       setFormError(error.response?.data?.message || 'Unable to add mine. Please try again.')
@@ -86,7 +94,7 @@ export default function Mines() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex flex-col items-center text-center gap-4 sm:flex-row sm:items-start sm:justify-between sm:text-left">
+        <div className="relative flex flex-col items-center gap-4 text-center">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.minesTitle}</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.minesSubtitle}</p>
@@ -95,7 +103,7 @@ export default function Mines() {
             <button
               type="button"
               onClick={() => setShowCreateForm((visible) => !visible)}
-              className="btn-primary inline-flex shrink-0 items-center gap-2"
+              className="btn-primary inline-flex shrink-0 items-center gap-2 sm:absolute sm:right-0 sm:top-0"
             >
               {showCreateForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {showCreateForm ? 'Cancel' : 'Add Mine'}
@@ -105,22 +113,22 @@ export default function Mines() {
       </div>
 
       {showCreateForm && canCreateMine && (
-        <form onSubmit={handleCreateMine} className="card grid grid-cols-1 gap-4 p-5 md:grid-cols-2">
+        <form onSubmit={handleCreateMine} className="card grid grid-cols-1 gap-4 border-slate-200 bg-white p-5 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 md:grid-cols-2">
           <label className="text-sm font-medium">
             Mine name
-            <input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="input mt-1 w-full" />
+            <input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="input-field mt-1" />
           </label>
           <label className="text-sm font-medium">
             Mine code
-            <input required value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} className="input mt-1 w-full" />
+            <input required value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} className="input-field mt-1" />
           </label>
           <label className="text-sm font-medium">
             Subsidiary
-            <input required value={form.subsidiary} onChange={(event) => setForm({ ...form, subsidiary: event.target.value })} className="input mt-1 w-full" />
+            <input required value={form.subsidiary} onChange={(event) => setForm({ ...form, subsidiary: event.target.value })} className="input-field mt-1" />
           </label>
           <label className="text-sm font-medium">
             Status
-            <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })} className="input mt-1 w-full">
+            <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })} className="input-field mt-1">
               <option value="undiscovered">Undiscovered</option>
               <option value="active">Active</option>
               <option value="closed">Closed</option>
@@ -129,22 +137,30 @@ export default function Mines() {
           </label>
           <label className="text-sm font-medium">
             Visibility
-            <select value={form.visibility} onChange={(event) => setForm({ ...form, visibility: event.target.value })} className="input mt-1 w-full">
+            <select value={form.visibility} onChange={(event) => setForm({ ...form, visibility: event.target.value })} className="input-field mt-1">
               <option value="private">Private (admin and corporate)</option>
               <option value="public">Public (all logged-in roles)</option>
             </select>
           </label>
           <label className="text-sm font-medium">
             Latitude
-            <input required type="number" step="any" min="-90" max="90" value={form.latitude} onChange={(event) => setForm({ ...form, latitude: event.target.value })} className="input mt-1 w-full" />
+            <input required type="number" step="any" min="-90" max="90" value={form.latitude} onChange={(event) => setForm({ ...form, latitude: event.target.value })} className="input-field mt-1" />
           </label>
           <label className="text-sm font-medium">
             Longitude
-            <input required type="number" step="any" min="-180" max="180" value={form.longitude} onChange={(event) => setForm({ ...form, longitude: event.target.value })} className="input mt-1 w-full" />
+            <input required type="number" step="any" min="-180" max="180" value={form.longitude} onChange={(event) => setForm({ ...form, longitude: event.target.value })} className="input-field mt-1" />
           </label>
           <label className="text-sm font-medium md:col-span-2">
             Address
-            <input value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} className="input mt-1 w-full" />
+            <input value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} className="input-field mt-1" />
+          </label>
+          <label className="flex items-center gap-3 text-sm font-medium">
+            <input type="checkbox" checked={form.disasterProne} onChange={(event) => setForm({ ...form, disasterProne: event.target.checked })} className="h-4 w-4 accent-primary-600" />
+            Disaster-prone site
+          </label>
+          <label className="text-sm font-medium">
+            Peak disaster period
+            <input value={form.disasterSeason} onChange={(event) => setForm({ ...form, disasterSeason: event.target.value })} placeholder="e.g. Jun-Sep (monsoon)" className="input-field mt-1" />
           </label>
           {formError && <p role="alert" className="text-sm text-red-600 md:col-span-2">{formError}</p>}
           <div className="flex justify-end md:col-span-2">
@@ -204,6 +220,29 @@ export default function Mines() {
               <p className="text-sm text-slate-500 mb-2">{mine.code} • {mine.subsidiary}</p>
               <p className="mb-3 text-xs font-medium uppercase text-slate-500">{mine.status?.replaceAll('_', ' ')}</p>
               <p className="mb-3 text-xs font-medium capitalize text-slate-500">{mine.visibility || 'public'}</p>
+              <div className="mb-3 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40">
+                <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <span>Risk profile</span>
+                  <span className="normal-case">Current: {mine.riskLevel || 'low'}</span>
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  {riskLevels.map((level) => (
+                    <span key={level} className={`rounded px-1 py-1 text-center text-[10px] font-semibold capitalize ${riskBadge[level]} ${mine.riskLevel === level ? 'ring-2 ring-slate-500 ring-offset-1 dark:ring-offset-slate-950' : 'opacity-60'}`}>
+                      {level}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-3 grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-lg border border-slate-200 p-2 dark:border-slate-800">
+                  <p className="text-slate-500">Disaster-prone site</p>
+                  <p className={`mt-1 font-semibold ${mine.disasterProne ? 'text-rose-600' : 'text-emerald-600'}`}>{mine.disasterProne ? 'Yes' : 'No'}</p>
+                </div>
+                <div className="rounded-lg border border-slate-200 p-2 dark:border-slate-800">
+                  <p className="text-slate-500">Peak occurrence</p>
+                  <p className="mt-1 font-semibold text-slate-700 dark:text-slate-200">{mine.disasterSeason || 'Not specified'}</p>
+                </div>
+              </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">{t.complianceScore}</span>
                 <span className="font-bold text-lg">

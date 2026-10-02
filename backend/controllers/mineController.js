@@ -70,7 +70,7 @@ const getMineById = asyncHandler(async (req, res) => {
 // @route   POST /api/mines
 // @access  Private (Admin / Corporate)
 const createMine = asyncHandler(async (req, res) => {
-  const { name, code, subsidiary, coordinates, address, managerId, status, visibility } = req.body;
+  const { name, code, subsidiary, coordinates, address, managerId, status, visibility, disasterProne, disasterSeason } = req.body;
 
   if (!name || !code || !subsidiary || !coordinates) {
     res.status(400);
@@ -95,6 +95,8 @@ const createMine = asyncHandler(async (req, res) => {
     managerId,
     status,
     visibility,
+    disasterProne,
+    disasterSeason,
   });
 
   res.status(201).json({

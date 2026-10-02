@@ -65,6 +65,8 @@ const seedData = async () => {
       status: 'active',
       complianceScore: 78,
       riskLevel: 'medium',
+      disasterProne: true,
+      disasterSeason: 'Jun-Sep (monsoon)',
     });
 
     const mine2 = await Mine.create({
@@ -76,6 +78,8 @@ const seedData = async () => {
       status: 'active',
       complianceScore: 92,
       riskLevel: 'low',
+      disasterProne: false,
+      disasterSeason: 'Not specified',
     });
 
     const mine3 = await Mine.create({
@@ -87,6 +91,8 @@ const seedData = async () => {
       status: 'active',
       complianceScore: 65,
       riskLevel: 'high',
+      disasterProne: true,
+      disasterSeason: 'Apr-Jun (heat and fire)',
     });
 
     const mine4 = await Mine.create({
@@ -98,6 +104,8 @@ const seedData = async () => {
       status: 'active',
       complianceScore: 86,
       riskLevel: 'low',
+      disasterProne: false,
+      disasterSeason: 'Not specified',
     });
 
     const mine5 = await Mine.create({
@@ -109,6 +117,8 @@ const seedData = async () => {
       status: 'active',
       complianceScore: 74,
       riskLevel: 'medium',
+      disasterProne: true,
+      disasterSeason: 'Jun-Sep (monsoon)',
     });
 
     const mine6 = await Mine.create({
@@ -120,6 +130,8 @@ const seedData = async () => {
       status: 'active',
       complianceScore: 69,
       riskLevel: 'high',
+      disasterProne: true,
+      disasterSeason: 'Apr-Jun (heat and fire)',
     });
 
     const mine7 = await Mine.create({
@@ -131,6 +143,8 @@ const seedData = async () => {
       status: 'active',
       complianceScore: 81,
       riskLevel: 'medium',
+      disasterProne: true,
+      disasterSeason: 'Jun-Sep (monsoon)',
     });
 
     // Create Mine Officials

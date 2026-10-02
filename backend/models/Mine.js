@@ -59,6 +59,15 @@ const mineSchema = new mongoose.Schema(
       enum: ['low', 'medium', 'high', 'critical'],
       default: 'low',
     },
+    disasterProne: {
+      type: Boolean,
+      default: false,
+    },
+    disasterSeason: {
+      type: String,
+      trim: true,
+      default: 'Not specified',
+    },
   },
   {
     timestamps: true,
