@@ -6,6 +6,7 @@ import {
 } from 'recharts'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
+import TableScrollContainer from '../components/common/TableScrollContainer'
 
 const COLORS = ['#2563eb', '#0d9488', '#ff6f00', '#ef4444']
 
@@ -130,9 +131,9 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{t.analytics}</h1>
-        <p className="text-sm text-slate-500 mt-1">{t.insightSubtitle}</p>
+      <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.analytics}</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.insightSubtitle}</p>
       </div>
 
       <section className="card p-5">
@@ -322,7 +323,7 @@ export default function Analytics() {
       {/* High Risk List */}
       <div className="card p-5">
         <h2 className="font-semibold mb-4">{t.highRiskInspections}</h2>
-        <div className="table-scroll-container">
+        <TableScrollContainer>
           <table className="mobile-readable-table text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800/50 text-left">
               <tr>
@@ -348,7 +349,7 @@ export default function Analytics() {
               )}
             </tbody>
           </table>
-        </div>
+        </TableScrollContainer>
       </div>
     </div>
   )

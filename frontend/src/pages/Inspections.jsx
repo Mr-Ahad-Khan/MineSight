@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
+import TableScrollContainer from "../components/common/TableScrollContainer";
 
 const statusBadge = {
   open: "badge-medium",
@@ -92,12 +93,12 @@ export default function Inspections() {
   return (
     <div className="min-h-[calc(100vh-72px)] bg-[#f3eadb] px-4 pb-10 pt-3 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1600px]">
-        <div className="mb-4 flex items-center justify-between gap-4 border-b border-[#c9b69d] pb-4">
-          <h1 className="text-[40px] font-medium tracking-[-0.05em] text-[#1b1b1b]">
+        <div className="mb-4 flex flex-col items-center text-center gap-4 border-b border-[#c9b69d] pb-4 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+          <h1 className="text-3xl sm:text-[40px] font-medium tracking-[-0.05em] text-[#1b1b1b] dark:text-white">
             {t.inspections}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3">
             <label className="relative min-w-[220px] flex-1 sm:flex-none">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#786f63]" />
               <input
@@ -146,7 +147,7 @@ export default function Inspections() {
         </div>
 
         <div className="overflow-hidden rounded-[24px] border border-[#d8c6a6] bg-[#f5efe8] shadow-[0_2px_8px_rgba(76,60,43,0.08)]">
-          <div className="table-scroll-container">
+          <TableScrollContainer>
             <table className="mobile-readable-table text-[15px] text-[#1d1d1d]">
               <thead className="bg-[#f1e8dc] text-left">
                 <tr>
@@ -338,7 +339,7 @@ export default function Inspections() {
                 )}
               </tbody>
             </table>
-          </div>
+          </TableScrollContainer>
 
           <div className="flex justify-end px-4 pb-4 pt-2">
             <Link

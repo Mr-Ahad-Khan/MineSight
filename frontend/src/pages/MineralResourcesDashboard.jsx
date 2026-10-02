@@ -19,6 +19,7 @@ import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { getMineralResourceRecords, getMineralResourceSummary } from '../services/api'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
+import TableScrollContainer from '../components/common/TableScrollContainer'
 
 const CHART_COLORS = ['#0f766e', '#e05d2b', '#2563eb', '#ca8a04', '#be185d', '#4d7c0f', '#0891b2', '#7c3aed', '#64748b']
 const CLUSTER_COLORS = ['#0f766e', '#e05d2b', '#2563eb', '#ca8a04', '#be185d']
@@ -110,9 +111,9 @@ export default function MineralResourcesDashboard() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-      <header>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t.mineralResources}</h1>
-        <p className="mt-1 text-sm text-slate-500">{t.mineralResourcesSubtitle}</p>
+      <header className="flex flex-col items-center text-center sm:items-start sm:text-left">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.mineralResources}</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t.mineralResourcesSubtitle}</p>
       </header>
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label="Dataset summary">
@@ -289,7 +290,7 @@ export default function MineralResourcesDashboard() {
 
         {recordsError && <p role="alert" className="mt-4 text-sm text-rose-600">{recordsError}</p>}
 
-        <div className="table-scroll-container mt-4">
+        <TableScrollContainer className="mt-4">
           <table className="mobile-readable-table text-sm">
             <thead className="border-y border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-700">
               <tr>
@@ -344,7 +345,7 @@ export default function MineralResourcesDashboard() {
               })}
             </tbody>
           </table>
-        </div>
+        </TableScrollContainer>
 
         <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-slate-500">

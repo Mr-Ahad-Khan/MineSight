@@ -22,6 +22,7 @@ import {
 } from "../services/api";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
+import TableScrollContainer from "../components/common/TableScrollContainer";
 
 const statusLabels = {
   pending: "Pending",
@@ -182,7 +183,7 @@ export default function Workers() {
 
   return (
     <section className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+      <header className="flex flex-col items-center text-center gap-4 sm:flex-row sm:items-start sm:justify-between sm:text-left">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-700 dark:text-primary-300">
             {t.workforceOperations}
@@ -373,7 +374,7 @@ export default function Workers() {
           </form>
 
           <div className="overflow-hidden rounded-2xl border border-[#cbbda7] bg-[#fffdf8] shadow-[0_2px_5px_rgba(80,60,30,0.08)] dark:border-slate-700 dark:bg-slate-900">
-          <div className="table-scroll-container">
+          <TableScrollContainer>
             <table className="mobile-readable-table text-sm">
               <thead className="border-b border-[#cbbda7] text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700">
                 <tr><th className="px-5 py-4">Worker</th><th className="px-5 py-4">Department</th><th className="px-5 py-4">Work by mine</th><th className="px-5 py-4">Pending</th><th className="px-5 py-4">Completed</th><th className="px-5 py-4">Attendance</th></tr>
@@ -382,7 +383,7 @@ export default function Workers() {
                 {summary.workers.map((worker) => <tr key={worker._id} className="align-top"><td className="px-5 py-4"><div className="font-semibold text-slate-900 dark:text-white">{worker.name}</div><div className="text-xs text-slate-500">{worker.employeeId || worker.email}</div></td><td className="px-5 py-4">{worker.department || "Not assigned"}</td><td className="px-5 py-4"><MineWorkList items={worker.mineWork || []} compact /></td><td className="px-5 py-4 font-semibold text-amber-700 dark:text-amber-300">{worker.pendingTasks}{worker.pendingTasks > 0 && ["absent", "leave"].includes(worker.attendance.latest?.status) && <button type="button" onClick={() => handleReassign(worker)} className="mt-2 block text-xs font-semibold text-primary-700 hover:underline dark:text-primary-300">Assign to available worker</button>}</td><td className="px-5 py-4 font-semibold text-emerald-700 dark:text-emerald-300">{worker.completedTasks}</td><td className="px-5 py-4"><AttendanceBadge record={worker.attendance.latest} /></td></tr>)}
               </tbody>
             </table>
-          </div>
+          </TableScrollContainer>
           {!summary.workers.length && <div className="p-8 text-center text-sm text-slate-500">No worker accounts found. Register a user with the Worker role first.</div>}
           </div>
         </>

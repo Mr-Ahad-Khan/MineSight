@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import { AlertCircle } from 'lucide-react'
 import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
+import TableScrollContainer from '../components/common/TableScrollContainer'
 
 const statusBadge = {
   compliant: 'badge-low',
@@ -30,10 +31,10 @@ export default function Compliances() {
   }, [])
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{t.complianceTitle}</h1>
-        <p className="text-sm text-slate-500 mt-1">{t.complianceSubtitle}</p>
+    <div className="space-y-6 pb-12">
+      <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.complianceTitle}</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.complianceSubtitle}</p>
       </div>
 
       {overdue.length > 0 && (
@@ -46,7 +47,7 @@ export default function Compliances() {
       )}
 
       <div className="card overflow-hidden">
-        <div className="table-scroll-container">
+        <TableScrollContainer>
           <table className="mobile-readable-table text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800/50 text-left">
               <tr>
@@ -70,14 +71,14 @@ export default function Compliances() {
                     <td className="px-4 py-3">{c.mineId?.name || '—'}</td>
                     <td className="px-4 py-3">{format(new Date(c.dueDate), 'dd MMM yyyy')}</td>
                     <td className="px-4 py-3">
-                      <span className={`badge ${statusBadge[c.status]}`}>{c.status?.replace('_', ' ')}</span>
+                      <span className={`badge whitespace-nowrap ${statusBadge[c.status]}`}>{c.status?.replace('_', ' ')}</span>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
-        </div>
+        </TableScrollContainer>
       </div>
     </div>
   )

@@ -121,6 +121,8 @@ export const translations = {
     markRead: "Mark read",
     noAlerts: "No alerts",
     alertsMarkedRead: "All alerts marked as read",
+    tapToScrollMore: "Tap or swipe to see more",
+    tapToScrollStart: "Tap to return to start",
     inspectionEscalated: "Inspection Escalated",
     inspectionEscalatedMessage:
       "Inspection has been escalated for higher attention.",
@@ -608,6 +610,8 @@ export const translations = {
     markRead: "पढ़ा गया",
     noAlerts: "कोई अलर्ट नहीं",
     alertsMarkedRead: "सभी अलर्ट पढ़े गए",
+    tapToScrollMore: "और देखने के लिए टैप करें",
+    tapToScrollStart: "शुरुआत पर वापस जाएं",
     inspectionEscalated: "निरीक्षण बढ़ाया गया",
     inspectionEscalatedMessage: "निरीक्षण को अधिक ध्यान के लिए बढ़ाया गया है।",
     highRiskInspection: "उच्च जोखिम निरीक्षण",

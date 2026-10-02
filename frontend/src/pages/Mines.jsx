@@ -86,10 +86,10 @@ export default function Mines() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col items-center text-center gap-4 sm:flex-row sm:items-start sm:justify-between sm:text-left">
           <div>
-            <h1 className="text-2xl font-bold">{t.minesTitle}</h1>
-            <p className="text-sm text-slate-500 mt-1">{t.minesSubtitle}</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.minesTitle}</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.minesSubtitle}</p>
           </div>
           {canCreateMine && (
             <button

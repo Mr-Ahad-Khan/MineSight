@@ -1250,15 +1250,15 @@ export default function HomePage() {
               </div>
             </div>
             <div className="grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2 lg:grid-cols-3 md:col-span-2">
-              <div className="flex items-center gap-3 border border-[#39c7b0]/25 bg-[#102b32] px-4 py-3 text-sm font-semibold text-[#b8f3e7]">
+              <div className="flex items-center gap-3 rounded-lg border border-[#39c7b0]/25 bg-[#102b32] px-4 py-3 text-sm font-semibold text-[#b8f3e7]">
                 <Bot className="h-5 w-5 shrink-0 text-[#61dfca]" aria-hidden="true" />
                 {t.aiPowered}
               </div>
-              <div className="flex items-center gap-3 border border-[#e5a416]/25 bg-[#2b2513] px-4 py-3 text-sm font-semibold text-[#f6d98d]">
+              <div className="flex items-center gap-3 rounded-lg border border-[#e5a416]/25 bg-[#2b2513] px-4 py-3 text-sm font-semibold text-[#f6d98d]">
                 <ShieldCheck className="h-5 w-5 shrink-0 text-[#f3b323]" aria-hidden="true" />
                 {t.blockchainAudit}
               </div>
-              <div className="flex items-center gap-3 border border-[#7aa7d9]/25 bg-[#152a3d] px-4 py-3 text-sm font-semibold text-[#c5ddf5]">
+              <div className="flex items-center gap-3 rounded-lg border border-[#7aa7d9]/25 bg-[#152a3d] px-4 py-3 text-sm font-semibold text-[#c5ddf5]">
                 <Cloud className="h-5 w-5 shrink-0 text-[#8fc5f4]" aria-hidden="true" />
                 {t.cloudComputing}
               </div>
@@ -1887,7 +1887,7 @@ export default function HomePage() {
         </div>
       </footer>
 
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end">
+      <div className="fixed bottom-5 right-4 z-50 flex flex-col items-end sm:bottom-6 sm:right-6">
         {!assistantOpen ? (
           <button
             type="button"
@@ -2056,7 +2056,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-24 right-4 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-[#d7c7ab] bg-[#f7f4ef] text-[#17314a] shadow-[0_6px_18px_rgba(0,0,0,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#e5a416] hover:bg-[#fffaf0] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/60 focus:ring-offset-2 focus:ring-offset-[#101416] sm:bottom-5 sm:right-24"
+          className="fixed bottom-24 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-[#d7c7ab] bg-[#f7f4ef] text-[#17314a] shadow-[0_6px_18px_rgba(0,0,0,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#e5a416] hover:bg-[#fffaf0] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/60 focus:ring-offset-2 focus:ring-offset-[#101416] sm:bottom-6 sm:right-24"
           aria-label="Scroll to top"
           title="Scroll to top"
         >

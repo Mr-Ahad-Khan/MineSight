@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
+import TableScrollContainer from "../components/common/TableScrollContainer";
 import {
   getAttendance,
   getRealtimeAttendance,
@@ -184,10 +185,10 @@ export default function Attendance() {
     <div className="min-h-[calc(100vh-72px)] bg-[#f3eadb] px-4 pb-12 pt-4 sm:px-6 lg:px-8 dark:bg-[#0b1218]">
       <div className="mx-auto max-w-[1600px] space-y-6">
         {/* Header Bar */}
-        <div className="flex flex-col gap-4 border-b border-[#cbb79d] pb-5 md:flex-row md:items-center md:justify-between dark:border-slate-800">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-extrabold tracking-tight text-[#1a1a1a] sm:text-4xl dark:text-white">
+        <div className="flex flex-col items-center text-center gap-4 border-b border-[#cbb79d] pb-5 md:flex-row md:items-center md:justify-between md:text-left dark:border-slate-800">
+          <div className="flex flex-col items-center md:items-start">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-3">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[#1a1a1a] dark:text-white">
                 {t.attendanceTitle}
               </h1>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
@@ -198,12 +199,12 @@ export default function Attendance() {
                 {t.liveTelemetry}
               </span>
             </div>
-            <p className="mt-1 text-sm text-[#5d5345] dark:text-slate-400">
+            <p className="mt-1.5 text-sm text-[#5d5345] dark:text-slate-400 text-center md:text-left">
               {t.attendanceSubtitle}
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5">
             <button
               type="button"
               onClick={() => fetchRealtime(true)}
@@ -421,7 +422,7 @@ export default function Attendance() {
 
         {/* Attendance Roster Table */}
         <div className="overflow-hidden rounded-2xl border border-[#d6c4a8] bg-[#fbf8f2] shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="table-scroll-container">
+          <TableScrollContainer>
             <table className="mobile-readable-table text-xs">
               <thead className="border-b border-[#e5d8c3] bg-[#f4ebdc] text-[#554a3b] dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-300">
                 <tr>
@@ -548,17 +549,17 @@ export default function Attendance() {
                         {/* Live Status */}
                         <td className="px-4 py-3.5 align-middle">
                           {isInside ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+                            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
                               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                               {t.insidePitSeam}
                             </span>
                           ) : isSurface ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-2.5 py-1 text-[11px] font-bold text-sky-700 dark:bg-sky-500/20 dark:text-sky-300">
+                            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-sky-500/10 px-2.5 py-1 text-[11px] font-bold text-sky-700 dark:bg-sky-500/20 dark:text-sky-300">
                               <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
                               {t.surfaceWorkshop}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                            <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-slate-200/70 px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                               Checked Out ({format(new Date(worker.checkOut || worker.updatedAt), "hh:mm a")})
                             </span>
                           )}
@@ -625,7 +626,7 @@ export default function Attendance() {
                 )}
               </tbody>
             </table>
-          </div>
+          </TableScrollContainer>
         </div>
       </div>
 
