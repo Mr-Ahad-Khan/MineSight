@@ -190,7 +190,7 @@ export default function Navbar() {
                   navigate("/app/profile");
                   setAccountMenuOpen(false);
                 }}
-                className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-[#f3eadb] dark:hover:bg-slate-800"
+                className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#17314a] hover:bg-[#f3eadb] dark:text-slate-100 dark:hover:bg-slate-800"
               >
                 <UserCircle className="h-4 w-4" /> {t.profile}
               </button>

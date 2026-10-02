@@ -5,6 +5,7 @@ const { protect } = require('../middleware/auth');
 
 router.get('/home-stats', getHomeStats);
 router.post('/chat-messages', createChatMessage);
+router.post('/contact', createContactMessage);
 router.get('/chat-messages', protect, getChatMessages);
 
 module.exports = router;

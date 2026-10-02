@@ -469,7 +469,11 @@ import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import useThemeStore, { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
-import { getPublicHomeStats, saveChatMessage } from "../services/api";
+import {
+  getPublicHomeStats,
+  saveChatMessage,
+  sendContactMessage,
+} from "../services/api";
 import BrandLogo from "../components/common/BrandLogo";
 
 const slides = [
@@ -844,25 +848,11 @@ export default function HomePage() {
 
     setContactSending(true);
     try {
-      const message = [
-        `Name: ${contactForm.name}`,
-        `Organization: ${contactForm.organization || "Not provided"}`,
-        `Subject: ${contactForm.subject}`,
-        "",
-        contactForm.message,
-      ].join("\n");
-
-      await saveChatMessage({
+      await sendContactMessage({
+        ...contactForm,
         email: contactForm.email.trim(),
-        message,
-        reply:
-          "Contact form inquiry received. Our team will follow up shortly.",
       });
-      toast.success(
-        language === "en"
-          ? "Message sent successfully."
-          : "संदेश सफलतापूर्वक भेजा गया।",
-      );
+      toast.success(t.contactSent);
       setContactForm({
         name: "",
         email: "",
@@ -872,9 +862,7 @@ export default function HomePage() {
       });
     } catch (error) {
       toast.error(
-        language === "en"
-          ? "Could not send your message right now."
-          : "अभी संदेश नहीं भेजा जा सका।",
+          t.contactSendError,
       );
     } finally {
       setContactSending(false);
@@ -1630,10 +1618,10 @@ export default function HomePage() {
                   </div>
                   <div>
                     <div className="font-bold text-white text-lg">
-                      Talk to our team
+                      {t.contactTitle}
                     </div>
                     <div className="text-xs text-slate-400">
-                      Plan safer, clearer mine operations
+                      {t.contactSubtitle}
                     </div>
                   </div>
                 </div>
@@ -1648,7 +1636,7 @@ export default function HomePage() {
                       htmlFor="contact-name"
                       className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
                     >
-                      Name
+                      {t.name}
                     </label>
                     <input
                       id="contact-name"
@@ -1660,7 +1648,7 @@ export default function HomePage() {
                         setContactForm({ ...contactForm, name: e.target.value })
                       }
                       className="w-full rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white placeholder:text-[#8da0aa] transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
-                      placeholder="Your full name"
+                      placeholder={t.fullNamePlaceholder}
                       required
                     />
                   </div>
@@ -1671,7 +1659,7 @@ export default function HomePage() {
                         htmlFor="contact-email"
                         className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
                       >
-                        Email
+                        {t.email}
                       </label>
                       <input
                         id="contact-email"
@@ -1695,7 +1683,7 @@ export default function HomePage() {
                         htmlFor="contact-organization"
                         className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
                       >
-                        Organization
+                        {t.organization}
                       </label>
                       <input
                         id="contact-organization"
@@ -1710,7 +1698,7 @@ export default function HomePage() {
                           })
                         }
                         className="w-full rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white placeholder:text-[#8da0aa] transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
-                        placeholder="Mine or company"
+                        placeholder={t.organizationPlaceholder}
                       />
                     </div>
                   </div>
@@ -1720,7 +1708,7 @@ export default function HomePage() {
                       htmlFor="contact-subject"
                       className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
                     >
-                      What can we help with?
+                      {t.helpWith}
                     </label>
                     <select
                       id="contact-subject"
@@ -1736,13 +1724,11 @@ export default function HomePage() {
                       className="w-full rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
                       required
                     >
-                      <option value="">Choose an area</option>
-                      <option value="Platform access">Platform access</option>
-                      <option value="Mine onboarding">Mine onboarding</option>
-                      <option value="Compliance support">
-                        Compliance support
-                      </option>
-                      <option value="General inquiry">General inquiry</option>
+                      <option value="">{t.chooseArea}</option>
+                      <option value="Platform access">{t.platformAccess}</option>
+                      <option value="Mine onboarding">{t.mineOnboarding}</option>
+                      <option value="Compliance support">{t.complianceSupport}</option>
+                      <option value="General inquiry">{t.generalInquiry}</option>
                     </select>
                   </div>
 
@@ -1751,7 +1737,7 @@ export default function HomePage() {
                       htmlFor="contact-message"
                       className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400"
                     >
-                      Message
+                      {t.message}
                     </label>
                     <textarea
                       id="contact-message"
@@ -1765,7 +1751,7 @@ export default function HomePage() {
                         })
                       }
                       className="min-h-24 w-full resize-y rounded-xl border border-[#405564] bg-[#152536] px-4 py-3 text-white placeholder:text-[#8da0aa] transition-all focus:border-[#e5a416] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/30"
-                      placeholder="Tell us what you need"
+                      placeholder={t.messagePlaceholder}
                       required
                     />
                   </div>
@@ -1776,7 +1762,7 @@ export default function HomePage() {
                     className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#e5a416] via-[#f3c24b] to-[#24b6c7] px-4 py-3.5 font-bold text-[#10202b] shadow-lg shadow-[#e5a416]/25 transition-all hover:shadow-[#f3c24b]/40 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                      {contactSending ? "Sending..." : "Send message"}
+                      {contactSending ? t.sending : t.sendMessage}
                       {!contactSending && (
                         <Send className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       )}
@@ -1784,7 +1770,7 @@ export default function HomePage() {
                   </button>
                 </form>
                 <p className="mt-4 text-center text-xs text-slate-500">
-                  Our team typically replies within one business day.
+                  {t.contactResponseTime}
                 </p>
               </div>
             </div>

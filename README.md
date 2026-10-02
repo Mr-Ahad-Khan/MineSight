@@ -131,6 +131,7 @@ RECAPTCHA_SECRET_KEY=your-google-recaptcha-secret-key
 # Recommended email delivery; verify the sender domain with Resend
 RESEND_API_KEY=your-resend-api-key
 EMAIL_FROM=MineSight <verification@your-verified-domain.com>
+# Landing-page contact form notifications are sent to mrkhanahad723@gmail.com
 
 # SMTP fallback: remove RESEND_API_KEY and set these instead
 # EMAIL_HOST=smtp.example.com
