@@ -450,7 +450,7 @@
   }
 
   .table-scroll-container {
-    @apply w-full overflow-x-auto;
+    @apply relative w-full overflow-x-auto;
     scrollbar-color: #94a3b8 transparent;
     -webkit-overflow-scrolling: touch;
   }
@@ -464,9 +464,52 @@
     @apply whitespace-normal break-words;
   }
 
+  .app-shell main h1 {
+    text-align: center;
+  }
+
+  @media (min-width: 640px) {
+    .mobile-readable-table {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+
   @media (max-width: 639px) {
     .table-scroll-container {
-      padding-bottom: 0.35rem;
+      padding-bottom: 3.25rem;
+    }
+
+    .table-scroll-container::after {
+      content: "< >  Swipe to see more";
+      position: absolute;
+      right: 5.25rem;
+      bottom: 0.55rem;
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.75rem;
+      padding: 0.25rem 0.6rem;
+      border: 1px solid #d8c6a6;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.94);
+      color: #6b5d4c;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      pointer-events: none;
+      animation: table-scroll-cue 1.8s ease-in-out infinite;
+    }
+
+    @keyframes table-scroll-cue {
+      0%,
+      100% {
+        transform: translateX(0);
+        opacity: 0.72;
+      }
+      50% {
+        transform: translateX(-0.35rem);
+        opacity: 1;
+      }
     }
 
     .mobile-readable-table th,

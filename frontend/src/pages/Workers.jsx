@@ -374,7 +374,7 @@ export default function Workers() {
 
           <div className="overflow-hidden rounded-2xl border border-[#cbbda7] bg-[#fffdf8] shadow-[0_2px_5px_rgba(80,60,30,0.08)] dark:border-slate-700 dark:bg-slate-900">
           <div className="table-scroll-container">
-            <table className="mobile-readable-table min-w-[1120px] text-sm">
+            <table className="mobile-readable-table text-sm">
               <thead className="border-b border-[#cbbda7] text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700">
                 <tr><th className="px-5 py-4">Worker</th><th className="px-5 py-4">Department</th><th className="px-5 py-4">Work by mine</th><th className="px-5 py-4">Pending</th><th className="px-5 py-4">Completed</th><th className="px-5 py-4">Attendance</th></tr>
               </thead>
