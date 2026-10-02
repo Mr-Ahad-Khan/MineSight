@@ -122,5 +122,4 @@ const getChatMessages = asyncHandler(async (req, res) => {
   res.json({ success: true, data: messages });
 });
 
-module.exports = { getHomeStats, createChatMessage, getChatMessages };
 module.exports = { getHomeStats, createChatMessage, createContactMessage, getChatMessages };

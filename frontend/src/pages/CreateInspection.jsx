@@ -279,24 +279,6 @@ export default function CreateInspection() {
         autoComplete="on"
         className="grid w-full grid-cols-1 items-start gap-5 lg:gap-6 xl:grid-cols-2"
       >
-        <div className="order-first flex flex-wrap justify-center gap-3 border-b border-slate-200 pb-5 dark:border-slate-800 xl:col-span-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary flex items-center gap-2"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {loading ? "Creating..." : "Create Inspection"}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="btn-secondary"
-          >
-            Cancel
-          </button>
-        </div>
-
         <div className="grid items-stretch gap-6 lg:grid-cols-2 xl:contents">
           {/* Basic Info */}
           <div className="card space-y-4 p-4 sm:p-5 lg:col-span-2 xl:col-span-1 xl:col-start-1 xl:row-start-2">
@@ -727,6 +709,24 @@ export default function CreateInspection() {
             </div>
           </div>
         </aside>
+
+        <div className="flex flex-wrap justify-center gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 xl:col-span-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary flex items-center gap-2"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {loading ? "Creating..." : "Create Inspection"}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="btn-secondary"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
       {selectedPreview && (
         <div

@@ -287,7 +287,6 @@ export default function Login() {
                   className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.mineOfficial}</span>
-                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: mine123</span>
                 </button>
                 <button
                   type="button"
@@ -295,7 +294,6 @@ export default function Login() {
                   className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.corporate}</span>
-                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: corp123</span>
                 </button>
                 <button
                   type="button"
@@ -303,7 +301,6 @@ export default function Login() {
                   className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.admin}</span>
-                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: admin123</span>
                 </button>
                 <button
                   type="button"
@@ -311,7 +308,6 @@ export default function Login() {
                   className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.regulator}</span>
-                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: reg123</span>
                 </button>
                 <button
                   type="button"
@@ -319,7 +315,6 @@ export default function Login() {
                   className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.worker || "Worker"}</span>
-                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: worker123</span>
                 </button>
                 <button
                   type="button"
@@ -329,7 +324,6 @@ export default function Login() {
                   className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{t.contractor || "Contractor"}</span>
-                  <span className="mt-1 block font-mono text-sm text-slate-500 dark:text-slate-400">{t.passwordLabel}: contract123</span>
                 </button>
               </div>
 
