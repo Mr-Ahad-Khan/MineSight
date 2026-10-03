@@ -29,6 +29,7 @@ import {
 import "../utils/leafletAssets";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
+import { compressImage } from "../utils/imageCompressor";
 
 function LocationPicker({ position, setPosition }) {
   useMapEvents({
@@ -221,7 +222,7 @@ export default function CreateInspection() {
   };
 
   const MAX_PHOTOS = 10;
-  const handlePhotoChange = (event) => {
+  const handlePhotoChange = async (event) => {
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
 
@@ -237,9 +238,13 @@ export default function CreateInspection() {
       toast.info(`Added ${remainingSlots} photo(s). Maximum ${MAX_PHOTOS} photos allowed.`);
     }
 
-    const previewUrls = filesToAdd.map((file) => URL.createObjectURL(file));
+    const compressedFiles = await Promise.all(
+      filesToAdd.map((file) => compressImage(file))
+    );
+
+    const previewUrls = compressedFiles.map((file) => URL.createObjectURL(file));
     setPhotoPreviews((prev) => [...prev, ...previewUrls]);
-    setSelectedPhotos((prev) => [...prev, ...filesToAdd]);
+    setSelectedPhotos((prev) => [...prev, ...compressedFiles]);
     event.target.value = "";
   };
 

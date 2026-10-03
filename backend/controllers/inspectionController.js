@@ -209,6 +209,8 @@ const createInspection = asyncHandler(async (req, res) => {
     severity: severity || "medium",
     violations: violations || [],
     photos: photos || [],
+    closurePhotos: [],
+    proofVerified: false,
     audio,
     offlineId,
   };
@@ -224,18 +226,10 @@ const createInspection = asyncHandler(async (req, res) => {
   inspectionData.riskScore = calculateRiskScore(inspectionData);
 
   const inspection = await Inspection.create(inspectionData);
-  await appendAuditBlock({
-    userId: req.user._id,
-    action: "INSPECTION_CREATED",
-    entityType: "Inspection",
-    entityId: inspection._id,
-    newValue: toAuditSnapshot(inspection),
-    ip: req.ip,
-  });
 
-  // Create alert if high risk
+  // Background side-effects to keep createInspection ultra fast
   if (inspection.riskScore >= 60) {
-    await Alert.create({
+    Alert.create({
       mineId,
       type: "high_risk",
       title: `High Risk Inspection: ${title}`,
@@ -243,33 +237,46 @@ const createInspection = asyncHandler(async (req, res) => {
       severity: inspection.riskScore >= 80 ? "critical" : "warning",
       relatedInspection: inspection._id,
       assignedTo: req.user._id,
-    });
+    }).catch((err) => console.error("High risk alert creation error:", err));
   }
 
-  // Update mine risk level if needed
-  const mine = await Mine.findById(mineId);
-  if (mine) {
-    const recentHighRisk = await Inspection.countDocuments({
-      mineId,
-      riskScore: { $gte: 60 },
-      createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
-    });
+  Mine.findById(mineId)
+    .then(async (mine) => {
+      if (!mine) return;
+      const recentHighRisk = await Inspection.countDocuments({
+        mineId,
+        riskScore: { $gte: 60 },
+        createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+      });
 
-    if (recentHighRisk >= 3) {
-      mine.riskLevel = "high";
-    } else if (recentHighRisk >= 1) {
-      mine.riskLevel = "medium";
-    }
-    await mine.save();
-  }
+      if (recentHighRisk >= 3) {
+        mine.riskLevel = "high";
+      } else if (recentHighRisk >= 1) {
+        mine.riskLevel = "medium";
+      }
+      await mine.save();
+    })
+    .catch((err) => console.error("Mine risk level update error:", err));
 
-  const populated = await Inspection.findById(inspection._id)
-    .populate("mineId", "name code")
-    .populate("inspectorId", "name");
+  // Run audit and populate concurrently
+  await Promise.all([
+    appendAuditBlock({
+      userId: req.user._id,
+      action: "INSPECTION_CREATED",
+      entityType: "Inspection",
+      entityId: inspection._id,
+      newValue: toAuditSnapshot(inspection),
+      ip: req.ip,
+    }).catch((err) => console.error("Audit log error:", err)),
+    inspection.populate([
+      { path: "mineId", select: "name code" },
+      { path: "inspectorId", select: "name" },
+    ]),
+  ]);
 
   res.status(201).json({
     success: true,
-    data: serializeInspectionMedia(populated),
+    data: serializeInspectionMedia(inspection),
   });
 });
 
@@ -297,6 +304,20 @@ const updateInspection = asyncHandler(async (req, res) => {
 
   const uploadedPhotos = (req.files?.photos || []).map(getStoredMediaPath);
   const submittedPhotos = parseFormDataValue(req.body.photos, null);
+  const isClosureProof =
+    req.body.isClosureProof === "true" ||
+    req.body.isClosureProof === true ||
+    (uploadedPhotos.length > 0 &&
+      (req.body.status === "closed" || inspection.status === "closed"));
+
+  if (isClosureProof && uploadedPhotos.length > 0) {
+    const currentClosure = Array.isArray(inspection.closurePhotos)
+      ? inspection.closurePhotos
+      : [];
+    req.body.closurePhotos = [...currentClosure, ...uploadedPhotos].slice(0, 10);
+    req.body.proofVerified = true;
+  }
+
   if (submittedPhotos !== null || uploadedPhotos.length) {
     const existingPhotos = (inspection.photos || []).filter(
       (photo) => typeof photo === "string" && photo.trim(),
@@ -308,12 +329,15 @@ const updateInspection = asyncHandler(async (req, res) => {
     req.body.photos = [
       ...(submittedPhotos === null ? existingPhotos : requestedPhotos),
       ...uploadedPhotos,
-    ].slice(0, 5);
+    ].slice(0, 10);
   }
 
   // If status is closed
   if (req.body.status === "closed" && inspection.status !== "closed") {
     req.body.closedAt = Date.now();
+  } else if (req.body.status === "open") {
+    req.body.closedAt = null;
+    req.body.proofVerified = false;
   }
 
   inspection = await Inspection.findByIdAndUpdate(req.params.id, req.body, {

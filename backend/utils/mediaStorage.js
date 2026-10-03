@@ -100,6 +100,10 @@ const serializeInspectionMedia = (inspection) => {
     photos: (data.photos || []).filter(
       (photo) => typeof photo === "string" && photo.trim().length > 0,
     ),
+    closurePhotos: (data.closurePhotos || []).filter(
+      (photo) => typeof photo === "string" && photo.trim().length > 0,
+    ),
+    proofVerified: Boolean(data.proofVerified),
     audio:
       typeof data.audio === "string" && data.audio.trim().length > 0
         ? data.audio

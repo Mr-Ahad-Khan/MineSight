@@ -71,6 +71,15 @@ const inspectionSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    closurePhotos: [
+      {
+        type: String,
+      },
+    ],
+    proofVerified: {
+      type: Boolean,
+      default: false,
+    },
     audio: {
       type: String,
     },

@@ -29,6 +29,7 @@ import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "../utils/leafletAssets";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
+import { compressImage } from "../utils/imageCompressor";
 
 const severityBadge = {
   low: "badge-low",
@@ -114,17 +115,21 @@ export default function InspectionDetail() {
   };
 
   const handleUploadPhotos = async (event, shouldClose = false) => {
-    const files = Array.from(event.target.files || []).slice(0, 5);
+    const rawFiles = Array.from(event.target.files || []).slice(0, 5);
     event.target.value = "";
-    if (!files.length) return;
+    if (!rawFiles.length) return;
 
     setUpdating(true);
     setProofUploading(true);
     try {
+      const files = await Promise.all(
+        rawFiles.map((file) => compressImage(file))
+      );
       const payload = new FormData();
       if (shouldClose || inspection.status === "closed") {
         payload.append("status", "closed");
       }
+      payload.append("isClosureProof", "true");
       files.forEach((file) => payload.append("photos", file));
       const res = await updateInspection(id, payload);
       setInspection(res.data.data);
@@ -183,7 +188,13 @@ export default function InspectionDetail() {
     : null;
 
   const audioUrl = getMediaUrl(inspection.audio);
-  const hasProof = inspection.photos?.length > 0;
+  const closureProofPhotos = Array.isArray(inspection.closurePhotos)
+    ? inspection.closurePhotos
+    : [];
+  const hasProof = Boolean(
+    inspection.proofVerified || closureProofPhotos.length > 0
+  );
+  const proofCount = closureProofPhotos.length;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -457,9 +468,36 @@ export default function InspectionDetail() {
                   <CheckCircle className="h-4 w-4" /> {t.inspectionClosed}
                 </p>
                 {hasProof ? (
-                  <p className="flex items-center gap-2 font-medium text-emerald-700 dark:text-emerald-300">
-                    <ShieldCheck className="h-4 w-4" /> Proof verified ({inspection.photos.length} photo{inspection.photos.length > 1 ? "s" : ""})
-                  </p>
+                  <div className="space-y-2">
+                    <p className="flex items-center gap-2 font-medium text-emerald-700 dark:text-emerald-300">
+                      <ShieldCheck className="h-4 w-4" /> Proof verified ({proofCount} photo{proofCount !== 1 ? "s" : ""})
+                    </p>
+                    {closureProofPhotos.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2 pt-1">
+                        {closureProofPhotos.map((photo, idx) => {
+                          const url = getMediaUrl(photo);
+                          return (
+                            <button
+                              key={`closure-${photo}-${idx}`}
+                              type="button"
+                              onClick={() => {
+                                setSelectedPhoto(url);
+                                setPhotoZoom(1);
+                              }}
+                              className="group relative aspect-video overflow-hidden rounded-md border border-emerald-300 bg-slate-100 dark:border-emerald-700 dark:bg-slate-800"
+                              title="Click to view closure proof"
+                            >
+                              <img
+                                src={url}
+                                alt={`Closure proof ${idx + 1}`}
+                                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <p className="text-xs text-slate-600 dark:text-slate-300">
                     No photo proof attached
