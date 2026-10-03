@@ -209,6 +209,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [summaryUnavailable, setSummaryUnavailable] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
   const openInspections = Number(summary?.openInspections) || 0
   const complianceScore = Number(summary?.avgComplianceScore) || 0
 
@@ -221,6 +222,23 @@ export default function Dashboard() {
       analyticsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [showAnalytics])
+
+  useEffect(() => {
+    const refreshDashboard = () => setRefreshKey((current) => current + 1)
+    const handleSyncStatus = (event) => {
+      if (!event.detail?.isSyncing) refreshDashboard()
+    }
+
+    window.addEventListener('focus', refreshDashboard)
+    window.addEventListener('online', refreshDashboard)
+    window.addEventListener('minesight:sync-status', handleSyncStatus)
+
+    return () => {
+      window.removeEventListener('focus', refreshDashboard)
+      window.removeEventListener('online', refreshDashboard)
+      window.removeEventListener('minesight:sync-status', handleSyncStatus)
+    }
+  }, [])
 
 
   // ============================================================
@@ -277,7 +295,7 @@ export default function Dashboard() {
 
     fetchData()
 
-  }, [])
+  }, [refreshKey])
 
 
 
@@ -504,10 +522,10 @@ export default function Dashboard() {
             {t.undergroundOverviewTitle}
           </h2>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link to="/app/inspections" className="btn-primary inline-flex items-center gap-2">
+            <Link to="/app/inspections" className="btn-primary relative z-10 inline-flex min-h-11 touch-manipulation items-center gap-2">
               {t.viewInspections} <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/app/analytics" className="inline-flex items-center gap-2 rounded-lg border border-white/70 bg-white/10 px-4 py-2.5 font-medium text-white transition hover:bg-white/20">
+            <Link to="/app/analytics" className="relative z-10 inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-lg border border-white/70 bg-white/10 px-4 py-2.5 font-medium text-white transition hover:bg-white/20">
               {t.exploreAnalytics}
             </Link>
           </div>
@@ -738,8 +756,10 @@ export default function Dashboard() {
                 items-center
                 gap-1
                 text-[15px]
-                text-[#72583c]
-                hover:text-[#4f3c28]
+                text-[#b45309]
+                underline-offset-4
+                hover:text-[#c2410c]
+                hover:underline
               "
             >
 

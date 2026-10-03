@@ -79,8 +79,26 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState('monthly')
   const [filters, setFilters] = useState({ startDate: '', endDate: '', severity: '', status: '' })
+  const [refreshKey, setRefreshKey] = useState(0)
   const { language } = useLanguageStore()
   const t = translations[language]
+
+  useEffect(() => {
+    const refreshAnalytics = () => setRefreshKey((current) => current + 1)
+    const handleSyncStatus = (event) => {
+      if (!event.detail?.isSyncing) refreshAnalytics()
+    }
+
+    window.addEventListener('focus', refreshAnalytics)
+    window.addEventListener('online', refreshAnalytics)
+    window.addEventListener('minesight:sync-status', handleSyncStatus)
+
+    return () => {
+      window.removeEventListener('focus', refreshAnalytics)
+      window.removeEventListener('online', refreshAnalytics)
+      window.removeEventListener('minesight:sync-status', handleSyncStatus)
+    }
+  }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -88,7 +106,7 @@ export default function Analytics() {
       .then((res) => setData(res.data.data))
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [period, filters])
+  }, [period, filters, refreshKey])
 
   if (loading) {
     return (
@@ -154,7 +172,7 @@ export default function Analytics() {
       <section className="card p-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
           <div>
-            <h2 className="font-semibold">{t.periodComparison}</h2>
+            <h2 className="font-semibold text-slate-900 dark:text-slate-100">{t.periodComparison}</h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">{t.periodComparisonSubtitle}</p>
           </div>
           <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 p-1" role="tablist">
@@ -214,7 +232,7 @@ export default function Analytics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recurring Violations */}
         <div className="card p-5">
-          <h2 className="font-semibold mb-4">{t.recurringViolations}</h2>
+          <h2 className="mb-4 font-semibold text-slate-900 dark:text-slate-100">{t.recurringViolations}</h2>
           {recurringData.length === 0 ? (
             <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
           ) : (
@@ -223,7 +241,7 @@ export default function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} />
                 <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a' }} labelStyle={{ color: '#0f172a' }} itemStyle={{ color: '#0f172a' }} />
+                <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -232,7 +250,7 @@ export default function Analytics() {
 
         {/* Monthly Trend */}
         <div className="card p-5">
-          <h2 className="font-semibold mb-4">{t.inspectionTrend}</h2>
+          <h2 className="mb-4 font-semibold text-slate-900 dark:text-slate-100">{t.inspectionTrend}</h2>
           {trendData.length === 0 ? (
             <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
           ) : (
@@ -241,7 +259,7 @@ export default function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} />
                 <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a' }} labelStyle={{ color: '#0f172a' }} itemStyle={{ color: '#0f172a' }} />
+                <Tooltip content={<ChartTooltip />} />
                 <Area type="monotone" dataKey="inspections" stroke="#0d9488" fill="#0d9488" fillOpacity={0.16} strokeWidth={3} name="Inspections" />
               </AreaChart>
             </ResponsiveContainer>
@@ -263,8 +281,8 @@ export default function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Legend />
+                <Tooltip content={<ChartTooltip />} />
+                <Legend wrapperStyle={{ color: '#cbd5e1' }} />
                 <Line type="monotone" dataKey="actualRisk" stroke="#0f766e" strokeWidth={2} dot={{ r: 3 }} connectNulls name="Observed risk" />
                 <Line type="linear" dataKey="modelRisk" stroke="#e11d48" strokeWidth={2} strokeDasharray="6 4" dot={false} name="Model trend and estimate" />
               </LineChart>
@@ -281,17 +299,17 @@ export default function Analytics() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="card p-5 xl:col-span-2">
-          <h2 className="font-semibold mb-4">Period comparison bar chart</h2>
+          <h2 className="mb-4 font-semibold text-slate-900 dark:text-slate-100">Period comparison bar chart</h2>
           {!comparisonChartData.length ? (
             <p className="text-slate-400 text-sm">{t.noComparisonData}</p>
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={comparisonChartData} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-12} textAnchor="end" height={55} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Legend />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#cbd5e1' }} interval={0} angle={-12} textAnchor="end" height={55} axisLine={{ stroke: '#64748b' }} tickLine={{ stroke: '#64748b' }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#cbd5e1' }} axisLine={{ stroke: '#64748b' }} tickLine={{ stroke: '#64748b' }} />
+                <Tooltip content={<ChartTooltip />} />
+                <Legend wrapperStyle={{ color: '#cbd5e1' }} />
                 <Bar dataKey="current" fill="#0f766e" name={t.currentPeriod} radius={[4, 4, 0, 0]} />
                 <Bar dataKey="previous" fill="#94a3b8" name={t.previousPeriod} radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -300,7 +318,7 @@ export default function Analytics() {
         </div>
 
         <div className="card p-5">
-          <h2 className="font-semibold mb-4">Current period composition</h2>
+          <h2 className="mb-4 font-semibold text-slate-900 dark:text-slate-100">Current period composition</h2>
           {!riskChartData.length ? (
             <p className="text-slate-400 text-sm">{t.noComparisonData}</p>
           ) : (
@@ -309,8 +327,8 @@ export default function Analytics() {
                 <Pie data={riskChartData} dataKey="value" nameKey="name" innerRadius={58} outerRadius={92} paddingAngle={3}>
                   {riskChartData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
                 </Pie>
-                <Tooltip />
-                <Legend verticalAlign="bottom" height={42} wrapperStyle={{ fontSize: 11 }} />
+                <Tooltip content={<ChartTooltip />} />
+                <Legend verticalAlign="bottom" height={42} wrapperStyle={{ fontSize: 11, color: '#cbd5e1' }} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -318,7 +336,7 @@ export default function Analytics() {
       </div>
 
       <div className="card p-5">
-        <h2 className="font-semibold mb-1">Inspection burndown</h2>
+        <h2 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">Inspection burndown</h2>
         <p className="text-sm text-slate-500 mb-4">Remaining inspection workload across the reporting trend</p>
         {!burndownData.length ? (
           <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
