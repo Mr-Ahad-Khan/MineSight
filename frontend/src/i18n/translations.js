@@ -256,7 +256,8 @@ export const translations = {
     coalAiAssistant: "Coal AI assistant",
     readyToHelp: "Ready to help with your operations",
     openCoalAi: "Open Coal AI",
-    coalAiPrompt: "Ask about inspections, compliance, mine safety, or operational risk.",
+    coalAiPrompt:
+      "Ask about inspections, compliance, mine safety, or operational risk.",
     minimizeCoalAi: "Minimize Coal AI",
     scrollToTop: "Scroll to top",
     thinking: "Coal AI is thinking...",
@@ -304,7 +305,8 @@ export const translations = {
       "Need help setting up a mine site or reviewing access?",
     footerSchedule: "Mon-Fri, 09:00-18:00 IST",
     mineralResources: "Mineral Resources",
-    mineralResourcesSubtitle: "Explore mineral resource records and geographic patterns.",
+    mineralResourcesSubtitle:
+      "Explore mineral resource records and geographic patterns.",
     datasetRecords: "Dataset records",
     statesTerritories: "States and territories",
     industryClassifications: "Industry classifications",
@@ -317,7 +319,8 @@ export const translations = {
     noCoordinateClusters: "No coordinate clusters available.",
     csvColumns: "CSV columns",
     datasetRecordsTitle: "Dataset records",
-    datasetRecordsDescription: "Search across all CSV fields, then expand a row to view every column.",
+    datasetRecordsDescription:
+      "Search across all CSV fields, then expand a row to view every column.",
     searchDatasetRecords: "Search dataset records",
     searchAnyField: "Search any field",
     search: "Search",
@@ -334,7 +337,8 @@ export const translations = {
     page: "Page",
     records: "Records",
     attendanceTitle: "Attendance monitoring",
-    attendanceSubtitle: "Real-time workforce attendance and underground movement.",
+    attendanceSubtitle:
+      "Real-time workforce attendance and underground movement.",
     insideMine: "Inside mine",
     miners: "miners",
     activeUnderground: "Active underground",
@@ -400,12 +404,14 @@ export const translations = {
     workByMine: "Work by mine",
     noTaskAttendanceHistory: "No task or attendance history.",
     attendanceManagement: "Attendance management",
-    attendanceManagementDescription: "Mark attendance for any worker and review it in the table below.",
+    attendanceManagementDescription:
+      "Mark attendance for any worker and review it in the table below.",
     worker: "Worker",
     assignedSite: "Assigned site",
     notesOptional: "Notes (optional)",
     shiftAttendanceNote: "Shift or attendance note",
-    noWorkerAccounts: "No worker accounts found. Register a user with the Worker role first.",
+    noWorkerAccounts:
+      "No worker accounts found. Register a user with the Worker role first.",
     assignAvailableWorker: "Assign to available worker",
     myWork: "My work",
     tasks: "tasks",
@@ -413,7 +419,8 @@ export const translations = {
     due: "Due",
     noWorkAssigned: "No work has been assigned yet.",
     disasterManagement: "Disaster management",
-    disasterSubtitle: "Coordinate emergency response, incident escalation, and readiness.",
+    disasterSubtitle:
+      "Coordinate emergency response, incident escalation, and readiness.",
     emergencyOperations: "Emergency operations",
     exportCsv: "Export CSV",
     exportJson: "Export JSON",
@@ -429,7 +436,8 @@ export const translations = {
     selectAffectedMine: "Select affected mine",
     criticalImmediateResponse: "Critical - immediate response",
     highUrgentResponse: "High - urgent response",
-    incidentDescriptionPlaceholder: "Describe location, people at risk, and immediate actions taken",
+    incidentDescriptionPlaceholder:
+      "Describe location, people at risk, and immediate actions taken",
     escalating: "Escalating...",
     escalateIncident: "Escalate incident",
     activeIncidentRegister: "Active incident register",
@@ -443,11 +451,13 @@ export const translations = {
     generatedReport: "Disaster management report",
     contacts: "Contacts",
     supportPanelTitle: "Mine Operations Support Panel",
-    supportPanelSubtitle: "24/7 National Mine Emergency Control Room, DGMS helpdesk, and technical incident reporting.",
+    supportPanelSubtitle:
+      "24/7 National Mine Emergency Control Room, DGMS helpdesk, and technical incident reporting.",
     raiseSupportTicket: "Raise support ticket",
     emergencyHotlines: "Emergency mine dispatch & rescue hotlines",
     active247: "24/7 active",
-    emergencyHotlineDescription: "For immediate roof falls, toxic gas inundations (CH4/CO), or worker entombment, dial national rescue stations immediately.",
+    emergencyHotlineDescription:
+      "For immediate roof falls, toxic gas inundations (CH4/CO), or worker entombment, dial national rescue stations immediately.",
     dgmsSos: "DGMS SOS",
     rescueDhanbad: "Rescue Dhanbad",
     systemTelemetryStatus: "System telemetry status",
@@ -462,7 +472,8 @@ export const translations = {
     technicalStatutoryContacts: "Technical & statutory contacts",
     loggedSupportTickets: "Logged support tickets",
     newIncidentQuery: "New incident / query",
-    noActiveSupportTickets: "No active support tickets logged. Click \"Raise support ticket\" to report an issue.",
+    noActiveSupportTickets:
+      'No active support tickets logged. Click "Raise support ticket" to report an issue.',
     loggedBy: "Logged by",
     official: "Official",
     messages: "messages",
@@ -472,7 +483,8 @@ export const translations = {
     reply: "Reply",
     miningKnowledgeFaqs: "Mining knowledge & regulatory FAQs",
     submitSupportTicket: "Submit support ticket or incident",
-    supportTicketDescription: "Notify safety directors, IoT technicians, or portal administrators.",
+    supportTicketDescription:
+      "Notify safety directors, IoT technicians, or portal administrators.",
     subjectRequired: "Subject *",
     category: "Category",
     priority: "Priority",
@@ -492,15 +504,24 @@ export const translations = {
     highFieldBlocker: "High (Field blocker)",
     criticalImmediateDanger: "Critical (Immediate danger)",
     supportSubjectPlaceholder: "e.g. Methane sensor reading spike at Pit-2",
-    supportDescriptionPlaceholder: "Detail the exact incident, location coordinates, symptoms, or requested assistance...",
-    faqAttendanceQuestion: "How does real-time attendance telemetry track miners underground?",
-    faqAttendanceAnswer: "MineSight integrates with pit-head RFID and biometric check-in gates. When a miner clocks in, their location is automatically assigned to their working pit face. The system tracks active personnel underground for DGMS safety protocols and emergency evacuations.",
-    faqEmergencyQuestion: "What should I do during an underground gas or roof emergency?",
-    faqEmergencyAnswer: "Immediately activate the SOS Hotline button at the top of this Support Panel to dispatch Central Coalfields Rescue Station. All miners in the affected sector will be flagged on the Real-Time Attendance screen.",
-    faqInspectionQuestion: "How are inspection descriptions and risk scores calculated?",
-    faqInspectionAnswer: "Inspection reports combine environmental observations, statutory safety violations, and geo-coordinates. The risk score (0-100) is calculated dynamically based on violation severity.",
-    faqOfflineQuestion: "Can I use MineSight offline when disconnected inside deep pits?",
-    faqOfflineAnswer: "Yes! MineSight operates with a full offline-first architecture. You can record inspections, mark worker attendance, review compliances, create support requests, and update records deep underground without any network. Everything is saved locally and queued for automatic background sync as soon as connectivity is restored.",
+    supportDescriptionPlaceholder:
+      "Detail the exact incident, location coordinates, symptoms, or requested assistance...",
+    faqAttendanceQuestion:
+      "How does real-time attendance telemetry track miners underground?",
+    faqAttendanceAnswer:
+      "MineSight integrates with pit-head RFID and biometric check-in gates. When a miner clocks in, their location is automatically assigned to their working pit face. The system tracks active personnel underground for DGMS safety protocols and emergency evacuations.",
+    faqEmergencyQuestion:
+      "What should I do during an underground gas or roof emergency?",
+    faqEmergencyAnswer:
+      "Immediately activate the SOS Hotline button at the top of this Support Panel to dispatch Central Coalfields Rescue Station. All miners in the affected sector will be flagged on the Real-Time Attendance screen.",
+    faqInspectionQuestion:
+      "How are inspection descriptions and risk scores calculated?",
+    faqInspectionAnswer:
+      "Inspection reports combine environmental observations, statutory safety violations, and geo-coordinates. The risk score (0-100) is calculated dynamically based on violation severity.",
+    faqOfflineQuestion:
+      "Can I use MineSight offline when disconnected inside deep pits?",
+    faqOfflineAnswer:
+      "Yes! MineSight operates with a full offline-first architecture. You can record inspections, mark worker attendance, review compliances, create support requests, and update records deep underground without any network. Everything is saved locally and queued for automatic background sync as soon as connectivity is restored.",
     fillSubjectDescription: "Please fill in subject and description",
     ticketCreated: "Support ticket created successfully!",
     failedSubmitTicket: "Failed to submit ticket",
@@ -763,7 +784,8 @@ export const translations = {
     coalAiAssistant: "कोल एआई सहायक",
     readyToHelp: "आपके संचालन में सहायता के लिए तैयार",
     openCoalAi: "कोल एआई खोलें",
-    coalAiPrompt: "निरीक्षण, अनुपालन, खदान सुरक्षा या संचालन जोखिम के बारे में पूछें।",
+    coalAiPrompt:
+      "निरीक्षण, अनुपालन, खदान सुरक्षा या संचालन जोखिम के बारे में पूछें।",
     minimizeCoalAi: "कोल एआई छोटा करें",
     scrollToTop: "ऊपर जाएँ",
     thinking: "कोल एआई सोच रहा है...",
@@ -824,7 +846,8 @@ export const translations = {
     noCoordinateClusters: "कोऑर्डिनेट क्लस्टर उपलब्ध नहीं हैं।",
     csvColumns: "CSV कॉलम",
     datasetRecordsTitle: "डेटासेट रिकॉर्ड",
-    datasetRecordsDescription: "सभी CSV फ़ील्ड में खोजें और हर कॉलम देखने के लिए पंक्ति खोलें।",
+    datasetRecordsDescription:
+      "सभी CSV फ़ील्ड में खोजें और हर कॉलम देखने के लिए पंक्ति खोलें।",
     searchDatasetRecords: "डेटासेट रिकॉर्ड खोजें",
     searchAnyField: "किसी भी फ़ील्ड में खोजें",
     search: "खोजें",
@@ -907,12 +930,14 @@ export const translations = {
     workByMine: "खदान के अनुसार कार्य",
     noTaskAttendanceHistory: "कार्य या उपस्थिति इतिहास नहीं है।",
     attendanceManagement: "उपस्थिति प्रबंधन",
-    attendanceManagementDescription: "किसी भी श्रमिक की उपस्थिति दर्ज करें और नीचे तालिका में समीक्षा करें।",
+    attendanceManagementDescription:
+      "किसी भी श्रमिक की उपस्थिति दर्ज करें और नीचे तालिका में समीक्षा करें।",
     worker: "श्रमिक",
     assignedSite: "असाइन की गई साइट",
     notesOptional: "नोट्स (वैकल्पिक)",
     shiftAttendanceNote: "शिफ्ट या उपस्थिति नोट",
-    noWorkerAccounts: "कोई श्रमिक अकाउंट नहीं मिला। पहले Worker भूमिका वाला उपयोगकर्ता पंजीकृत करें।",
+    noWorkerAccounts:
+      "कोई श्रमिक अकाउंट नहीं मिला। पहले Worker भूमिका वाला उपयोगकर्ता पंजीकृत करें।",
     assignAvailableWorker: "उपलब्ध श्रमिक को असाइन करें",
     myWork: "मेरा कार्य",
     tasks: "कार्य",
@@ -920,7 +945,8 @@ export const translations = {
     due: "नियत",
     noWorkAssigned: "अभी कोई कार्य असाइन नहीं किया गया है।",
     disasterManagement: "आपदा प्रबंधन",
-    disasterSubtitle: "आपातकालीन प्रतिक्रिया, घटना बढ़ाने और तैयारी का समन्वय करें।",
+    disasterSubtitle:
+      "आपातकालीन प्रतिक्रिया, घटना बढ़ाने और तैयारी का समन्वय करें।",
     emergencyOperations: "आपातकालीन संचालन",
     exportCsv: "CSV निर्यात करें",
     exportJson: "JSON निर्यात करें",
@@ -936,7 +962,8 @@ export const translations = {
     selectAffectedMine: "प्रभावित खदान चुनें",
     criticalImmediateResponse: "गंभीर - तत्काल प्रतिक्रिया",
     highUrgentResponse: "उच्च - त्वरित प्रतिक्रिया",
-    incidentDescriptionPlaceholder: "स्थान, जोखिम में लोगों और की गई तत्काल कार्रवाइयों का विवरण दें",
+    incidentDescriptionPlaceholder:
+      "स्थान, जोखिम में लोगों और की गई तत्काल कार्रवाइयों का विवरण दें",
     escalating: "बढ़ाया जा रहा है...",
     escalateIncident: "घटना बढ़ाएँ",
     activeIncidentRegister: "सक्रिय घटना रजिस्टर",
@@ -950,11 +977,13 @@ export const translations = {
     generatedReport: "आपदा प्रबंधन रिपोर्ट",
     contacts: "संपर्क",
     supportPanelTitle: "खदान संचालन सहायता पैनल",
-    supportPanelSubtitle: "24/7 राष्ट्रीय खदान आपातकालीन नियंत्रण कक्ष, DGMS हेल्पडेस्क और तकनीकी घटना रिपोर्टिंग।",
+    supportPanelSubtitle:
+      "24/7 राष्ट्रीय खदान आपातकालीन नियंत्रण कक्ष, DGMS हेल्पडेस्क और तकनीकी घटना रिपोर्टिंग।",
     raiseSupportTicket: "सहायता टिकट उठाएँ",
     emergencyHotlines: "आपातकालीन खदान डिस्पैच और बचाव हेल्पलाइन",
     active247: "24/7 सक्रिय",
-    emergencyHotlineDescription: "छत गिरने, जहरीली गैस (CH4/CO) या श्रमिक के फँसने की स्थिति में तुरंत राष्ट्रीय बचाव केंद्रों पर कॉल करें।",
+    emergencyHotlineDescription:
+      "छत गिरने, जहरीली गैस (CH4/CO) या श्रमिक के फँसने की स्थिति में तुरंत राष्ट्रीय बचाव केंद्रों पर कॉल करें।",
     dgmsSos: "DGMS SOS",
     rescueDhanbad: "धनबाद बचाव",
     systemTelemetryStatus: "सिस्टम टेलीमेट्री स्थिति",
@@ -969,7 +998,8 @@ export const translations = {
     technicalStatutoryContacts: "तकनीकी और वैधानिक संपर्क",
     loggedSupportTickets: "दर्ज सहायता टिकट",
     newIncidentQuery: "नई घटना / पूछताछ",
-    noActiveSupportTickets: "कोई सक्रिय सहायता टिकट दर्ज नहीं है। समस्या रिपोर्ट करने के लिए \"सहायता टिकट उठाएँ\" पर क्लिक करें।",
+    noActiveSupportTickets:
+      'कोई सक्रिय सहायता टिकट दर्ज नहीं है। समस्या रिपोर्ट करने के लिए "सहायता टिकट उठाएँ" पर क्लिक करें।',
     loggedBy: "दर्जकर्ता",
     official: "अधिकारी",
     messages: "संदेश",
@@ -979,7 +1009,8 @@ export const translations = {
     reply: "जवाब दें",
     miningKnowledgeFaqs: "खनन ज्ञान और नियामक सामान्य प्रश्न",
     submitSupportTicket: "सहायता टिकट या घटना जमा करें",
-    supportTicketDescription: "सुरक्षा निदेशकों, IoT तकनीशियनों या पोर्टल प्रशासकों को सूचित करें।",
+    supportTicketDescription:
+      "सुरक्षा निदेशकों, IoT तकनीशियनों या पोर्टल प्रशासकों को सूचित करें।",
     subjectRequired: "विषय *",
     category: "श्रेणी",
     priority: "प्राथमिकता",
@@ -999,15 +1030,24 @@ export const translations = {
     highFieldBlocker: "उच्च (फ़ील्ड अवरोध)",
     criticalImmediateDanger: "गंभीर (तत्काल खतरा)",
     supportSubjectPlaceholder: "उदा. पिट-2 पर मीथेन सेंसर रीडिंग बढ़ना",
-    supportDescriptionPlaceholder: "सटीक घटना, स्थान निर्देशांक, लक्षण या मांगी गई सहायता का विवरण दें...",
-    faqAttendanceQuestion: "रियल-टाइम उपस्थिति टेलीमेट्री भूमिगत खनिकों को कैसे ट्रैक करती है?",
-    faqAttendanceAnswer: "माइनसाइट पिट-हेड RFID और बायोमेट्रिक चेक-इन गेट से जुड़ता है। खनिक के प्रवेश दर्ज करने पर उसका स्थान कार्यरत पिट फेस से स्वतः जोड़ा जाता है। सिस्टम DGMS सुरक्षा प्रोटोकॉल और आपातकालीन निकासी के लिए भूमिगत कर्मियों को ट्रैक करता है।",
-    faqEmergencyQuestion: "भूमिगत गैस या छत की आपात स्थिति में मुझे क्या करना चाहिए?",
-    faqEmergencyAnswer: "Central Coalfields Rescue Station को भेजने के लिए इस सहायता पैनल के ऊपर SOS हेल्पलाइन बटन तुरंत सक्रिय करें। प्रभावित क्षेत्र के सभी खनिक रियल-टाइम उपस्थिति स्क्रीन पर चिह्नित किए जाएंगे।",
-    faqInspectionQuestion: "निरीक्षण विवरण और जोखिम स्कोर कैसे निकाले जाते हैं?",
-    faqInspectionAnswer: "निरीक्षण रिपोर्ट पर्यावरणीय अवलोकन, वैधानिक सुरक्षा उल्लंघन और जियो-कोऑर्डिनेट को मिलाती हैं। जोखिम स्कोर (0-100) उल्लंघन की गंभीरता के आधार पर गतिशील रूप से निकाला जाता है।",
-    faqOfflineQuestion: "क्या गहरी खदानों में कनेक्शन न होने पर मैं माइनसाइट ऑफलाइन उपयोग कर सकता हूँ?",
-    faqOfflineAnswer: "हाँ! माइनसाइट पूरी तरह से ऑफलाइन-फ़र्स्ट आर्किटेक्चर पर काम करता है। आप गहरी खदानों में बिना नेटवर्क के निरीक्षण दर्ज कर सकते हैं, उपस्थिति लगा सकते हैं, कार्य अपडेट कर सकते हैं और टिकट बना सकते हैं। सभी बदलाव स्थानीय रूप से सुरक्षित रहते हैं और कनेक्शन मिलते ही अपने आप सिंक हो जाते हैं।",
+    supportDescriptionPlaceholder:
+      "सटीक घटना, स्थान निर्देशांक, लक्षण या मांगी गई सहायता का विवरण दें...",
+    faqAttendanceQuestion:
+      "रियल-टाइम उपस्थिति टेलीमेट्री भूमिगत खनिकों को कैसे ट्रैक करती है?",
+    faqAttendanceAnswer:
+      "माइनसाइट पिट-हेड RFID और बायोमेट्रिक चेक-इन गेट से जुड़ता है। खनिक के प्रवेश दर्ज करने पर उसका स्थान कार्यरत पिट फेस से स्वतः जोड़ा जाता है। सिस्टम DGMS सुरक्षा प्रोटोकॉल और आपातकालीन निकासी के लिए भूमिगत कर्मियों को ट्रैक करता है।",
+    faqEmergencyQuestion:
+      "भूमिगत गैस या छत की आपात स्थिति में मुझे क्या करना चाहिए?",
+    faqEmergencyAnswer:
+      "Central Coalfields Rescue Station को भेजने के लिए इस सहायता पैनल के ऊपर SOS हेल्पलाइन बटन तुरंत सक्रिय करें। प्रभावित क्षेत्र के सभी खनिक रियल-टाइम उपस्थिति स्क्रीन पर चिह्नित किए जाएंगे।",
+    faqInspectionQuestion:
+      "निरीक्षण विवरण और जोखिम स्कोर कैसे निकाले जाते हैं?",
+    faqInspectionAnswer:
+      "निरीक्षण रिपोर्ट पर्यावरणीय अवलोकन, वैधानिक सुरक्षा उल्लंघन और जियो-कोऑर्डिनेट को मिलाती हैं। जोखिम स्कोर (0-100) उल्लंघन की गंभीरता के आधार पर गतिशील रूप से निकाला जाता है।",
+    faqOfflineQuestion:
+      "क्या गहरी खदानों में कनेक्शन न होने पर मैं माइनसाइट ऑफलाइन उपयोग कर सकता हूँ?",
+    faqOfflineAnswer:
+      "हाँ! माइनसाइट पूरी तरह से ऑफलाइन-फ़र्स्ट आर्किटेक्चर पर काम करता है। आप गहरी खदानों में बिना नेटवर्क के निरीक्षण दर्ज कर सकते हैं, उपस्थिति लगा सकते हैं, कार्य अपडेट कर सकते हैं और टिकट बना सकते हैं। सभी बदलाव स्थानीय रूप से सुरक्षित रहते हैं और कनेक्शन मिलते ही अपने आप सिंक हो जाते हैं।",
     fillSubjectDescription: "कृपया विषय और विवरण भरें",
     ticketCreated: "सहायता टिकट सफलतापूर्वक बनाया गया!",
     failedSubmitTicket: "टिकट जमा करना विफल रहा",
