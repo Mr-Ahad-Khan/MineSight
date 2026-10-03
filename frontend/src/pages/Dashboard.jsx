@@ -459,7 +459,7 @@ export default function Dashboard() {
           />
 
           <p className="mt-3 text-sm text-[#756b5e]">
-            Loading dashboard...
+            {t.loadingDashboard}
           </p>
 
         </div>
@@ -498,17 +498,17 @@ export default function Dashboard() {
       >
         <div className="relative z-10 max-w-3xl">
           <p className="text-xs font-bold uppercase text-[#ff6f00] sm:text-sm">
-            MineSight Coal Governance
+            {t.coalGovernanceEyebrow}
           </p>
           <h2 className="mt-3 text-4xl font-bold leading-tight text-white sm:text-5xl">
-            See the full picture underground
+            {t.undergroundOverviewTitle}
           </h2>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link to="/app/inspections" className="btn-primary inline-flex items-center gap-2">
-              View inspections <ArrowRight className="h-4 w-4" />
+              {t.viewInspections} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/app/analytics" className="inline-flex items-center gap-2 rounded-lg border border-white/70 bg-white/10 px-4 py-2.5 font-medium text-white transition hover:bg-white/20">
-              Explore analytics
+              {t.exploreAnalytics}
             </Link>
           </div>
         </div>
@@ -566,7 +566,7 @@ export default function Dashboard() {
             </span>
             <UserCheck className="w-4 h-4 text-emerald-600" />
             <span>
-              Live Attendance: <strong>{realtimeAttendance?.insideMineCount ?? '—'}</strong> Inside
+              {t.liveAttendance}: <strong>{realtimeAttendance?.insideMineCount ?? '—'}</strong> {t.inside}
             </span>
           </Link>
 
@@ -575,7 +575,7 @@ export default function Dashboard() {
             className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-red-300/80 bg-red-50/90 hover:bg-red-100 text-red-800 text-sm font-semibold transition shadow-sm"
           >
             <LifeBuoy className="w-4 h-4 text-red-600" />
-            <span>Support Panel</span>
+            <span>{t.supportPanel}</span>
           </Link>
 
           <Link
@@ -609,7 +609,7 @@ export default function Dashboard() {
 
       {summaryUnavailable && (
         <p role="alert" className="mb-5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Dashboard summary data could not be loaded. Please check your connection and try again.
+          {t.dashboardSummaryLoadError}
         </p>
       )}
 
@@ -650,8 +650,8 @@ export default function Dashboard() {
           <StatCard
             title={t.totalMines}
             value={summary?.totalMines ?? 0}
-            subtitle={`${summary?.totalMines ?? 0} active managed mines`}
-            secondary={datasetMineCount ? `${datasetMineCount} geological dataset records` : null}
+            subtitle={`${summary?.totalMines ?? 0} ${t.activeManagedMines}`}
+            secondary={datasetMineCount ? `${datasetMineCount} ${t.geologicalDatasetRecords}` : null}
             icon={Building2}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
@@ -663,7 +663,7 @@ export default function Dashboard() {
             title={t.openInspections}
             value={openInspections}
             subtitle={`${summary?.criticalInspections || 0} ${t.critical}`}
-            secondary={summary?.totalInspections ? `${summary.totalInspections} total logged` : null}
+            secondary={summary?.totalInspections ? `${summary.totalInspections} ${t.totalLogged}` : null}
             icon={ClipboardList}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
@@ -834,7 +834,7 @@ export default function Dashboard() {
                         leading-tight
                       "
                     >
-                      Mine Risk
+                      {t.mineRiskDistribution}
                     </p>
 
                     <p
@@ -844,7 +844,7 @@ export default function Dashboard() {
                         leading-tight
                       "
                     >
-                      Distribution
+                      {t.distribution}
                     </p>
 
                   </div>
@@ -872,28 +872,28 @@ export default function Dashboard() {
 
             <RiskLegend
               color="#28a66f"
-              label="Low"
+              label={t.low}
               value={riskData.low}
               textColor="#287c59"
             />
 
             <RiskLegend
               color="#f5a313"
-              label="Medium"
+              label={t.medium}
               value={riskData.medium}
               textColor="#a86d0c"
             />
 
             <RiskLegend
               color="#e87916"
-              label="High"
+              label={t.high}
               value={riskData.high}
               textColor="#a95114"
             />
 
             <RiskLegend
               color="#d33c3c"
-              label="Critical"
+              label={t.criticalLabel}
               value={riskData.critical}
               textColor="#a42e2e"
             />
@@ -1004,7 +1004,7 @@ export default function Dashboard() {
                 mb-5
               "
             >
-              Dashboard Insights
+              {t.dashboardInsights}
             </h2>
 
 
