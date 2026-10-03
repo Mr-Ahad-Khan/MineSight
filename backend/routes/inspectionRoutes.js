@@ -9,6 +9,7 @@ const {
   updateInspection,
   deleteInspection,
   closeViolation,
+  detectRiskFromPhoto,
 } = require("../controllers/inspectionController");
 const { protect } = require("../middleware/auth");
 const { createMediaStorage } = require("../utils/mediaStorage");
@@ -79,6 +80,8 @@ router
   .route("/")
   .get(getInspections)
   .post(handleInspectionUpload, createInspection);
+
+router.post("/detect-risk", handleInspectionUpload, detectRiskFromPhoto);
 
 router.get("/:id/audit", getInspectionAuditHistory);
 

@@ -18,6 +18,11 @@ import {
   ChevronDown,
   Check,
   Search,
+  Camera,
+  Sparkles,
+  Shield,
+  ShieldAlert,
+  AlertTriangle,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { createInspection, getMines } from "../services/api";
@@ -32,6 +37,9 @@ import "../utils/leafletAssets";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 import { compressImage } from "../utils/imageCompressor";
+import CameraCaptureModal from "../components/common/CameraCaptureModal";
+import RiskAnalysisModal from "../components/common/RiskAnalysisModal";
+import { detectPhotoRisk, detectBatchRisk } from "../services/riskDetectionService";
 
 function LocationPicker({ position, setPosition }) {
   useMapEvents({
@@ -180,6 +188,12 @@ export default function CreateInspection() {
   const [selectedPhotos, setSelectedPhotos] = useState([]);
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [previewZoom, setPreviewZoom] = useState(1);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [riskModalOpen, setRiskModalOpen] = useState(false);
+  const [currentRiskData, setCurrentRiskData] = useState(null);
+  const [currentRiskPhoto, setCurrentRiskPhoto] = useState(null);
+  const [photoRisks, setPhotoRisks] = useState({});
+  const [isDetectingRisk, setIsDetectingRisk] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [mineDropdownOpen, setMineDropdownOpen] = useState(false);
@@ -383,15 +397,146 @@ export default function CreateInspection() {
     event.target.value = "";
   };
 
+  const handlePhotoCaptured = (file, previewUrl, initialRisk) => {
+    if (selectedPhotos.length >= MAX_PHOTOS) {
+      toast.error(`Maximum ${MAX_PHOTOS} photos allowed`);
+      return;
+    }
+    setPhotoPreviews((prev) => [...prev, previewUrl]);
+    setSelectedPhotos((prev) => [...prev, file]);
+
+    if (initialRisk) {
+      setPhotoRisks((prev) => ({ ...prev, [previewUrl]: initialRisk }));
+      setCurrentRiskData(initialRisk);
+      setCurrentRiskPhoto(previewUrl);
+      toast.success(
+        `Photo captured! Detected ${initialRisk.riskLevel.toUpperCase()} risk (${initialRisk.riskScore}/100)`
+      );
+    } else {
+      toast.success("Photo captured successfully");
+    }
+  };
+
+  const handleDetectRisk = async (index) => {
+    const photo = selectedPhotos[index];
+    const preview = photoPreviews[index];
+    if (!photo) return;
+
+    setIsDetectingRisk(true);
+    const toastId = toast.loading("Analyzing photo for safety hazards...");
+    try {
+      const result = await detectPhotoRisk(photo, {
+        mineId: form.mineId,
+        title: form.title,
+        description: form.description,
+        observations: form.observations,
+        severity: form.severity,
+      });
+
+      setPhotoRisks((prev) => ({ ...prev, [preview]: result }));
+      setCurrentRiskData(result);
+      setCurrentRiskPhoto(preview);
+      setRiskModalOpen(true);
+      toast.dismiss(toastId);
+      toast.success(
+        `${result.source === "online_ai" ? "Cloud AI" : "Edge AI (Offline)"} Risk Detected: ${result.riskScore}/100 (${result.riskLevel})`
+      );
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error("Failed to analyze risk for this photo");
+    } finally {
+      setIsDetectingRisk(false);
+    }
+  };
+
+  const handleBatchRiskDetection = async () => {
+    if (!selectedPhotos.length) {
+      toast.error("Please add photos first to detect risk");
+      return;
+    }
+
+    setIsDetectingRisk(true);
+    const toastId = toast.loading("Analyzing all site photos for risk...");
+    try {
+      const batchResult = await detectBatchRisk(selectedPhotos, {
+        mineId: form.mineId,
+        title: form.title,
+        description: form.description,
+        observations: form.observations,
+        severity: form.severity,
+      });
+
+      if (batchResult) {
+        if (batchResult.batchResults) {
+          const updated = { ...photoRisks };
+          batchResult.batchResults.forEach((res, idx) => {
+            if (photoPreviews[idx]) {
+              updated[photoPreviews[idx]] = res;
+            }
+          });
+          setPhotoRisks(updated);
+        }
+
+        setCurrentRiskData(batchResult);
+        setCurrentRiskPhoto(photoPreviews[0]);
+        setRiskModalOpen(true);
+        toast.dismiss(toastId);
+        toast.success(
+          `Analysis complete: Composite risk ${batchResult.riskScore}/100 (${batchResult.riskLevel.toUpperCase()})`
+        );
+      }
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error("Risk detection failed");
+    } finally {
+      setIsDetectingRisk(false);
+    }
+  };
+
+  const applyRiskFindings = (riskData) => {
+    if (!riskData) return;
+
+    const updates = {};
+    if (riskData.suggestedSeverity) {
+      updates.severity = riskData.suggestedSeverity;
+    }
+
+    if (riskData.observations) {
+      const newObs = form.observations
+        ? `${form.observations}\n\n[AI Hazard Scan]: ${riskData.observations}`
+        : `[AI Hazard Scan]: ${riskData.observations}`;
+      updates.observations = newObs;
+    }
+
+    if (riskData.suggestedViolation) {
+      const isDuplicate = form.violations.some(
+        (v) => v.description === riskData.suggestedViolation.description
+      );
+      if (!isDuplicate) {
+        updates.violations = [...form.violations, { ...riskData.suggestedViolation }];
+      }
+    }
+
+    setForm((prev) => ({ ...prev, ...updates }));
+    toast.success("Risk assessment findings automatically applied to report!");
+  };
+
   const removePhoto = (index) => {
+    const urlToRemove = photoPreviews[index];
     setPhotoPreviews((prev) => {
-      const urlToRemove = prev[index];
       if (urlToRemove && urlToRemove.startsWith("blob:")) {
         URL.revokeObjectURL(urlToRemove);
       }
       return prev.filter((_, i) => i !== index);
     });
     setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
+    if (urlToRemove) {
+      setPhotoRisks((prev) => {
+        const copy = { ...prev };
+        delete copy[urlToRemove];
+        return copy;
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -420,6 +565,15 @@ export default function CreateInspection() {
       formData.set("title", form.title || "");
       formData.set("description", form.description || "");
       formData.set("observations", form.observations || "");
+
+      // Attach highest detected risk score if present
+      const detectedRisksList = Object.values(photoRisks);
+      if (detectedRisksList.length > 0) {
+        const maxScore = Math.max(...detectedRisksList.map((r) => r.riskScore || 0));
+        if (maxScore > 0) {
+          formData.set("riskScore", maxScore);
+        }
+      }
 
       if (audioBlob) {
         const fileName = `inspection-audio-${Date.now()}.webm`;
@@ -732,12 +886,42 @@ export default function CreateInspection() {
               </div>
 
               <div className="min-w-0">
-                <label className="label" htmlFor="site-photos">
-                  Site Photos
-                </label>
-                <div className="flex min-h-14 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#0b3d91] px-3 py-2 text-sm font-medium text-white hover:bg-[#0a2f6d]">
-                      <Upload className="h-4 w-4" />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="label mb-0" htmlFor="site-photos">
+                    Site Photos & Hazard Detection
+                  </label>
+                  {photoPreviews.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleBatchRiskDetection}
+                      disabled={isDetectingRisk}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/60 transition shadow-xs disabled:opacity-50"
+                    >
+                      {isDetectingRisk ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                      )}
+                      Scan All for Risk
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex min-h-14 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                  <div className="flex flex-wrap items-center justify-center gap-2.5">
+                    {/* Capture Photo Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsCameraOpen(true)}
+                      className="inline-flex items-center gap-2 rounded-lg bg-[#0b3d91] px-3.5 py-2 text-sm font-medium text-white hover:bg-[#0a2f6d] dark:bg-sky-600 dark:hover:bg-sky-500 shadow-sm transition"
+                    >
+                      <Camera className="h-4 w-4" />
+                      Capture Photo
+                    </button>
+
+                    {/* Upload Photos Button */}
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 shadow-sm transition">
+                      <Upload className="h-4 w-4 text-slate-500" />
                       Upload Photos
                       <input
                         id="site-photos"
@@ -749,33 +933,97 @@ export default function CreateInspection() {
                         className="hidden"
                         onChange={handlePhotoChange}
                       />
-                  </label>
+                    </label>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500 text-center">
+                    Capture or upload site photos. AI detects geotechnical, inundation, and PPE risks both online & offline.
+                  </p>
 
                   {photoPreviews.length > 0 && (
-                    <div className="mt-3 grid w-full min-w-0 grid-cols-2 gap-3 sm:grid-cols-3">
-                      {photoPreviews.map((preview, index) => (
-                        <div
-                          key={preview}
-                          className="relative min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
-                        >
-                          <img
-                            src={preview}
-                            alt={`Preview ${index + 1}`}
-                            className="h-24 w-full cursor-zoom-in object-cover"
-                            onClick={() => {
-                              setSelectedPreview(preview);
-                              setPreviewZoom(1);
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removePhoto(index)}
-                            className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"
+                    <div className="mt-2 grid w-full min-w-0 grid-cols-2 gap-3 sm:grid-cols-3">
+                      {photoPreviews.map((preview, index) => {
+                        const risk = photoRisks[preview];
+                        return (
+                          <div
+                            key={preview}
+                            className="group relative min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
                           >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
+                            <img
+                              src={preview}
+                              alt={`Preview ${index + 1}`}
+                              className="h-28 w-full cursor-zoom-in object-cover"
+                              onClick={() => {
+                                setSelectedPreview(preview);
+                                setPreviewZoom(1);
+                              }}
+                            />
+
+                            {/* Top action buttons */}
+                            <div className="absolute right-1.5 top-1.5 flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => removePhoto(index)}
+                                className="rounded-full bg-black/65 p-1 text-white hover:bg-black transition shadow"
+                                title="Remove photo"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            </div>
+
+                            {/* Bottom Risk Overlay / Button */}
+                            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent p-1.5 pt-4">
+                              {risk ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setCurrentRiskData(risk);
+                                    setCurrentRiskPhoto(preview);
+                                    setRiskModalOpen(true);
+                                  }}
+                                  className="w-full rounded-md bg-black/70 px-2 py-1 text-[10px] font-bold text-white flex items-center justify-between backdrop-blur-xs hover:bg-black/90 transition border border-white/10"
+                                >
+                                  <span className="flex items-center gap-1">
+                                    <Shield
+                                      className={`h-3 w-3 ${
+                                        risk.riskScore >= 70
+                                          ? "text-rose-400"
+                                          : risk.riskScore >= 45
+                                          ? "text-amber-400"
+                                          : "text-emerald-400"
+                                      }`}
+                                    />
+                                    Risk {risk.riskScore}
+                                  </span>
+                                  <span
+                                    className={`uppercase font-extrabold ${
+                                      risk.riskLevel === "critical"
+                                        ? "text-rose-400"
+                                        : risk.riskLevel === "high"
+                                        ? "text-amber-400"
+                                        : risk.riskLevel === "medium"
+                                        ? "text-yellow-300"
+                                        : "text-emerald-400"
+                                    }`}
+                                  >
+                                    {risk.riskLevel}
+                                  </span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={isDetectingRisk}
+                                  onClick={() => handleDetectRisk(index)}
+                                  className="w-full rounded-md bg-[#0b3d91]/90 hover:bg-[#0b3d91] dark:bg-sky-600/90 dark:hover:bg-sky-600 px-2 py-1 text-[10px] font-semibold text-white flex items-center justify-center gap-1 transition shadow-xs disabled:opacity-50"
+                                >
+                                  <Sparkles className="h-2.5 w-2.5" />
+                                  Detect Risk
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1076,6 +1324,29 @@ export default function CreateInspection() {
           />
         </div>
       )}
+
+      {/* Camera Capture Modal */}
+      <CameraCaptureModal
+        isOpen={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        onPhotoCaptured={handlePhotoCaptured}
+        inspectionContext={{
+          mineId: form.mineId,
+          title: form.title,
+          description: form.description,
+          observations: form.observations,
+          severity: form.severity,
+        }}
+      />
+
+      {/* AI Risk Analysis Modal */}
+      <RiskAnalysisModal
+        isOpen={riskModalOpen}
+        onClose={() => setRiskModalOpen(false)}
+        riskData={currentRiskData}
+        photoPreview={currentRiskPhoto}
+        onApplyFindings={applyRiskFindings}
+      />
     </div>
   );
 }

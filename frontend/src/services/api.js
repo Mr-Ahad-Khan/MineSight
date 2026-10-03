@@ -715,7 +715,9 @@ export const createInspection = async (data) => {
   const audioFile = files.find((f) => f.fieldName === "audio");
 
   const riskScore =
-    payload.severity === "critical"
+    Number(payload.riskScore) > 0
+      ? Number(payload.riskScore)
+      : payload.severity === "critical"
       ? 88
       : payload.severity === "high"
       ? 72

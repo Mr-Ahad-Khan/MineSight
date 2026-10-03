@@ -4,7 +4,7 @@ const Inspection = require("../models/Inspection");
 const Mine = require("../models/Mine");
 const Alert = require("../models/Alert");
 const AuditLog = require("../models/AuditLog");
-const { calculateRiskScore, getRiskLevel } = require("../utils/riskCalculator");
+const { calculateRiskScore, getRiskLevel, detectPhotoRiskBackend } = require("../utils/riskCalculator");
 const { appendAuditBlock, verifyAuditChain } = require("../utils/auditChain");
 const {
   getStoredMediaPath,
@@ -445,6 +445,30 @@ const closeViolation = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Detect safety and operational risk from photo
+// @route   POST /api/inspections/detect-risk
+// @access  Private
+const detectRiskFromPhoto = asyncHandler(async (req, res) => {
+  const photo = req.files?.photos?.[0] || req.file;
+  const context = {
+    mineId: req.body?.mineId,
+    title: req.body?.title,
+    description: req.body?.description,
+    observations: req.body?.observations,
+    severity: req.body?.severity,
+  };
+
+  const analysis = await detectPhotoRiskBackend({
+    file: photo,
+    context,
+  });
+
+  res.json({
+    success: true,
+    data: analysis,
+  });
+});
+
 module.exports = {
   getInspections,
   getInspectionById,
@@ -453,4 +477,5 @@ module.exports = {
   updateInspection,
   deleteInspection,
   closeViolation,
+  detectRiskFromPhoto,
 };
