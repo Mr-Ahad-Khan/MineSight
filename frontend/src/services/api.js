@@ -108,19 +108,11 @@ export const getInspections = (params) => api.get("/inspections", { params });
 export const getInspection = (id) => api.get(`/inspections/${id}`);
 export const getInspectionAuditHistory = (id) => api.get(`/inspections/${id}/audit`);
 export const createInspection = (data) => {
-  if (data instanceof FormData) {
-    return api.post("/inspections", data, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-  }
+  if (data instanceof FormData) return api.post("/inspections", data);
   return api.post("/inspections", data);
 };
 export const updateInspection = (id, data) => {
-  if (data instanceof FormData) {
-    return api.put(`/inspections/${id}`, data, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-  }
+  if (data instanceof FormData) return api.put(`/inspections/${id}`, data);
   return api.put(`/inspections/${id}`, data);
 };
 export const deleteInspection = (id) => api.delete(`/inspections/${id}`);

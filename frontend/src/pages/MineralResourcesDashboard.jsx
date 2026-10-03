@@ -250,7 +250,18 @@ export default function MineralResourcesDashboard() {
                     width={42}
                     tick={{ fontSize: 11 }}
                   />
-                  <Tooltip formatter={(value) => [value, "Records"]} />
+                  <Tooltip
+                    contentStyle={{
+                      border: "1px solid #cbd5e1",
+                      borderRadius: 6,
+                      backgroundColor: "#ffffff",
+                      color: "#0f172a",
+                      boxShadow: "0 8px 20px rgba(15, 23, 42, 0.16)",
+                    }}
+                    labelStyle={{ color: "#0f172a", fontWeight: 700 }}
+                    itemStyle={{ color: "#0f766e", fontWeight: 600 }}
+                    formatter={(value) => [value, "Records"]}
+                  />
                   <Bar
                     dataKey="count"
                     fill="#0f766e"
@@ -585,7 +596,7 @@ export default function MineralResourcesDashboard() {
               type="button"
               onClick={() => goToPage((currentPage) => currentPage - 1)}
               disabled={page <= 1 || recordsLoading}
-              className="inline-flex h-9 items-center gap-1 border border-slate-300 px-3 text-sm disabled:opacity-40 dark:border-slate-600"
+              className="relative z-10 inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-1 border border-slate-300 px-3 text-sm leading-none disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600"
             >
               <ChevronLeft className="h-4 w-4" /> {t.previous}
             </button>
@@ -596,7 +607,7 @@ export default function MineralResourcesDashboard() {
               type="button"
               onClick={() => goToPage((currentPage) => currentPage + 1)}
               disabled={page >= totalPages || recordsLoading}
-              className="inline-flex h-9 items-center gap-1 border border-slate-300 px-3 text-sm disabled:opacity-40 dark:border-slate-600"
+              className="relative z-10 inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-1 border border-slate-300 px-3 text-sm leading-none disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600"
             >
               {t.next} <ChevronRight className="h-4 w-4" />
             </button>

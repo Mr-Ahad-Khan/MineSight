@@ -205,16 +205,16 @@ export default function InspectionDetail() {
           <div
             className={`text-center px-4 py-2 rounded-lg ${
               inspection.riskScore >= 80
-                ? "bg-red-100 text-red-700 dark:bg-red-900/30"
+                ? "bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-100"
                 : inspection.riskScore >= 60
-                  ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30"
+                  ? "bg-orange-100 text-orange-800 dark:bg-orange-950/70 dark:text-orange-100"
                   : inspection.riskScore >= 35
-                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30"
-                    : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30"
+                    ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-100"
+                    : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-100"
             }`}
           >
-            <p className="text-xs font-medium">{t.riskScore}</p>
-            <p className="text-2xl font-bold">{inspection.riskScore}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide">{t.riskScore}</p>
+            <p className="text-2xl font-extrabold tabular-nums">{inspection.riskScore}</p>
           </div>
         </div>
       </div>

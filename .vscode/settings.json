@@ -24,6 +24,10 @@
     "/^node --check backend/controllers/authController\\.js$/": {
       "approve": true,
       "matchCommandLine": true
+    },
+    "/^Push-Location backend; node --check controllers/inspectionController\\.js; node --check routes/inspectionRoutes\\.js; Pop-Location$/": {
+      "approve": true,
+      "matchCommandLine": true
     }
   }
 }
