@@ -12,6 +12,13 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
   const [isRendered, setIsRendered] = useState(false);
+  const onChangeRef = useRef(onChange);
+  const onExpiredRef = useRef(onExpired);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+    onExpiredRef.current = onExpired;
+  }, [onChange, onExpired]);
 
   useImperativeHandle(ref, () => ({
     reset: () => {
@@ -53,13 +60,13 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
         widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
           sitekey,
           callback: (token) => {
-            if (isMounted) onChange?.(token);
+            if (isMounted) onChangeRef.current?.(token);
           },
           "expired-callback": () => {
-            if (isMounted) onExpired?.();
+            if (isMounted) onExpiredRef.current?.();
           },
           "error-callback": () => {
-            if (isMounted) onExpired?.();
+            if (isMounted) onExpiredRef.current?.();
           },
           theme,
           size,
@@ -101,14 +108,14 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
       if (timerId) clearInterval(timerId);
       widgetIdRef.current = null;
     };
-  }, [sitekey, theme, size, onChange, onExpired]);
+  }, [sitekey, theme, size]);
 
   return (
     <div className="relative min-h-[78px] w-full max-w-[304px]">
       {!isRendered && (
         <div className="flex h-[78px] w-[304px] items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
           <Loader2 className="mr-2 h-4 w-4 animate-spin text-[#ff6f00]" />
-          <span>Loading security verification...</span>
+          <span>Loading reCAPTCHA...</span>
         </div>
       )}
       <div

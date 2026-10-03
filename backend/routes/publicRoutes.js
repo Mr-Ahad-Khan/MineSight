@@ -5,14 +5,12 @@ const {
   createChatMessage,
   createContactMessage,
   getChatMessages,
-  translateText,
 } = require("../controllers/publicController");
 const { protect } = require("../middleware/auth");
 
 router.get("/home-stats", getHomeStats);
 router.post("/chat-messages", createChatMessage);
 router.post("/contact", createContactMessage);
-router.post("/translate", translateText);
 router.get("/chat-messages", protect, getChatMessages);
 
 module.exports = router;

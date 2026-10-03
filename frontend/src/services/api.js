@@ -114,7 +114,6 @@ export const getPublicHomeStats = () => api.get("/public/home-stats");
 export const saveChatMessage = (data) =>
   api.post("/public/chat-messages", data);
 export const sendContactMessage = (data) => api.post("/public/contact", data);
-export const translateTexts = (data) => api.post("/public/translate", data);
 
 // Mines
 export const getMines = (params) => api.get("/mines", { params });
