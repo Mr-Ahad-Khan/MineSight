@@ -64,6 +64,12 @@ export const getMediaUrl = (mediaPath) => {
   if (!path || typeof path !== "string") return null;
   if (/^https?:\/\//i.test(path)) return path;
 
+  // Vercel exposes the backend through /api, so local backend uploads must
+  // use the same proxy instead of being requested from the frontend host.
+  if (path.startsWith("/uploads/") && apiBaseUrl.startsWith("/")) {
+    return `/api${path}`;
+  }
+
   const origin = apiBaseUrl.replace(/\/api\/?$/, "");
   return `${origin}${path.startsWith("/") ? path : `/${path}`}`;
 };

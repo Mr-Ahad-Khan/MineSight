@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -83,6 +83,7 @@ export default function MineralResourcesDashboard() {
     totalPages: 0,
   });
   const [expandedRecordId, setExpandedRecordId] = useState(null);
+  const recordsRequestId = useRef(0);
 
   useEffect(() => {
     getMineralResourceSummary()
@@ -97,19 +98,19 @@ export default function MineralResourcesDashboard() {
   }, []);
 
   useEffect(() => {
-    let isCurrentRequest = true;
+    const requestId = ++recordsRequestId.current;
     setRecordsLoading(true);
     setRecordsError("");
 
     getMineralResourceRecords({ page, limit: RECORDS_PER_PAGE, search })
       .then((response) => {
-        if (!isCurrentRequest) return;
+        if (requestId !== recordsRequestId.current) return;
         setRecords(response.data.data.records || []);
         setPagination(response.data.data.pagination);
         setExpandedRecordId(null);
       })
       .catch((requestError) => {
-        if (isCurrentRequest) {
+        if (requestId === recordsRequestId.current) {
           setRecordsError(
             requestError.response?.data?.message ||
               "Unable to load dataset records.",
@@ -117,12 +118,8 @@ export default function MineralResourcesDashboard() {
         }
       })
       .finally(() => {
-        if (isCurrentRequest) setRecordsLoading(false);
+        if (requestId === recordsRequestId.current) setRecordsLoading(false);
       });
-
-    return () => {
-      isCurrentRequest = false;
-    };
   }, [page, search]);
 
   const spatialClusters = summary?.spatialClusters || [];
@@ -248,7 +245,7 @@ export default function MineralResourcesDashboard() {
                   <YAxis
                     type="category"
                     dataKey="state"
-                    width={78}
+                    width={116}
                     tick={{ fontSize: 12, fill: darkMode ? "#f8fafc" : "#475569" }}
                     tickLine={{ stroke: "#94a3b8" }}
                     axisLine={{ stroke: "#94a3b8" }}
@@ -598,7 +595,7 @@ export default function MineralResourcesDashboard() {
             <button
               type="button"
               onClick={() => goToPage((currentPage) => currentPage - 1)}
-              disabled={page <= 1 || recordsLoading}
+              disabled={page <= 1}
               className="relative z-10 inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-1 border border-slate-300 px-3 text-sm leading-none disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600"
             >
               <ChevronLeft className="h-4 w-4" /> {t.previous}
@@ -609,7 +606,7 @@ export default function MineralResourcesDashboard() {
             <button
               type="button"
               onClick={() => goToPage((currentPage) => currentPage + 1)}
-              disabled={page >= totalPages || recordsLoading}
+              disabled={page >= totalPages}
               className="relative z-10 inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-1 border border-slate-300 px-3 text-sm leading-none disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600"
             >
               {t.next} <ChevronRight className="h-4 w-4" />

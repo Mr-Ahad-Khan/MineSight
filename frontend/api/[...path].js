@@ -35,7 +35,8 @@ export default function apiProxy(req, res) {
   const query = new URLSearchParams(req.query)
   query.delete('path')
   const queryString = query.toString()
-  const apiPath = `/api/${path}${queryString ? `?${queryString}` : ''}`
+  const proxiedPath = path.startsWith('uploads/') ? `/${path}` : `/api/${path}`
+  const apiPath = `${proxiedPath}${queryString ? `?${queryString}` : ''}`
   const transport = backend.protocol === 'https:' ? https : http
   const body = ['GET', 'HEAD'].includes(req.method) || req.body == null
     ? undefined
