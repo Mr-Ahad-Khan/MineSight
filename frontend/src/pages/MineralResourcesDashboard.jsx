@@ -20,7 +20,7 @@ import {
   getMineralResourceRecords,
   getMineralResourceSummary,
 } from "../services/api";
-import { useLanguageStore } from "../store/themeStore";
+import useThemeStore, { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 import TableScrollContainer from "../components/common/TableScrollContainer";
 
@@ -66,6 +66,7 @@ const buildIndustryChartData = (industryClasses) => {
 
 export default function MineralResourcesDashboard() {
   const { language } = useLanguageStore();
+  const { darkMode } = useThemeStore();
   const t = translations[language] || translations.en;
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -248,7 +249,7 @@ export default function MineralResourcesDashboard() {
                     type="category"
                     dataKey="state"
                     width={78}
-                    tick={{ fontSize: 12, fill: "#475569" }}
+                    tick={{ fontSize: 12, fill: darkMode ? "#f8fafc" : "#475569" }}
                     tickLine={{ stroke: "#94a3b8" }}
                     axisLine={{ stroke: "#94a3b8" }}
                   />

@@ -286,8 +286,19 @@ const updateInspection = asyncHandler(async (req, res) => {
   }
 
   const uploadedPhotos = (req.files?.photos || []).map(getStoredMediaPath);
-  if (uploadedPhotos.length) {
-    req.body.photos = [...(inspection.photos || []), ...uploadedPhotos].slice(0, 5);
+  const submittedPhotos = parseFormDataValue(req.body.photos, null);
+  if (submittedPhotos !== null || uploadedPhotos.length) {
+    const existingPhotos = (inspection.photos || []).filter(
+      (photo) => typeof photo === "string" && photo.trim(),
+    );
+    const requestedPhotos = (Array.isArray(submittedPhotos)
+      ? submittedPhotos
+      : [submittedPhotos]
+    ).filter((photo) => typeof photo === "string" && photo.trim());
+    req.body.photos = [
+      ...(submittedPhotos === null ? existingPhotos : requestedPhotos),
+      ...uploadedPhotos,
+    ].slice(0, 5);
   }
 
   // If status is closed

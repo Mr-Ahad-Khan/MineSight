@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle, Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
 import { deleteInspection, getInspections, getMediaUrl } from "../services/api";
 import toast from "react-hot-toast";
@@ -32,6 +32,7 @@ export default function Inspections() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [photoZoom, setPhotoZoom] = useState(1);
   const { language } = useLanguageStore();
+  const navigate = useNavigate();
   const t = translations[language];
   const adjustPhotoZoom = (amount) => {
     setPhotoZoom((current) => Math.min(4, Math.max(1, current + amount)));
@@ -99,6 +100,13 @@ export default function Inspections() {
           </h1>
 
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3">
+            <Link
+              to="/app/inspections/new"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#0d3f6d] px-5 py-2.5 text-[15px] font-medium text-white shadow-[0_3px_10px_rgba(13,63,109,0.25)] transition hover:bg-[#0a3560]"
+            >
+              <Plus className="h-4 w-4" />
+              {t.newInspection}
+            </Link>
             <label className="relative min-w-[220px] flex-1 sm:flex-none">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#786f63]" />
               <input
@@ -208,7 +216,16 @@ export default function Inspections() {
                     return (
                       <tr
                         key={insp._id}
-                        className="border-t border-[#d7c8b0] bg-[#f7f3ed] hover:bg-[#f1eadf]"
+                        className="cursor-pointer border-t border-[#d7c8b0] bg-[#f7f3ed] hover:bg-[#f1eadf]"
+                        role="link"
+                        tabIndex={0}
+                        onClick={() => navigate(`/app/inspections/${insp._id}`)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            navigate(`/app/inspections/${insp._id}`);
+                          }
+                        }}
                       >
                         <td className="px-4 py-4 align-middle max-w-sm">
                           <Link
@@ -237,6 +254,8 @@ export default function Inspections() {
                                   controls
                                   src={audioUrl}
                                   className="h-8 w-28"
+                                  onClick={(event) => event.stopPropagation()}
+                                  onKeyDown={(event) => event.stopPropagation()}
                                   onError={(event) => {
                                     event.currentTarget.parentElement.style.display =
                                       "none";
@@ -249,7 +268,8 @@ export default function Inspections() {
                               <div className="flex items-center gap-1">
                                 <button
                                   type="button"
-                                  onClick={() => {
+                                  onClick={(event) => {
+                                    event.stopPropagation();
                                     const photos = insp.photos.map(getMediaUrl);
                                     setSelectedPhotos(photos);
                                     setSelectedPhotoIndex(0);
@@ -271,7 +291,8 @@ export default function Inspections() {
                                 {insp.photos.length > 1 && (
                                   <button
                                     type="button"
-                                    onClick={() => {
+                                    onClick={(event) => {
+                                      event.stopPropagation();
                                       const photos = insp.photos.map(getMediaUrl);
                                       setSelectedPhotos(photos);
                                       setSelectedPhotoIndex(0);
@@ -333,7 +354,10 @@ export default function Inspections() {
                         <td className="px-4 py-4 align-middle">
                           <button
                             type="button"
-                            onClick={() => handleDeleteInspection(insp._id)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDeleteInspection(insp._id);
+                            }}
                             className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -347,16 +371,6 @@ export default function Inspections() {
               </tbody>
             </table>
           </TableScrollContainer>
-
-          <div className="flex justify-end px-4 pb-4 pt-2">
-            <Link
-              to="/app/inspections/new"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#0d3f6d] px-5 py-3 text-[15px] font-medium text-white shadow-[0_3px_10px_rgba(13,63,109,0.25)] transition hover:bg-[#0a3560]"
-            >
-              <Plus className="h-4 w-4" />
-              {t.newInspection}
-            </Link>
-          </div>
         </div>
 
         {selectedPhotos.length > 0 && (
