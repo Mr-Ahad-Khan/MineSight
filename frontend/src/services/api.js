@@ -27,12 +27,21 @@ const api = axios.create({
   },
 });
 
-// Request interceptor - add token
+// Request interceptor - add token and handle FormData headers
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.data instanceof FormData) {
+      if (typeof config.headers?.delete === "function") {
+        config.headers.delete("Content-Type");
+        config.headers.delete("content-type");
+      } else if (config.headers) {
+        delete config.headers["Content-Type"];
+        delete config.headers["content-type"];
+      }
     }
     return config;
   },
@@ -64,10 +73,13 @@ export const getMediaUrl = (mediaPath) => {
   if (!path || typeof path !== "string") return null;
   if (/^https?:\/\//i.test(path)) return path;
 
-  // Vercel exposes the backend through /api, so local backend uploads must
-  // use the same proxy instead of being requested from the frontend host.
-  if (path.startsWith("/uploads/") && apiBaseUrl.startsWith("/")) {
-    return `/api${path}`;
+  // Handle local /uploads/ paths
+  if (path.startsWith("/uploads/")) {
+    if (apiBaseUrl.startsWith("http")) {
+      const origin = apiBaseUrl.replace(/\/api\/?$/, "");
+      return `${origin}${path}`;
+    }
+    return path;
   }
 
   const origin = apiBaseUrl.replace(/\/api\/?$/, "");
@@ -81,7 +93,7 @@ export const getMe = () => api.get("/auth/me");
 export const updateProfile = (data) => {
   if (data instanceof FormData) {
     return api.put("/auth/profile", data, {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": undefined },
     });
   }
   return api.put("/auth/profile", data);
@@ -114,11 +126,19 @@ export const getInspections = (params) => api.get("/inspections", { params });
 export const getInspection = (id) => api.get(`/inspections/${id}`);
 export const getInspectionAuditHistory = (id) => api.get(`/inspections/${id}/audit`);
 export const createInspection = (data) => {
-  if (data instanceof FormData) return api.post("/inspections", data);
+  if (data instanceof FormData) {
+    return api.post("/inspections", data, {
+      headers: { "Content-Type": undefined },
+    });
+  }
   return api.post("/inspections", data);
 };
 export const updateInspection = (id, data) => {
-  if (data instanceof FormData) return api.put(`/inspections/${id}`, data);
+  if (data instanceof FormData) {
+    return api.put(`/inspections/${id}`, data, {
+      headers: { "Content-Type": undefined },
+    });
+  }
   return api.put(`/inspections/${id}`, data);
 };
 export const deleteInspection = (id) => api.delete(`/inspections/${id}`);

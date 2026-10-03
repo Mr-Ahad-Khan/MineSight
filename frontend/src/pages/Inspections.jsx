@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle, Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
+import { Camera, CheckCircle, Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
 import { deleteInspection, getInspections, getMediaUrl } from "../services/api";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
@@ -284,9 +284,13 @@ export default function Inspections() {
                                     alt="Inspection preview"
                                     className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
                                     onError={(event) => {
-                                      event.currentTarget.closest("button").style.display = "none";
+                                      event.currentTarget.style.display = "none";
+                                      if (event.currentTarget.nextElementSibling) {
+                                        event.currentTarget.nextElementSibling.style.display = "block";
+                                      }
                                     }}
                                   />
+                                  <Camera style={{ display: "none" }} className="w-4 h-4 text-slate-600 m-auto" />
                                 </button>
                                 {insp.photos.length > 1 && (
                                   <button

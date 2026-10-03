@@ -36,7 +36,7 @@ app.use(morgan("dev"));
 
 // Static folder for uploads
 app.use(
-  "/uploads",
+  ["/uploads", "/api/uploads"],
   (req, res, next) => {
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     next();

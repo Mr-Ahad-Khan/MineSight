@@ -229,7 +229,7 @@ export default function MineralResourcesDashboard() {
             >
               <ResponsiveContainer
                 width="100%"
-                height={Math.max(stateData.length * 25, 280)}
+                height={Math.max(stateData.length * 36, 360)}
               >
                 <BarChart
                   data={stateData}
@@ -245,8 +245,9 @@ export default function MineralResourcesDashboard() {
                   <YAxis
                     type="category"
                     dataKey="state"
-                    width={116}
-                    tick={{ fontSize: 12, fill: darkMode ? "#f8fafc" : "#475569" }}
+                    interval={0}
+                    width={130}
+                    tick={{ fontSize: 11, fill: darkMode ? "#f8fafc" : "#475569" }}
                     tickLine={{ stroke: "#94a3b8" }}
                     axisLine={{ stroke: "#94a3b8" }}
                   />

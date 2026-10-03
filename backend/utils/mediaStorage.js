@@ -97,8 +97,13 @@ const serializeInspectionMedia = (inspection) => {
 
   return {
     ...data,
-    photos: (data.photos || []).filter(isAvailableMediaPath),
-    audio: isAvailableMediaPath(data.audio) ? data.audio : null,
+    photos: (data.photos || []).filter(
+      (photo) => typeof photo === "string" && photo.trim().length > 0,
+    ),
+    audio:
+      typeof data.audio === "string" && data.audio.trim().length > 0
+        ? data.audio
+        : null,
   };
 };
 
