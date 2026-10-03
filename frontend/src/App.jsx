@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { WifiOff } from "lucide-react";
+import { WifiOff, RefreshCw } from "lucide-react";
 import useAuthStore from "./store/authStore";
 import useThemeStore from "./store/themeStore";
+import { triggerSyncNow, getPendingSyncCount } from "./services/api";
 
 function PublicHomeRoute() {
   const { token } = useAuthStore();
@@ -120,15 +121,22 @@ function AppLoadingSkeleton() {
 function App() {
   const { initTheme } = useThemeStore();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [pendingCount, setPendingCount] = useState(getPendingSyncCount());
 
   useEffect(() => {
     const updateConnection = () => setIsOffline(!navigator.onLine);
+    const handleQueueChange = (e) => {
+      setPendingCount(e.detail?.pendingCount ?? getPendingSyncCount());
+    };
 
     window.addEventListener("online", updateConnection);
     window.addEventListener("offline", updateConnection);
+    window.addEventListener("minesight:queue-updated", handleQueueChange);
+
     return () => {
       window.removeEventListener("online", updateConnection);
       window.removeEventListener("offline", updateConnection);
+      window.removeEventListener("minesight:queue-updated", handleQueueChange);
     };
   }, []);
 
@@ -142,21 +150,41 @@ function App() {
     return () => window.removeEventListener("vite:preloadError", handlePreloadError);
   }, []);
 
-
-
   return (
     <>
-      {isOffline && (
-        <div
-          className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 bg-amber-100 px-4 py-2 text-center text-xs font-semibold text-amber-950 shadow-sm dark:bg-amber-950 dark:text-amber-100 sm:text-sm"
+      {isOffline ? (
+        <aside
+          aria-label="Offline status"
+          className="fixed inset-x-0 top-0 z-[100] flex flex-wrap items-center justify-center gap-2 border-b border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-950 shadow-sm backdrop-blur-md dark:border-amber-700/60 dark:bg-amber-950/90 dark:text-amber-100 sm:text-sm"
           role="status"
         >
-          <WifiOff className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <WifiOff className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
           <span>
-            You are offline. Cached screens are available; live data and changes need a connection.
+            <strong className="font-semibold">Offline Mode Active:</strong> All features, inspections, attendance, and forms work offline. Changes are saved locally and will auto-sync when online.
           </span>
-        </div>
-      )}
+          {pendingCount > 0 && (
+            <span className="inline-flex items-center rounded-full bg-amber-500/30 px-2 py-0.5 text-xs font-bold text-amber-900 dark:text-amber-200">
+              {pendingCount} change{pendingCount > 1 ? "s" : ""} pending sync
+            </span>
+          )}
+        </aside>
+      ) : pendingCount > 0 ? (
+        <aside
+          aria-label="Pending sync status"
+          className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 border-b border-sky-400/40 bg-sky-500/15 px-4 py-1.5 text-center text-xs font-medium text-sky-950 shadow-sm backdrop-blur-md dark:border-sky-700/60 dark:bg-sky-950/90 dark:text-sky-100 sm:text-sm"
+          role="status"
+        >
+          <RefreshCw className="h-3.5 w-3.5 shrink-0 text-sky-600 dark:text-sky-400" aria-hidden="true" />
+          <span>You are online with {pendingCount} offline update{pendingCount > 1 ? "s" : ""} queued.</span>
+          <button
+            type="button"
+            onClick={() => triggerSyncNow()}
+            className="ml-2 rounded-md bg-sky-600 px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 transition"
+          >
+            Sync Now
+          </button>
+        </aside>
+      ) : null}
       <Suspense
         fallback={<AppLoadingSkeleton />}
       >

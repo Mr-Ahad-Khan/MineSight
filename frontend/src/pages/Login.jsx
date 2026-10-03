@@ -67,19 +67,15 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!navigator.onLine) {
-      toast.error("You are offline. Please connect to the internet to sign in.");
-      return;
-    }
-
-    if (recaptchaSiteKey && !recaptchaToken) {
+    // In offline mode, bypass reCAPTCHA and allow direct offline login
+    if (navigator.onLine && recaptchaSiteKey && !recaptchaToken) {
       toast.error("Please complete the reCAPTCHA.");
       return;
     }
 
     const result = await login(email.trim(), password, recaptchaToken);
     if (result.success) {
-      toast.success("Login successful!");
+      toast.success(navigator.onLine ? "Login successful!" : "Signed in with Offline Access Mode!");
       const target =
         new URLSearchParams(location.search).get("redirect") ||
         (result.user?.role === "worker" ? "/app/workers" : "/app");

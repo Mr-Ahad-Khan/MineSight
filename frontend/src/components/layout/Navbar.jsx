@@ -25,6 +25,7 @@ import useAuthStore from "../../store/authStore";
 import useThemeStore, { useLanguageStore } from "../../store/themeStore";
 import { translations } from "../../i18n/translations";
 import BrandLogo from "../common/BrandLogo";
+import OfflineSyncBadge from "../common/OfflineSyncBadge";
 
 export default function Navbar() {
   const { user, logout } = useAuthStore();
@@ -193,6 +194,9 @@ export default function Navbar() {
 
         {/* Right Controls: SOS Help, Language, Theme, User/Hamburger */}
         <div className="relative flex shrink-0 items-center gap-1.5 text-white max-[380px]:gap-0.5 sm:gap-2">
+          {/* Offline Sync Status */}
+          <OfflineSyncBadge />
+
           {/* Emergency SOS Help */}
           <button
             type="button"

@@ -16,15 +16,11 @@ const useAuthStore = create((set) => ({
   isLoading: false,
 
   login: async (email, password, recaptchaToken) => {
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, message: 'You are offline. Please connect to the internet to sign in.' }
-    }
-
     set({ isLoading: true })
     try {
       const { data } = await loginApi({ email, password, recaptchaToken })
       const authUser = data?.data || data
-      const token = authUser?.token
+      const token = authUser?.token || data?.token
 
       if (!token) {
         throw new Error('Authentication token missing from server response')
@@ -44,19 +40,30 @@ const useAuthStore = create((set) => ({
   },
 
   register: async (userData) => {
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, message: 'You are offline. Please connect to the internet to create your account.' }
-    }
-
     set({ isLoading: true })
     try {
       const { data } = await registerApi(userData)
       const authUser = data?.data || data
-      localStorage.setItem('token', authUser?.token || '')
+      const token = authUser?.token || data?.token || `offline_token_${Date.now()}`
+      localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(authUser))
-      set({ user: authUser, token: authUser?.token || null, isLoading: false })
+      set({ user: authUser, token, isLoading: false })
       return { success: true, user: authUser }
     } catch (error) {
+      // If offline or network failure, create local user session
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const offlineUser = {
+          _id: `user_offline_${Date.now()}`,
+          name: userData.name || 'New Inspector',
+          email: userData.email,
+          role: userData.role || 'mine_official',
+          token: `offline_token_${Date.now()}`,
+        }
+        localStorage.setItem('token', offlineUser.token)
+        localStorage.setItem('user', JSON.stringify(offlineUser))
+        set({ user: offlineUser, token: offlineUser.token, isLoading: false })
+        return { success: true, user: offlineUser }
+      }
       set({ isLoading: false })
       return {
         success: false,
