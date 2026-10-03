@@ -337,11 +337,21 @@ export default function Inspections() {
                             >
                               {insp.status?.replace("_", " ")}
                             </span>
-                            {insp.status === "closed" && insp.photos?.length > 0 && (
-                              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-300" title="Closed with photo proof">
-                                <CheckCircle className="h-4 w-4" aria-hidden="true" /> Proof
-                              </span>
-                            )}
+                            {insp.status === "closed" &&
+                              (insp.proofVerified ||
+                                (Array.isArray(insp.closurePhotos) &&
+                                  insp.closurePhotos.length > 0)) && (
+                                <span
+                                  className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-300"
+                                  title="Closed with photo proof"
+                                >
+                                  <CheckCircle
+                                    className="h-4 w-4"
+                                    aria-hidden="true"
+                                  />{" "}
+                                  Proof
+                                </span>
+                              )}
                           </div>
                         </td>
 
