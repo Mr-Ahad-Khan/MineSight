@@ -121,7 +121,7 @@ export default function Navbar() {
 
         {/* Desktop Single-Line Navigation: Core Tabs + More Dropdown */}
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-visible px-1 xl:flex"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-visible px-1 2xl:flex"
           aria-label="Primary navigation"
         >
           {primaryNavigation.map((item) => (
@@ -226,7 +226,7 @@ export default function Navbar() {
           </button>
 
           {/* Desktop User Profile Button & Dropdown */}
-          <div className="relative hidden xl:block" ref={accountMenuRef}>
+          <div className="relative hidden 2xl:block" ref={accountMenuRef}>
             <button
               type="button"
               onClick={() => setAccountMenuOpen((open) => !open)}
@@ -283,7 +283,7 @@ export default function Navbar() {
               setAccountMenuOpen(false);
               setNavigationMenuOpen((open) => !open);
             }}
-            className="inline-flex shrink-0 rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white transition max-[380px]:p-1.5 xl:hidden"
+            className="inline-flex shrink-0 rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white transition max-[380px]:p-1.5 2xl:hidden"
             aria-expanded={navigationMenuOpen}
             aria-label={navigationMenuOpen ? "Close navigation menu" : t.openNavigationMenu}
           >
@@ -301,13 +301,13 @@ export default function Navbar() {
         <>
           {/* Deep dimmed backdrop covering remaining screen */}
           <div
-            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-40 bg-black/75 transition-opacity xl:hidden"
+            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-40 bg-black/75 transition-opacity 2xl:hidden"
             onClick={() => setNavigationMenuOpen(false)}
             aria-hidden="true"
           />
 
           {/* Mobile Screen Dropdown Panel with 100% SOLID OPAQUE BACKGROUND - expands naturally so all items fit without scrolling */}
-          <div className="fixed inset-x-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-50 max-h-[calc(100vh-4.5rem-var(--status-banner-height,0px))] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] xl:hidden">
+          <div className="fixed inset-x-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-50 max-h-[calc(100vh-4.5rem-var(--status-banner-height,0px))] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] 2xl:hidden">
             {/* 2-Column Grid of ALL Navigation Items with SOLID OPAQUE Card Backgrounds */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {allNavigation.map((item) => (

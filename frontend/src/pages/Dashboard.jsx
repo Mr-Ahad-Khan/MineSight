@@ -501,15 +501,16 @@ export default function Dashboard() {
         bg-[#f5f7fa]
         text-[#111]
         text-left
-        px-5
-        sm:px-7
+        px-3
+        sm:px-5
+        md:px-7
         lg:px-8
         py-7
       "
     >
 
       <section
-        className="relative mb-6 flex min-h-[320px] w-full items-center justify-center overflow-hidden rounded-xl bg-cover bg-center px-5 py-10 text-center text-white shadow-md sm:min-h-[380px]"
+        className="relative mb-6 flex min-h-[280px] w-full items-center justify-center overflow-hidden rounded-xl bg-cover bg-center px-4 py-8 text-center text-white shadow-md sm:min-h-[360px] sm:px-6 sm:py-10"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${import.meta.env.BASE_URL}coal-miners.webp)`,
         }}
@@ -518,7 +519,7 @@ export default function Dashboard() {
           <p className="text-xs font-bold uppercase text-[#ff6f00] sm:text-sm">
             {t.coalGovernanceEyebrow}
           </p>
-          <h2 className="mt-3 text-4xl font-bold leading-tight text-white sm:text-5xl">
+          <h2 className="mt-3 text-3xl font-bold leading-tight text-white sm:text-5xl">
             {t.undergroundOverviewTitle}
           </h2>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -732,8 +733,12 @@ export default function Dashboard() {
           <div
             className="
               flex
-              items-center
-              justify-between
+              flex-col
+              items-start
+              gap-3
+              sm:flex-row
+              sm:items-center
+              sm:justify-between
             "
           >
 
@@ -751,16 +756,7 @@ export default function Dashboard() {
               type="button"
               aria-expanded={showAnalytics}
               onClick={() => setShowAnalytics((isOpen) => !isOpen)}
-              className="
-                flex
-                items-center
-                gap-1
-                text-[15px]
-                text-[#b45309]
-                underline-offset-4
-                hover:text-[#c2410c]
-                hover:underline
-              "
+              className="inline-flex min-h-10 max-w-full items-center gap-1 rounded-lg border border-[#d97706]/60 bg-[#fff7ed] px-3 py-2 text-left text-sm font-semibold text-[#92400e] shadow-sm transition hover:border-[#c2410c] hover:bg-[#ffedd5] hover:text-[#7c2d12] dark:border-[#f59e0b]/60 dark:bg-[#3a2818] dark:text-[#ffd08a] dark:hover:bg-[#51331a] dark:hover:text-[#ffe2b5]"
             >
 
               {t.viewAnalytics}
