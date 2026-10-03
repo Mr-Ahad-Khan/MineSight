@@ -156,10 +156,53 @@ const getChatMessages = asyncHandler(async (req, res) => {
   res.json({ success: true, data: messages });
 });
 
-module.exports = { getHomeStats, createChatMessage, getChatMessages };
+const translateText = asyncHandler(async (req, res) => {
+  const { texts, targetLanguage, sourceLanguage = "en" } = req.body;
+
+  if (
+    !Array.isArray(texts) ||
+    texts.length === 0 ||
+    texts.length > 50 ||
+    !targetLanguage
+  ) {
+    res.status(400);
+    throw new Error("Provide 1-50 texts and a target language");
+  }
+
+  if (!process.env.GOOGLE_TRANSLATE_API_KEY) {
+    res.status(503);
+    throw new Error("Online translation is not configured");
+  }
+
+  const params = new URLSearchParams({
+    key: process.env.GOOGLE_TRANSLATE_API_KEY,
+    target: targetLanguage,
+    source: sourceLanguage,
+    format: "text",
+  });
+  texts.forEach((text) => params.append("q", String(text)));
+
+  const response = await fetch(
+    `https://translation.googleapis.com/language/translate/v2?${params}`,
+    { method: "POST" },
+  );
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    res.status(502);
+    throw new Error(result.error?.message || "Google translation failed");
+  }
+
+  res.json({
+    success: true,
+    data: result.data.translations.map((item) => item.translatedText),
+  });
+});
+
 module.exports = {
   getHomeStats,
   createChatMessage,
   createContactMessage,
   getChatMessages,
+  translateText,
 };
