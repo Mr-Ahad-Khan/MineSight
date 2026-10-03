@@ -756,7 +756,7 @@ export default function CreateInspection() {
                       {photoPreviews.map((preview, index) => (
                         <div
                           key={preview}
-                          className="relative overflow-hidden rounded-lg border border-slate-200 bg-white"
+                          className="relative min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
                         >
                           <img
                             src={preview}
