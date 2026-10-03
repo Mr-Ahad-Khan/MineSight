@@ -1,6 +1,6 @@
 import BrandLogo from "./BrandLogo";
 import { LayoutDashboard, ClipboardList, UserCheck, ShieldCheck } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import { useLanguageStore } from "../../store/themeStore";
 import { translations } from "../../i18n/translations";
@@ -8,6 +8,8 @@ import { translations } from "../../i18n/translations";
 export default function Footer() {
   const { user } = useAuthStore();
   const { language } = useLanguageStore();
+  const location = useLocation();
+  const isChat = location.pathname === "/app/chat";
   const t = translations[language];
   const navigation = user?.role === "worker" ? [
     { name: t.myWorkAttendance, href: "/app/workers", icon: ClipboardList },
@@ -19,7 +21,8 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t border-white/10 bg-[#212121] pb-16 text-white/75 xl:pb-0">
+    <footer className={isChat ? "xl:hidden" : "border-t border-white/10 bg-[#212121] pb-16 text-white/75 xl:pb-0"}>
+      {!isChat && (
       <div className="mx-auto max-w-7xl px-4 py-10 text-center sm:px-6 sm:text-left lg:px-8">
         <div className="grid justify-items-center gap-8 md:grid-cols-[1.5fr_1fr_1fr_1.2fr] md:justify-items-stretch">
           <div className="flex flex-col items-center md:items-start">
@@ -75,6 +78,7 @@ export default function Footer() {
           <p>{t.version}</p>
         </div>
       </div>
+      )}
       <nav
         className="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-4 border-t border-white/10 bg-[#121a21]/95 px-1 text-white shadow-[0_-8px_24px_rgba(12,18,24,0.22)] backdrop-blur-lg xl:hidden"
         aria-label="Footer navigation"

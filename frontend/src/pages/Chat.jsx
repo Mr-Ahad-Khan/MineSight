@@ -206,6 +206,7 @@ export default function Chat() {
     () => localStorage.getItem("speakChatReplies") === "true",
   );
   const recognitionRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const speechSupported =
     typeof window !== "undefined" && "speechSynthesis" in window;
   const recognitionSupported =
@@ -221,6 +222,10 @@ export default function Chat() {
           : `Hello${user?.name ? ` ${user.name}` : ""}! I can help with inspections, compliance, mine safety, and dashboards.`,
     },
   ]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, sending]);
 
   useEffect(
     () => () => recognitionRef.current?.stop(),
@@ -342,47 +347,46 @@ export default function Chat() {
   };
 
   return (
-    <section className="mx-auto flex h-[calc(100dvh-2rem)] min-h-[680px] max-w-4xl flex-col px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100">
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <section className="mx-auto flex h-[calc(100dvh-9.5rem)] sm:h-[calc(100dvh-10rem)] xl:h-[calc(100dvh-5.5rem)] w-full max-w-5xl flex-col px-2.5 py-1.5 sm:px-6 sm:py-3 lg:px-8 dark:text-slate-100">
+      <div className="mb-2 flex flex-col gap-2 shrink-0 sm:mb-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9b6b16]">
-            {t.operationsAssistant}
-          </p>
-          <h1 className="mt-1 text-3xl font-bold text-[#17314a] dark:text-white">
-            {t.coalAi}
-          </h1>
-          <p className="mt-1 text-sm text-[#655b4e] dark:text-slate-400">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#17314a] dark:text-white">
+              {t.coalAi}
+            </h1>
+            <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#9b6b16] dark:bg-amber-950/60 dark:text-amber-300">
+              {t.operationsAssistant}
+            </span>
+          </div>
+          <p className="hidden text-xs text-[#655b4e] dark:text-slate-400 sm:block sm:mt-0.5">
             {t.chatSubtitle}
           </p>
         </div>
-        <div className="flex w-full flex-col items-start gap-2 sm:w-auto sm:items-end">
-          <div className="sm:text-right">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              {language === "hi" ? "ग्राहक सहायता · 24/7" : "Customer care · 24/7"}
-            </p>
-            <a
-              href="tel:+918004197890"
-              className="mt-0.5 inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-bold text-[#17314a] transition-colors hover:text-[#d45b00] dark:text-white dark:hover:text-orange-300"
-            >
-              <PhoneCall className="h-4 w-4 text-[#d45b00]" /> +91 800-419-7890
-            </a>
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#bfd9c8] bg-[#edf8f0] px-3 py-1.5 text-xs font-semibold text-[#267044]">
-            <ShieldCheck className="h-4 w-4" /> {t.secureSession}
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          <a
+            href="tel:+918004197890"
+            className="inline-flex items-center gap-1.5 rounded-full border border-orange-200/80 bg-orange-50/80 px-2.5 py-1 text-xs font-bold text-[#17314a] transition-colors hover:text-[#d45b00] dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-200"
+          >
+            <PhoneCall className="h-3.5 w-3.5 text-[#d45b00]" /> +91 800-419-7890
+          </a>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#bfd9c8] bg-[#edf8f0] px-2.5 py-1 text-xs font-semibold text-[#267044] dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <ShieldCheck className="h-3.5 w-3.5" /> {t.secureSession}
           </div>
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-950 bg-[#1e3a8a] px-5 py-4 text-white">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
-            <Bot className="h-5 w-5" />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-md dark:border-slate-700/80 dark:bg-slate-900 dark:shadow-none">
+        <div className="flex items-center justify-between gap-2 border-b border-blue-950 bg-[#1e3a8a] px-3.5 py-2.5 sm:px-5 sm:py-3 text-white shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
+              <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs sm:text-sm font-semibold">{t.coalAiAssistant}</p>
+              <p className="truncate text-[10px] sm:text-xs text-[#c9d8e2]">{t.readyToHelp}</p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold">{t.coalAiAssistant}</p>
-            <p className="text-xs text-[#c9d8e2]">{t.readyToHelp}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <div
               role="group"
               aria-label={language === "hi" ? "जवाब की भाषा चुनें" : "Choose reply language"}
@@ -392,7 +396,7 @@ export default function Chat() {
                 type="button"
                 onClick={() => setLanguage("en")}
                 aria-pressed={language === "en"}
-                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${language === "en" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
+                className={`rounded px-1.5 py-1 text-[11px] sm:px-2 sm:py-1 sm:text-xs font-semibold transition ${language === "en" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
               >
                 EN
               </button>
@@ -400,7 +404,7 @@ export default function Chat() {
                 type="button"
                 onClick={() => setLanguage("hi")}
                 aria-pressed={language === "hi"}
-                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${language === "hi" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
+                className={`rounded px-1.5 py-1 text-[11px] sm:px-2 sm:py-1 sm:text-xs font-semibold transition ${language === "hi" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
               >
                 हिंदी
               </button>
@@ -409,7 +413,7 @@ export default function Chat() {
               type="button"
               onClick={toggleVoiceConversation}
               disabled={!speechSupported || !recognitionSupported || sending}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${listening ? "bg-red-500 text-white" : "bg-white/10 text-white hover:bg-white/20"}`}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] sm:px-3 sm:py-1.5 sm:text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${listening ? "bg-red-500 text-white" : "bg-white/10 text-white hover:bg-white/20"}`}
               aria-label={
                 listening
                   ? language === "hi"
@@ -434,8 +438,8 @@ export default function Chat() {
                       : "Click to speak"
               }
             >
-              {listening ? <Volume2 className="h-4 w-4" aria-hidden="true" /> : <VolumeX className="h-4 w-4" aria-hidden="true" />}
-              <span>
+              {listening ? <Volume2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" /> : <VolumeX className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />}
+              <span className="hidden xs:inline sm:inline">
                 {listening
                   ? language === "hi"
                     ? "सुन रहा है..."
@@ -448,38 +452,53 @@ export default function Chat() {
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[#f5f7fa] p-4 sm:p-6 dark:bg-slate-800">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[#f5f7fa] p-3 sm:space-y-4 sm:p-5 dark:bg-slate-800">
           {messages.map((message) => (
             <div
               key={message.id}
               className={`flex items-start gap-2 ${message.sender === "user" ? "justify-end" : "justify-start"}`}
             >
               {message.sender === "bot" && (
-                <Bot className="mt-1 h-4 w-4 shrink-0 text-[#9b6b16]" />
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100 text-[#9b6b16] dark:bg-amber-950/70 dark:text-amber-300">
+                  <Bot className="h-4 w-4" />
+                </div>
               )}
               <div
-                className={`max-w-[min(80%,38rem)] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.sender === "user" ? "rounded-br-sm bg-blue-100 text-gray-800 dark:bg-sky-900/70 dark:text-sky-100" : "rounded-bl-sm bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-100"}`}
+                className={`max-w-[min(88%,38rem)] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm leading-relaxed ${
+                  message.sender === "user"
+                    ? "rounded-br-sm bg-blue-100 text-gray-800 dark:bg-sky-900/70 dark:text-sky-100"
+                    : "rounded-bl-sm bg-white shadow-sm text-gray-800 dark:bg-slate-700 dark:text-slate-100"
+                }`}
               >
                 {message.text}
               </div>
               {message.sender === "user" && (
-                <User className="mt-1 h-4 w-4 shrink-0 text-[#17314a]" />
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[#17314a] dark:bg-slate-700 dark:text-sky-200">
+                  <User className="h-4 w-4" />
+                </div>
               )}
             </div>
           ))}
           {sending && (
-            <p className="pl-6 text-xs text-[#786f63]">{t.thinking}</p>
+            <div className="flex items-center gap-2 pl-9 text-xs text-[#786f63] dark:text-slate-400">
+              <span className="inline-block h-2 w-2 animate-ping rounded-full bg-[#e5a416]" />
+              <span>{t.thinking}</span>
+            </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
-        <div className="flex flex-wrap gap-2 border-t border-gray-200 bg-[#f5f7fa] px-4 py-3 dark:border-slate-700 dark:bg-slate-800 sm:px-6">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-t border-gray-200/80 bg-white/90 px-3 py-2 shrink-0 dark:border-slate-700/80 dark:bg-slate-900/80">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 hidden sm:inline">
+            {language === "hi" ? "सुझाव:" : "Suggestions:"}
+          </span>
           {prompts[language].map((prompt) => (
             <button
               key={prompt}
               type="button"
               onClick={() => askPrompt(prompt)}
               disabled={sending}
-              className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-[#ff6f00] hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-gray-200 bg-gray-50/80 px-2.5 py-1 text-[11px] sm:text-xs font-medium text-gray-700 shadow-sm transition hover:border-[#ff6f00] hover:bg-orange-50 hover:text-[#ff6f00] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-sky-400 dark:hover:bg-slate-700"
             >
               <Sparkles className="h-3 w-3 text-[#ff6f00]" /> {prompt}
             </button>
@@ -489,9 +508,9 @@ export default function Chat() {
         <form
           onSubmit={handleSend}
           autoComplete="off"
-          className="border-t border-gray-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
+          className="border-t border-gray-200 bg-white p-2.5 sm:p-3 dark:border-slate-700 dark:bg-slate-900 shrink-0"
         >
-          <div className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 focus-within:border-[#ff6f00] focus-within:ring-2 focus-within:ring-[#ff6f00]/15 dark:border-slate-600 dark:bg-slate-800 dark:focus-within:border-sky-400">
+          <div className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-gray-300 bg-white px-2.5 py-1.5 focus-within:border-[#ff6f00] focus-within:ring-2 focus-within:ring-[#ff6f00]/15 dark:border-slate-600 dark:bg-slate-800 dark:focus-within:border-sky-400">
             <input
               id="chat-message"
               name="message"
@@ -499,7 +518,7 @@ export default function Chat() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder={t.askCoalAi}
-              className="min-w-0 flex-1 bg-transparent px-1 text-sm text-gray-800 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-slate-500"
+              className="min-w-0 flex-1 bg-transparent px-1 text-xs sm:text-sm text-gray-800 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-slate-500"
               disabled={sending}
               aria-label={t.messageCoalAi}
             />
@@ -507,7 +526,7 @@ export default function Chat() {
               type="button"
               onClick={toggleVoiceInput}
               disabled={!recognitionSupported || sending}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f00] focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-40 ${listening ? "border-red-300 bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" : "border-slate-300 bg-slate-100 text-slate-700 hover:border-[#ff6f00] hover:bg-orange-50 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"}`}
+              className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f00] focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-40 ${listening ? "border-red-300 bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" : "border-slate-300 bg-slate-100 text-slate-700 hover:border-[#ff6f00] hover:bg-orange-50 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"}`}
               aria-label={
                 listening
                   ? language === "hi"
@@ -533,7 +552,7 @@ export default function Chat() {
             <button
               type="submit"
               disabled={sending || !input.trim()}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#ff6f00] text-white transition hover:bg-[#e65100] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-[#ff6f00] text-white transition hover:bg-[#e65100] disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Send message"
               title="Send message"
             >

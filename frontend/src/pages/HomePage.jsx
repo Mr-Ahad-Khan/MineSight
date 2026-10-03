@@ -1231,7 +1231,7 @@ export default function HomePage() {
               <h2 className="mt-2 text-xl font-bold sm:text-2xl">
                 {t.coalSectorHeading}
               </h2>
-              <p className="mt-2 text-sm text-[#9eafaf]">
+              <p className="mt-2 text-sm font-semibold text-[#2e4352] dark:text-[#9eafaf] hackathon-label">
                 {t.hackathon}
               </p>
             </div>

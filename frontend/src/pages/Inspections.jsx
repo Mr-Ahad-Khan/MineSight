@@ -163,7 +163,7 @@ export default function Inspections() {
                     {t.title}
                   </th>
                   <th className="px-4 py-4 font-semibold text-[#1e1e1e]">
-                    Photos
+                    {t.photosAndRecording || "Photos and Recording"}
                   </th>
                   <th className="px-4 py-4 font-semibold text-[#1e1e1e]">
                     {t.mine}

@@ -23,12 +23,14 @@
     color-scheme: dark;
   }
 
-  .navbar-scrollbar-hidden {
+  .navbar-scrollbar-hidden,
+  .no-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
 
-  .navbar-scrollbar-hidden::-webkit-scrollbar {
+  .navbar-scrollbar-hidden::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
@@ -249,8 +251,10 @@
     color: #c5ddf5 !important;
   }
 
-  .home-page.theme-light #partners [class*="text-[#9eafaf]"] {
-    color: #b7c8c9 !important;
+  .home-page.theme-light #partners [class*="text-[#9eafaf]"],
+  .home-page.theme-light #partners .hackathon-label {
+    color: #2e4352 !important;
+    font-weight: 600;
   }
 
   @keyframes coal-ai-nudge {
