@@ -88,6 +88,14 @@ export default function MineralResourcesDashboard() {
     }
   }, [page, search])
 
+  const spatialClusters = summary?.spatialClusters || []
+  const chartClusters = useMemo(() => spatialClusters.map((cluster) => ({
+    ...cluster,
+    sites: cluster.sites.length <= MAX_CLUSTER_POINTS
+      ? cluster.sites
+      : cluster.sites.filter((_, index) => index % Math.ceil(cluster.sites.length / MAX_CLUSTER_POINTS) === 0),
+  })), [spatialClusters])
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center" role="status" aria-label="Loading mineral resource data">
@@ -108,13 +116,6 @@ export default function MineralResourcesDashboard() {
   const industryChartData = buildIndustryChartData(summary?.industryClasses || [])
   const stateData = summary?.states || []
   const industryClasses = summary?.industryClasses || []
-  const spatialClusters = summary?.spatialClusters || []
-  const chartClusters = useMemo(() => spatialClusters.map((cluster) => ({
-    ...cluster,
-    sites: cluster.sites.length <= MAX_CLUSTER_POINTS
-      ? cluster.sites
-      : cluster.sites.filter((_, index) => index % Math.ceil(cluster.sites.length / MAX_CLUSTER_POINTS) === 0),
-  })), [spatialClusters])
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6">
