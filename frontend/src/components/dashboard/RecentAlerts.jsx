@@ -26,8 +26,14 @@ export default function RecentAlerts() {
   }
 
   useEffect(() => {
-    getAlerts({ limit: 5 })
-      .then((res) => setAlerts(res.data.data || []))
+    getAlerts({ limit: 10 })
+      .then((res) => {
+        const rawAlerts = res.data.data || []
+        const valid = rawAlerts
+          .filter((a) => !a.relatedInspection || a.relatedInspection?._id || a.relatedInspection?.title)
+          .slice(0, 5)
+        setAlerts(valid)
+      })
       .catch(console.error)
   }, [])
 

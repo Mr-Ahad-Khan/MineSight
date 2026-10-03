@@ -24,6 +24,8 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
 
   const totalMines = await Mine.countDocuments(mineQuery);
 
+  const totalInspections = await Inspection.countDocuments(mineFilter);
+
   const openInspections = await Inspection.countDocuments({
     ...mineFilter,
     status: { $in: ['open', 'in_progress'] },
@@ -40,6 +42,26 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
     dueDate: { $lt: new Date() },
     status: { $in: ['pending', 'non_compliant'] },
   });
+
+  // Clean up any orphaned alerts whose referenced inspection was deleted
+  const inspectionAlerts = await Alert.find({
+    relatedInspection: { $exists: true, $ne: null },
+  }).select('_id relatedInspection');
+  if (inspectionAlerts.length > 0) {
+    const existingInspections = new Set(
+      (
+        await Inspection.find({
+          _id: { $in: inspectionAlerts.map((a) => a.relatedInspection) },
+        }).select('_id')
+      ).map((i) => String(i._id))
+    );
+    const orphanedIds = inspectionAlerts
+      .filter((a) => !existingInspections.has(String(a.relatedInspection)))
+      .map((a) => a._id);
+    if (orphanedIds.length > 0) {
+      await Alert.deleteMany({ _id: { $in: orphanedIds } });
+    }
+  }
 
   const unreadAlerts = await Alert.countDocuments({
     ...(req.user.role === 'mine_official' ? { assignedTo: req.user._id } : {}),
@@ -68,6 +90,7 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
     success: true,
     data: {
       totalMines,
+      totalInspections,
       openInspections,
       criticalInspections,
       overdueCompliances,

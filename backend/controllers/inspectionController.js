@@ -387,6 +387,7 @@ const deleteInspection = asyncHandler(async (req, res) => {
   }
 
   const oldValue = toAuditSnapshot(inspection);
+  await Alert.deleteMany({ relatedInspection: inspection._id });
   await inspection.deleteOne();
   await appendAuditBlock({
     userId: req.user._id,

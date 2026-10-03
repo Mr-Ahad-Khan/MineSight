@@ -648,8 +648,9 @@ export default function Dashboard() {
 
           <StatCard
             title={t.totalMines}
-            value={datasetMineCount ?? summary?.totalMines ?? 0}
-            subtitle={datasetMineCount === null ? 'Project database count' : 'Historical directory records; includes quarries'}
+            value={summary?.totalMines ?? 0}
+            subtitle={`${summary?.totalMines ?? 0} active managed mines`}
+            secondary={datasetMineCount ? `${datasetMineCount} geological dataset records` : null}
             icon={Building2}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
@@ -661,7 +662,7 @@ export default function Dashboard() {
             title={t.openInspections}
             value={openInspections}
             subtitle={`${summary?.criticalInspections || 0} ${t.critical}`}
-            secondary={`Updated inspections: ${openInspections + 1}`}
+            secondary={summary?.totalInspections ? `${summary.totalInspections} total logged` : null}
             icon={ClipboardList}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
