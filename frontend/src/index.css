@@ -440,6 +440,10 @@
     @apply block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5;
   }
 
+  .hindi-copy {
+    font-family: "Noto Sans Devanagari", sans-serif;
+  }
+
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }

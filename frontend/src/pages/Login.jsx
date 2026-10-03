@@ -148,12 +148,12 @@ export default function Login() {
 
           <div className="grid max-w-[570px] grid-cols-4 gap-3 pb-1 sm:gap-6">
             {[
-              [ShieldCheck, "Enhanced", "Safety"],
-              [BarChart3, "Real-Time", "Monitoring"],
-              [Leaf, "Efficient", "Resource Use"],
-              [Users, "Better", "Collaboration"],
+              [ShieldCheck, language === "hi" ? "बेहतर" : "Enhanced", language === "hi" ? "सुरक्षा" : "Safety"],
+              [BarChart3, language === "hi" ? "रियल-टाइम" : "Real-Time", language === "hi" ? "निगरानी" : "Monitoring"],
+              [Leaf, language === "hi" ? "कुशल" : "Efficient", language === "hi" ? "संसाधन उपयोग" : "Resource Use"],
+              [Users, language === "hi" ? "बेहतर" : "Better", language === "hi" ? "सहयोग" : "Collaboration"],
             ].map(([Icon, title, subtitle]) => (
-              <div key={title} className="text-center">
+              <div key={title} className={`text-center ${language === "hi" ? "hindi-copy" : ""}`}>
                 <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full border border-amber-400 text-amber-300 sm:h-14 sm:w-14">
                   <Icon className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.5} />
                 </div>
@@ -172,13 +172,21 @@ export default function Login() {
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
           <div className="w-full max-w-md">
-            <Link
-              to="/"
-              className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-primary-700 dark:text-slate-300 dark:hover:text-primary-300"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {t.backToLanding}
-            </Link>
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <Link
+                  to="/"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 transition hover:text-primary-700 dark:text-slate-300 dark:hover:text-primary-300"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  {t.backToLanding}
+                </Link>
+                <Link
+                  to="/register"
+                  className="shrink-0 text-sm font-bold text-primary-700 underline decoration-primary-300 underline-offset-4 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200"
+                >
+                  {t.signUp}
+                </Link>
+              </div>
             <div className="card p-5 sm:p-8">
               <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
                 {t.welcomeBack}

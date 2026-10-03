@@ -170,16 +170,16 @@ export default function Register() {
 
           <div className="space-y-4">
             {[
-              "Create secure operational access",
-              "Track regulatory deadlines in real time",
-              "Coordinate mine teams from one platform",
+              language === "hi" ? "सुरक्षित परिचालन एक्सेस बनाएं" : "Create secure operational access",
+              language === "hi" ? "नियामक समय-सीमा रियल टाइम में ट्रैक करें" : "Track regulatory deadlines in real time",
+              language === "hi" ? "एक प्लेटफ़ॉर्म से खदान टीमों का समन्वय करें" : "Coordinate mine teams from one platform",
             ].map((item) => (
               <div
                 key={item}
                 className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/20 p-3 backdrop-blur-sm"
               >
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
-                <span className="text-sm text-slate-100">{item}</span>
+                <span className={`text-sm text-slate-100 ${language === "hi" ? "hindi-copy" : ""}`}>{item}</span>
               </div>
             ))}
           </div>
@@ -190,17 +190,29 @@ export default function Register() {
         <div className="flex min-h-full items-center justify-center p-3 sm:p-6">
         <div className="w-full max-w-md">
           <div className="card p-5 sm:p-7">
-            <Link
-              to="/"
-              className="mb-5 inline-flex items-center gap-2 rounded-md text-sm font-medium text-slate-600 transition hover:text-[#0d3f6b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0d3f6b] dark:text-slate-300 dark:hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {language === "hi" ? "लैंडिंग पेज पर वापस जाएं" : "Back to landing page"}
-            </Link>
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <Link
+                  to="/"
+                  className="inline-flex items-center gap-2 rounded-md text-sm font-semibold text-slate-700 transition hover:text-[#0d3f6b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0d3f6b] dark:text-slate-300 dark:hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  {language === "hi" ? "लैंडिंग पेज पर वापस जाएं" : "Back to landing page"}
+                </Link>
+                <Link
+                  to="/login"
+                  className="shrink-0 text-sm font-bold text-primary-700 underline decoration-primary-300 underline-offset-4 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200"
+                >
+                  {language === "hi" ? "साइन इन" : "Sign in"}
+                </Link>
+              </div>
             <div className="mb-6 text-center">
-              <h2 className="text-2xl font-bold mb-1">Create account</h2>
-              <p className="text-slate-500 text-sm">
-                Register as a mine stakeholder
+                <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
+                  {language === "hi" ? "खाता बनाएं" : "Create account"}
+                </h2>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                  {language === "hi"
+                    ? "खदान हितधारक के रूप में पंजीकरण करें"
+                    : "Register as a mine stakeholder"}
               </p>
             </div>
 
@@ -402,13 +414,13 @@ export default function Register() {
               </button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-slate-500">
-              Already have an account?{" "}
+            <div className="mt-6 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
+              {language === "hi" ? "क्या आपका खाता पहले से है?" : "Already have an account?"}{" "}
               <Link
                 to="/login"
                 className="font-semibold text-primary-700 hover:text-primary-800"
               >
-                Sign in
+                {language === "hi" ? "साइन इन" : "Sign in"}
               </Link>
             </div>
           </div>
