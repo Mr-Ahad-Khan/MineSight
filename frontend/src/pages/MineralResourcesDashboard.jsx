@@ -15,7 +15,7 @@ import {
   YAxis,
   ZAxis,
 } from "recharts";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Search, X } from "lucide-react";
 import {
   getMineralResourceRecords,
   getMineralResourceSummary,
@@ -77,6 +77,7 @@ export default function MineralResourcesDashboard() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+  const [searchTrigger, setSearchTrigger] = useState(0);
   const [pagination, setPagination] = useState({
     page: 1,
     totalRecords: 0,
@@ -96,6 +97,25 @@ export default function MineralResourcesDashboard() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  // Smooth debounced search as user types
+  useEffect(() => {
+    const trimmed = searchInput.trim();
+    if (!trimmed) {
+      if (search !== "") {
+        setPage(1);
+        setSearch("");
+      }
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setPage(1);
+      setSearch(trimmed);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     const requestId = ++recordsRequestId.current;
@@ -120,7 +140,7 @@ export default function MineralResourcesDashboard() {
       .finally(() => {
         if (requestId === recordsRequestId.current) setRecordsLoading(false);
       });
-  }, [page, search]);
+  }, [page, search, searchTrigger]);
 
   const spatialClusters = summary?.spatialClusters || [];
   const chartClusters = useMemo(
@@ -462,30 +482,67 @@ export default function MineralResourcesDashboard() {
             </p>
           </div>
           <form
-            className="flex w-full gap-2 sm:max-w-md"
+            className="flex w-full items-center gap-2 sm:max-w-md"
             onSubmit={(event) => {
               event.preventDefault();
               setPage(1);
               setSearch(searchInput.trim());
+              setSearchTrigger((prev) => prev + 1);
             }}
           >
             <label className="sr-only" htmlFor="mineral-resource-search">
               {t.searchDatasetRecords}
             </label>
-            <input
-              id="mineral-resource-search"
-              type="search"
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder={t.searchAnyField}
-              className="input-field min-w-0 flex-1"
-            />
+            <div className="relative flex-1 min-w-0">
+              <input
+                id="mineral-resource-search"
+                type="text"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    setPage(1);
+                    setSearch(searchInput.trim());
+                    setSearchTrigger((prev) => prev + 1);
+                  }
+                }}
+                placeholder={t.searchAnyField}
+                className="input-field w-full pr-8"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput("");
+                    setPage(1);
+                    setSearch("");
+                    setSearchTrigger((prev) => prev + 1);
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  aria-label="Clear search"
+                  title="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
             <button
               type="submit"
-              className="btn-primary inline-flex shrink-0 items-center gap-2"
+              disabled={recordsLoading}
+              className="btn-primary inline-flex shrink-0 items-center justify-center gap-2 min-w-24 transition disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <Search className="h-4 w-4" />
-              {t.search}
+              {recordsLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>{t.search}...</span>
+                </>
+              ) : (
+                <>
+                  <Search className="h-4 w-4" />
+                  <span>{t.search}</span>
+                </>
+              )}
             </button>
           </form>
         </div>

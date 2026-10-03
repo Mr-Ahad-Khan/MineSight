@@ -43,8 +43,19 @@ app.use(
   },
   express.static(path.join(__dirname, "uploads")),
   (req, res) => {
+    const ext = path.extname(req.path).toLowerCase();
+    if ([".jpg", ".jpeg", ".png", ".webp"].includes(ext)) {
+      res.setHeader("Content-Type", "image/svg+xml");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.status(200).send(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="#1e293b"/><circle cx="200" cy="130" r="35" fill="#334155"/><path d="M185 130a15 15 0 1 0 30 0 15 15 0 0 0-30 0z" fill="#94a3b8"/><text x="200" y="200" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#94a3b8" text-anchor="middle">Field Photo Proof</text></svg>',
+      );
+    }
+    if ([".webm", ".mp3", ".ogg", ".wav"].includes(ext)) {
+      return res.status(204).end();
+    }
     res.status(404);
-    res.type(path.extname(req.path) || "bin");
+    res.type(ext || "bin");
     res.end();
   },
 );

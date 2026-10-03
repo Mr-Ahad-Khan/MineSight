@@ -142,7 +142,11 @@ router.get('/records', protect, async (req, res, next) => {
     const search = String(req.query.search || '').trim().toLowerCase().slice(0, 100);
     const filteredRows = search
       ? rows.filter((row) =>
-          Object.values(row).some((value) => value.toLowerCase().includes(search)),
+          Object.values(row).some((value) =>
+            String(value ?? "")
+              .toLowerCase()
+              .includes(search),
+          ),
         )
       : rows;
     const totalRecords = filteredRows.length;
