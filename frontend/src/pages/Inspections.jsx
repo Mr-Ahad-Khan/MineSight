@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
+import { CheckCircle, Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
 import { deleteInspection, getInspections, getMediaUrl } from "../services/api";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
@@ -306,11 +306,18 @@ export default function Inspections() {
                         </td>
 
                         <td className="px-4 py-4 align-middle">
-                          <span
-                            className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${statusBadge[insp.status]}`}
-                          >
-                            {insp.status?.replace("_", " ")}
-                          </span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${statusBadge[insp.status]}`}
+                            >
+                              {insp.status?.replace("_", " ")}
+                            </span>
+                            {insp.status === "closed" && insp.photos?.length > 0 && (
+                              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-300" title="Closed with photo proof">
+                                <CheckCircle className="h-4 w-4" aria-hidden="true" /> Proof
+                              </span>
+                            )}
+                          </div>
                         </td>
 
                         <td className="px-4 py-4 align-middle text-center font-semibold text-[#1e1e1e]">

@@ -96,6 +96,15 @@ export default function MineralResourcesDashboard() {
       : cluster.sites.filter((_, index) => index % Math.ceil(cluster.sites.length / MAX_CLUSTER_POINTS) === 0),
   })), [spatialClusters])
 
+  const totalPages = Math.max(
+    1,
+    Number(pagination.totalPages) || Math.ceil(pagination.totalRecords / RECORDS_PER_PAGE),
+  )
+  const goToPage = (nextPage) => {
+    setPage(Math.min(Math.max(nextPage, 1), totalPages))
+    setExpandedRecordId(null)
+  }
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center" role="status" aria-label="Loading mineral resource data">
@@ -210,7 +219,7 @@ export default function MineralResourcesDashboard() {
         ) : (
           <>
             <ResponsiveContainer width="100%" height={350}>
-              <ScatterChart margin={{ top: 12, right: 20, bottom: 16, left: 12 }}>
+              <ScatterChart margin={{ top: 12, right: 20, bottom: 30, left: 28 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#64748b" opacity={0.65} />
                 <XAxis
                   type="number"
@@ -220,6 +229,7 @@ export default function MineralResourcesDashboard() {
                   tick={{ fontSize: 11, fill: '#64748b' }}
                   axisLine={{ stroke: '#64748b' }}
                   tickLine={{ stroke: '#64748b' }}
+                  label={{ value: 'Longitude', position: 'insideBottom', offset: -16, fill: '#94a3b8', fontSize: 12 }}
                 />
                 <YAxis
                   type="number"
@@ -230,6 +240,7 @@ export default function MineralResourcesDashboard() {
                   width={48}
                   axisLine={{ stroke: '#64748b' }}
                   tickLine={{ stroke: '#64748b' }}
+                  label={{ value: 'Latitude', angle: -90, position: 'insideLeft', offset: 8, fill: '#94a3b8', fontSize: 12 }}
                 />
                 <ZAxis range={[24, 24]} />
                 <Tooltip
@@ -375,17 +386,17 @@ export default function MineralResourcesDashboard() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              onClick={() => goToPage(page - 1)}
               disabled={page <= 1 || recordsLoading}
               className="inline-flex h-9 items-center gap-1 border border-slate-300 px-3 text-sm disabled:opacity-40 dark:border-slate-600"
             >
               <ChevronLeft className="h-4 w-4" /> {t.previous}
             </button>
-            <span className="min-w-20 text-center text-sm text-slate-500">{t.page} {page} {t.of} {pagination.totalPages || 1}</span>
+            <span className="min-w-20 text-center text-sm text-slate-500">{t.page} {page} {t.of} {totalPages}</span>
             <button
               type="button"
-              onClick={() => setPage((current) => current + 1)}
-              disabled={page >= pagination.totalPages || recordsLoading}
+              onClick={() => goToPage(page + 1)}
+              disabled={page >= totalPages || recordsLoading}
               className="inline-flex h-9 items-center gap-1 border border-slate-300 px-3 text-sm disabled:opacity-40 dark:border-slate-600"
             >
               {t.next} <ChevronRight className="h-4 w-4" />
