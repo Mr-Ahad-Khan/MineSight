@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
+const fs = require("fs");
 const connectDB = require("./config/db");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 
@@ -82,18 +83,47 @@ app.use(
   }),
   (req, res) => {
     const ext = path.extname(req.path).toLowerCase();
+    const uploadsDir = path.resolve(__dirname, "uploads");
+
     if ([".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif"].includes(ext)) {
+      const samplePhotos = [
+        "1788339049065-948572503.png",
+        "1788340588676-416601542.jpg",
+        "1788341941587-885111561.png",
+        "1790759559740-286695004.png",
+      ];
+      for (const sample of samplePhotos) {
+        const fullPath = path.resolve(uploadsDir, sample);
+        if (fs.existsSync(fullPath)) {
+          res.setHeader("Cache-Control", "public, max-age=3600");
+          return res.sendFile(fullPath);
+        }
+      }
       res.setHeader("Content-Type", "image/svg+xml");
       res.setHeader("Cache-Control", "public, max-age=3600");
       return res.status(200).send(fallbackImageSvg);
     }
+
     if ([".webm", ".mp3", ".ogg", ".wav", ".m4a"].includes(ext)) {
+      const sampleAudios = [
+        "1788340588673-563855976.webm",
+        "1788337678980-551669363.webm",
+        "1788338050844-724192271.webm",
+      ];
+      for (const sample of sampleAudios) {
+        const fullPath = path.resolve(uploadsDir, sample);
+        if (fs.existsSync(fullPath)) {
+          res.setHeader("Cache-Control", "public, max-age=3600");
+          return res.sendFile(fullPath);
+        }
+      }
       res.setHeader("Content-Type", "audio/wav");
       res.setHeader("Content-Length", silentWavBuffer.length);
       res.setHeader("Accept-Ranges", "bytes");
       res.setHeader("Cache-Control", "public, max-age=3600");
       return res.status(200).send(silentWavBuffer);
     }
+
     res.status(404).json({
       success: false,
       message: "Uploaded file not found",
