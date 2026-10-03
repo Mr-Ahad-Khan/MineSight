@@ -146,6 +146,7 @@ export default function InspectionDetail() {
     : null;
 
   const audioUrl = getMediaUrl(inspection.audio);
+  const hasProof = inspection.photos?.length > 0;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -368,9 +369,18 @@ export default function InspectionDetail() {
               </>
             )}
             {inspection.status === "closed" && (
-              <p className="text-sm text-emerald-600 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" /> {t.inspectionClosed}
-              </p>
+              <div className="space-y-2 text-sm">
+                <p className="flex items-center gap-2 text-emerald-600">
+                  <CheckCircle className="h-4 w-4" /> {t.inspectionClosed}
+                </p>
+                {hasProof ? (
+                  <p className="flex items-center gap-2 font-medium text-emerald-700 dark:text-emerald-300">
+                    <ShieldCheck className="h-4 w-4" /> Proof verified
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-500">No photo proof attached</p>
+                )}
+              </div>
             )}
 
             <button

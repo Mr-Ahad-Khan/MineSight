@@ -191,9 +191,11 @@ export default function MineralResourcesDashboard() {
       </div>
 
       <section className="border-t-2 border-blue-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
-        <div className="mb-4">
-          <h2 className="font-semibold">{t.geographicClusters}</h2>
-          <p className="mt-1 text-sm text-slate-500">{t.geographicClustersDescription}</p>
+        <div className="mb-4 space-y-1">
+          <h2 className="font-semibold">Machine learning: geographic site clusters</h2>
+          <p className="text-sm text-slate-500">
+            K-means groups facilities by longitude and latitude into five geographic clusters. This shows location patterns, not mine safety or risk.
+          </p>
         </div>
         {spatialClusters.length === 0 ? (
           <p className="text-sm text-slate-400">{t.noCoordinateClusters}</p>
