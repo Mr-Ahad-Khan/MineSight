@@ -988,7 +988,7 @@ export default function HomePage() {
 
       {/* Header */}
       <header
-        className={`fixed inset-x-0 top-0 z-40 border-b backdrop-blur-2xl ${darkMode ? "border-[#61543b] bg-[#151719]/95" : "border-[#c9b69d] bg-[#f3eadb]/95"}`}
+        className={`fixed inset-x-0 top-[var(--status-banner-height,0px)] z-40 border-b backdrop-blur-2xl ${darkMode ? "border-[#61543b] bg-[#151719]/95" : "border-[#c9b69d] bg-[#f3eadb]/95"}`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-2 py-1.5 sm:gap-4 sm:px-6 sm:py-2.5 lg:px-8">
           <div
@@ -1073,7 +1073,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="pt-[54px] sm:pt-[68px]">
+      <main className="pt-[calc(54px+var(--status-banner-height,0px))] sm:pt-[calc(68px+var(--status-banner-height,0px))]">
         {/* Hero Section */}
         <section className="relative overflow-hidden border-b border-[#3b3b3b] bg-[#0c0f11]">
           <div
