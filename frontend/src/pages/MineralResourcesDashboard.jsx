@@ -125,8 +125,18 @@ export default function MineralResourcesDashboard() {
     getMineralResourceRecords({ page, limit: RECORDS_PER_PAGE, search })
       .then((response) => {
         if (requestId !== recordsRequestId.current) return;
-        setRecords(response.data.data.records || []);
-        setPagination(response.data.data.pagination);
+        const resData = response?.data?.data || {};
+        const recordsList = resData.records || [];
+        const pag = resData.pagination || {
+          page: resData.page || page,
+          limit: RECORDS_PER_PAGE,
+          totalRecords: resData.totalRecords ?? resData.total ?? recordsList.length,
+          totalPages:
+            resData.totalPages ||
+            Math.max(1, Math.ceil((resData.total || recordsList.length) / RECORDS_PER_PAGE)),
+        };
+        setRecords(recordsList);
+        setPagination(pag);
         setExpandedRecordId(null);
       })
       .catch((requestError) => {
@@ -148,22 +158,24 @@ export default function MineralResourcesDashboard() {
       spatialClusters.map((cluster) => ({
         ...cluster,
         sites:
-          cluster.sites.length <= MAX_CLUSTER_POINTS
-            ? cluster.sites
-            : cluster.sites.filter(
+          (cluster.sites || []).length <= MAX_CLUSTER_POINTS
+            ? cluster.sites || []
+            : (cluster.sites || []).filter(
                 (_, index) =>
                   index %
-                    Math.ceil(cluster.sites.length / MAX_CLUSTER_POINTS) ===
+                    Math.ceil((cluster.sites || []).length / MAX_CLUSTER_POINTS) ===
                   0,
               ),
       })),
     [spatialClusters],
   );
 
+  const totalRecordsCount = pagination?.totalRecords ?? 0;
   const totalPages = Math.max(
     1,
-    Number(pagination.totalPages) ||
-      Math.ceil(pagination.totalRecords / RECORDS_PER_PAGE),
+    Number(pagination?.totalPages) ||
+      Math.ceil(totalRecordsCount / RECORDS_PER_PAGE) ||
+      1,
   );
   const goToPage = (pageChange) => {
     setPage((currentPage) => {
@@ -645,9 +657,9 @@ export default function MineralResourcesDashboard() {
 
         <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-slate-500">
-            {pagination.totalRecords === 0
+            {totalRecordsCount === 0
               ? t.noRecords
-              : `${t.showingRecords} ${(page - 1) * RECORDS_PER_PAGE + 1}-${Math.min(page * RECORDS_PER_PAGE, pagination.totalRecords)} ${t.of} ${pagination.totalRecords.toLocaleString()} ${t.records}`}
+              : `${t.showingRecords} ${(page - 1) * RECORDS_PER_PAGE + 1}-${Math.min(page * RECORDS_PER_PAGE, totalRecordsCount)} ${t.of} ${totalRecordsCount.toLocaleString()} ${t.records}`}
           </p>
           <div className="flex items-center gap-2">
             <button

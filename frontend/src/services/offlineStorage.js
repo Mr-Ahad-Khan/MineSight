@@ -851,18 +851,46 @@ export const offlineStorage = {
     };
   },
 
+  async saveMineralResourceSummary(summary) {
+    if (!summary) return;
+    setLocalStorage("mineral_summary", summary);
+  },
+
+  async saveMineralResourceRecords(records) {
+    if (!Array.isArray(records) || records.length === 0) return;
+    setLocalStorage("mineral_records", records);
+  },
+
   async getMineralResourceSummary() {
+    const cached = getLocalStorage("mineral_summary");
+    if (cached && (cached.spatialClusters || cached.states || cached.industryClasses)) {
+      return cached;
+    }
+
     return {
+      totalRecords: 12480,
       totalSites: 12480,
       activeMines: 3820,
       explorationProjects: 5120,
       developedDeposits: 3540,
-      commodityBreakdown: [
-        { name: "Coal & Lignite", count: 4850, percentage: 38.8 },
-        { name: "Iron Ore", count: 2890, percentage: 23.1 },
-        { name: "Bauxite", count: 1820, percentage: 14.5 },
-        { name: "Manganese", count: 1450, percentage: 11.6 },
-        { name: "Copper & Base Metals", count: 1470, percentage: 11.8 },
+      columns: [
+        "FID",
+        "NAME",
+        "CITY",
+        "STATE",
+        "COUNTY",
+        "NAICSDESCR",
+        "MINE_TYPE",
+        "COMMODITY",
+        "LATITUDE",
+        "LONGITUDE",
+      ],
+      states: [
+        { state: "Madhya Pradesh", count: 3200 },
+        { state: "Chhattisgarh", count: 2950 },
+        { state: "Jharkhand", count: 2840 },
+        { state: "Odisha", count: 2100 },
+        { state: "West Bengal", count: 1390 },
       ],
       stateDistribution: [
         { state: "Madhya Pradesh", count: 3200 },
@@ -871,14 +899,90 @@ export const offlineStorage = {
         { state: "Odisha", count: 2100 },
         { state: "West Bengal", count: 1390 },
       ],
+      industryClasses: [
+        { name: "Bituminous Coal Underground Mining", count: 4850 },
+        { name: "Coal Mining Operations", count: 2890 },
+        { name: "Iron Ore Mining", count: 2100 },
+        { name: "Bauxite Mining", count: 1820 },
+        { name: "Manganese Ore Mining", count: 1450 },
+        { name: "Copper Ore and Nickel Ore Mining", count: 1470 },
+      ],
+      commodityBreakdown: [
+        { name: "Coal & Lignite", count: 4850, percentage: 38.8 },
+        { name: "Iron Ore", count: 2890, percentage: 23.1 },
+        { name: "Bauxite", count: 1820, percentage: 14.5 },
+        { name: "Manganese", count: 1450, percentage: 11.6 },
+        { name: "Copper & Base Metals", count: 1470, percentage: 11.8 },
+      ],
+      spatialClusters: [
+        {
+          id: 1,
+          siteCount: 42,
+          center: { latitude: 24.12, longitude: 82.45 },
+          dominantState: "Madhya Pradesh",
+          dominantIndustry: "Bituminous Coal Underground Mining",
+          sites: [
+            { latitude: 24.12, longitude: 82.45, state: "Madhya Pradesh", industry: "Bituminous Coal Underground Mining" },
+            { latitude: 24.08, longitude: 82.52, state: "Madhya Pradesh", industry: "Bituminous Coal" },
+            { latitude: 24.02, longitude: 82.59, state: "Madhya Pradesh", industry: "Coal Extraction" },
+            { latitude: 24.14, longitude: 82.66, state: "Madhya Pradesh", industry: "Surface Mining" },
+          ],
+        },
+        {
+          id: 2,
+          siteCount: 38,
+          center: { latitude: 22.35, longitude: 82.68 },
+          dominantState: "Chhattisgarh",
+          dominantIndustry: "Coal Mining Operations",
+          sites: [
+            { latitude: 22.35, longitude: 82.68, state: "Chhattisgarh", industry: "Coal Mining Operations" },
+            { latitude: 22.35, longitude: 82.56, state: "Chhattisgarh", industry: "High Capacity Open Cast Coal" },
+            { latitude: 22.30, longitude: 82.52, state: "Chhattisgarh", industry: "Coal Extraction" },
+          ],
+        },
+        {
+          id: 3,
+          siteCount: 31,
+          center: { latitude: 23.79, longitude: 86.43 },
+          dominantState: "Jharkhand",
+          dominantIndustry: "Bituminous Coal Underground Mining",
+          sites: [
+            { latitude: 23.79, longitude: 86.43, state: "Jharkhand", industry: "Bituminous Coal Underground Mining" },
+            { latitude: 23.75, longitude: 86.35, state: "Jharkhand", industry: "Underground Mining" },
+          ],
+        },
+        {
+          id: 4,
+          siteCount: 26,
+          center: { latitude: 21.82, longitude: 84.85 },
+          dominantState: "Odisha",
+          dominantIndustry: "Iron Ore Mining",
+          sites: [
+            { latitude: 21.82, longitude: 84.85, state: "Odisha", industry: "Iron Ore Mining" },
+            { latitude: 21.95, longitude: 85.10, state: "Odisha", industry: "Iron Ore Mining" },
+          ],
+        },
+        {
+          id: 5,
+          siteCount: 19,
+          center: { latitude: 23.68, longitude: 87.05 },
+          dominantState: "West Bengal",
+          dominantIndustry: "Coal Mining Operations",
+          sites: [
+            { latitude: 23.68, longitude: 87.05, state: "West Bengal", industry: "Coal Mining Operations" },
+            { latitude: 23.72, longitude: 87.15, state: "West Bengal", industry: "Coal Mining Operations" },
+          ],
+        },
+      ],
     };
   },
 
   async getMineralResourceRecords(params = {}) {
-    const summary = await this.getMineralResourceSummary();
-    const records = [
+    const cachedRecords = getLocalStorage("mineral_records");
+    const defaultRecords = [
       {
         _id: "res_001",
+        FID: "1",
         NAME: "Jayant Singrauli Seam",
         CITY: "Singrauli",
         STATE: "Madhya Pradesh",
@@ -891,6 +995,7 @@ export const offlineStorage = {
       },
       {
         _id: "res_002",
+        FID: "2",
         NAME: "Kusmunda Dip Seam",
         CITY: "Korba",
         STATE: "Chhattisgarh",
@@ -903,6 +1008,7 @@ export const offlineStorage = {
       },
       {
         _id: "res_003",
+        FID: "3",
         NAME: "Gevra Mega Pit",
         CITY: "Korba",
         STATE: "Chhattisgarh",
@@ -915,6 +1021,7 @@ export const offlineStorage = {
       },
       {
         _id: "res_004",
+        FID: "4",
         NAME: "Amlohri Deep Seam Project",
         CITY: "Singrauli",
         STATE: "Madhya Pradesh",
@@ -927,6 +1034,7 @@ export const offlineStorage = {
       },
       {
         _id: "res_005",
+        FID: "5",
         NAME: "Nigahi Pit Reserve",
         CITY: "Singrauli",
         STATE: "Madhya Pradesh",
@@ -937,13 +1045,63 @@ export const offlineStorage = {
         LATITUDE: 24.02,
         LONGITUDE: 82.59,
       },
+      {
+        _id: "res_006",
+        FID: "6",
+        NAME: "Dudhichua Boundary Mine",
+        CITY: "Singrauli",
+        STATE: "Madhya Pradesh",
+        COUNTY: "Singrauli",
+        NAICSDESCR: "Bituminous Coal",
+        MINE_TYPE: "Open Cast",
+        COMMODITY: "Coal",
+        LATITUDE: 24.14,
+        LONGITUDE: 82.66,
+      },
+      {
+        _id: "res_007",
+        FID: "7",
+        NAME: "Dipka Expansion Pit",
+        CITY: "Korba",
+        STATE: "Chhattisgarh",
+        COUNTY: "Korba",
+        NAICSDESCR: "High Capacity Open Cast Coal",
+        MINE_TYPE: "Open Cast",
+        COMMODITY: "Coal",
+        LATITUDE: 22.30,
+        LONGITUDE: 82.52,
+      },
     ];
 
+    const allRecords = Array.isArray(cachedRecords) && cachedRecords.length > 0 ? cachedRecords : defaultRecords;
+
+    const search = String(params.search || "").trim().toLowerCase();
+    const filtered = search
+      ? allRecords.filter((record) =>
+          Object.values(record).some((val) =>
+            String(val ?? "").toLowerCase().includes(search)
+          )
+        )
+      : allRecords;
+
+    const page = Math.max(1, Number.parseInt(params.page, 10) || 1);
+    const limit = Math.max(1, Number.parseInt(params.limit, 10) || 25);
+    const totalRecords = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalRecords / limit));
+    const records = filtered.slice((page - 1) * limit, page * limit);
+    const columns = Object.keys(allRecords[0] || {});
+
     return {
+      columns,
       records,
-      total: records.length,
-      page: params.page || 1,
-      totalPages: 1,
+      pagination: {
+        page,
+        limit,
+        totalRecords,
+        totalPages,
+      },
+      total: totalRecords,
+      totalPages,
     };
   },
 };

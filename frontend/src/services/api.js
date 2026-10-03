@@ -557,7 +557,11 @@ export const getMineralResourceSummary = async () => {
   }
 
   try {
-    return await api.get("/mineral-resources");
+    const res = await api.get("/mineral-resources");
+    if (res.data?.data) {
+      offlineStorage.saveMineralResourceSummary(res.data.data).catch(() => {});
+    }
+    return res;
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
       const local = await offlineStorage.getMineralResourceSummary();
@@ -574,7 +578,11 @@ export const getMineralResourceRecords = async (params) => {
   }
 
   try {
-    return await api.get("/mineral-resources/records", { params });
+    const res = await api.get("/mineral-resources/records", { params });
+    if (res.data?.data?.records) {
+      offlineStorage.saveMineralResourceRecords(res.data.data.records).catch(() => {});
+    }
+    return res;
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
       const local = await offlineStorage.getMineralResourceRecords(params);

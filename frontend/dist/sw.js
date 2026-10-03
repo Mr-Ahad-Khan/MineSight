@@ -1,18 +1,22 @@
-const SHELL_CACHE = 'minesight-shell-v' + 1791048763992;
+const SHELL_CACHE = 'minesight-shell-v' + 1791052084035;
 const TILE_CACHE = 'minesight-tiles-v1';
 const FONT_CACHE = 'minesight-fonts-v1';
 const RUNTIME_CACHE = 'minesight-runtime-v1';
-const PRECACHE_URLS = ["/index.html","/manifest.webmanifest","/minesight-icon.svg","/minesight-logo.svg","/coal-miners.webp","/assets/index-CGy3U-ak.css","/assets/leafletAssets-Dgihpmma.css","/assets/index-ACkQAFNn.js","/assets/Layout-Cu5VY2ma.js","/assets/HomePage-C8ouFcjt.js","/assets/sun-CgIFoMhj.js","/assets/Login-ClxYbeYx.js","/assets/languages-TrnlfMfp.js","/assets/Register-CEFOcJeS.js","/assets/ReCAPTCHA-D7QzvO2y.js","/assets/BrandLogo-CwTQoCRt.js","/assets/Dashboard-CMTrGexN.js","/assets/clipboard-list-BmZssahS.js","/assets/building-2-h4_6yoo7.js","/assets/Inspections-CerVz5tH.js","/assets/CreateInspection-R_mwVm-G.js","/assets/InspectionDetail-CjjNIq_w.js","/assets/circle-check-big-jKt0kB_Z.js","/assets/imageCompressor-BM9WU0sQ.js","/assets/zoom-out-ChJMJo1P.js","/assets/Compliances-CV53HI-0.js","/assets/Mines-CkHlimh2.js","/assets/hooks-x5dOdNKs.js","/assets/leafletAssets-BVJ86T0Y.js","/assets/MineralResourcesDashboard-yg9Np5eN.js","/assets/loader-circle-FvIenEGC.js","/assets/Contractors-DTOahBOp.js","/assets/Alerts-7AYRQyMb.js","/assets/hi-BiADQGDV.js","/assets/Analytics-D2Juuruv.js","/assets/PieChart-DWH8nbz2.js","/assets/Chat-BNnZ_SHI.js","/assets/bot-Cc2CD_nL.js","/assets/volume-x-C3gkCjlf.js","/assets/mic-D9Q9Tlzu.js","/assets/shield-check-D5GXHNnV.js","/assets/chevron-right-KTdISwLZ.js","/assets/Profile-BRtyZ0Lq.js","/assets/circle-user-Bg1OgfyL.js","/assets/camera-24qwNV8y.js","/assets/arrow-left-CCOkeijW.js","/assets/Workers-DewtCvvE.js","/assets/users-COHTj2ph.js","/assets/bell-hZEq8-oQ.js","/assets/save-D9ap0-mE.js","/assets/Attendance-DDtqYspD.js","/assets/log-out-ClPPDAup.js","/assets/shield-BMmy-d_m.js","/assets/user-check-uSzMqZxo.js","/assets/search-B7P-Nx_e.js","/assets/x-CJF3tN8J.js","/assets/map-pin-BLZlJo7N.js","/assets/TableScrollContainer-e1OfZoax.js","/assets/arrow-right-Qx6I8b22.js","/assets/Support-B1dHEiTW.js","/assets/chevron-down-aX7DjKwH.js","/assets/send-B4kCU9dC.js","/assets/format-B1Lg2MPm.js","/assets/en-US-BnG8yBpZ.js","/assets/DisasterManagement-DqCSQ9Us.js","/assets/siren-Cu7OSTJP.js","/assets/shield-alert-CdI10UA7.js","/assets/clipboard-check-0YhxWxxL.js","/assets/circle-check-CaOEbN2K.js","/assets/radio-CAN63Kcw.js","/assets/octagon-alert-DBxfRIA6.js","/assets/life-buoy-BFL5tXeq.js","/assets/phone-call-BAkkKgeH.js","/assets/plus-De9C7dAx.js","/assets/translations-Bkk7MiZ9.js","/assets/web-CA1q-S0O.js","/assets/html2canvas.esm-DXEQVQnt.js","/assets/purify.es-BPuvlvQ_.js","/assets/index.es-Dc2mb2Yk.js"];
+const PRECACHE_URLS = ["/","/index.html","/manifest.webmanifest","/minesight-icon.svg","/minesight-logo.svg","/minesight-logo-light.svg","/coal-miners.webp","/assets/index-CGy3U-ak.css","/assets/leafletAssets-Dgihpmma.css","/assets/index-BV4rZ2WT.js","/assets/Layout-D5e7fr78.js","/assets/HomePage-CzT1eba3.js","/assets/sun-Z-eTOuyb.js","/assets/Login-B_E3Gsyw.js","/assets/languages-Dt60Gf50.js","/assets/Register-C7p9x79m.js","/assets/ReCAPTCHA-C6LnAJDz.js","/assets/BrandLogo-DFeuRpxg.js","/assets/Dashboard-CIp6uWrK.js","/assets/clipboard-list-DQ-PCZ_y.js","/assets/building-2-iEVhdUOV.js","/assets/Inspections-DpHDHSyE.js","/assets/CreateInspection-BzZY4JUJ.js","/assets/InspectionDetail-CEmd3y71.js","/assets/circle-check-big-D9AbhNrB.js","/assets/imageCompressor-DiSV7soG.js","/assets/zoom-out-D05PEqu6.js","/assets/Compliances-BC5sCcQJ.js","/assets/Mines-D8IIpOcO.js","/assets/hooks-BAMBQaT3.js","/assets/leafletAssets-jHpTTICt.js","/assets/MineralResourcesDashboard-D1iafhN5.js","/assets/loader-circle-DwIwK4Wj.js","/assets/Contractors-Dr6R0Iuc.js","/assets/Alerts-Ck7m_ZWj.js","/assets/hi-BiADQGDV.js","/assets/Analytics-DBjLVVTq.js","/assets/PieChart-C9K5ZI84.js","/assets/Chat-DFfCLj2m.js","/assets/bot-BM5LkkDl.js","/assets/volume-x-BkGSdYEO.js","/assets/mic-rA3zBDeL.js","/assets/shield-check-D2HBSONr.js","/assets/chevron-right-CYxNAdxm.js","/assets/Profile-Cj9-f02w.js","/assets/circle-user-CfHf4tuh.js","/assets/camera-D11rOIYx.js","/assets/arrow-left-CG9xtisy.js","/assets/Workers-DeaZhmz2.js","/assets/users-DWE_qmx3.js","/assets/bell-DwKP8EiC.js","/assets/save-u9wVMVQI.js","/assets/Attendance-Dfgm37Y0.js","/assets/log-out-Turrl-jX.js","/assets/shield-PG6cte3p.js","/assets/user-check-slgd4j7O.js","/assets/search-CD3xPooO.js","/assets/x-BqSvoUwi.js","/assets/map-pin-HQKAegND.js","/assets/TableScrollContainer-GXOF9lh-.js","/assets/arrow-right-QRz6LN1m.js","/assets/Support-BgeRI9Ea.js","/assets/chevron-down-Dy49IStl.js","/assets/send-Q9nUqLE_.js","/assets/format-B1Lg2MPm.js","/assets/en-US-BnG8yBpZ.js","/assets/DisasterManagement-DHCyIwcA.js","/assets/siren-D8R4O_JE.js","/assets/shield-alert-DdWp9FBJ.js","/assets/clipboard-check-DHw6LWZC.js","/assets/circle-check-BEF2zCsJ.js","/assets/radio-gIrWl4Ul.js","/assets/octagon-alert-DxoxMBAm.js","/assets/life-buoy-CGzOEEhO.js","/assets/phone-call-BJCIv-y9.js","/assets/plus-B0iXdZE-.js","/assets/translations-Bkk7MiZ9.js","/assets/web-C24bMpUJ.js","/assets/html2canvas.esm-DXEQVQnt.js","/assets/purify.es-BPuvlvQ_.js","/assets/index.es-CJWED-Qv.js"];
 
 const FALLBACK_TILE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><rect width="256" height="256" fill="#e9ecef" stroke="#ced4da" stroke-width="0.5"/><path d="M 0,64 L 256,64 M 0,128 L 256,128 M 0,192 L 256,192 M 64,0 L 64,256 M 128,0 L 128,256 M 192,0 L 192,256" stroke="#dee2e6" stroke-width="0.5"/><text x="128" y="132" font-family="sans-serif" font-size="10" fill="#adb5bd" text-anchor="middle">MineSight Offline Grid</text></svg>';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE).then(async (cache) => {
-      const results = await Promise.allSettled(
-        PRECACHE_URLS.map((url) => cache.add(url).catch(() => null)),
+      await Promise.allSettled(
+        PRECACHE_URLS.map(async (url) => {
+          try {
+            const res = await fetch(url, { cache: 'no-cache' });
+            if (res && res.ok) await cache.put(url, res);
+          } catch (e) {}
+        }),
       );
-      return results;
     }),
   );
   self.skipWaiting();
@@ -53,46 +57,108 @@ self.addEventListener('fetch', (event) => {
 
   if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
     event.respondWith(
-      caches.open(FONT_CACHE).then((cache) =>
-        cache.match(request).then((cached) => {
-          if (cached) return cached;
-          return fetch(request).then((res) => {
-            if (res && res.status === 200) cache.put(request, res.clone());
-            return res;
-          }).catch(() => caches.match(request));
-        })
-      )
+      (async () => {
+        const cache = await caches.open(FONT_CACHE);
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        try {
+          const res = await fetch(request);
+          if (res && res.status === 200) {
+            cache.put(request, res.clone()).catch(() => {});
+          }
+          return res;
+        } catch {
+          if (url.hostname.includes('fonts.googleapis.com')) {
+            return new Response('/* offline font fallback */', {
+              status: 200,
+              headers: { 'Content-Type': 'text/css; charset=utf-8' },
+            });
+          }
+          return new Response('', { status: 200 });
+        }
+      })()
     );
     return;
   }
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(async () => {
-        const cachedIndex = await caches.match('/index.html');
-        return cachedIndex || new Response('Offline app shell ready', {
-          status: 200,
-          headers: { 'Content-Type': 'text/html; charset=utf-8' },
-        });
-      }),
+      fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(SHELL_CACHE).then((cache) => {
+              cache.put('/index.html', clone.clone()).catch(() => {});
+              cache.put('/', clone.clone()).catch(() => {});
+              cache.put(request, clone).catch(() => {});
+            });
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cached =
+            (await caches.match(request)) ||
+            (await caches.match('/index.html')) ||
+            (await caches.match('/'));
+          if (cached) return cached;
+
+          const keys = await caches.keys();
+          for (const k of keys) {
+            const c = await caches.open(k);
+            const match = (await c.match('/index.html')) || (await c.match('/'));
+            if (match) return match;
+          }
+
+          return new Response(
+            '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>MineSight - Offline</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;color:#f8fafc;font-family:sans-serif;text-align:center;padding:20px}.card{max-width:420px;padding:32px;background:#1e293b;border-radius:12px;border:1px solid #334155}h1{margin:0 0 12px;color:#38bdf8}p{margin:0 0 20px;color:#94a3b8}button{background:#0f766e;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-weight:600}</style></head><body><div class="card"><h1>MineSight Offline</h1><p>You are currently offline. Please reconnect or reload once the connection is restored.</p><button onclick="window.location.reload()">Reload</button></div><script>window.addEventListener("online",()=>window.location.reload());</script></body></html>',
+            {
+              status: 200,
+              headers: { 'Content-Type': 'text/html; charset=utf-8' },
+            }
+          );
+        })
     );
     return;
   }
 
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
-        return fetch(request)
-          .then((response) => {
-            if (response && response.ok) {
-              const responseCopy = response.clone();
-              caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, responseCopy));
-            }
-            return response;
-          })
-          .catch(() => caches.match('/index.html'));
-      }),
+      (async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+
+        try {
+          const networkResponse = await fetch(request);
+          if (networkResponse && networkResponse.ok) {
+            const copy = networkResponse.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+          }
+          return networkResponse;
+        } catch (fetchError) {
+          if (request.mode === 'navigate' || request.destination === 'document') {
+            const fallback = (await caches.match('/index.html')) || (await caches.match('/'));
+            if (fallback) return fallback;
+          }
+          if (
+            request.destination === 'image' ||
+            url.pathname.endsWith('.ico') ||
+            url.pathname.endsWith('.svg') ||
+            url.pathname.endsWith('.png') ||
+            url.pathname.endsWith('.webp')
+          ) {
+            const fallbackIcon =
+              (await caches.match('/minesight-icon.svg')) ||
+              (await caches.match('/minesight-logo.svg'));
+            if (fallbackIcon) return fallbackIcon;
+            return new Response(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="#334155"/></svg>',
+              { status: 200, headers: { 'Content-Type': 'image/svg+xml' } }
+            );
+          }
+          return new Response('', { status: 408, statusText: 'Offline Asset Unavailable' });
+        }
+      })()
     );
+    return;
   }
 });

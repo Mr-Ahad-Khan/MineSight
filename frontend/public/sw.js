@@ -93,17 +93,26 @@ self.addEventListener('fetch', (event) => {
   // 2. Google Fonts & CDNs
   if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
     event.respondWith(
-      caches.open(FONT_CACHE).then((cache) =>
-        cache.match(request).then((cached) => {
-          if (cached) return cached;
-          return fetch(request).then((res) => {
-            if (res && res.status === 200) {
-              cache.put(request, res.clone());
-            }
-            return res;
-          }).catch(() => caches.match(request));
-        })
-      )
+      (async () => {
+        const cache = await caches.open(FONT_CACHE);
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        try {
+          const res = await fetch(request);
+          if (res && res.status === 200) {
+            cache.put(request, res.clone()).catch(() => {});
+          }
+          return res;
+        } catch {
+          if (url.hostname.includes('fonts.googleapis.com')) {
+            return new Response('/* offline font fallback */', {
+              status: 200,
+              headers: { 'Content-Type': 'text/css; charset=utf-8' },
+            });
+          }
+          return new Response('', { status: 200 });
+        }
+      })()
     );
     return;
   }
@@ -111,16 +120,40 @@ self.addEventListener('fetch', (event) => {
   // 3. Navigation requests (App Shell)
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(async () => {
-        const cached = await caches.match('/index.html');
-        return (
-          cached ||
-          new Response('MineSight Offline Shell Ready', {
-            status: 200,
-            headers: { 'Content-Type': 'text/html; charset=utf-8' },
-          })
-        );
-      })
+      fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(SHELL_CACHE).then((cache) => {
+              cache.put('/index.html', clone.clone()).catch(() => {});
+              cache.put('/', clone.clone()).catch(() => {});
+              cache.put(request, clone).catch(() => {});
+            });
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cached =
+            (await caches.match(request)) ||
+            (await caches.match('/index.html')) ||
+            (await caches.match('/'));
+          if (cached) return cached;
+
+          const keys = await caches.keys();
+          for (const k of keys) {
+            const c = await caches.open(k);
+            const match = (await c.match('/index.html')) || (await c.match('/'));
+            if (match) return match;
+          }
+
+          return new Response(
+            '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>MineSight - Offline</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;color:#f8fafc;font-family:sans-serif;text-align:center;padding:20px}.card{max-width:420px;padding:32px;background:#1e293b;border-radius:12px;border:1px solid #334155}h1{margin:0 0 12px;color:#38bdf8}p{margin:0 0 20px;color:#94a3b8}button{background:#0f766e;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-weight:600}</style></head><body><div class="card"><h1>MineSight Offline</h1><p>You are currently offline. Please reconnect or reload once the connection is restored.</p><button onclick="window.location.reload()">Reload</button></div><script>window.addEventListener("online",()=>window.location.reload());</script></body></html>',
+            {
+              status: 200,
+              headers: { 'Content-Type': 'text/html; charset=utf-8' },
+            }
+          );
+        })
     );
     return;
   }
@@ -128,24 +161,42 @@ self.addEventListener('fetch', (event) => {
   // 4. Same-origin assets (JS, CSS, SVGs, WebP)
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
+      (async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
 
-        return fetch(request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              const copy = networkResponse.clone();
-              caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
-            }
-            return networkResponse;
-          })
-          .catch(async () => {
-            if (request.destination === 'image') {
-              return caches.match('/minesight-icon.svg');
-            }
-            return caches.match('/index.html');
-          });
-      })
+        try {
+          const networkResponse = await fetch(request);
+          if (networkResponse && networkResponse.ok) {
+            const copy = networkResponse.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+          }
+          return networkResponse;
+        } catch (fetchError) {
+          if (request.mode === 'navigate' || request.destination === 'document') {
+            const fallback = (await caches.match('/index.html')) || (await caches.match('/'));
+            if (fallback) return fallback;
+          }
+          if (
+            request.destination === 'image' ||
+            url.pathname.endsWith('.ico') ||
+            url.pathname.endsWith('.svg') ||
+            url.pathname.endsWith('.png') ||
+            url.pathname.endsWith('.webp')
+          ) {
+            const fallbackIcon =
+              (await caches.match('/minesight-icon.svg')) ||
+              (await caches.match('/minesight-logo.svg'));
+            if (fallbackIcon) return fallbackIcon;
+            return new Response(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="#334155"/></svg>',
+              { status: 200, headers: { 'Content-Type': 'image/svg+xml' } }
+            );
+          }
+          return new Response('', { status: 408, statusText: 'Offline Asset Unavailable' });
+        }
+      })()
     );
+    return;
   }
 });
