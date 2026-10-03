@@ -400,13 +400,17 @@
 
   .card {
     @apply relative rounded-xl border border-gray-200 bg-white shadow-md transition-shadow duration-200 dark:border-slate-800 dark:bg-slate-900;
-    transform: translateZ(0);
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .card:hover,
     .stat-card:hover {
-      transform: translateY(-2px) translateZ(0);
+      transform: translateY(-2px);
+      z-index: 10;
+      @apply shadow-card-hover;
+    }
+
+    .card:not(:has(form)):not(:has(select)):not(:has(input)):hover {
+      transform: translateY(-2px);
       z-index: 10;
       @apply shadow-card-hover;
     }

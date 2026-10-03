@@ -25,6 +25,18 @@ const errorHandler = (err, req, res, next) => {
       .join(', ');
   }
 
+  // Multer upload errors
+  if (err.name === 'MulterError') {
+    statusCode = 400;
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = 'Uploaded file is too large (maximum allowed size is 25MB)';
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      message = `Unexpected or excessive upload field: ${err.field || 'unknown'}`;
+    } else {
+      message = `Upload error: ${err.message}`;
+    }
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

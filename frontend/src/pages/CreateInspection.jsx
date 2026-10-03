@@ -13,6 +13,9 @@ import {
   X,
   ZoomIn,
   ZoomOut,
+  ChevronDown,
+  Check,
+  Search,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { createInspection, getMines } from "../services/api";
@@ -50,6 +53,9 @@ export default function CreateInspection() {
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [previewZoom, setPreviewZoom] = useState(1);
   const [isRecording, setIsRecording] = useState(false);
+  const [mineDropdownOpen, setMineDropdownOpen] = useState(false);
+  const [mineSearch, setMineSearch] = useState("");
+  const mineDropdownRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
@@ -57,6 +63,19 @@ export default function CreateInspection() {
   const adjustPreviewZoom = (amount) => {
     setPreviewZoom((current) => Math.min(4, Math.max(1, current + amount)));
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        mineDropdownRef.current &&
+        !mineDropdownRef.current.contains(event.target)
+      ) {
+        setMineDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const [form, setForm] = useState({
     mineId: "",
@@ -201,19 +220,37 @@ export default function CreateInspection() {
     }
   };
 
+  const MAX_PHOTOS = 10;
   const handlePhotoChange = (event) => {
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
 
-    const validFiles = files.slice(0, 5);
-    const previewUrls = validFiles.map((file) => URL.createObjectURL(file));
+    const remainingSlots = Math.max(0, MAX_PHOTOS - selectedPhotos.length);
+    if (remainingSlots <= 0) {
+      toast.error(`Maximum ${MAX_PHOTOS} photos allowed`);
+      event.target.value = "";
+      return;
+    }
+
+    const filesToAdd = files.slice(0, remainingSlots);
+    if (files.length > remainingSlots) {
+      toast.info(`Added ${remainingSlots} photo(s). Maximum ${MAX_PHOTOS} photos allowed.`);
+    }
+
+    const previewUrls = filesToAdd.map((file) => URL.createObjectURL(file));
     setPhotoPreviews((prev) => [...prev, ...previewUrls]);
-    setSelectedPhotos((prev) => [...prev, ...validFiles]);
+    setSelectedPhotos((prev) => [...prev, ...filesToAdd]);
     event.target.value = "";
   };
 
   const removePhoto = (index) => {
-    setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
+    setPhotoPreviews((prev) => {
+      const urlToRemove = prev[index];
+      if (urlToRemove && urlToRemove.startsWith("blob:")) {
+        URL.revokeObjectURL(urlToRemove);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
     setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -285,26 +322,119 @@ export default function CreateInspection() {
             <h2 className="font-semibold">{t.basicInformation}</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="label" htmlFor="inspection-mine">
+              <div className="relative" ref={mineDropdownRef}>
+                <label className="label" htmlFor="inspection-mine-trigger">
                   {t.mineRequired}
                 </label>
-                <select
-                  id="inspection-mine"
+                <input
+                  type="text"
                   name="mineId"
-                  autoComplete="off"
                   value={form.mineId}
-                  onChange={(e) => setForm({ ...form, mineId: e.target.value })}
-                  className="input-field"
                   required
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  className="sr-only"
+                  onChange={() => {}}
+                />
+                <button
+                  id="inspection-mine-trigger"
+                  type="button"
+                  onClick={() => setMineDropdownOpen((prev) => !prev)}
+                  className="input-field flex items-center justify-between text-left cursor-pointer"
+                  aria-haspopup="listbox"
+                  aria-expanded={mineDropdownOpen}
                 >
-                  <option value="">{t.selectMine}</option>
-                  {mines.map((m) => (
-                    <option key={m._id} value={m._id}>
-                      {m.name} ({m.code})
-                    </option>
-                  ))}
-                </select>
+                  <span className={`truncate ${selectedMine ? "font-medium text-slate-900 dark:text-slate-100" : "text-slate-400 dark:text-slate-500"}`}>
+                    {selectedMine
+                      ? `${selectedMine.name} (${selectedMine.code})`
+                      : t.selectMine}
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${mineDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {mineDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 z-30 mt-1 max-h-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+                    <div className="sticky top-0 z-10 border-b border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-slate-900">
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="text"
+                          value={mineSearch}
+                          onChange={(e) => setMineSearch(e.target.value)}
+                          placeholder="Search mine by name or code..."
+                          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:border-primary-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
+                          autoFocus
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="max-h-56 overflow-y-auto p-1 divide-y divide-slate-100 dark:divide-slate-800">
+                      {mines
+                        .filter((m) => {
+                          if (!mineSearch.trim()) return true;
+                          const q = mineSearch.toLowerCase();
+                          return (
+                            m.name?.toLowerCase().includes(q) ||
+                            m.code?.toLowerCase().includes(q) ||
+                            m.subsidiary?.toLowerCase().includes(q)
+                          );
+                        })
+                        .map((m) => {
+                          const isSelected = form.mineId === m._id;
+                          return (
+                            <button
+                              key={m._id}
+                              type="button"
+                              onClick={() => {
+                                setForm({ ...form, mineId: m._id });
+                                setMineDropdownOpen(false);
+                                setMineSearch("");
+                              }}
+                              className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors ${
+                                isSelected
+                                  ? "bg-primary-50 font-semibold text-primary-900 dark:bg-primary-950/50 dark:text-primary-200"
+                                  : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                              }`}
+                            >
+                              <div className="truncate">
+                                <span className="block truncate font-medium">
+                                  {m.name}
+                                </span>
+                                {m.subsidiary && (
+                                  <span className="block text-[11px] text-slate-400 dark:text-slate-500">
+                                    {m.subsidiary}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                  {m.code}
+                                </span>
+                                {isSelected && (
+                                  <Check className="h-3.5 w-3.5 text-primary-600 dark:text-primary-400" />
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      {mines.filter((m) => {
+                        if (!mineSearch.trim()) return true;
+                        const q = mineSearch.toLowerCase();
+                        return (
+                          m.name?.toLowerCase().includes(q) ||
+                          m.code?.toLowerCase().includes(q)
+                        );
+                      }).length === 0 && (
+                        <div className="p-3 text-center text-xs text-slate-400 dark:text-slate-500">
+                          No mines match &ldquo;{mineSearch}&rdquo;
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="label" htmlFor="inspection-type">
@@ -404,12 +534,12 @@ export default function CreateInspection() {
 
               <div>
                 <div className="label">Voice Note</div>
-                <div className="flex min-h-14 flex-wrap items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="flex min-h-14 flex-wrap items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
                   {!isRecording ? (
                     <button
                       type="button"
                       onClick={startVoiceRecording}
-                      className="inline-flex items-center gap-2 rounded-lg bg-[#0b3d91] px-3 py-2 text-sm font-medium text-white hover:bg-[#0a2f6d]"
+                      className="inline-flex items-center gap-2 rounded-lg bg-[#0b3d91] px-3 py-2 text-sm font-medium text-white hover:bg-[#0a2f6d] dark:bg-sky-600 dark:hover:bg-sky-500 shadow-sm"
                     >
                       <Mic className="h-4 w-4" />
                       Start
@@ -418,7 +548,7 @@ export default function CreateInspection() {
                     <button
                       type="button"
                       onClick={stopVoiceRecording}
-                      className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                      className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 shadow-sm animate-pulse"
                     >
                       <Square className="h-4 w-4 fill-current" />
                       Stop Recording
@@ -427,16 +557,16 @@ export default function CreateInspection() {
 
                   {audioUrl && (
                     <>
-                      <audio controls src={audioUrl} className="h-10" />
+                      <audio controls src={audioUrl} className="h-10 rounded-lg dark:bg-slate-800" />
                       <button
                         type="button"
                         onClick={() => {
                           setAudioBlob(null);
                           setAudioUrl("");
                         }}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 text-red-500" />
                         Remove
                       </button>
                     </>

@@ -248,8 +248,8 @@ export default function Inspections() {
                         <td className="px-4 py-4 align-middle">
                           <div className="flex items-center gap-3">
                             {audioUrl ? (
-                              <div className="flex items-center gap-2 rounded-full bg-[#f0f1f3] px-2 py-1 text-[10px] font-medium text-[#3a3a3a]">
-                                <Mic className="h-3 w-3 text-[#0d3f6d]" />
+                              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-[#f0f1f3] px-2.5 py-1 text-[10px] font-medium text-[#3a3a3a] shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                <Mic className="h-3.5 w-3.5 text-[#0d3f6d] dark:text-sky-400 shrink-0" />
                                 <audio
                                   controls
                                   src={audioUrl}

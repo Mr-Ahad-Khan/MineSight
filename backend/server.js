@@ -62,15 +62,6 @@ const createSilentWav = () => {
 };
 const silentWavBuffer = createSilentWav();
 
-const fallbackImageSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" fill="none">
-  <rect width="600" height="400" fill="#0f172a"/>
-  <rect x="20" y="20" width="560" height="360" rx="16" fill="#1e293b" stroke="#334155" stroke-width="2" stroke-dasharray="6 6"/>
-  <circle cx="300" cy="170" r="44" fill="#0d3f6d" fill-opacity="0.3"/>
-  <path d="M284 156h32m-16-16v32m-32 30h64a8 8 0 0 0 8-8v-32a8 8 0 0 0-8-8h-10l-4-6h-26l-4 6h-10a8 8 0 0 0-8 8v32a8 8 0 0 0 8 8z" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="300" y="248" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#e2e8f0" text-anchor="middle">Field Photo Proof</text>
-  <text x="300" y="272" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">Captured During On-Site Inspection</text>
-</svg>`;
-
 // Static folder for uploads
 app.use(
   ["/uploads", "/api/uploads"],
@@ -86,22 +77,10 @@ app.use(
     const uploadsDir = path.resolve(__dirname, "uploads");
 
     if ([".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif"].includes(ext)) {
-      const samplePhotos = [
-        "1788339049065-948572503.png",
-        "1788340588676-416601542.jpg",
-        "1788341941587-885111561.png",
-        "1790759559740-286695004.png",
-      ];
-      for (const sample of samplePhotos) {
-        const fullPath = path.resolve(uploadsDir, sample);
-        if (fs.existsSync(fullPath)) {
-          res.setHeader("Cache-Control", "public, max-age=3600");
-          return res.sendFile(fullPath);
-        }
-      }
-      res.setHeader("Content-Type", "image/svg+xml");
-      res.setHeader("Cache-Control", "public, max-age=3600");
-      return res.status(200).send(fallbackImageSvg);
+      return res.status(404).json({
+        success: false,
+        message: "Uploaded image not found",
+      });
     }
 
     if ([".webm", ".mp3", ".ogg", ".wav", ".m4a"].includes(ext)) {
