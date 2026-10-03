@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import ReCAPTCHA from "../components/common/ReCAPTCHA";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -43,7 +43,14 @@ export default function Login() {
     const container = recaptchaContainerRef.current;
     if (!container) return;
 
-    const updateScale = () => setRecaptchaScale(container.clientWidth / 304);
+    const updateScale = () => {
+      const width = container.clientWidth;
+      if (width > 0 && width < 304) {
+        setRecaptchaScale(width / 304);
+      } else {
+        setRecaptchaScale(1);
+      }
+    };
     updateScale();
 
     const observer = new ResizeObserver(updateScale);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import ReCAPTCHA from "../components/common/ReCAPTCHA";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
