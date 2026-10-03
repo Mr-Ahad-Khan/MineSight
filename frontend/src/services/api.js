@@ -27,6 +27,8 @@ const api = axios.create({
   },
 });
 
+const mediaCacheVersion = "2";
+
 // Request interceptor - add token and handle FormData headers
 api.interceptors.request.use(
   (config) => {
@@ -77,7 +79,8 @@ export const getMediaUrl = (mediaPath) => {
   if (path.startsWith("/uploads/")) {
     if (apiBaseUrl.startsWith("http")) {
       const origin = apiBaseUrl.replace(/\/api\/?$/, "");
-      return `${origin}${path}`;
+      const separator = path.includes("?") ? "&" : "?";
+      return `${origin}${path}${separator}v=${mediaCacheVersion}`;
     }
     return path;
   }
