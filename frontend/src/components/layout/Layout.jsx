@@ -29,8 +29,8 @@ export default function Layout() {
       <main
         className={`flex-1 overflow-x-hidden ${
           pathname === "/app/chat"
-            ? "pt-16 pb-20 xl:pb-4"
-            : "pb-32 pt-20 sm:pb-24 xl:pb-12"
+            ? "pt-[calc(4rem+var(--status-banner-height,0px))] pb-20 xl:pb-4"
+            : "pb-32 pt-[calc(5rem+var(--status-banner-height,0px))] sm:pb-24 xl:pb-12"
         }`}
       >
         <Outlet />

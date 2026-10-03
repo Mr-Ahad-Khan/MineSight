@@ -111,7 +111,7 @@ export default function Navbar() {
   );
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-[#121a21] text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)]">
+    <header className="fixed inset-x-0 top-[var(--status-banner-height,0px)] z-40 border-b border-white/10 bg-[#121a21] text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)]">
       {/* Single-Row Clean Desktop & Mobile Header */}
       <div className="flex h-16 min-w-0 items-center justify-between px-3 sm:px-5 xl:px-6">
         {/* Left: Brand Logo */}
@@ -193,7 +193,7 @@ export default function Navbar() {
         </nav>
 
         {/* Right Controls: SOS Help, Language, Theme, User/Hamburger */}
-        <div className="relative flex shrink-0 items-center gap-1.5 text-white max-[380px]:gap-0.5 sm:gap-2">
+        <div className="relative flex min-w-0 shrink-0 items-center gap-1.5 text-white max-[380px]:gap-0.5 sm:gap-2">
           {/* Offline Sync Status */}
           <OfflineSyncBadge />
 
@@ -201,7 +201,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => navigate("/app/support")}
-            className="inline-flex items-center gap-1.5 rounded-full border border-red-400/80 bg-red-500/15 px-2.5 py-1 text-xs font-bold text-red-300 transition hover:bg-red-500/25 max-[380px]:px-1.5"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-red-400/80 bg-red-500/15 px-2.5 py-1 text-xs font-bold text-red-300 transition hover:bg-red-500/25 max-[380px]:px-1.5"
             title={t.emergencySupportPanel}
           >
             <LifeBuoy className="h-3.5 w-3.5 text-red-400" />
@@ -301,13 +301,13 @@ export default function Navbar() {
         <>
           {/* Deep dimmed backdrop covering remaining screen */}
           <div
-            className="fixed inset-0 top-16 z-40 bg-black/75 transition-opacity xl:hidden"
+            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-40 bg-black/75 transition-opacity xl:hidden"
             onClick={() => setNavigationMenuOpen(false)}
             aria-hidden="true"
           />
 
           {/* Mobile Screen Dropdown Panel with 100% SOLID OPAQUE BACKGROUND - expands naturally so all items fit without scrolling */}
-          <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100vh-4.5rem)] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] xl:hidden">
+          <div className="fixed inset-x-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-50 max-h-[calc(100vh-4.5rem-var(--status-banner-height,0px))] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] xl:hidden">
             {/* 2-Column Grid of ALL Navigation Items with SOLID OPAQUE Card Backgrounds */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {allNavigation.map((item) => (

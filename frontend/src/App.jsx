@@ -150,12 +150,14 @@ function App() {
     return () => window.removeEventListener("vite:preloadError", handlePreloadError);
   }, []);
 
+  const statusBannerHeight = isOffline ? "87px" : pendingCount > 0 ? "40px" : "0px";
+
   return (
-    <>
+    <div style={{ "--status-banner-height": statusBannerHeight }}>
       {isOffline ? (
         <aside
           aria-label="Offline status"
-          className="fixed inset-x-0 top-0 z-[100] flex flex-wrap items-center justify-center gap-2 border-b border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-950 shadow-sm backdrop-blur-md dark:border-amber-700/60 dark:bg-amber-950/90 dark:text-amber-100 sm:text-sm"
+          className="offline-status-banner fixed inset-x-0 top-0 z-[100] flex flex-wrap items-center justify-center gap-2 border-b border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-950 shadow-sm backdrop-blur-md dark:border-amber-700/60 dark:bg-amber-950/90 dark:text-amber-100 sm:text-sm"
           role="status"
         >
           <WifiOff className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
@@ -171,7 +173,7 @@ function App() {
       ) : pendingCount > 0 ? (
         <aside
           aria-label="Pending sync status"
-          className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 border-b border-sky-400/40 bg-sky-500/15 px-4 py-1.5 text-center text-xs font-medium text-sky-950 shadow-sm backdrop-blur-md dark:border-sky-700/60 dark:bg-sky-950/90 dark:text-sky-100 sm:text-sm"
+          className="pending-status-banner fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 border-b border-sky-400/40 bg-sky-500/15 px-4 py-1.5 text-center text-xs font-medium text-sky-950 shadow-sm backdrop-blur-md dark:border-sky-700/60 dark:bg-sky-950/90 dark:text-sky-100 sm:text-sm"
           role="status"
         >
           <RefreshCw className="h-3.5 w-3.5 shrink-0 text-sky-600 dark:text-sky-400" aria-hidden="true" />
@@ -222,7 +224,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
-    </>
+    </div>
   );
 }
 

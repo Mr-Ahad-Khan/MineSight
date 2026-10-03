@@ -34,6 +34,12 @@
     display: none;
   }
 
+  @media (max-width: 640px) {
+    .offline-status-banner {
+      min-height: 5.5rem;
+    }
+  }
+
   .risk-donut-animate {
     animation: risk-donut-spin 1.2s cubic-bezier(0.22, 0.8, 0.28, 1) both;
     transform-origin: center;

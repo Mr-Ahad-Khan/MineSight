@@ -132,7 +132,7 @@ export default function OfflineSyncBadge({ compact = false }) {
 
   return (
     <div
-      className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50/80 px-2.5 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300"
+      className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50/80 px-2.5 py-1 text-xs font-medium text-emerald-800 max-[380px]:gap-1 max-[380px]:px-1.5 max-[380px]:text-[10px] dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300"
       title="Connected and synchronized with MineSight servers"
     >
       <span className="relative flex h-2 w-2">
