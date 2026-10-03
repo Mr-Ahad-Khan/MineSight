@@ -42,9 +42,14 @@ app.use(
     next();
   },
   express.static(path.join(__dirname, "uploads"), {
-    fallthrough: false,
     maxAge: "1h",
   }),
+  (req, res) => {
+    res.status(404).json({
+      success: false,
+      message: "Uploaded file not found",
+    });
+  },
 );
 
 // Routes

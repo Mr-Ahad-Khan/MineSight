@@ -127,7 +127,8 @@ export const getMineralResourceRecords = (params) =>
 // Inspections
 export const getInspections = (params) => api.get("/inspections", { params });
 export const getInspection = (id) => api.get(`/inspections/${id}`);
-export const getInspectionAuditHistory = (id) => api.get(`/inspections/${id}/audit`);
+export const getInspectionAuditHistory = (id) =>
+  api.get(`/inspections/${id}/audit`);
 export const createInspection = (data) => {
   if (data instanceof FormData) {
     return api.post("/inspections", data, {
