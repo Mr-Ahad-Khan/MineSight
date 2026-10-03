@@ -4,9 +4,13 @@ import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "../common/Footer";
 import CoalAiLauncher from "../common/CoalAiLauncher";
+import { useLanguageStore } from "../../store/themeStore";
+import { translations } from "../../i18n/translations";
 
 export default function Layout() {
   const { pathname } = useLocation();
+  const { language } = useLanguageStore();
+  const t = translations[language] || translations.en;
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -42,8 +46,8 @@ export default function Layout() {
               ? "bottom-36 right-4 sm:bottom-36 sm:right-6 xl:bottom-24 xl:right-6"
               : "bottom-20 right-4 sm:bottom-20 sm:right-6 xl:bottom-6 xl:right-6"
           }`}
-          aria-label="Scroll to top"
-          title="Scroll to top"
+          aria-label={t.scrollToTop}
+          title={t.scrollToTop}
         >
           <ArrowUp className="h-5 w-5" />
         </button>

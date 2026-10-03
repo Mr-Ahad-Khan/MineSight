@@ -13,6 +13,10 @@ const severityBadge = {
 export default function HighRiskList({ inspections }) {
   const { language } = useLanguageStore()
   const t = translations[language]
+  const severityLabel = (severity) => {
+    if (severity === 'critical') return t.criticalLabel
+    return t[severity] || severity
+  }
 
   if (!inspections || inspections.length === 0) {
     return (
@@ -38,7 +42,7 @@ export default function HighRiskList({ inspections }) {
             </p>
           </div>
           <span className={`badge ${severityBadge[insp.severity] || 'badge-medium'} ml-3 shrink-0`}>
-            {insp.severity}
+            {severityLabel(insp.severity)}
           </span>
         </Link>
       ))}

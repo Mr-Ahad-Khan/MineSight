@@ -47,15 +47,15 @@ export default function CoalAiLauncher() {
             type="button"
             onClick={closePanel}
             className="rounded-md p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-            aria-label="Minimize Coal AI"
-            title="Minimize Coal AI"
+            aria-label={t.minimizeCoalAi}
+            title={t.minimizeCoalAi}
           >
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="px-4 py-4">
           <p className="text-sm leading-6 text-[#d5dfdf]">
-            Ask about inspections, compliance, mine safety, or operational risk.
+            {t.coalAiPrompt}
           </p>
           <button
             type="button"
@@ -73,8 +73,8 @@ export default function CoalAiLauncher() {
         ref={launcherRef}
         onClick={() => setOpen((current) => !current)}
         className={`coal-ai-launcher pointer-events-auto relative isolate flex h-14 w-14 items-center justify-center rounded-full border-4 border-[#fff4d4] bg-[#e5a416] text-[#17232a] shadow-[0_8px_22px_rgba(0,0,0,0.28)] transition-all duration-300 hover:-translate-y-1 hover:scale-105 dark:border-amber-100 ${open && ready ? "animate-none" : "animate-[coal-ai-nudge_5s_ease-in-out_infinite]"}`}
-        aria-label={open ? "Minimize Coal AI" : "Open Coal AI"}
-        title={open ? "Minimize Coal AI" : "Open Coal AI"}
+        aria-label={open ? t.minimizeCoalAi : t.openCoalAi}
+        title={open ? t.minimizeCoalAi : t.openCoalAi}
       >
         {!open && (
           <span className="coal-ai-wave coal-ai-wave-one" aria-hidden="true" />
