@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const mongoose = require("mongoose");
 const Inspection = require("../models/Inspection");
 const Mine = require("../models/Mine");
 const Alert = require("../models/Alert");
@@ -55,8 +56,12 @@ const toAuditSnapshot = (inspection) => ({
 // @route   GET /api/inspections
 // @access  Private
 const getInspections = asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 20;
+  const requestedPage = Number.parseInt(req.query.page, 10);
+  const requestedLimit = Number.parseInt(req.query.limit, 10);
+  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const limit = Number.isFinite(requestedLimit)
+    ? Math.min(Math.max(requestedLimit, 1), 100)
+    : 20;
   const skip = (page - 1) * limit;
 
   let query = {};
@@ -65,6 +70,10 @@ const getInspections = asyncHandler(async (req, res) => {
   if (req.user.role === "mine_official" && req.user.mineId) {
     query.mineId = req.user.mineId;
   } else if (req.query.mineId) {
+    if (!mongoose.Types.ObjectId.isValid(req.query.mineId)) {
+      res.status(400);
+      throw new Error("Invalid mineId");
+    }
     query.mineId = req.query.mineId;
   }
 
@@ -78,7 +87,8 @@ const getInspections = asyncHandler(async (req, res) => {
     .populate("inspectorId", "name email")
     .skip(skip)
     .limit(limit)
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .lean();
 
   res.json({
     success: true,

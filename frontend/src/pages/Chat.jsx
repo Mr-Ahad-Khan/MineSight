@@ -507,7 +507,7 @@ export default function Chat() {
               type="button"
               onClick={toggleVoiceInput}
               disabled={!recognitionSupported || sending}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition disabled:cursor-not-allowed disabled:opacity-40 ${listening ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300" : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"}`}
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6f00] focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-40 ${listening ? "border-red-300 bg-red-100 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300" : "border-slate-300 bg-slate-100 text-slate-700 hover:border-[#ff6f00] hover:bg-orange-50 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"}`}
               aria-label={
                 listening
                   ? language === "hi"
