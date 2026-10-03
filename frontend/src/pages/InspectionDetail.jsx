@@ -45,6 +45,7 @@ export default function InspectionDetail() {
   const [inspection, setInspection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [proofUploading, setProofUploading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [photoZoom, setPhotoZoom] = useState(1);
   const [auditTrail, setAuditTrail] = useState(null);
@@ -89,7 +90,9 @@ export default function InspectionDetail() {
       setAuditTrail(response.data.data);
       setAuditError("");
     } catch (error) {
-      setAuditError(error.response?.data?.message || "Could not verify the audit chain.");
+      setAuditError(
+        error.response?.data?.message || "Could not verify the audit chain.",
+      );
     }
   };
 
@@ -116,6 +119,7 @@ export default function InspectionDetail() {
     if (!files.length) return;
 
     setUpdating(true);
+    setProofUploading(true);
     try {
       const payload = new FormData();
       payload.append("status", "closed");
@@ -128,6 +132,7 @@ export default function InspectionDetail() {
       toast.error(error.response?.data?.message || t.failedUpdate);
     } finally {
       setUpdating(false);
+      setProofUploading(false);
     }
   };
 
@@ -368,7 +373,9 @@ export default function InspectionDetail() {
         <div className="space-y-6">
           {/* Actions */}
           <div className="card p-5 space-y-3">
-            <h2 className="font-semibold text-slate-900 dark:text-white">{t.actions}</h2>
+            <h2 className="font-semibold text-slate-900 dark:text-white">
+              {t.actions}
+            </h2>
             {inspection.status !== "closed" && (
               <>
                 <button
@@ -406,7 +413,14 @@ export default function InspectionDetail() {
                   disabled={updating}
                   className="flex w-full items-center justify-center gap-2 rounded-lg border border-teal-300 bg-teal-50 px-3 py-2 text-sm font-medium text-teal-800 transition hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-teal-700 dark:bg-teal-950/40 dark:text-teal-200 dark:hover:bg-teal-900/50"
                 >
-                  <Upload className="h-4 w-4" /> Close & add photo proof
+                  {proofUploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
+                  {proofUploading
+                    ? "Uploading proof..."
+                    : "Close & add photo proof"}
                 </button>
               </>
             )}
@@ -421,7 +435,9 @@ export default function InspectionDetail() {
                   </p>
                 ) : (
                   <>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">No photo proof attached</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                      No photo proof attached
+                    </p>
                     <input
                       ref={proofInputRef}
                       type="file"
@@ -436,7 +452,14 @@ export default function InspectionDetail() {
                       disabled={updating}
                       className="flex w-full items-center justify-center gap-2 rounded-lg border border-teal-300 bg-teal-50 px-3 py-2 text-sm font-medium text-teal-800 transition hover:bg-teal-100 disabled:opacity-60 dark:border-teal-700 dark:bg-teal-950/40 dark:text-teal-200 dark:hover:bg-teal-900/50"
                     >
-                      <Upload className="h-4 w-4" /> Add proof & close inspection
+                      {proofUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
+                      )}
+                      {proofUploading
+                        ? "Uploading proof..."
+                        : "Add proof & close inspection"}
                     </button>
                   </>
                 )}
@@ -464,8 +487,12 @@ export default function InspectionDetail() {
           <div className="card space-y-3 p-5 text-slate-700 dark:text-slate-200">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="font-semibold text-slate-900 dark:text-white">Blockchain audit trail</h2>
-                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">SHA-256 hash-linked inspection changes</p>
+                <h2 className="font-semibold text-slate-900 dark:text-white">
+                  Blockchain audit trail
+                </h2>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                  SHA-256 hash-linked inspection changes
+                </p>
               </div>
               <button
                 type="button"
@@ -479,29 +506,71 @@ export default function InspectionDetail() {
             </div>
 
             {auditError ? (
-              <p role="alert" className="text-sm text-rose-600">{auditError}</p>
+              <p role="alert" className="text-sm text-rose-600">
+                {auditError}
+              </p>
             ) : auditTrail ? (
               <>
-                <div className={`flex items-center gap-2 text-sm font-semibold ${auditTrail.integrity.valid ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}`}>
-                  {auditTrail.integrity.valid ? <ShieldCheck className="h-4 w-4" /> : <ShieldAlert className="h-4 w-4" />}
-                  {auditTrail.integrity.valid ? "Chain verified" : `Integrity issue at block ${auditTrail.integrity.brokenAt}`}
+                <div
+                  className={`flex items-center gap-2 text-sm font-semibold ${auditTrail.integrity.valid ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}`}
+                >
+                  {auditTrail.integrity.valid ? (
+                    <ShieldCheck className="h-4 w-4" />
+                  ) : (
+                    <ShieldAlert className="h-4 w-4" />
+                  )}
+                  {auditTrail.integrity.valid
+                    ? "Chain verified"
+                    : `Integrity issue at block ${auditTrail.integrity.brokenAt}`}
                 </div>
-                <p className="text-xs text-slate-500">{auditTrail.integrity.checkedBlocks} blocks checked. This hash chain is stored in this app's database; it is not a decentralized public blockchain.</p>
+                <p className="text-xs text-slate-500">
+                  {auditTrail.integrity.checkedBlocks} blocks checked. This hash
+                  chain is stored in this app's database; it is not a
+                  decentralized public blockchain.
+                </p>
                 <div className="max-h-80 space-y-3 overflow-y-auto border-t border-slate-200 pt-3 dark:border-slate-700">
                   {(auditTrail.blocks || []).map((block) => (
-                    <div key={block._id} className="border-l-2 border-teal-700 pl-3">
+                    <div
+                      key={block._id}
+                      className="border-l-2 border-teal-700 pl-3"
+                    >
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-xs font-semibold">#{block.sequence} · {block.action?.replaceAll("_", " ").toLowerCase()}</p>
-                        <time className="text-xs text-slate-500" dateTime={block.blockTimestamp}>
-                          {format(new Date(block.blockTimestamp), "dd MMM yyyy, HH:mm")}
+                        <p className="text-xs font-semibold">
+                          #{block.sequence} ·{" "}
+                          {block.action?.replaceAll("_", " ").toLowerCase()}
+                        </p>
+                        <time
+                          className="text-xs text-slate-500"
+                          dateTime={block.blockTimestamp}
+                        >
+                          {format(
+                            new Date(block.blockTimestamp),
+                            "dd MMM yyyy, HH:mm",
+                          )}
                         </time>
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">{block.userId?.name || "Unknown user"}</p>
-                      <p className="mt-1 break-all font-mono text-[10px] text-slate-500" title={block.blockHash}>Hash: {block.blockHash?.slice(0, 20)}...</p>
-                      <p className="break-all font-mono text-[10px] text-slate-400" title={block.previousHash}>Previous: {block.previousHash?.slice(0, 20)}...</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {block.userId?.name || "Unknown user"}
+                      </p>
+                      <p
+                        className="mt-1 break-all font-mono text-[10px] text-slate-500"
+                        title={block.blockHash}
+                      >
+                        Hash: {block.blockHash?.slice(0, 20)}...
+                      </p>
+                      <p
+                        className="break-all font-mono text-[10px] text-slate-400"
+                        title={block.previousHash}
+                      >
+                        Previous: {block.previousHash?.slice(0, 20)}...
+                      </p>
                     </div>
                   ))}
-                  {!auditTrail.blocks?.length && <p className="text-xs text-slate-500">No blockchain audit blocks exist for this inspection yet.</p>}
+                  {!auditTrail.blocks?.length && (
+                    <p className="text-xs text-slate-500">
+                      No blockchain audit blocks exist for this inspection yet.
+                    </p>
+                  )}
                 </div>
               </>
             ) : (
