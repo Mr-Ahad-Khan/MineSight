@@ -46,18 +46,18 @@ export default function OfflineSyncBadge({ compact = false }) {
     if (!isOnline) {
       return (
         <span
-          className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300"
+          className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-[#78350f] dark:bg-amber-950/70 dark:text-amber-200"
           title={`Offline Mode · ${pendingCount} pending updates`}
         >
-          <WifiOff className="h-3 w-3 shrink-0" />
+          <WifiOff className="h-3 w-3 shrink-0 text-[#78350f] dark:text-amber-300" strokeWidth={2.5} />
           <span>Offline{pendingCount > 0 ? ` (${pendingCount})` : ""}</span>
         </span>
       );
     }
     if (isSyncing) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/20 px-2 py-0.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300 animate-pulse">
-          <RefreshCw className="h-3 w-3 shrink-0 animate-spin" />
+        <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-[#0c4a6e] dark:bg-sky-950/70 dark:text-sky-200 animate-pulse">
+          <RefreshCw className="h-3 w-3 shrink-0 animate-spin text-[#0369a1] dark:text-sky-300" strokeWidth={2.5} />
           <span>Syncing</span>
         </span>
       );
@@ -66,20 +66,20 @@ export default function OfflineSyncBadge({ compact = false }) {
       return (
         <button
           onClick={handleSyncClick}
-          className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-500/30 dark:text-amber-300"
+          className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-[#78350f] hover:bg-amber-200 dark:bg-amber-950/70 dark:text-amber-200"
           title="Click to sync offline changes"
         >
-          <RefreshCw className="h-3 w-3 shrink-0" />
+          <RefreshCw className="h-3 w-3 shrink-0 text-[#78350f] dark:text-amber-300" strokeWidth={2.5} />
           <span>Sync ({pendingCount})</span>
         </button>
       );
     }
     return (
       <span
-        className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400"
+        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#065f46] dark:text-emerald-300"
         title="Connected and in sync"
       >
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
         <span>Live</span>
       </span>
     );
@@ -89,12 +89,12 @@ export default function OfflineSyncBadge({ compact = false }) {
   if (!isOnline) {
     return (
       <div
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-amber-900 shadow-sm dark:border-amber-700/60 dark:bg-amber-950/60 dark:text-amber-200"
+        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-400 bg-amber-100/90 text-amber-950 shadow-sm transition hover:bg-amber-200 dark:border-amber-600/70 dark:bg-amber-950/80 dark:text-amber-200"
         role="status"
         aria-label={`Offline${pendingCount > 0 ? `, ${pendingCount} pending updates` : ""}`}
         title="Operating in offline mode. Changes are saved locally and will auto-sync when online."
       >
-        <WifiOff className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <WifiOff className="h-4 w-4 shrink-0 text-[#78350f] dark:text-amber-300" strokeWidth={2.5} />
       </div>
     );
   }
@@ -102,10 +102,10 @@ export default function OfflineSyncBadge({ compact = false }) {
   if (isSyncing) {
     return (
       <div
-        className="inline-flex items-center gap-1.5 rounded-full border border-sky-300 bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-900 shadow-sm dark:border-sky-700/60 dark:bg-sky-950/60 dark:text-sky-200"
+        className="inline-flex items-center gap-1.5 rounded-full border border-sky-400 bg-sky-100/90 px-2.5 py-1 text-xs font-semibold text-[#0c4a6e] shadow-sm dark:border-sky-600/70 dark:bg-sky-950/80 dark:text-sky-200"
         role="status"
       >
-        <RefreshCw className="h-3.5 w-3.5 shrink-0 animate-spin text-sky-600 dark:text-sky-400" />
+        <RefreshCw className="h-3.5 w-3.5 shrink-0 animate-spin text-[#0369a1] dark:text-sky-300" strokeWidth={2.5} />
         <span>Syncing changes...</span>
       </div>
     );
@@ -116,10 +116,10 @@ export default function OfflineSyncBadge({ compact = false }) {
       <button
         type="button"
         onClick={handleSyncClick}
-        className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-900 shadow-sm transition hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200 dark:hover:bg-amber-900/80"
+        className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 bg-amber-100/90 px-2.5 py-1 text-xs font-bold text-[#78350f] shadow-sm transition hover:bg-amber-200 dark:border-amber-600 dark:bg-amber-950/80 dark:text-amber-200 dark:hover:bg-amber-900/80"
         title="Click to sync pending changes with server now"
       >
-        <RefreshCw className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <RefreshCw className="h-3.5 w-3.5 shrink-0 text-[#78350f] dark:text-amber-300" strokeWidth={2.5} />
         <span>Sync ({pendingCount})</span>
       </button>
     );
@@ -127,12 +127,12 @@ export default function OfflineSyncBadge({ compact = false }) {
 
   return (
     <div
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50/80 text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300"
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-400 bg-emerald-100/90 text-emerald-950 shadow-sm transition hover:bg-emerald-200 dark:border-emerald-600/70 dark:bg-emerald-950/80 dark:text-emerald-200"
       role="status"
       aria-label="Online and synchronized"
       title="Connected and synchronized with MineSight servers"
     >
-      <Wifi className="h-4 w-4 text-emerald-500" aria-hidden="true" />
+      <Wifi className="h-4 w-4 shrink-0 text-[#065f46] dark:text-emerald-300" strokeWidth={2.5} aria-hidden="true" />
     </div>
   );
 }

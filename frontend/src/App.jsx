@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, useRef } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { WifiOff, RefreshCw } from "lucide-react";
 import useAuthStore from "./store/authStore";
@@ -150,17 +150,45 @@ function App() {
     return () => window.removeEventListener("vite:preloadError", handlePreloadError);
   }, []);
 
-  const statusBannerHeight = isOffline ? "87px" : pendingCount > 0 ? "40px" : "0px";
+  const bannerRef = useRef(null);
+  const [bannerHeight, setBannerHeight] = useState(() => (
+    typeof navigator !== "undefined" && !navigator.onLine ? 36 : 0
+  ));
+
+  useEffect(() => {
+    if (!isOffline && pendingCount === 0) {
+      setBannerHeight(0);
+      return;
+    }
+
+    const updateHeight = () => {
+      if (bannerRef.current) {
+        setBannerHeight(bannerRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    if (bannerRef.current) {
+      observer.observe(bannerRef.current);
+    }
+    window.addEventListener("resize", updateHeight);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, [isOffline, pendingCount]);
 
   return (
-    <div style={{ "--status-banner-height": statusBannerHeight }}>
+    <div style={{ "--status-banner-height": `${bannerHeight}px` }}>
       {isOffline ? (
         <aside
+          ref={bannerRef}
           aria-label="Offline status"
           className="offline-status-banner fixed inset-x-0 top-0 z-[100] flex flex-wrap items-center justify-center gap-2 border-b border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-950 shadow-sm backdrop-blur-md dark:border-amber-700/60 dark:bg-amber-950/90 dark:text-amber-100 sm:text-sm"
           role="status"
         >
-          <WifiOff className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+          <WifiOff className="h-4 w-4 shrink-0 text-[#78350f] dark:text-amber-300" strokeWidth={2.25} aria-hidden="true" />
           <span>
             <strong className="font-semibold">Offline Mode Active:</strong> All features, inspections, attendance, and forms work offline. Changes are saved locally and will auto-sync when online.
           </span>
@@ -172,6 +200,7 @@ function App() {
         </aside>
       ) : pendingCount > 0 ? (
         <aside
+          ref={bannerRef}
           aria-label="Pending sync status"
           className="pending-status-banner fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 border-b border-sky-400/40 bg-sky-500/15 px-4 py-1.5 text-center text-xs font-medium text-sky-950 shadow-sm backdrop-blur-md dark:border-sky-700/60 dark:bg-sky-950/90 dark:text-sky-100 sm:text-sm"
           role="status"

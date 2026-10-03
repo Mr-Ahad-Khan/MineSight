@@ -30,7 +30,7 @@ export default function Layout() {
         className={`flex-1 overflow-x-hidden ${
           pathname === "/app/chat"
             ? "pt-[calc(4rem+var(--status-banner-height,0px))] pb-20 xl:pb-4"
-            : "pb-32 pt-[calc(5rem+var(--status-banner-height,0px))] sm:pb-24 2xl:pb-12"
+            : "pb-32 pt-[calc(5rem+var(--status-banner-height,0px))] sm:pb-24 xl:pb-12"
         }`}
       >
         <Outlet />

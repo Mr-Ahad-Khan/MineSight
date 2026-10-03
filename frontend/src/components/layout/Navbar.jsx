@@ -51,12 +51,12 @@ export default function Navbar() {
     { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
     { name: t.alerts, href: "/app/alerts", icon: Bell },
-    { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
-    { name: t.disasterManagement, href: "/app/disaster-management", icon: Siren },
   ];
 
-  // Non-important / secondary tabs shifted to "More ▾" dropdown on desktop
+  // Secondary tabs and specialized modules inside "More ▾" dropdown on desktop
   const secondaryNavigation = user?.role === "worker" ? [] : [
+    { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
+    { name: t.disasterManagement, href: "/app/disaster-management", icon: Siren },
     { name: t.mines, href: "/app/mines", icon: MapPin },
     { name: t.mineralResources, href: "/app/mineral-resources", icon: Gem },
     { name: t.contractors, href: "/app/contractors", icon: Users },
@@ -121,7 +121,7 @@ export default function Navbar() {
 
         {/* Desktop Single-Line Navigation: Core Tabs + More Dropdown */}
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-visible px-1 2xl:flex"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-2 xl:flex"
           aria-label="Primary navigation"
         >
           {primaryNavigation.map((item) => (
@@ -193,7 +193,7 @@ export default function Navbar() {
         </nav>
 
         {/* Right Controls: SOS Help, Language, Theme, User/Hamburger */}
-        <div className="relative flex min-w-0 shrink-0 items-center gap-1.5 text-white max-[380px]:gap-0.5 sm:gap-2">
+        <div className="relative flex shrink-0 items-center gap-1.5 text-white max-[380px]:gap-0.5 sm:gap-2 sm:ml-3">
           {/* Offline Sync Status */}
           <OfflineSyncBadge />
 
@@ -226,7 +226,7 @@ export default function Navbar() {
           </button>
 
           {/* Desktop User Profile Button & Dropdown */}
-          <div className="relative hidden 2xl:block" ref={accountMenuRef}>
+          <div className="relative hidden xl:block" ref={accountMenuRef}>
             <button
               type="button"
               onClick={() => setAccountMenuOpen((open) => !open)}
@@ -237,7 +237,7 @@ export default function Navbar() {
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-[#ff6f00] to-[#ffa040] text-xs font-bold text-white shadow-sm">
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
-              <div className="hidden text-left 2xl:block leading-tight">
+              <div className="hidden text-left xl:block leading-tight">
                 <p className="max-w-[120px] truncate text-xs font-semibold text-white">
                   {user?.name || "User"}
                 </p>
@@ -283,7 +283,7 @@ export default function Navbar() {
               setAccountMenuOpen(false);
               setNavigationMenuOpen((open) => !open);
             }}
-            className="inline-flex shrink-0 rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white transition max-[380px]:p-1.5 2xl:hidden"
+            className="inline-flex shrink-0 rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white transition max-[380px]:p-1.5 xl:hidden"
             aria-expanded={navigationMenuOpen}
             aria-label={navigationMenuOpen ? "Close navigation menu" : t.openNavigationMenu}
           >
@@ -301,13 +301,13 @@ export default function Navbar() {
         <>
           {/* Deep dimmed backdrop covering remaining screen */}
           <div
-            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-40 bg-black/75 transition-opacity 2xl:hidden"
+            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-40 bg-black/75 transition-opacity xl:hidden"
             onClick={() => setNavigationMenuOpen(false)}
             aria-hidden="true"
           />
 
           {/* Mobile Screen Dropdown Panel with 100% SOLID OPAQUE BACKGROUND - expands naturally so all items fit without scrolling */}
-          <div className="fixed inset-x-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-50 max-h-[calc(100vh-4.5rem-var(--status-banner-height,0px))] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] 2xl:hidden">
+          <div className="fixed inset-x-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-50 max-h-[calc(100vh-4.5rem-var(--status-banner-height,0px))] overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] xl:hidden">
             {/* 2-Column Grid of ALL Navigation Items with SOLID OPAQUE Card Backgrounds */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {allNavigation.map((item) => (
