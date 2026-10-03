@@ -89,17 +89,12 @@ export default function OfflineSyncBadge({ compact = false }) {
   if (!isOnline) {
     return (
       <div
-        className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-900 shadow-sm dark:border-amber-700/60 dark:bg-amber-950/60 dark:text-amber-200"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-amber-900 shadow-sm dark:border-amber-700/60 dark:bg-amber-950/60 dark:text-amber-200"
         role="status"
+        aria-label={`Offline${pendingCount > 0 ? `, ${pendingCount} pending updates` : ""}`}
         title="Operating in offline mode. Changes are saved locally and will auto-sync when online."
       >
         <WifiOff className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
-        <span>Offline Mode</span>
-        {pendingCount > 0 && (
-          <span className="ml-0.5 rounded-full bg-amber-200 px-1.5 py-0.2 text-[10px] font-bold text-amber-900 dark:bg-amber-800 dark:text-amber-100">
-            {pendingCount} queued
-          </span>
-        )}
       </div>
     );
   }
@@ -132,14 +127,12 @@ export default function OfflineSyncBadge({ compact = false }) {
 
   return (
     <div
-      className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50/80 px-2.5 py-1 text-xs font-medium text-emerald-800 max-[380px]:gap-1 max-[380px]:px-1.5 max-[380px]:text-[10px] dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300"
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50/80 text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300"
+      role="status"
+      aria-label="Online and synchronized"
       title="Connected and synchronized with MineSight servers"
     >
-      <span className="relative flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-      </span>
-      <span>Live & Synced</span>
+      <Wifi className="h-4 w-4 text-emerald-500" aria-hidden="true" />
     </div>
   );
 }
