@@ -214,6 +214,7 @@ export default function Dashboard() {
 
   const { language } = useLanguageStore()
   const t = translations[language]
+  const analyticsSectionRef = useRef(null)
 
   useEffect(() => {
     if (showAnalytics) {
