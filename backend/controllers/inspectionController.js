@@ -160,7 +160,11 @@ const createInspection = asyncHandler(async (req, res) => {
       : "";
   const severity = parsedBody.severity;
   const violations = parseFormDataValue(parsedBody.violations, []) || [];
-  const existingPhotos = parseFormDataValue(parsedBody.photos, []) || [];
+  const existingPhotosValue = parseFormDataValue(parsedBody.photos, []);
+  const existingPhotos = (Array.isArray(existingPhotosValue)
+    ? existingPhotosValue
+    : [existingPhotosValue]
+  ).filter((photo) => typeof photo === "string" && photo.trim());
   const offlineId = parsedBody.offlineId;
   const uploadedPhotos = (req.files?.photos || []).map(getStoredMediaPath);
   const photos = [...existingPhotos, ...uploadedPhotos].filter(Boolean);

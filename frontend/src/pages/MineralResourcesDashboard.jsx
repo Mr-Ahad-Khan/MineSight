@@ -247,8 +247,10 @@ export default function MineralResourcesDashboard() {
                   <YAxis
                     type="category"
                     dataKey="state"
-                    width={42}
-                    tick={{ fontSize: 11 }}
+                    width={78}
+                    tick={{ fontSize: 12, fill: "#475569" }}
+                    tickLine={{ stroke: "#94a3b8" }}
+                    axisLine={{ stroke: "#94a3b8" }}
                   />
                   <Tooltip
                     contentStyle={{

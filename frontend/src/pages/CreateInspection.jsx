@@ -710,11 +710,11 @@ export default function CreateInspection() {
           </div>
         </aside>
 
-        <div className="flex flex-wrap justify-center gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 xl:col-span-2">
+        <div className="relative z-10 flex flex-wrap justify-center gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 xl:col-span-2">
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary inline-flex min-h-12 min-w-48 touch-manipulation items-center justify-center gap-2"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             {loading ? "Creating..." : "Create Inspection"}
@@ -722,7 +722,7 @@ export default function CreateInspection() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="btn-secondary"
+            className="btn-secondary inline-flex min-h-12 min-w-28 touch-manipulation items-center justify-center"
           >
             Cancel
           </button>
