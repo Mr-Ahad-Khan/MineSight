@@ -670,8 +670,8 @@ export default function CreateInspection() {
               />
             </div>
 
-            <div className="grid gap-4 pt-2 md:grid-cols-3 md:items-end">
-              <div>
+            <div className="grid gap-4 pt-2 md:grid-cols-3 md:items-start">
+              <div className="min-w-0">
                 <label className="label" htmlFor="inspection-severity">
                   {t.severity}
                 </label>
@@ -692,7 +692,7 @@ export default function CreateInspection() {
                 </select>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <div className="label">Voice Note</div>
                 <div className="flex min-h-14 flex-col items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
                   {!isRecording ? (
@@ -717,7 +717,7 @@ export default function CreateInspection() {
 
                   {audioUrl && (
                     <>
-                      <audio controls src={audioUrl} className="h-10 rounded-lg dark:bg-slate-800" />
+                      <audio controls src={audioUrl} className="h-10 w-full max-w-full rounded-lg dark:bg-slate-800" />
                       <button
                         type="button"
                         onClick={removeAudio}
@@ -731,7 +731,7 @@ export default function CreateInspection() {
                 </div>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label className="label" htmlFor="site-photos">
                   Site Photos
                 </label>
@@ -752,7 +752,7 @@ export default function CreateInspection() {
                   </label>
 
                   {photoPreviews.length > 0 && (
-                    <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <div className="mt-3 grid w-full min-w-0 grid-cols-2 gap-3 sm:grid-cols-3">
                       {photoPreviews.map((preview, index) => (
                         <div
                           key={preview}
