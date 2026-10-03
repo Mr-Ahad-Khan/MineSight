@@ -248,7 +248,7 @@ export const translations = {
       "Practical tools for safer mines, clearer compliance, and better decisions across every site.",
     footerCopyright:
       "© 2026 Coal Governance. Built for responsible mine operations.",
-    version: "MineSight platform · Version 1.0",
+    version: "MineSight platform · Version 6.0",
     operationsAssistant: "Operations assistant",
     chatSubtitle:
       "Clear guidance for inspections, compliance follow-up, contractor oversight, and risk escalation.",

@@ -1,6 +1,6 @@
 {
   "name": "minesight-mobile",
-  "version": "1.0.0",
+  "version": "6.0.0",
   "scripts": {
     "build:android": "cd ../frontend && npm run build && cd ../mobile && npx cap sync android",
     "build:apk": "cd android && gradlew assembleDebug",
