@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import ReCAPTCHA from "../components/common/ReCAPTCHA";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -32,11 +33,12 @@ export default function Register() {
   const { language } = useLanguageStore();
   const navigate = useNavigate();
   const t = translations[language];
+  const isNativeApp = Capacitor.isNativePlatform();
   const recaptchaSiteKey =
-    import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+    !isNativeApp && (import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
     (import.meta.env.DEV
       ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-      : "");
+      : ""));
 
   useEffect(() => {
     if (token) {
@@ -100,7 +102,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!recaptchaToken) {
+    if (!isNativeApp && !recaptchaToken) {
       toast.error("Please complete the reCAPTCHA.");
       return;
     }
@@ -400,7 +402,7 @@ export default function Register() {
 
               <button
                 type="submit"
-                disabled={isLoading || !recaptchaToken || !recaptchaSiteKey}
+                disabled={isLoading || (!isNativeApp && (!recaptchaToken || !recaptchaSiteKey))}
                 className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {isLoading ? (

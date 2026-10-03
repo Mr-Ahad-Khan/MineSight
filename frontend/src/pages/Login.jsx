@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import ReCAPTCHA from "../components/common/ReCAPTCHA";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -31,9 +32,10 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const t = translations[language];
+  const isNativeApp = Capacitor.isNativePlatform();
   const recaptchaSiteKey =
-    import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
-    (import.meta.env.DEV ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" : "");
+    !isNativeApp && (import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+    (import.meta.env.DEV ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" : ""));
   const redirectTo =
     new URLSearchParams(location.search).get("redirect") ||
     (user?.role === "worker" ? "/app/workers" : "/app");
@@ -68,7 +70,7 @@ export default function Login() {
     e.preventDefault();
 
     // In offline mode, bypass reCAPTCHA and allow direct offline login
-    if (navigator.onLine && recaptchaSiteKey && !recaptchaToken) {
+    if (!isNativeApp && navigator.onLine && recaptchaSiteKey && !recaptchaToken) {
       toast.error("Please complete the reCAPTCHA.");
       return;
     }
@@ -273,7 +275,7 @@ export default function Login() {
 
                 <button
                   type="submit"
-                  disabled={isLoading || !recaptchaSiteKey}
+                  disabled={isLoading || (!isNativeApp && !recaptchaSiteKey)}
                   className="btn-primary w-full flex items-center justify-center gap-2"
                 >
                   {isLoading ? (

@@ -209,7 +209,9 @@ const registerUser = asyncHandler(async (req, res) => {
     recaptchaToken,
   } = req.body;
 
-  await verifyRecaptcha(recaptchaToken, res);
+  if (req.get("X-MineSight-Client") !== "native") {
+    await verifyRecaptcha(recaptchaToken, res);
+  }
 
   if (!name || !email || !password) {
     res.status(400);
@@ -261,7 +263,9 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password, recaptchaToken } = req.body;
 
-  await verifyRecaptcha(recaptchaToken, res);
+  if (req.get("X-MineSight-Client") !== "native") {
+    await verifyRecaptcha(recaptchaToken, res);
+  }
 
   if (!email || !password) {
     res.status(400);

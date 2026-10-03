@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Capacitor } from "@capacitor/core";
 import {
   offlineStorage,
   saveOfflineMedia,
@@ -48,6 +49,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (Capacitor.isNativePlatform()) {
+      config.headers["X-MineSight-Client"] = "native";
     }
     if (config.data instanceof FormData) {
       if (typeof config.headers?.delete === "function") {

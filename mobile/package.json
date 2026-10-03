@@ -3,7 +3,7 @@
   "version": "6.0.0",
   "scripts": {
     "build:android": "cd ../frontend && npm run build && cd ../mobile && npx cap sync android",
-    "build:apk": "cd android && gradlew assembleDebug",
+    "build:apk": "npm run build:android && cd android && gradlew assembleDebug",
     "install:android": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
     "dev:android": "npm run build:android && npm run build:apk && npm run install:android"
   },
