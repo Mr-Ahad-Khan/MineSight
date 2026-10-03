@@ -49,7 +49,10 @@ router.get("/:id/audit", getInspectionAuditHistory);
 router
   .route("/:id")
   .get(getInspectionById)
-  .put(updateInspection)
+  .put(
+    inspectionUpload.fields([{ name: "photos", maxCount: 5 }]),
+    updateInspection,
+  )
   .delete(deleteInspection);
 
 router.patch("/:id/violations/:violationId", closeViolation);

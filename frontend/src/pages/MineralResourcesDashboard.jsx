@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -24,6 +24,7 @@ import TableScrollContainer from '../components/common/TableScrollContainer'
 const CHART_COLORS = ['#0f766e', '#e05d2b', '#2563eb', '#ca8a04', '#be185d', '#4d7c0f', '#0891b2', '#7c3aed', '#64748b']
 const CLUSTER_COLORS = ['#0f766e', '#e05d2b', '#2563eb', '#ca8a04', '#be185d']
 const RECORDS_PER_PAGE = 25
+const MAX_CLUSTER_POINTS = 750
 const PREVIEW_FIELDS = ['NAME', 'CITY', 'STATE', 'COUNTY', 'NAICSDESCR', 'MINE_TYPE']
 
 const buildIndustryChartData = (industryClasses) => {
@@ -108,6 +109,12 @@ export default function MineralResourcesDashboard() {
   const stateData = summary?.states || []
   const industryClasses = summary?.industryClasses || []
   const spatialClusters = summary?.spatialClusters || []
+  const chartClusters = useMemo(() => spatialClusters.map((cluster) => ({
+    ...cluster,
+    sites: cluster.sites.length <= MAX_CLUSTER_POINTS
+      ? cluster.sites
+      : cluster.sites.filter((_, index) => index % Math.ceil(cluster.sites.length / MAX_CLUSTER_POINTS) === 0),
+  })), [spatialClusters])
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6">
@@ -201,25 +208,27 @@ export default function MineralResourcesDashboard() {
           <p className="text-sm text-slate-400">{t.noCoordinateClusters}</p>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height={340}>
-              <ScatterChart margin={{ top: 12, right: 20, bottom: 24, left: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+            <ResponsiveContainer width="100%" height={350}>
+              <ScatterChart margin={{ top: 12, right: 20, bottom: 16, left: 12 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#64748b" opacity={0.65} />
                 <XAxis
                   type="number"
                   dataKey="longitude"
                   name="Longitude"
                   domain={['dataMin', 'dataMax']}
-                  tick={{ fontSize: 11 }}
-                  label={{ value: 'Longitude', position: 'insideBottom', offset: -14, fontSize: 12 }}
+                  tick={{ fontSize: 11, fill: '#64748b' }}
+                  axisLine={{ stroke: '#64748b' }}
+                  tickLine={{ stroke: '#64748b' }}
                 />
                 <YAxis
                   type="number"
                   dataKey="latitude"
                   name="Latitude"
                   domain={['dataMin', 'dataMax']}
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: '#64748b' }}
                   width={48}
-                  label={{ value: 'Latitude', angle: -90, position: 'insideLeft', fontSize: 12 }}
+                  axisLine={{ stroke: '#64748b' }}
+                  tickLine={{ stroke: '#64748b' }}
                 />
                 <ZAxis range={[24, 24]} />
                 <Tooltip
@@ -230,11 +239,10 @@ export default function MineralResourcesDashboard() {
                     return site ? `${site.state} · ${site.industry}` : 'Facility location'
                   }}
                 />
-                <Legend />
-                {spatialClusters.map((cluster, index) => (
+                {chartClusters.map((cluster, index) => (
                   <Scatter
                     key={cluster.id}
-                    name={`Cluster ${cluster.id} (${cluster.siteCount})`}
+                    name={`Cluster ${cluster.id}`}
                     data={cluster.sites}
                     fill={CLUSTER_COLORS[index % CLUSTER_COLORS.length]}
                     fillOpacity={0.56}
@@ -242,6 +250,14 @@ export default function MineralResourcesDashboard() {
                 ))}
               </ScatterChart>
             </ResponsiveContainer>
+            <div className="mt-2 flex flex-wrap justify-center gap-x-5 gap-y-2 border-b border-slate-200 pb-4 text-sm dark:border-slate-700">
+              {spatialClusters.map((cluster, index) => (
+                <span key={cluster.id} className="inline-flex items-center gap-2 whitespace-nowrap text-slate-700 dark:text-slate-200">
+                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: CLUSTER_COLORS[index % CLUSTER_COLORS.length] }} />
+                  Cluster {cluster.id} ({cluster.siteCount.toLocaleString()})
+                </span>
+              ))}
+            </div>
             <div className="grid grid-cols-1 gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:grid-cols-2 xl:grid-cols-5">
               {spatialClusters.map((cluster, index) => (
                 <div key={cluster.id} className="border-l-4 p-3" style={{ borderColor: CLUSTER_COLORS[index % CLUSTER_COLORS.length] }}>

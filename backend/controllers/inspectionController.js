@@ -281,6 +281,11 @@ const updateInspection = asyncHandler(async (req, res) => {
     req.body.riskScore = calculateRiskScore(temp);
   }
 
+  const uploadedPhotos = (req.files?.photos || []).map(getStoredMediaPath);
+  if (uploadedPhotos.length) {
+    req.body.photos = [...(inspection.photos || []), ...uploadedPhotos].slice(0, 5);
+  }
+
   // If status is closed
   if (req.body.status === "closed" && inspection.status !== "closed") {
     req.body.closedAt = Date.now();

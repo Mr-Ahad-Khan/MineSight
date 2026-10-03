@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -13,6 +13,7 @@ import {
   RefreshCw,
   ZoomIn,
   ZoomOut,
+  Upload,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -48,6 +49,7 @@ export default function InspectionDetail() {
   const [photoZoom, setPhotoZoom] = useState(1);
   const [auditTrail, setAuditTrail] = useState(null);
   const [auditError, setAuditError] = useState("");
+  const proofInputRef = useRef(null);
 
   const adjustPhotoZoom = (amount) => {
     setPhotoZoom((current) => Math.min(4, Math.max(1, current + amount)));
@@ -94,12 +96,36 @@ export default function InspectionDetail() {
   const handleStatusChange = async (status) => {
     setUpdating(true);
     try {
-      const res = await updateInspection(id, { status });
+      const res = await updateInspection(id, {
+        status,
+        ...(status === "open" ? { closedAt: null } : {}),
+      });
       setInspection(res.data.data);
       await fetchAuditTrail();
       toast.success(`${t.statusUpdated} ${status}`);
     } catch (error) {
       toast.error(t.failedUpdate);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleCloseWithProof = async (event) => {
+    const files = Array.from(event.target.files || []).slice(0, 5);
+    event.target.value = "";
+    if (!files.length) return;
+
+    setUpdating(true);
+    try {
+      const payload = new FormData();
+      payload.append("status", "closed");
+      files.forEach((file) => payload.append("photos", file));
+      const res = await updateInspection(id, payload);
+      setInspection(res.data.data);
+      await fetchAuditTrail();
+      toast.success("Inspection closed with photo proof");
+    } catch (error) {
+      toast.error(error.response?.data?.message || t.failedUpdate);
     } finally {
       setUpdating(false);
     }
@@ -342,7 +368,7 @@ export default function InspectionDetail() {
         <div className="space-y-6">
           {/* Actions */}
           <div className="card p-5 space-y-3">
-            <h2 className="font-semibold">{t.actions}</h2>
+            <h2 className="font-semibold text-slate-900 dark:text-white">{t.actions}</h2>
             {inspection.status !== "closed" && (
               <>
                 <button
@@ -366,11 +392,27 @@ export default function InspectionDetail() {
                 >
                   {t.closeInspection}
                 </button>
+                <input
+                  ref={proofInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleCloseWithProof}
+                />
+                <button
+                  type="button"
+                  onClick={() => proofInputRef.current?.click()}
+                  disabled={updating}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-teal-300 bg-teal-50 px-3 py-2 text-sm font-medium text-teal-800 transition hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-teal-700 dark:bg-teal-950/40 dark:text-teal-200 dark:hover:bg-teal-900/50"
+                >
+                  <Upload className="h-4 w-4" /> Close & add photo proof
+                </button>
               </>
             )}
             {inspection.status === "closed" && (
               <div className="space-y-2 text-sm">
-                <p className="flex items-center gap-2 text-emerald-600">
+                <p className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
                   <CheckCircle className="h-4 w-4" /> {t.inspectionClosed}
                 </p>
                 {hasProof ? (
@@ -378,26 +420,52 @@ export default function InspectionDetail() {
                     <ShieldCheck className="h-4 w-4" /> Proof verified
                   </p>
                 ) : (
-                  <p className="text-xs text-slate-500">No photo proof attached</p>
+                  <>
+                    <p className="text-xs text-slate-600 dark:text-slate-300">No photo proof attached</p>
+                    <input
+                      ref={proofInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleCloseWithProof}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => proofInputRef.current?.click()}
+                      disabled={updating}
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-teal-300 bg-teal-50 px-3 py-2 text-sm font-medium text-teal-800 transition hover:bg-teal-100 disabled:opacity-60 dark:border-teal-700 dark:bg-teal-950/40 dark:text-teal-200 dark:hover:bg-teal-900/50"
+                    >
+                      <Upload className="h-4 w-4" /> Add proof & close inspection
+                    </button>
+                  </>
                 )}
+                <button
+                  type="button"
+                  onClick={() => handleStatusChange("open")}
+                  disabled={updating}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  <RefreshCw className="h-4 w-4" /> Reopen inspection
+                </button>
               </div>
             )}
 
             <button
               type="button"
               onClick={handleDeleteInspection}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70"
             >
               <Trash2 className="h-4 w-4" />
               Delete Inspection
             </button>
           </div>
 
-          <div className="card space-y-3 p-5">
+          <div className="card space-y-3 p-5 text-slate-700 dark:text-slate-200">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="font-semibold">Blockchain audit trail</h2>
-                <p className="mt-1 text-xs text-slate-500">SHA-256 hash-linked inspection changes</p>
+                <h2 className="font-semibold text-slate-900 dark:text-white">Blockchain audit trail</h2>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">SHA-256 hash-linked inspection changes</p>
               </div>
               <button
                 type="button"

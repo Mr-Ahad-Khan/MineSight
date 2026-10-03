@@ -115,8 +115,14 @@ export const createInspection = (data) => {
   }
   return api.post("/inspections", data);
 };
-export const updateInspection = (id, data) =>
-  api.put(`/inspections/${id}`, data);
+export const updateInspection = (id, data) => {
+  if (data instanceof FormData) {
+    return api.put(`/inspections/${id}`, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  }
+  return api.put(`/inspections/${id}`, data);
+};
 export const deleteInspection = (id) => api.delete(`/inspections/${id}`);
 export const closeViolation = (id, violationId) =>
   api.patch(`/inspections/${id}/violations/${violationId}`);

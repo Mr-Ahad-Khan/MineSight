@@ -8,6 +8,21 @@ import { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
 import TableScrollContainer from '../components/common/TableScrollContainer'
 
+const ChartTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-lg">
+      <p className="font-medium text-slate-200">{label}</p>
+      {payload.map((entry) => (
+        <p key={entry.dataKey} className="mt-1" style={{ color: entry.color || '#f8fafc' }}>
+          {entry.name}: {entry.value}
+        </p>
+      ))}
+    </div>
+  )
+}
+
 const COLORS = ['#2563eb', '#0d9488', '#ff6f00', '#ef4444']
 
 const getPercentChange = (current, previous) => {
@@ -309,11 +324,11 @@ export default function Analytics() {
           <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
         ) : (
           <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={burndownData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-              <Tooltip />
+            <LineChart data={burndownData} margin={{ top: 12, right: 20, bottom: 8, left: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#64748b" opacity={0.65} />
+              <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={{ stroke: '#64748b' }} tickLine={{ stroke: '#64748b' }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={{ stroke: '#64748b' }} tickLine={{ stroke: '#64748b' }} />
+              <Tooltip content={<ChartTooltip />} />
               <Line type="monotone" dataKey="remaining" stroke="#e11d48" strokeWidth={3} dot={{ r: 4 }} name="Remaining" />
             </LineChart>
           </ResponsiveContainer>
