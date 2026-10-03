@@ -55,6 +55,68 @@ function AppIndex() {
   return user?.role === "worker" ? <Workers /> : <Dashboard />;
 }
 
+function AppLoadingSkeleton() {
+  return (
+    <main
+      className="min-h-screen bg-[#f5f7fa] px-4 py-5 dark:bg-[#0f1720] sm:px-6 lg:px-8"
+      aria-label="Loading page"
+      role="status"
+    >
+      <div className="mx-auto max-w-7xl animate-pulse">
+        <div className="flex h-12 items-center justify-between border-b border-slate-200 dark:border-slate-700">
+          <div className="h-7 w-36 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="hidden items-center gap-3 md:flex">
+            <div className="h-4 w-16 rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="h-4 w-20 rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700" />
+          </div>
+          <div className="h-9 w-9 rounded bg-slate-200 dark:bg-slate-700 md:hidden" />
+        </div>
+
+        <div className="py-10">
+          <div className="mb-8 max-w-xl space-y-3">
+            <div className="h-3 w-32 rounded bg-amber-200 dark:bg-amber-900/60" />
+            <div className="h-9 w-3/4 rounded bg-slate-300 dark:bg-slate-600" />
+            <div className="h-4 w-full rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="h-4 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {[1, 2, 3, 4].map((item) => (
+              <div
+                key={item}
+                className="h-28 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800"
+              >
+                <div className="h-3 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="mt-5 h-7 w-16 rounded bg-slate-300 dark:bg-slate-600" />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1.35fr_1fr]">
+            <div className="h-72 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+              <div className="h-5 w-44 rounded bg-slate-300 dark:bg-slate-600" />
+              <div className="mt-8 h-40 rounded-lg bg-slate-100 dark:bg-slate-700/70" />
+            </div>
+            <div className="h-72 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+              <div className="h-5 w-36 rounded bg-slate-300 dark:bg-slate-600" />
+              <div className="mt-7 space-y-4">
+                {[1, 2, 3, 4].map((item) => (
+                  <div key={item} className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-3 flex-1 rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-3 w-12 rounded bg-slate-200 dark:bg-slate-700" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 function App() {
   const { initTheme } = useThemeStore();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -96,12 +158,7 @@ function App() {
         </div>
       )}
       <Suspense
-        fallback={
-          <main
-            className="min-h-screen bg-slate-50 dark:bg-slate-950"
-            aria-label="Loading page"
-          />
-        }
+        fallback={<AppLoadingSkeleton />}
       >
         <Routes>
           <Route path="/" element={<PublicHomeRoute />} />

@@ -9,16 +9,12 @@
 //     title: 'MineSight Digital Governance',
 //     subtitle: 'AI-led oversight for coal mining compliance, safety, and production efficiency.',
 //     image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80',
-//     badge: 'Coal Intelligence Platform',
 //   },
 //   {
-//     title: 'Safer Mines. Smarter Compliance.',
 //     subtitle: 'Track inspections, contractor risks, and environmental checks from one command center.',
 //     image: 'https://images.unsplash.com/photo-1532619187608-e5375feb6d0b?auto=format&fit=crop&w=1200&q=80',
-//     badge: 'Live Risk Monitoring',
 //   },
 //   {
-//     title: 'See the full picture underground.',
 //     subtitle: 'Geo-tagged operations and automated alerts keep every site aligned with safety mandates.',
 //     image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80',
 //     badge: 'Real-time Visibility',
@@ -1237,16 +1233,20 @@ export default function HomePage() {
             </div>
             <div className="grid gap-6 border-t border-white/15 pt-6 sm:grid-cols-2 md:border-l md:border-t-0 md:pl-8 md:pt-0">
               <div className="border-l-2 border-[#39c7b0] pl-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#83d2c5]">
+                <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#238f83] dark:text-[#83d2c5]">
                   {t.institutionalContext}
                 </p>
-                <p className="mt-2 text-lg font-semibold">{t.ministryOfCoal}</p>
+                <p className="mt-2 text-xl font-bold text-[#17314a] dark:text-white sm:text-2xl">
+                  {t.ministryOfCoal}
+                </p>
               </div>
               <div className="border-l-2 border-[#e5a416] pl-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#f3b323]">
+                <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#a66d00] dark:text-[#f3b323]">
                   {t.associatedCompany}
                 </p>
-                <p className="mt-2 text-lg font-semibold">{t.coalIndiaLimited}</p>
+                <p className="mt-2 text-xl font-bold text-[#17314a] dark:text-white sm:text-2xl">
+                  {t.coalIndiaLimited}
+                </p>
               </div>
             </div>
             <div className="grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2 lg:grid-cols-3 md:col-span-2">

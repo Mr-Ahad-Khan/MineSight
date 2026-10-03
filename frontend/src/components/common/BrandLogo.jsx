@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import useThemeStore from "../../store/themeStore";
 
 export default function BrandLogo({ className = "", imageClassName = "" }) {
+  const darkMode = useThemeStore((state) => state.darkMode);
+
   return (
     <Link
       to="/app"
@@ -10,7 +13,7 @@ export default function BrandLogo({ className = "", imageClassName = "" }) {
       className={`flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-transparent p-0 ${imageClassName} ${className}`}
     >
       <img
-        src={`${import.meta.env.BASE_URL}minesight-logo.svg`}
+        src={`${import.meta.env.BASE_URL}${darkMode ? "minesight-logo.svg" : "minesight-logo-light.svg"}`}
         alt="MineSight logo"
         loading="eager"
         className="block h-full w-full object-contain"

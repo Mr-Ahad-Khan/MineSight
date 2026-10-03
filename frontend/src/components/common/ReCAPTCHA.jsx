@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Loader2 } from "lucide-react";
 
 /**
@@ -7,7 +13,7 @@ import { Loader2 } from "lucide-react";
  */
 const ReCAPTCHA = forwardRef(function ReCAPTCHA(
   { sitekey, onChange, onExpired, theme = "light", size = "normal" },
-  ref
+  ref,
 ) {
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
@@ -44,10 +50,37 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
   useEffect(() => {
     let isMounted = true;
     let timerId = null;
+    let iframeObserver = null;
+
+    const markWidgetReady = () => {
+      if (isMounted) setIsRendered(true);
+    };
+
+    const waitForIframe = () => {
+      const iframe = containerRef.current?.querySelector("iframe");
+      if (iframe) {
+        iframe.addEventListener("load", markWidgetReady, { once: true });
+        return true;
+      }
+
+      iframeObserver = new MutationObserver(() => {
+        const insertedIframe = containerRef.current?.querySelector("iframe");
+        if (!insertedIframe) return;
+        iframeObserver?.disconnect();
+        insertedIframe.addEventListener("load", markWidgetReady, {
+          once: true,
+        });
+      });
+      iframeObserver.observe(containerRef.current, { childList: true, subtree: true });
+      return false;
+    };
 
     const renderWidget = () => {
       if (!isMounted || !containerRef.current) return false;
-      if (!window.grecaptcha || typeof window.grecaptcha.render !== "function") {
+      if (
+        !window.grecaptcha ||
+        typeof window.grecaptcha.render !== "function"
+      ) {
         return false;
       }
 
@@ -72,11 +105,11 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
           size,
         });
 
-        if (isMounted) setIsRendered(true);
+        waitForIframe();
         return true;
       } catch (err) {
         if (containerRef.current?.querySelector("iframe")) {
-          if (isMounted) setIsRendered(true);
+          waitForIframe();
           return true;
         }
         return false;
@@ -106,22 +139,24 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
     return () => {
       isMounted = false;
       if (timerId) clearInterval(timerId);
+      iframeObserver?.disconnect();
       widgetIdRef.current = null;
     };
   }, [sitekey, theme, size]);
 
   return (
-    <div className="relative min-h-[78px] w-full max-w-[304px]">
+    <div className="relative h-[78px] w-full max-w-[304px]">
       {!isRendered && (
-        <div className="flex h-[78px] w-[304px] items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+        <div
+          className="absolute inset-0 flex items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+          role="status"
+          aria-live="polite"
+        >
           <Loader2 className="mr-2 h-4 w-4 animate-spin text-[#ff6f00]" />
           <span>Loading reCAPTCHA...</span>
         </div>
       )}
-      <div
-        ref={containerRef}
-        className={isRendered ? "block" : "hidden"}
-      />
+      <div ref={containerRef} className={isRendered ? "block" : "hidden"} />
     </div>
   );
 });
