@@ -59,6 +59,12 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!navigator.onLine) {
+      toast.error("You are offline. Please connect to the internet to sign in.");
+      return;
+    }
+
     if (recaptchaSiteKey && !recaptchaToken) {
       toast.error("Please complete the reCAPTCHA.");
       return;

@@ -16,6 +16,10 @@ const useAuthStore = create((set) => ({
   isLoading: false,
 
   login: async (email, password, recaptchaToken) => {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      return { success: false, message: 'You are offline. Please connect to the internet to sign in.' }
+    }
+
     set({ isLoading: true })
     try {
       const { data } = await loginApi({ email, password, recaptchaToken })
@@ -40,6 +44,10 @@ const useAuthStore = create((set) => ({
   },
 
   register: async (userData) => {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      return { success: false, message: 'You are offline. Please connect to the internet to create your account.' }
+    }
+
     set({ isLoading: true })
     try {
       const { data } = await registerApi(userData)
