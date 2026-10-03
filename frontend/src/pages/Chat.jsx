@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, Mic, MicOff, PhoneCall, Send, ShieldCheck, Sparkles, User, Volume2, VolumeX } from "lucide-react";
+import {
+  Bot,
+  ChevronLeft,
+  ChevronRight,
+  Mic,
+  MicOff,
+  PhoneCall,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  User,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -186,12 +199,18 @@ const prompts = {
     "How do I create a good inspection?",
     "How should I handle an overdue compliance?",
     "Customer care number and location",
+    "Show high-risk mine sites",
+    "How to review contractor compliance?",
+    "Emergency rescue contacts",
   ],
   hi: [
     "आज किस बात पर ध्यान देना चाहिए?",
     "मैं अच्छा निरीक्षण कैसे बनाऊँ?",
     "समय-सीमा पार अनुपालन को कैसे संभालूँ?",
     "ग्राहक सेवा नंबर और स्थान",
+    "उच्च जोखिम वाली खदानें दिखाएँ",
+    "ठेकेदार अनुपालन की समीक्षा कैसे करें?",
+    "आपातकालीन बचाव संपर्क",
   ],
 };
 
@@ -202,11 +221,14 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [listening, setListening] = useState(false);
-  const [speechEnabled, setSpeechEnabled] = useState(
-    () => localStorage.getItem("speakChatReplies") === "true",
-  );
+  // Default speak to FALSE - only speak if user explicitly enables it
+  const [speechEnabled, setSpeechEnabled] = useState(false);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const suggestionsScrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
   const speechSupported =
     typeof window !== "undefined" && "speechSynthesis" in window;
   const recognitionSupported =
@@ -226,6 +248,32 @@ export default function Chat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
+
+  const checkSuggestionsScroll = () => {
+    const el = suggestionsScrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  };
+
+  useEffect(() => {
+    const el = suggestionsScrollRef.current;
+    if (!el) return;
+    checkSuggestionsScroll();
+    el.addEventListener("scroll", checkSuggestionsScroll, { passive: true });
+    window.addEventListener("resize", checkSuggestionsScroll);
+    return () => {
+      el.removeEventListener("scroll", checkSuggestionsScroll);
+      window.removeEventListener("resize", checkSuggestionsScroll);
+    };
+  }, [language]);
+
+  const slideSuggestions = (direction) => {
+    const el = suggestionsScrollRef.current;
+    if (!el) return;
+    const amount = direction === "left" ? -240 : 240;
+    el.scrollBy({ left: amount, behavior: "smooth" });
+  };
 
   useEffect(
     () => () => recognitionRef.current?.stop(),
@@ -293,12 +341,6 @@ export default function Chat() {
     if (listening) {
       recognitionRef.current?.stop();
       return;
-    }
-
-    if (speechSupported) {
-      window.speechSynthesis.cancel();
-      setSpeechEnabled(true);
-      localStorage.setItem("speakChatReplies", "true");
     }
     toggleVoiceInput();
   };
@@ -411,42 +453,62 @@ export default function Chat() {
             </div>
             <button
               type="button"
-              onClick={toggleVoiceConversation}
-              disabled={!speechSupported || !recognitionSupported || sending}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] sm:px-3 sm:py-1.5 sm:text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${listening ? "bg-red-500 text-white" : "bg-white/10 text-white hover:bg-white/20"}`}
-              aria-label={
-                listening
-                  ? language === "hi"
-                    ? "वॉइस बातचीत रोकें"
-                    : "Stop voice chat"
-                  : language === "hi"
-                    ? "वॉइस बातचीत शुरू करें"
-                    : "Start voice chat"
-              }
-              aria-pressed={listening}
+              onClick={() => {
+                if (!speechSupported) {
+                  toast.error(
+                    language === "hi"
+                      ? "इस ब्राउज़र में वॉइस स्पीच उपलब्ध नहीं है।"
+                      : "Voice speech is not supported in this browser.",
+                  );
+                  return;
+                }
+                const nextState = !speechEnabled;
+                setSpeechEnabled(nextState);
+                if (!nextState) {
+                  window.speechSynthesis.cancel();
+                  toast(
+                    language === "hi"
+                      ? "बॉट आवाज़ बंद (मूक)"
+                      : "Voice replies disabled (Muted)",
+                    { icon: "🔇" },
+                  );
+                } else {
+                  toast.success(
+                    language === "hi"
+                      ? "बॉट आवाज़ चालू — बॉट उत्तर बोलेगा"
+                      : "Voice replies enabled — bot will speak answers",
+                  );
+                }
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] sm:px-2.5 sm:py-1.5 sm:text-xs font-semibold transition ${
+                speechEnabled
+                  ? "bg-amber-400 text-slate-950 shadow-sm ring-1 ring-amber-300"
+                  : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
+              }`}
+              aria-pressed={speechEnabled}
               title={
-                !speechSupported || !recognitionSupported
+                speechEnabled
                   ? language === "hi"
-                    ? "इस ब्राउज़र में वॉइस चैट समर्थित नहीं है"
-                    : "Voice chat is not supported in this browser"
-                  : listening
-                    ? language === "hi"
-                      ? "सुनना रोकें"
-                      : "Stop listening"
-                    : language === "hi"
-                      ? "बोलने के लिए क्लिक करें"
-                      : "Click to speak"
+                    ? "आवाज़ बंद करें (सक्षम है)"
+                    : "Disable voice replies (currently active)"
+                  : language === "hi"
+                    ? "आवाज़ चालू करें (डिफ़ॉल्ट बंद है)"
+                    : "Enable voice replies (disabled by default)"
               }
             >
-              {listening ? <Volume2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" /> : <VolumeX className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />}
+              {speechEnabled ? (
+                <Volume2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
+              ) : (
+                <VolumeX className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
+              )}
               <span className="hidden xs:inline sm:inline">
-                {listening
+                {speechEnabled
                   ? language === "hi"
-                    ? "सुन रहा है..."
-                    : "Listening..."
+                    ? "आवाज़: चालू"
+                    : "Voice: ON"
                   : language === "hi"
-                    ? "वॉइस चैट"
-                    : "Voice chat"}
+                    ? "आवाज़: बंद"
+                    : "Voice: OFF"}
               </span>
             </button>
           </div>
@@ -488,21 +550,49 @@ export default function Chat() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar border-t border-gray-200/80 bg-white/90 px-3 py-2 shrink-0 dark:border-slate-700/80 dark:bg-slate-900/80">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 hidden sm:inline">
-            {language === "hi" ? "सुझाव:" : "Suggestions:"}
-          </span>
-          {prompts[language].map((prompt) => (
-            <button
-              key={prompt}
-              type="button"
-              onClick={() => askPrompt(prompt)}
-              disabled={sending}
-              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-gray-200 bg-gray-50/80 px-2.5 py-1 text-[11px] sm:text-xs font-medium text-gray-700 shadow-sm transition hover:border-[#ff6f00] hover:bg-orange-50 hover:text-[#ff6f00] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-sky-400 dark:hover:bg-slate-700"
-            >
-              <Sparkles className="h-3 w-3 text-[#ff6f00]" /> {prompt}
-            </button>
-          ))}
+        {/* Sliding suggestions carousel */}
+        <div className="relative flex items-center border-t border-gray-200/80 bg-white/95 px-2 py-1.5 shrink-0 dark:border-slate-700/80 dark:bg-slate-900/90">
+          <button
+            type="button"
+            onClick={() => slideSuggestions("left")}
+            disabled={!canScrollLeft}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:bg-orange-50 hover:text-[#ff6f00] disabled:pointer-events-none disabled:opacity-25 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 mr-1"
+            aria-label="Slide suggestions left"
+            title="Slide left"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+
+          <div
+            ref={suggestionsScrollRef}
+            className="flex flex-1 items-center gap-1.5 overflow-x-auto scroll-smooth no-scrollbar py-0.5 px-0.5"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 hidden sm:inline mr-1">
+              {language === "hi" ? "सुझाव:" : "Suggestions:"}
+            </span>
+            {prompts[language].map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                onClick={() => askPrompt(prompt)}
+                disabled={sending}
+                className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-gray-200 bg-gray-50/80 px-2.5 py-1 text-[11px] sm:text-xs font-medium text-gray-700 shadow-sm transition hover:border-[#ff6f00] hover:bg-orange-50 hover:text-[#ff6f00] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-sky-400 dark:hover:bg-slate-700 active:scale-95"
+              >
+                <Sparkles className="h-3 w-3 text-[#ff6f00]" /> {prompt}
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => slideSuggestions("right")}
+            disabled={!canScrollRight}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:bg-orange-50 hover:text-[#ff6f00] disabled:pointer-events-none disabled:opacity-25 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 ml-1"
+            aria-label="Slide suggestions right"
+            title="Slide right"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
 
         <form

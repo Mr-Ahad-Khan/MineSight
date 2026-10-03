@@ -15,6 +15,19 @@ const Layout = lazy(() => import("./components/layout/Layout"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+
+// Preload auth pages in idle time so reCAPTCHA wrapper chunk is immediately ready
+if (typeof window !== "undefined") {
+  const preloadAuth = () => {
+    import("./pages/Login");
+    import("./pages/Register");
+  };
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(preloadAuth);
+  } else {
+    setTimeout(preloadAuth, 120);
+  }
+}
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Inspections = lazy(() => import("./pages/Inspections"));
 const CreateInspection = lazy(() => import("./pages/CreateInspection"));
