@@ -6,6 +6,8 @@ import {
   Plus,
   Trash2,
   Mic,
+  Volume2,
+  VolumeX,
   Square,
   Upload,
   FileText,
@@ -40,6 +42,112 @@ function LocationPicker({ position, setPosition }) {
   return position ? <Marker position={position} /> : null;
 }
 
+function VoiceTextField({
+  id,
+  value,
+  onChange,
+  placeholder,
+  className = "input-field",
+  multiline = false,
+  rows,
+  voiceEnabled,
+  language,
+  ...props
+}) {
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef(null);
+  const valueRef = useRef(value);
+  const supportsRecognition =
+    typeof window !== "undefined" &&
+    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  useEffect(
+    () => () => recognitionRef.current?.stop(),
+    [],
+  );
+
+  const speakInstructions = () => {
+    if (!voiceEnabled || !("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(
+      `You are editing ${props["aria-label"] || placeholder || "this field"}. You can type or select the microphone to dictate.`,
+    );
+    utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const toggleListening = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    if (!supportsRecognition) return;
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = language === "hi" ? "hi-IN" : "en-IN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0]?.transcript || "")
+        .join(" ")
+        .trim();
+      if (transcript) {
+        const separator = valueRef.current.trim() ? " " : "";
+        onChange({ target: { value: `${valueRef.current}${separator}${transcript}` } });
+      }
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      setListening(false);
+    };
+    recognition.onerror = () => {
+      recognitionRef.current = null;
+      setListening(false);
+    };
+    recognitionRef.current = recognition;
+    recognition.start();
+    setListening(true);
+  };
+
+  const fieldProps = {
+    id,
+    value,
+    placeholder,
+    onChange,
+    onFocus: speakInstructions,
+    className: `${className} ${supportsRecognition ? "pr-11" : ""}`,
+    ...props,
+  };
+
+  return (
+    <div className="relative">
+      {multiline ? <textarea {...fieldProps} rows={rows} /> : <input {...fieldProps} />}
+      {supportsRecognition && (
+        <button
+          type="button"
+          onClick={toggleListening}
+          className={`absolute right-2 top-2 rounded-md p-1.5 transition ${
+            listening
+              ? "bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-300"
+              : "text-slate-500 hover:bg-slate-100 hover:text-primary-600 dark:hover:bg-slate-700"
+          }`}
+          aria-label={listening ? "Stop voice typing" : "Start voice typing"}
+          title={listening ? "Stop voice typing" : "Start voice typing"}
+        >
+          <Mic className={`h-4 w-4 ${listening ? "animate-pulse" : ""}`} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function CreateInspection() {
   const navigate = useNavigate();
   const { language } = useLanguageStore();
@@ -54,6 +162,7 @@ export default function CreateInspection() {
   const [selectedPreview, setSelectedPreview] = useState(null);
   const [previewZoom, setPreviewZoom] = useState(1);
   const [isRecording, setIsRecording] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [mineDropdownOpen, setMineDropdownOpen] = useState(false);
   const [mineSearch, setMineSearch] = useState("");
   const mineDropdownRef = useRef(null);
@@ -321,6 +430,18 @@ export default function CreateInspection() {
         autoComplete="on"
         className="grid w-full grid-cols-1 items-start gap-5 lg:gap-6 xl:grid-cols-2"
       >
+        <div className="flex items-center justify-end gap-3 text-sm xl:col-span-2">
+          <button
+            type="button"
+            onClick={() => setVoiceEnabled((enabled) => !enabled)}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            aria-pressed={voiceEnabled}
+          >
+            {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {voiceEnabled ? "Voice guidance on" : "Enable voice guidance"}
+          </button>
+          <span className="text-xs text-slate-500">Off by default</span>
+        </div>
         <div className="grid items-stretch gap-6 lg:grid-cols-2 xl:contents">
           {/* Basic Info */}
           <div className="card space-y-4 p-4 sm:p-5 lg:col-span-2 xl:col-span-1 xl:col-start-1 xl:row-start-2">
@@ -364,14 +485,17 @@ export default function CreateInspection() {
                     <div className="sticky top-0 z-10 border-b border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-slate-900">
                       <div className="relative">
                         <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-                        <input
+                        <VoiceTextField
                           type="text"
+                          id="inspection-mine-search"
                           value={mineSearch}
                           onChange={(e) => setMineSearch(e.target.value)}
                           placeholder="Search mine by name or code..."
                           className="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:border-primary-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
                           autoFocus
                           onClick={(e) => e.stopPropagation()}
+                          voiceEnabled={voiceEnabled}
+                          language={language}
                         />
                       </div>
                     </div>
@@ -466,14 +590,15 @@ export default function CreateInspection() {
               <label className="label" htmlFor="inspection-title">
                 {t.titleRequired}
               </label>
-              <input
+              <VoiceTextField
                 id="inspection-title"
                 name="title"
                 type="text"
                 autoComplete="off"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="input-field"
+                voiceEnabled={voiceEnabled}
+                language={language}
                 placeholder={t.titlePlaceholder}
                 required
               />
@@ -483,7 +608,7 @@ export default function CreateInspection() {
               <label className="label" htmlFor="inspection-description">
                 {t.description}
               </label>
-              <textarea
+              <VoiceTextField
                 id="inspection-description"
                 name="description"
                 autoComplete="off"
@@ -491,7 +616,9 @@ export default function CreateInspection() {
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="input-field"
+                voiceEnabled={voiceEnabled}
+                language={language}
+                multiline
                 rows={2}
                 placeholder={t.descriptionPlaceholder}
               />
@@ -501,7 +628,7 @@ export default function CreateInspection() {
               <label className="label" htmlFor="inspection-observations">
                 {t.observations}
               </label>
-              <textarea
+              <VoiceTextField
                 id="inspection-observations"
                 name="observations"
                 autoComplete="off"
@@ -509,7 +636,9 @@ export default function CreateInspection() {
                 onChange={(e) =>
                   setForm({ ...form, observations: e.target.value })
                 }
-                className="input-field"
+                voiceEnabled={voiceEnabled}
+                language={language}
+                multiline
                 rows={3}
                 placeholder={t.observationsPlaceholder}
               />
@@ -689,7 +818,7 @@ export default function CreateInspection() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg">
-              <input
+              <VoiceTextField
                 id="violation-description"
                 name="violationDescription"
                 type="text"
@@ -699,6 +828,8 @@ export default function CreateInspection() {
                   setViolation({ ...violation, description: e.target.value })
                 }
                 className="input-field md:col-span-2"
+                voiceEnabled={voiceEnabled}
+                language={language}
                 placeholder="Violation description"
               />
               <select
@@ -732,7 +863,7 @@ export default function CreateInspection() {
                 <option value="high">High</option>
                 <option value="critical">Critical</option>
               </select>
-              <input
+              <VoiceTextField
                 id="violation-corrective-action"
                 name="violationCorrectiveAction"
                 type="text"
@@ -745,6 +876,8 @@ export default function CreateInspection() {
                   })
                 }
                 className="input-field md:col-span-2"
+                voiceEnabled={voiceEnabled}
+                language={language}
                 placeholder="Corrective action required"
               />
               <button
