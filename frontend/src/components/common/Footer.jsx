@@ -1,5 +1,5 @@
 import BrandLogo from "./BrandLogo";
-import { LayoutDashboard, ClipboardList, UserCheck, ShieldCheck } from "lucide-react";
+import { Camera, LayoutDashboard, ClipboardList, UserCheck, ShieldCheck } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import { useLanguageStore } from "../../store/themeStore";
@@ -18,6 +18,11 @@ export default function Footer() {
     { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
     { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
     { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
+  ];
+  const mobileNavigation = [
+    ...navigation.slice(0, 2),
+    { name: "Capture", href: "/app/inspections/new", icon: Camera },
+    ...navigation.slice(2),
   ];
 
   return (
@@ -80,10 +85,10 @@ export default function Footer() {
       </div>
       )}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-4 border-t border-white/10 bg-[#121a21]/95 px-1 text-white shadow-[0_-8px_24px_rgba(12,18,24,0.22)] backdrop-blur-lg xl:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-5 border-t border-white/10 bg-[#121a21]/95 px-1 text-white shadow-[0_-8px_24px_rgba(12,18,24,0.22)] backdrop-blur-lg xl:hidden"
         aria-label="Footer navigation"
       >
-        {navigation.map((item) => (
+        {mobileNavigation.map((item) => (
           <NavLink
             key={item.href}
             to={item.href}

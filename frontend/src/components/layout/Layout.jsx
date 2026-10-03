@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ArrowUp } from "lucide-react";
-import { Outlet, useLocation } from "react-router-dom";
+import { ArrowUp, Camera } from "lucide-react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "../common/Footer";
 import CoalAiLauncher from "../common/CoalAiLauncher";
@@ -9,6 +9,7 @@ import { translations } from "../../i18n/translations";
 
 export default function Layout() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { language } = useLanguageStore();
   const t = translations[language] || translations.en;
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -37,6 +38,17 @@ export default function Layout() {
       </main>
       <Footer />
       {hasLauncher && <CoalAiLauncher />}
+      {hasLauncher && (
+        <button
+          type="button"
+          onClick={() => navigate("/app/inspections/new")}
+          className="fixed bottom-6 right-24 z-40 hidden h-14 w-14 items-center justify-center rounded-full border-4 border-[#d8f3ff] bg-[#0798d1] text-white shadow-[0_8px_22px_rgba(0,0,0,0.28)] transition hover:-translate-y-1 hover:scale-105 hover:bg-[#0788bb] focus:outline-none focus:ring-2 focus:ring-sky-300 xl:inline-flex"
+          aria-label="Capture photo"
+          title="Capture photo"
+        >
+          <Camera className="h-5 w-5" />
+        </button>
+      )}
       {showScrollTop && (
         <button
           type="button"
