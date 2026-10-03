@@ -115,7 +115,7 @@ export default function Navbar() {
       <div className="flex h-16 min-w-0 items-center justify-between px-3 sm:px-5 xl:px-6">
         {/* Left: Brand Logo */}
         <div className="flex shrink-0 items-center">
-          <BrandLogo imageClassName="h-9 w-[clamp(7.5rem,24vw,9.5rem)] max-w-full rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f00] max-[380px]:w-[5.5rem] sm:h-10 sm:w-40" />
+          <BrandLogo darkSurface imageClassName="h-9 w-[clamp(7.5rem,24vw,9.5rem)] max-w-full rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f00] max-[380px]:w-[5.5rem] sm:h-10 sm:w-40" />
         </div>
 
         {/* Desktop Single-Line Navigation: Core Tabs + More Dropdown */}

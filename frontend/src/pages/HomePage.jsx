@@ -990,12 +990,12 @@ export default function HomePage() {
       <header
         className={`fixed inset-x-0 top-0 z-40 border-b backdrop-blur-2xl ${darkMode ? "border-[#61543b] bg-[#151719]/95" : "border-[#c9b69d] bg-[#f3eadb]/95"}`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-2 py-2 sm:gap-4 sm:px-6 sm:py-4 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-2 py-1.5 sm:gap-4 sm:px-6 sm:py-2.5 lg:px-8">
           <div
             className="group flex min-w-0 items-center gap-2 cursor-pointer sm:gap-3"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            <BrandLogo imageClassName="h-10 w-28 rounded min-[380px]:h-12 min-[380px]:w-36 sm:h-14 sm:w-44" />
+            <BrandLogo imageClassName="h-9 w-28 rounded min-[380px]:h-10 min-[380px]:w-32 sm:h-11 sm:w-40" />
           </div>
 
           <nav
@@ -1016,7 +1016,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={toggleDarkMode}
-              className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${darkMode ? "border-white/20 bg-white/5 text-[#e5a416] hover:border-[#e5a416]" : "border-[#b99a72] bg-white/60 text-[#0d3f6d] hover:border-[#0d3f6d]"}`}
+              className={`flex h-8 w-8 items-center justify-center rounded-full border transition ${darkMode ? "border-white/20 bg-white/5 text-[#e5a416] hover:border-[#e5a416]" : "border-[#b99a72] bg-white/60 text-[#0d3f6d] hover:border-[#0d3f6d]"}`}
               aria-label={
                 darkMode ? "Switch to light mode" : "Switch to dark mode"
               }
@@ -1031,7 +1031,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-              className={`inline-flex h-9 items-center gap-0.5 rounded-full border p-1 text-[10px] font-bold tracking-wide transition hover:border-[#e5a416] sm:gap-1 ${darkMode ? "border-white/20 bg-white/5 text-[#e5ded2]" : "border-[#b99a72] bg-white/60 text-[#4d5b62]"}`}
+              className={`inline-flex h-8 items-center gap-0.5 rounded-full border p-1 text-[10px] font-bold tracking-wide transition hover:border-[#e5a416] sm:gap-1 ${darkMode ? "border-white/20 bg-white/5 text-[#e5ded2]" : "border-[#b99a72] bg-white/60 text-[#4d5b62]"}`}
               aria-label="Change language"
               title="Change language"
             >
@@ -1051,14 +1051,14 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className={`hidden rounded-md border px-5 py-2.5 text-sm font-medium transition-all hover:border-[#e5a416] sm:inline-flex ${darkMode ? "border-white/30 bg-white/5 text-[#f1ece4] hover:bg-[#e5a416]/10 hover:text-white" : "border-[#b99a72] bg-white/50 text-[#17314a] hover:bg-[#e5a416]/10"}`}
+              className={`hidden rounded-md border px-5 py-2 text-sm font-medium transition-all hover:border-[#e5a416] sm:inline-flex ${darkMode ? "border-white/30 bg-white/5 text-[#f1ece4] hover:bg-[#e5a416]/10 hover:text-white" : "border-[#b99a72] bg-white/50 text-[#17314a] hover:bg-[#e5a416]/10"}`}
             >
               {t.signIn}
             </button>
             <button
               type="button"
               onClick={() => (token ? navigate("/app") : navigate("/login"))}
-              className="group relative inline-flex items-center overflow-hidden rounded-md bg-[#e5a416] px-2.5 py-2.5 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95 sm:gap-2 sm:px-5"
+              className="group relative inline-flex items-center overflow-hidden rounded-md bg-[#e5a416] px-2.5 py-2 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95 sm:gap-2 sm:px-5"
             >
               <span className="relative z-10 flex items-center sm:gap-2">
                 <span className="hidden sm:inline">
@@ -1073,7 +1073,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="pt-[60px] sm:pt-[76px]">
+      <main className="pt-[54px] sm:pt-[68px]">
         {/* Hero Section */}
         <section className="relative overflow-hidden border-b border-[#3b3b3b] bg-[#0c0f11]">
           <div

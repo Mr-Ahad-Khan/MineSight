@@ -62,7 +62,7 @@ export default function Sidebar({ open, setOpen }) {
       >
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-5 border-b border-white/10">
-          <BrandLogo imageClassName="h-12 w-40 rounded" />
+          <BrandLogo darkSurface imageClassName="h-12 w-40 rounded" />
           <button
             onClick={() => setOpen(false)}
             className="lg:hidden p-1 rounded hover:bg-white/10"

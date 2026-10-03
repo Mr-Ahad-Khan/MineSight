@@ -87,33 +87,52 @@ function VoiceTextField({
     }
 
     if (!supportsRecognition) return;
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = language === "hi" ? "hi-IN" : "en-IN";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      if (transcript) {
-        const separator = valueRef.current.trim() ? " " : "";
-        onChange({ target: { value: `${valueRef.current}${separator}${transcript}` } });
+    const startRecognition = async () => {
+      let permissionStream;
+      try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error("Microphone access is not supported");
+        }
+        permissionStream = await navigator.mediaDevices?.getUserMedia({
+          audio: true,
+        });
+        permissionStream?.getTracks().forEach((track) => track.stop());
+
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = language === "hi" ? "hi-IN" : "en-IN";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map((result) => result[0]?.transcript || "")
+            .join(" ")
+            .trim();
+          if (transcript) {
+            const separator = valueRef.current.trim() ? " " : "";
+            onChange({ target: { value: `${valueRef.current}${separator}${transcript}` } });
+          }
+        };
+        recognition.onend = () => {
+          recognitionRef.current = null;
+          setListening(false);
+        };
+        recognition.onerror = () => {
+          recognitionRef.current = null;
+          setListening(false);
+        };
+        recognitionRef.current = recognition;
+        recognition.start();
+        setListening(true);
+      } catch (error) {
+        permissionStream?.getTracks().forEach((track) => track.stop());
+        console.error(error);
+        toast.error("Allow microphone access in your browser settings to use voice typing");
       }
     };
-    recognition.onend = () => {
-      recognitionRef.current = null;
-      setListening(false);
-    };
-    recognition.onerror = () => {
-      recognitionRef.current = null;
-      setListening(false);
-    };
-    recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
+
+    startRecognition();
   };
 
   const fieldProps = {
@@ -285,6 +304,11 @@ export default function CreateInspection() {
       };
 
       recorder.onstop = () => {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+          streamRef.current = null;
+        }
+
         if (!chunksRef.current.length) {
           setAudioBlob(null);
           setAudioUrl("");
@@ -303,10 +327,6 @@ export default function CreateInspection() {
           return newAudioUrl;
         });
 
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach((track) => track.stop());
-          streamRef.current = null;
-        }
       };
 
       mediaRecorderRef.current = recorder;
@@ -328,6 +348,12 @@ export default function CreateInspection() {
       setIsRecording(false);
       toast.success("Recording stopped");
     }
+  };
+
+  const removeAudio = () => {
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    setAudioBlob(null);
+    setAudioUrl("");
   };
 
   const MAX_PHOTOS = 10;
@@ -668,7 +694,7 @@ export default function CreateInspection() {
 
               <div>
                 <div className="label">Voice Note</div>
-                <div className="flex min-h-14 flex-wrap items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
+                <div className="flex min-h-14 flex-col items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
                   {!isRecording ? (
                     <button
                       type="button"
@@ -694,10 +720,7 @@ export default function CreateInspection() {
                       <audio controls src={audioUrl} className="h-10 rounded-lg dark:bg-slate-800" />
                       <button
                         type="button"
-                        onClick={() => {
-                          setAudioBlob(null);
-                          setAudioUrl("");
-                        }}
+                        onClick={removeAudio}
                         className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
@@ -712,20 +735,20 @@ export default function CreateInspection() {
                 <label className="label" htmlFor="site-photos">
                   Site Photos
                 </label>
-                <div className="flex min-h-14 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
+                <div className="flex min-h-14 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#0b3d91] px-3 py-2 text-sm font-medium text-white hover:bg-[#0a2f6d]">
-                    <Upload className="h-4 w-4" />
-                    Upload Photos
-                    <input
-                      id="site-photos"
-                      name="photos"
-                      type="file"
-                      autoComplete="off"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={handlePhotoChange}
-                    />
+                      <Upload className="h-4 w-4" />
+                      Upload Photos
+                      <input
+                        id="site-photos"
+                        name="photos"
+                        type="file"
+                        autoComplete="off"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handlePhotoChange}
+                      />
                   </label>
 
                   {photoPreviews.length > 0 && (
