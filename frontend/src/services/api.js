@@ -1069,16 +1069,15 @@ export const createInspection = async (data) => {
 
 export const updateInspection = async (id, data) => {
   const isFormData = data instanceof FormData;
-  let payload = data;
-  let files = [];
-
-  if (isFormData) {
-    const extracted = await extractFormData(data);
-    payload = extracted.fields;
-    files = extracted.files;
-  }
 
   if (typeof navigator !== "undefined" && !navigator.onLine) {
+    let payload = data;
+    let files = [];
+    if (isFormData) {
+      const extracted = await extractFormData(data);
+      payload = extracted.fields;
+      files = extracted.files;
+    }
     const existing = (await offlineStorage.getInspection(id)) || {};
     const updated = {
       ...existing,
@@ -1109,6 +1108,13 @@ export const updateInspection = async (id, data) => {
     return res;
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
+      let payload = data;
+      let files = [];
+      if (isFormData) {
+        const extracted = await extractFormData(data);
+        payload = extracted.fields;
+        files = extracted.files;
+      }
       const existing = (await offlineStorage.getInspection(id)) || {};
       const updated = {
         ...existing,

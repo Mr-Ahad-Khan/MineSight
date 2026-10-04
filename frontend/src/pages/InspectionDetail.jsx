@@ -97,21 +97,23 @@ export default function InspectionDetail() {
 
   const handleSaveEdit = async (e) => {
     e.preventDefault();
-    setUpdating(true);
+    const previousInspection = inspection;
+    const updatedData = { ...inspection, ...editForm };
+
+    // Instant UI feedback - 0ms
+    setInspection(updatedData);
+    setIsEditing(false);
+    toast.success(t.inspectionUpdated || "Inspection updated successfully");
+
     try {
       const res = await updateInspection(id, editForm);
       if (res?.data?.data) {
         setInspection(res.data.data);
-      } else {
-        setInspection((prev) => ({ ...prev, ...editForm }));
       }
-      await fetchAuditTrail();
-      setIsEditing(false);
-      toast.success(t.inspectionUpdated || "Inspection updated successfully");
+      fetchAuditTrail().catch(() => {});
     } catch (error) {
+      setInspection(previousInspection);
       toast.error(t.failedUpdate || "Failed to update inspection");
-    } finally {
-      setUpdating(false);
     }
   };
 
@@ -121,7 +123,7 @@ export default function InspectionDetail() {
 
   useEffect(() => {
     fetchInspection();
-    fetchAuditTrail();
+    fetchAuditTrail().catch(() => {});
   }, [id]);
 
   useEffect(() => {
@@ -160,19 +162,30 @@ export default function InspectionDetail() {
   };
 
   const handleStatusChange = async (status) => {
-    setUpdating(true);
+    const previousInspection = inspection;
+    const optimisticClosedAt = status === "closed" ? new Date().toISOString() : null;
+
+    // Instant UI feedback - 0ms
+    setInspection((prev) => ({
+      ...prev,
+      status,
+      closedAt: optimisticClosedAt,
+      _pendingSync: true,
+    }));
+    toast.success(`${t.statusUpdated || "Status updated to"} ${status}`);
+
     try {
       const res = await updateInspection(id, {
         status,
         ...(status === "open" ? { closedAt: null } : {}),
       });
-      setInspection(res.data.data);
-      await fetchAuditTrail();
-      toast.success(`${t.statusUpdated} ${status}`);
+      if (res?.data?.data) {
+        setInspection(res.data.data);
+      }
+      fetchAuditTrail().catch(() => {});
     } catch (error) {
-      toast.error(t.failedUpdate);
-    } finally {
-      setUpdating(false);
+      setInspection(previousInspection);
+      toast.error(t.failedUpdate || "Failed to update inspection");
     }
   };
 
@@ -181,8 +194,21 @@ export default function InspectionDetail() {
     event.target.value = "";
     if (!rawFiles.length) return;
 
-    setUpdating(true);
     setProofUploading(true);
+    const tempPreviews = rawFiles.map((file) => URL.createObjectURL(file));
+    const previousInspection = inspection;
+
+    // Instant UI feedback - 0ms
+    setInspection((prev) => ({
+      ...prev,
+      status: shouldClose ? "closed" : prev.status,
+      closedAt: shouldClose ? new Date().toISOString() : prev.closedAt,
+      closurePhotos: shouldClose ? [...(prev.closurePhotos || []), ...tempPreviews] : prev.closurePhotos,
+      photos: !shouldClose ? [...(prev.photos || []), ...tempPreviews] : prev.photos,
+      proofVerified: shouldClose ? true : prev.proofVerified,
+    }));
+    toast.success(shouldClose ? "Closure proof registered!" : "Photo proof attached!");
+
     try {
       const files = await Promise.all(
         rawFiles.map((file) => compressImage(file))
@@ -193,51 +219,64 @@ export default function InspectionDetail() {
       }
       payload.append("isClosureProof", "true");
       files.forEach((file) => payload.append("photos", file));
+
       const res = await updateInspection(id, payload);
-      setInspection(res.data.data);
-      await fetchAuditTrail();
-      toast.success(
-        shouldClose
-          ? "Inspection closed with photo proof"
-          : "Photo proof uploaded successfully",
-      );
+      if (res?.data?.data) {
+        setInspection(res.data.data);
+      }
+      fetchAuditTrail().catch(() => {});
     } catch (error) {
       toast.error(error.response?.data?.message || t.failedUpdate);
     } finally {
-      setUpdating(false);
       setProofUploading(false);
     }
   };
 
   const handlePhotoCaptured = async (file, previewUrl, initialRisk) => {
-    setUpdating(true);
     setProofUploading(true);
+    const tempUrl = previewUrl || (file instanceof Blob ? URL.createObjectURL(file) : null);
+    const shouldClose = Boolean(cameraForClosure || inspection.status === "closed");
+
+    // Instant UI feedback - 0ms
+    if (tempUrl) {
+      setInspection((prev) => ({
+        ...prev,
+        status: shouldClose ? "closed" : prev.status,
+        closedAt: shouldClose ? new Date().toISOString() : prev.closedAt,
+        closurePhotos: shouldClose ? [...(prev.closurePhotos || []), tempUrl] : prev.closurePhotos,
+        photos: !shouldClose ? [...(prev.photos || []), tempUrl] : prev.photos,
+        proofVerified: shouldClose ? true : prev.proofVerified,
+      }));
+    }
+
+    toast.success(
+      cameraForClosure
+        ? "Inspection closed with photo proof!"
+        : "Photo captured and attached successfully"
+    );
+
+    if (initialRisk) {
+      setCurrentRiskData(initialRisk);
+      setCurrentRiskPhoto(previewUrl);
+      setRiskModalOpen(true);
+    }
+
     try {
       const payload = new FormData();
-      if (cameraForClosure || inspection.status === "closed") {
+      if (shouldClose) {
         payload.append("status", "closed");
       }
       payload.append("isClosureProof", "true");
       payload.append("photos", file);
 
       const res = await updateInspection(id, payload);
-      setInspection(res.data.data);
-      await fetchAuditTrail();
-      toast.success(
-        cameraForClosure
-          ? "Inspection closed with photo proof!"
-          : "Photo captured and attached successfully"
-      );
-
-      if (initialRisk) {
-        setCurrentRiskData(initialRisk);
-        setCurrentRiskPhoto(previewUrl);
-        setRiskModalOpen(true);
+      if (res?.data?.data) {
+        setInspection(res.data.data);
       }
+      fetchAuditTrail().catch(() => {});
     } catch (error) {
       toast.error(error.response?.data?.message || t.failedUpdate);
     } finally {
-      setUpdating(false);
       setProofUploading(false);
     }
   };
@@ -270,12 +309,24 @@ export default function InspectionDetail() {
   };
 
   const handleCloseViolation = async (violationId) => {
+    const previousInspection = inspection;
+    // Instant UI feedback - 0ms
+    setInspection((prev) => ({
+      ...prev,
+      violations: (prev.violations || []).map((v) =>
+        v._id === violationId ? { ...v, status: "closed", closedAt: new Date().toISOString() } : v
+      ),
+    }));
+    toast.success(t.violationClosed || "Violation marked as closed");
+
     try {
       const res = await closeViolation(id, violationId);
-      setInspection(res.data.data);
-      await fetchAuditTrail();
-      toast.success(t.violationClosed);
+      if (res?.data?.data) {
+        setInspection(res.data.data);
+      }
+      fetchAuditTrail().catch(() => {});
     } catch (error) {
+      setInspection(previousInspection);
       toast.error(t.failedClose);
     }
   };
@@ -284,10 +335,12 @@ export default function InspectionDetail() {
     if (!window.confirm("Are you sure you want to delete this inspection?"))
       return;
 
+    // Instant UI feedback - 0ms
+    toast.success("Inspection deleted successfully");
+    navigate("/app/inspections");
+
     try {
       await deleteInspection(id);
-      toast.success("Inspection deleted successfully");
-      navigate("/app/inspections");
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Failed to delete inspection",
@@ -365,8 +418,7 @@ export default function InspectionDetail() {
             <button
               type="button"
               onClick={() => handleStatusChange("closed")}
-              disabled={updating}
-              className="btn-primary flex-1 min-h-[44px] py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+              className="btn-primary flex-1 min-h-[44px] py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95 transition-transform"
             >
               <CheckCircle className="w-4 h-4" />
               {t.closeInspection || "Close Inspection"}
@@ -374,8 +426,7 @@ export default function InspectionDetail() {
             <button
               type="button"
               onClick={() => handleStatusChange("escalated")}
-              disabled={updating}
-              className="btn-secondary flex-1 min-h-[44px] py-2 px-3 text-xs font-bold text-orange-600 dark:text-orange-400 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+              className="btn-secondary flex-1 min-h-[44px] py-2 px-3 text-xs font-bold text-orange-600 dark:text-orange-400 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95 transition-transform"
             >
               <ShieldAlert className="w-4 h-4" />
               {t.escalate || "Escalate"}
@@ -385,8 +436,7 @@ export default function InspectionDetail() {
         <button
           type="button"
           onClick={handleOpenEdit}
-          disabled={updating}
-          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95 transition-transform"
         >
           <FileText className="w-4 h-4" />
           Edit
@@ -394,10 +444,9 @@ export default function InspectionDetail() {
         <button
           type="button"
           onClick={() => proofInputRef.current?.click()}
-          disabled={updating || proofUploading}
-          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95 transition-transform"
         >
-          <Upload className="w-4 h-4" />
+          {proofUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
           Upload Photo
         </button>
         <button
@@ -406,8 +455,7 @@ export default function InspectionDetail() {
             setCameraForClosure(false);
             setIsCameraOpen(true);
           }}
-          disabled={updating || proofUploading}
-          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-sky-700 dark:text-sky-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-sky-700 dark:text-sky-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95 transition-transform"
         >
           <Camera className="w-4 h-4" />
           Capture
@@ -622,23 +670,24 @@ export default function InspectionDetail() {
             {inspection.status !== "closed" && (
               <>
                 <button
+                  type="button"
                   onClick={() => handleStatusChange("in_progress")}
-                  disabled={updating || inspection.status === "in_progress"}
-                  className="btn-secondary w-full text-sm"
+                  disabled={inspection.status === "in_progress"}
+                  className="btn-secondary w-full text-sm font-semibold touch-manipulation cursor-pointer active:scale-98 transition-transform"
                 >
                   {t.markInProgress}
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleStatusChange("escalated")}
-                  disabled={updating}
-                  className="btn-secondary w-full text-sm text-orange-600"
+                  className="btn-secondary w-full text-sm font-semibold text-orange-600 dark:text-orange-400 touch-manipulation cursor-pointer active:scale-98 transition-transform"
                 >
                   {t.escalate}
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleStatusChange("closed")}
-                  disabled={updating}
-                  className="btn-primary w-full text-sm"
+                  className="btn-primary w-full text-sm font-bold touch-manipulation cursor-pointer active:scale-98 transition-transform"
                 >
                   {t.closeInspection}
                 </button>
@@ -653,8 +702,7 @@ export default function InspectionDetail() {
                 <button
                   type="button"
                   onClick={handleOpenEdit}
-                  disabled={updating}
-                  className="btn-secondary w-full text-sm flex items-center justify-center gap-1.5"
+                  className="btn-secondary w-full text-sm font-semibold flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-98 transition-transform"
                 >
                   <FileText className="w-4 h-4" />
                   Edit Inspection
@@ -666,8 +714,7 @@ export default function InspectionDetail() {
                       setCameraForClosure(true);
                       setIsCameraOpen(true);
                     }}
-                    disabled={updating || proofUploading}
-                    className="flex items-center justify-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-2.5 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-100 disabled:opacity-60 dark:border-sky-700 dark:bg-sky-950/40 dark:text-sky-200"
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-2.5 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-100 dark:border-sky-700 dark:bg-sky-950/40 dark:text-sky-200 touch-manipulation cursor-pointer active:scale-95"
                   >
                     <Camera className="h-3.5 w-3.5" />
                     Capture Proof
@@ -675,8 +722,8 @@ export default function InspectionDetail() {
                   <button
                     type="button"
                     onClick={() => proofInputRef.current?.click()}
-                    disabled={updating || proofUploading}
-                    className="flex items-center justify-center gap-1.5 rounded-lg border border-teal-300 bg-teal-50 px-2.5 py-2 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60 dark:border-teal-700 dark:bg-teal-950/40 dark:text-teal-200"
+                    disabled={proofUploading}
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-teal-300 bg-teal-50 px-2.5 py-2 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60 dark:border-teal-700 dark:bg-teal-950/40 dark:text-teal-200 touch-manipulation cursor-pointer active:scale-95"
                   >
                     {proofUploading ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -757,8 +804,7 @@ export default function InspectionDetail() {
                 <button
                   type="button"
                   onClick={() => handleStatusChange("open")}
-                  disabled={updating}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 touch-manipulation cursor-pointer active:scale-98"
                 >
                   <RefreshCw className="h-4 w-4" /> Reopen inspection
                 </button>
@@ -768,7 +814,7 @@ export default function InspectionDetail() {
             <button
               type="button"
               onClick={handleDeleteInspection}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70 touch-manipulation cursor-pointer active:scale-98"
             >
               <Trash2 className="h-4 w-4" />
               Delete Inspection
