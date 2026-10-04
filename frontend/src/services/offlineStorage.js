@@ -844,15 +844,45 @@ export const offlineStorage = {
     };
   },
 
-  async getAnalytics() {
+  async getAnalytics(params = {}) {
     await seedStorageIfEmpty();
-    const [mines, inspections] = await Promise.all([
+    const [mines, allInspections] = await Promise.all([
       dbGetAll("mines"),
       dbGetAll("inspections"),
     ]);
 
+    let inspections = [...allInspections];
+    if (params.startDate) {
+      const startTime = new Date(params.startDate).getTime();
+      if (!isNaN(startTime)) {
+        inspections = inspections.filter((i) => {
+          const t = new Date(i.createdAt || i.inspectionDate || 0).getTime();
+          return t >= startTime;
+        });
+      }
+    }
+    if (params.endDate) {
+      const endTime = new Date(params.endDate).getTime() + 86400000; // include entire end day
+      if (!isNaN(endTime)) {
+        inspections = inspections.filter((i) => {
+          const t = new Date(i.createdAt || i.inspectionDate || 0).getTime();
+          return t <= endTime;
+        });
+      }
+    }
+    if (params.severity) {
+      inspections = inspections.filter(
+        (i) => (i.severity || "").toLowerCase() === params.severity.toLowerCase()
+      );
+    }
+    if (params.status) {
+      inspections = inspections.filter(
+        (i) => (i.status || "").toLowerCase() === params.status.toLowerCase()
+      );
+    }
+
     const highRiskInspections = inspections
-      .filter((i) => i.riskScore >= 60 || i.severity === "high" || i.severity === "critical")
+      .filter((i) => (i.riskScore || 0) >= 60 || i.severity === "high" || i.severity === "critical")
       .slice(0, 10);
 
     const violationCount = {};
@@ -901,11 +931,11 @@ export const offlineStorage = {
       recurringViolations,
       monthlyTrend,
       periodComparison: {
-        period: "monthly",
+        period: params.period || "monthly",
         current: {
           inspectionCount: inspections.length || 18,
           highRiskCount: highRiskInspections.length || 4,
-          avgRisk: 42,
+          avgRisk: inspections.length ? Math.round(inspections.reduce((s, x) => s + (x.riskScore || 40), 0) / inspections.length) : 42,
           violationCount: recurringViolations.reduce((acc, v) => acc + v.count, 0),
         },
         previous: {
@@ -1141,99 +1171,78 @@ export const offlineStorage = {
 
   async getMineralResourceRecords(params = {}) {
     const cachedRecords = getLs("mineral_records");
-    const defaultRecords = [
-      {
-        _id: "res_001",
-        FID: "1",
-        NAME: "Jayant Singrauli Seam",
-        CITY: "Singrauli",
-        STATE: "Madhya Pradesh",
-        COUNTY: "Singrauli",
-        NAICSDESCR: "Bituminous Coal Underground Mining",
-        MINE_TYPE: "Surface / Open Pit",
-        COMMODITY: "Coal",
-        LATITUDE: 24.12,
-        LONGITUDE: 82.45,
-      },
-      {
-        _id: "res_002",
-        FID: "2",
-        NAME: "Kusmunda Dip Seam",
-        CITY: "Korba",
-        STATE: "Chhattisgarh",
-        COUNTY: "Korba",
-        NAICSDESCR: "Coal Mining Operations",
-        MINE_TYPE: "Open Cast",
-        COMMODITY: "Coal",
-        LATITUDE: 22.35,
-        LONGITUDE: 82.68,
-      },
-      {
-        _id: "res_003",
-        FID: "3",
-        NAME: "Gevra Mega Pit",
-        CITY: "Korba",
-        STATE: "Chhattisgarh",
-        COUNTY: "Korba",
-        NAICSDESCR: "High Capacity Open Cast Coal",
-        MINE_TYPE: "Open Cast",
-        COMMODITY: "Coal",
-        LATITUDE: 22.35,
-        LONGITUDE: 82.56,
-      },
-      {
-        _id: "res_004",
-        FID: "4",
-        NAME: "Amlohri Deep Seam Project",
-        CITY: "Singrauli",
-        STATE: "Madhya Pradesh",
-        COUNTY: "Singrauli",
-        NAICSDESCR: "Bituminous Coal",
-        MINE_TYPE: "Surface",
-        COMMODITY: "Coal",
-        LATITUDE: 24.08,
-        LONGITUDE: 82.52,
-      },
-      {
-        _id: "res_005",
-        FID: "5",
-        NAME: "Nigahi Pit Reserve",
-        CITY: "Singrauli",
-        STATE: "Madhya Pradesh",
-        COUNTY: "Singrauli",
-        NAICSDESCR: "Coal Extraction",
-        MINE_TYPE: "Open Cast",
-        COMMODITY: "Coal",
-        LATITUDE: 24.02,
-        LONGITUDE: 82.59,
-      },
-      {
-        _id: "res_006",
-        FID: "6",
-        NAME: "Dudhichua Boundary Mine",
-        CITY: "Singrauli",
-        STATE: "Madhya Pradesh",
-        COUNTY: "Singrauli",
-        NAICSDESCR: "Bituminous Coal",
-        MINE_TYPE: "Open Cast",
-        COMMODITY: "Coal",
-        LATITUDE: 24.14,
-        LONGITUDE: 82.66,
-      },
-      {
-        _id: "res_007",
-        FID: "7",
-        NAME: "Dipka Expansion Pit",
-        CITY: "Korba",
-        STATE: "Chhattisgarh",
-        COUNTY: "Korba",
-        NAICSDESCR: "High Capacity Open Cast Coal",
-        MINE_TYPE: "Open Cast",
-        COMMODITY: "Coal",
-        LATITUDE: 22.30,
-        LONGITUDE: 82.52,
-      },
+    const rawMineralData = [
+      { name: "Jayant Singrauli Seam", city: "Singrauli", state: "Madhya Pradesh", county: "Singrauli", descr: "Bituminous Coal Underground", type: "Surface / Open Pit", comm: "Coal", lat: 24.12, lng: 82.45 },
+      { name: "Kusmunda Dip Seam", city: "Korba", state: "Chhattisgarh", county: "Korba", descr: "Coal Mining Operations", type: "Open Cast", comm: "Coal", lat: 22.35, lng: 82.68 },
+      { name: "Gevra Mega Pit", city: "Korba", state: "Chhattisgarh", county: "Korba", descr: "High Capacity Open Cast Coal", type: "Open Cast", comm: "Coal", lat: 22.35, lng: 82.56 },
+      { name: "Amlohri Deep Seam Project", city: "Singrauli", state: "Madhya Pradesh", county: "Singrauli", descr: "Bituminous Coal", type: "Surface", comm: "Coal", lat: 24.08, lng: 82.52 },
+      { name: "Nigahi Pit Reserve", city: "Singrauli", state: "Madhya Pradesh", county: "Singrauli", descr: "Coal Extraction", type: "Open Cast", comm: "Coal", lat: 24.02, lng: 82.59 },
+      { name: "Dudhichua Boundary Mine", city: "Singrauli", state: "Madhya Pradesh", county: "Singrauli", descr: "Bituminous Coal", type: "Open Cast", comm: "Coal", lat: 24.14, lng: 82.66 },
+      { name: "Dipka Expansion Pit", city: "Korba", state: "Chhattisgarh", county: "Korba", descr: "High Capacity Open Cast Coal", type: "Open Cast", comm: "Coal", lat: 22.30, lng: 82.52 },
+      { name: "Jharia Deep Shaft #4", city: "Dhanbad", state: "Jharkhand", county: "Dhanbad", descr: "Coking Coal Underground", type: "Underground", comm: "Coal", lat: 23.75, lng: 86.42 },
+      { name: "Moonidih Mechanized Longwall", city: "Dhanbad", state: "Jharkhand", county: "Dhanbad", descr: "Deep Coking Coal", type: "Underground Longwall", comm: "Coal", lat: 23.74, lng: 86.35 },
+      { name: "Bailadila Deposit 5", city: "Kirandul", state: "Chhattisgarh", county: "Dantewada", descr: "High Grade Hematite", type: "Open Cast", comm: "Iron Ore", lat: 18.68, lng: 81.25 },
+      { name: "Bailadila Deposit 14", city: "Bacheli", state: "Chhattisgarh", county: "Dantewada", descr: "Hematite Extraction", type: "Open Cast", comm: "Iron Ore", lat: 18.72, lng: 81.28 },
+      { name: "Noamundi Iron Mine", city: "Noamundi", state: "Jharkhand", county: "West Singhbhum", descr: "Banded Hematite Jasper", type: "Open Cast", comm: "Iron Ore", lat: 22.15, lng: 85.50 },
+      { name: "Joda East Mine", city: "Joda", state: "Odisha", county: "Kendujhar", descr: "High Grade Iron Ore", type: "Open Cast", comm: "Iron Ore", lat: 22.02, lng: 85.42 },
+      { name: "Barbil Khondbond Deposit", city: "Barbil", state: "Odisha", county: "Kendujhar", descr: "Iron & Manganese Ore", type: "Open Cast", comm: "Iron Ore", lat: 22.08, lng: 85.38 },
+      { name: "Dalli-Rajhara Complex", city: "Rajhara", state: "Chhattisgarh", county: "Balod", descr: "Captive Iron Ore for BSP", type: "Open Cast", comm: "Iron Ore", lat: 20.58, lng: 81.08 },
+      { name: "Panchpatmali Bauxite Mine", city: "Damanjodi", state: "Odisha", county: "Koraput", descr: "Metallurgical Grade Bauxite", type: "Open Cast", comm: "Bauxite", lat: 18.84, lng: 83.02 },
+      { name: "Baphlimali Bauxite Deposit", city: "Rayagada", state: "Odisha", county: "Rayagada", descr: "Lateritic Bauxite", type: "Open Cast", comm: "Bauxite", lat: 19.32, lng: 82.98 },
+      { name: "Khetri Copper Complex", city: "Khetri", state: "Rajasthan", county: "Jhunjhunu", descr: "Chalcopyrite Underground", type: "Underground", comm: "Copper", lat: 28.01, lng: 75.78 },
+      { name: "Kolihan Copper Mine", city: "Khetri", state: "Rajasthan", county: "Jhunjhunu", descr: "Copper Sulphide Ore", type: "Underground", comm: "Copper", lat: 28.03, lng: 75.76 },
+      { name: "Malanjkhand Copper Project", city: "Malanjkhand", state: "Madhya Pradesh", county: "Balaghat", descr: "Granite Hosted Copper Porphyry", type: "Open Cast / UG", comm: "Copper", lat: 22.02, lng: 80.71 },
+      { name: "Rampura Agucha Super Pit", city: "Gulabpura", state: "Rajasthan", county: "Bhilwara", descr: "World Class Zinc-Lead Ore", type: "Open Cast / UG", comm: "Zinc & Lead", lat: 25.83, lng: 74.74 },
+      { name: "Sindesar Khurd Mine", city: "Dariba", state: "Rajasthan", county: "Rajsamand", descr: "Silver-Rich Zinc Ore", type: "Underground", comm: "Zinc & Lead", lat: 24.98, lng: 74.15 },
+      { name: "Zawar Group of Mines", city: "Udaipur", state: "Rajasthan", county: "Udaipur", descr: "Ancient Lead-Zinc Mines", type: "Underground", comm: "Zinc & Lead", lat: 24.35, lng: 73.71 },
+      { name: "Sukinda Valley Chromite #1", city: "Sukinda", state: "Odisha", county: "Jajpur", descr: "High Grade Chromite", type: "Open Cast", comm: "Chromite", lat: 21.03, lng: 85.80 },
+      { name: "South Kaliapani Chromite", city: "Sukinda", state: "Odisha", county: "Jajpur", descr: "Metallurgical Chromite", type: "Open Cast", comm: "Chromite", lat: 21.05, lng: 85.83 },
+      { name: "Neyveli Lignite Mine I", city: "Neyveli", state: "Tamil Nadu", county: "Cuddalore", descr: "Lignite Open Cast", type: "Open Cast", comm: "Lignite", lat: 11.59, lng: 79.48 },
+      { name: "Neyveli Lignite Mine II", city: "Neyveli", state: "Tamil Nadu", county: "Cuddalore", descr: "Power Grade Lignite", type: "Open Cast", comm: "Lignite", lat: 11.53, lng: 79.46 },
+      { name: "Barsingsar Lignite Project", city: "Bikaner", state: "Rajasthan", county: "Bikaner", descr: "Tertiary Lignite", type: "Open Cast", comm: "Lignite", lat: 27.82, lng: 73.20 },
+      { name: "Hutti Gold Mines", city: "Hutti", state: "Karnataka", county: "Raichur", descr: "Auriferous Quartz Veins", type: "Underground", comm: "Gold", lat: 16.20, lng: 76.65 },
+      { name: "Kolar Champion Reef", city: "KGF", state: "Karnataka", county: "Kolar", descr: "Deep Reef Gold Deposit", type: "Historic UG", comm: "Gold", lat: 12.96, lng: 78.27 },
+      { name: "Singareni KTK 6 Incline", city: "Bhupalpally", state: "Telangana", county: "Jayashankar", descr: "Godavari Valley Coal", type: "Underground", comm: "Coal", lat: 18.42, lng: 79.86 },
+      { name: "Singareni RG OC III", city: "Ramagundam", state: "Telangana", county: "Peddapalli", descr: "Continuous Surface Mining", type: "Open Cast", comm: "Coal", lat: 18.76, lng: 79.52 },
+      { name: "Singareni Manuguru OC IV", city: "Manuguru", state: "Telangana", county: "Bhadradri", descr: "High Seam Coal Stripping", type: "Open Cast", comm: "Coal", lat: 17.98, lng: 80.75 },
+      { name: "Talcher Bharatpur Pit", city: "Talcher", state: "Odisha", county: "Angul", descr: "Thermal Coal Horizon", type: "Open Cast", comm: "Coal", lat: 20.95, lng: 85.18 },
+      { name: "Talcher Ananta Quarry", city: "Talcher", state: "Odisha", county: "Angul", descr: "Heavy Mining Earthmoving", type: "Open Cast", comm: "Coal", lat: 20.94, lng: 85.16 },
+      { name: "Ib Valley Lakhanpur OC", city: "Jharsuguda", state: "Odisha", county: "Jharsuguda", descr: "Ib River Basin Coal", type: "Open Cast", comm: "Coal", lat: 21.75, lng: 83.82 },
+      { name: "Pipilaguda Limestone Quarry", city: "Yerraguntla", state: "Andhra Pradesh", county: "Kadapa", descr: "Cement Grade Limestone", type: "Open Cast", comm: "Limestone", lat: 14.63, lng: 78.53 },
+      { name: "Wadi Limestone Quarry #2", city: "Wadi", state: "Karnataka", county: "Kalaburagi", descr: "Sedimentary Limestone", type: "Open Cast", comm: "Limestone", lat: 17.05, lng: 76.99 },
+      { name: "Nimbahera Limestone Pit", city: "Nimbahera", state: "Rajasthan", county: "Chittorgarh", descr: "High Purity Calcite Limestone", type: "Open Cast", comm: "Limestone", lat: 24.62, lng: 74.68 },
+      { name: "Dongri Buzurg Manganese Mine", city: "Tumsar", state: "Maharashtra", county: "Bhandara", descr: "Ferromanganese Ore Deposit", type: "Open Cast", comm: "Manganese", lat: 21.55, lng: 79.68 },
+      { name: "Balaghat Bharweli Mine", city: "Balaghat", state: "Madhya Pradesh", county: "Balaghat", descr: "Deep Underground Manganese", type: "Underground", comm: "Manganese", lat: 21.87, lng: 80.22 },
+      { name: "Tirodi Manganese Project", city: "Tirodi", state: "Madhya Pradesh", county: "Balaghat", descr: "Pyrolusite & Psilomelane", type: "Open Cast", comm: "Manganese", lat: 21.68, lng: 79.72 },
+      { name: "Raniganj Sodepur Colliery", city: "Asansol", state: "West Bengal", county: "Paschim Bardhaman", descr: "Raniganj Coalfield Pioneer", type: "Underground", comm: "Coal", lat: 23.68, lng: 86.98 },
+      { name: "Khottadih Combined Mine", city: "Pandaveswar", state: "West Bengal", county: "Paschim Bardhaman", descr: "Mechanized Longwall Coal", type: "Underground", comm: "Coal", lat: 23.65, lng: 87.26 },
+      { name: "Kankartala Coal Project", city: "Dubrajpur", state: "West Bengal", county: "Birbhum", descr: "Sub-Bituminous Coal", type: "Open Cast", comm: "Coal", lat: 23.80, lng: 87.35 },
+      { name: "Codli Iron Ore Block", city: "Sanguem", state: "Goa", county: "South Goa", descr: "Export Grade Blue Dust", type: "Open Cast", comm: "Iron Ore", lat: 15.30, lng: 74.15 },
+      { name: "Bicholim Iron Project", city: "Bicholim", state: "Goa", county: "North Goa", descr: "Low Silica Hematite", type: "Open Cast", comm: "Iron Ore", lat: 15.60, lng: 73.95 },
+      { name: "Jaduguda Uranium Mine", city: "Jaduguda", state: "Jharkhand", county: "East Singhbhum", descr: "Uraninite Underground Mine", type: "Underground", comm: "Uranium", lat: 22.65, lng: 86.35 },
+      { name: "Narwapahar Uranium Project", city: "Narwapahar", state: "Jharkhand", county: "East Singhbhum", descr: "Trackless Mining System", type: "Underground", comm: "Uranium", lat: 22.70, lng: 86.27 },
+      { name: "Tummalapalle Uranium Mine", city: "Pulivendula", state: "Andhra Pradesh", county: "Kadapa", descr: "Carbonate Hosted Uranium", type: "Underground Decline", comm: "Uranium", lat: 14.33, lng: 78.26 },
+      { name: "Kudremukh Magnetite Deposit", city: "Kudremukh", state: "Karnataka", county: "Chikkamagaluru", descr: "Banded Iron Formation", type: "Surface Bench", comm: "Iron Ore", lat: 13.22, lng: 75.25 },
+      { name: "Donimalai Iron Ore Mine", city: "Sandur", state: "Karnataka", county: "Ballari", descr: "High Grade Pellets Feed", type: "Open Cast", comm: "Iron Ore", lat: 15.08, lng: 76.62 },
+      { name: "Kumaraswamy Iron Pit", city: "Sandur", state: "Karnataka", county: "Ballari", descr: "Hematite Open Pit", type: "Open Cast", comm: "Iron Ore", lat: 15.02, lng: 76.58 },
+      { name: "Panna Majhgawan Diamond Pipe", city: "Panna", state: "Madhya Pradesh", county: "Panna", descr: "Kimberlite Diamond Pipe", type: "Open Cast", comm: "Diamond", lat: 24.64, lng: 80.04 },
+      { name: "Chavara Heavy Mineral Beach Sand", city: "Kollam", state: "Kerala", county: "Kollam", descr: "Ilmenite & Rutile Monazite", type: "Placer Mining", comm: "Rare Earths", lat: 8.99, lng: 76.53 },
+      { name: "Manavalakurichi Placer Deposit", city: "Kanyakumari", state: "Tamil Nadu", county: "Kanyakumari", descr: "Garnet and Zircon Sand", type: "Placer Dredging", comm: "Rare Earths", lat: 8.14, lng: 77.30 }
     ];
+
+    const defaultRecords = rawMineralData.map((item, idx) => ({
+      _id: `res_seed_${idx + 1}`,
+      FID: String(idx + 1),
+      NAME: item.name,
+      CITY: item.city,
+      STATE: item.state,
+      COUNTY: item.county,
+      NAICSDESCR: item.descr,
+      MINE_TYPE: item.type,
+      COMMODITY: item.comm,
+      LATITUDE: item.lat,
+      LONGITUDE: item.lng
+    }));
 
     const allRecords = Array.isArray(cachedRecords) && cachedRecords.length > 0 ? cachedRecords : defaultRecords;
 

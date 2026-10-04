@@ -469,7 +469,7 @@ export const getDashboardSummary = async () => {
 
 export const getAnalytics = async (params) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    const local = await offlineStorage.getAnalytics();
+    const local = await offlineStorage.getAnalytics(params);
     return { data: { success: true, data: local } };
   }
 
@@ -477,11 +477,11 @@ export const getAnalytics = async (params) => {
     return await api.get("/dashboard/analytics", { params });
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
-      const local = await offlineStorage.getAnalytics();
+      const local = await offlineStorage.getAnalytics(params);
       return { data: { success: true, data: local } };
     }
     try {
-      const fallback = await offlineStorage.getAnalytics();
+      const fallback = await offlineStorage.getAnalytics(params);
       if (fallback) {
         return { data: { success: true, data: fallback } };
       }

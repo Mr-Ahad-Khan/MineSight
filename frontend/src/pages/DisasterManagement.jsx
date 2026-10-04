@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -11,6 +11,7 @@ import {
   Radio,
   ShieldAlert,
   Siren,
+  X,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -19,6 +20,7 @@ import {
   getSupportDirectory,
   getSupportTickets,
 } from "../services/api";
+import { initialMines } from "../services/offlineStorage";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 
@@ -41,15 +43,16 @@ export default function DisasterManagement() {
     t.assignIncidentCommander,
   ];
   const [incidents, setIncidents] = useState([]);
-  const [mines, setMines] = useState([]);
+  const [mines, setMines] = useState(initialMines);
   const [directory, setDirectory] = useState([]);
   const [checkedItems, setCheckedItems] = useState([]);
   const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const formRef = useRef(null);
   const [form, setForm] = useState({
     subject: "",
-    mineId: "",
+    mineId: initialMines[0]?._id || "",
     priority: "critical",
     description: "",
   });
@@ -57,15 +60,15 @@ export default function DisasterManagement() {
   const loadData = async () => {
     try {
       const [ticketRes, mineRes, directoryRes] = await Promise.all([
-        getSupportTickets({ category: "emergency" }),
-        getMines(),
-        getSupportDirectory(),
+        getSupportTickets({ category: "emergency" }).catch(() => ({ data: { data: [] } })),
+        getMines().catch(() => ({ data: { data: initialMines } })),
+        getSupportDirectory().catch(() => ({ data: { data: [] } })),
       ]);
       setIncidents(ticketRes.data.data || []);
-      setMines(mineRes.data.data || []);
+      setMines(mineRes.data.data?.length ? mineRes.data.data : initialMines);
       setDirectory(directoryRes.data.data || []);
     } catch (error) {
-      toast.error("Unable to load disaster management data");
+      toast.error("Loaded emergency data in offline mode");
     } finally {
       setLoading(false);
     }
@@ -74,6 +77,12 @@ export default function DisasterManagement() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (formOpen && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [formOpen]);
 
   const activeIncidents = useMemo(
     () => incidents.filter((incident) => !["resolved", "closed"].includes(incident.status)),
@@ -267,15 +276,85 @@ export default function DisasterManagement() {
           <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{t.disasterManagement}</h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t.disasterSubtitle}</p>
         </div>
-        <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-          <button type="button" onClick={exportCsv} className="btn-secondary">{t.exportCsv}</button>
-          <button type="button" onClick={exportJson} className="btn-secondary">{t.exportJson}</button>
-          <button type="button" onClick={exportPdf} className="btn-secondary">{t.exportPdf}</button>
-          <button type="button" onClick={() => setFormOpen((open) => !open)} className="btn-primary inline-flex items-center gap-2">
-            <Plus className="h-4 w-4" /> {t.reportIncident}
+        <div className="flex flex-wrap justify-center sm:justify-start gap-2 w-full sm:w-auto">
+          <button type="button" onClick={exportCsv} className="btn-secondary flex-1 sm:flex-none min-h-[44px]">{t.exportCsv}</button>
+          <button type="button" onClick={exportJson} className="btn-secondary flex-1 sm:flex-none min-h-[44px]">{t.exportJson}</button>
+          <button type="button" onClick={exportPdf} className="btn-secondary flex-1 sm:flex-none min-h-[44px]">{t.exportPdf}</button>
+          <button 
+            type="button" 
+            onClick={() => setFormOpen((open) => !open)} 
+            className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium shadow-md shadow-red-500/20 active:scale-95 transition"
+          >
+            {formOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {formOpen ? (language === 'hi' ? "फॉर्म बंद करें" : "Close Form") : t.reportIncident}
           </button>
         </div>
       </div>
+
+      {formOpen && (
+        <form ref={formRef} onSubmit={submitIncident} className="card space-y-4 border-2 border-rose-400 bg-rose-50/40 p-5 dark:border-rose-800 dark:bg-rose-950/20 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center justify-between pb-2 border-b border-rose-200 dark:border-rose-900">
+            <div className="flex items-center gap-2">
+              <AlertOctagon className="h-5 w-5 text-rose-600" />
+              <h2 className="font-semibold text-slate-900 dark:text-white">{t.escalateEmergencyIncident}</h2>
+            </div>
+            <button 
+              type="button" 
+              onClick={() => setFormOpen(false)}
+              className="p-1 rounded-lg hover:bg-rose-200 dark:hover:bg-rose-900 text-slate-600 dark:text-slate-300 min-h-[36px] min-w-[36px] flex items-center justify-center"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t.incidentTitle} *</label>
+              <input 
+                className="input min-h-[44px] text-base sm:text-sm w-full" 
+                placeholder={t.incidentTitle} 
+                value={form.subject} 
+                onChange={(event) => updateForm("subject", event.target.value)} 
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t.selectAffectedMine} *</label>
+              <select 
+                className="input min-h-[44px] text-base sm:text-sm w-full" 
+                value={form.mineId} 
+                onChange={(event) => updateForm("mineId", event.target.value)}
+              >
+                <option value="">{t.selectAffectedMine}</option>
+                {mines.map((mine) => <option key={mine._id} value={mine._id}>{mine.name} {mine.code ? `(${mine.code})` : ""}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Severity / Priority</label>
+            <select className="input min-h-[44px] text-base sm:text-sm w-full md:w-1/2" value={form.priority} onChange={(event) => updateForm("priority", event.target.value)}>
+              <option value="critical">{t.criticalImmediateResponse}</option>
+              <option value="high">{t.highUrgentResponse}</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t.incidentDescriptionPlaceholder} *</label>
+            <textarea 
+              className="input min-h-28 text-base sm:text-sm w-full" 
+              placeholder={t.incidentDescriptionPlaceholder} 
+              value={form.description} 
+              onChange={(event) => updateForm("description", event.target.value)} 
+              required
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            <button disabled={submitting} className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700" type="submit">
+              <Radio className="h-4 w-4" /> {submitting ? t.escalating : t.escalateIncident}
+            </button>
+            <button type="button" onClick={() => setFormOpen(false)} className="btn-secondary w-full sm:w-auto min-h-[44px]">
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 max-w-md mx-auto sm:max-w-none w-full">
         <div className="card border-t-4 border-t-rose-500 p-5 flex flex-col items-center text-center sm:items-stretch sm:text-left">
@@ -300,24 +379,6 @@ export default function DisasterManagement() {
           <p className="mt-3 text-3xl font-bold text-emerald-600">{emergencyContacts.length}</p>
         </div>
       </div>
-
-      {formOpen && (
-        <form onSubmit={submitIncident} className="card space-y-4 border border-rose-200 p-5 dark:border-rose-900">
-            <div className="flex items-center gap-2"><AlertOctagon className="h-5 w-5 text-rose-600" /><h2 className="font-semibold text-slate-900 dark:text-white">{t.escalateEmergencyIncident}</h2></div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <input className="input" placeholder={t.incidentTitle} value={form.subject} onChange={(event) => updateForm("subject", event.target.value)} />
-            <select className="input" value={form.mineId} onChange={(event) => updateForm("mineId", event.target.value)}>
-              <option value="">{t.selectAffectedMine}</option>
-              {mines.map((mine) => <option key={mine._id} value={mine._id}>{mine.name} {mine.code ? `(${mine.code})` : ""}</option>)}
-            </select>
-          </div>
-          <select className="input md:w-1/2" value={form.priority} onChange={(event) => updateForm("priority", event.target.value)}>
-            <option value="critical">{t.criticalImmediateResponse}</option><option value="high">{t.highUrgentResponse}</option>
-          </select>
-          <textarea className="input min-h-28" placeholder={t.incidentDescriptionPlaceholder} value={form.description} onChange={(event) => updateForm("description", event.target.value)} />
-          <button disabled={submitting} className="btn-primary inline-flex items-center gap-2" type="submit"><Radio className="h-4 w-4" /> {submitting ? t.escalating : t.escalateIncident}</button>
-        </form>
-      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 max-w-md mx-auto sm:max-w-none w-full">
         <section className="card p-5 lg:col-span-2">

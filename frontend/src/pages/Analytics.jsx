@@ -81,6 +81,7 @@ const buildRiskForecast = (monthlyTrend) => {
 export default function Analytics() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isUpdating, setIsUpdating] = useState(false)
   const [period, setPeriod] = useState('monthly')
   const [filters, setFilters] = useState({ startDate: '', endDate: '', severity: '', status: '' })
   const [refreshKey, setRefreshKey] = useState(0)
@@ -105,14 +106,21 @@ export default function Analytics() {
   }, [])
 
   useEffect(() => {
-    setLoading(true)
+    if (!data) {
+      setLoading(true)
+    } else {
+      setIsUpdating(true)
+    }
     getAnalytics({ period, ...filters, ...(period === 'custom' ? {} : { startDate: undefined, endDate: undefined }) })
       .then((res) => setData(res.data.data))
       .catch(console.error)
-      .finally(() => setLoading(false))
+      .finally(() => {
+        setLoading(false)
+        setIsUpdating(false)
+      })
   }, [period, filters, refreshKey])
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
@@ -202,11 +210,82 @@ export default function Analytics() {
           </div>
         </div>
         <div className="mb-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="text-sm"><span className="mb-1 block text-slate-600 dark:text-slate-300">From</span><input type="date" value={filters.startDate} onChange={(event) => { setPeriod('custom'); setFilters((current) => ({ ...current, startDate: event.target.value })) }} className="input-field w-full" /></label>
-          <label className="text-sm"><span className="mb-1 block text-slate-600 dark:text-slate-300">To</span><input type="date" value={filters.endDate} onChange={(event) => { setPeriod('custom'); setFilters((current) => ({ ...current, endDate: event.target.value })) }} className="input-field w-full" /></label>
-          <label className="text-sm"><span className="mb-1 block text-slate-600 dark:text-slate-300">Severity</span><select value={filters.severity} onChange={(event) => setFilters((current) => ({ ...current, severity: event.target.value }))} className="input-field w-full"><option value="">All severities</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label>
-          <label className="text-sm"><span className="mb-1 block text-slate-600 dark:text-slate-300">Status</span><select value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} className="input-field w-full"><option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></label>
+          <label className="text-sm font-medium">
+            <span className="mb-1 block text-slate-700 dark:text-slate-300">From</span>
+            <input 
+              id="analytics-from-date"
+              type="date" 
+              value={filters.startDate} 
+              onChange={(event) => { 
+                setPeriod('custom')
+                setFilters((current) => ({ ...current, startDate: event.target.value })) 
+              }} 
+              className="input-field w-full min-h-[44px] text-base sm:text-sm" 
+            />
+          </label>
+          <label className="text-sm font-medium">
+            <div className="flex items-center justify-between mb-1">
+              <span className="block text-slate-700 dark:text-slate-300">To</span>
+              {(filters.startDate || filters.endDate) && (
+                <button 
+                  type="button" 
+                  onClick={() => { 
+                    setFilters((f) => ({ ...f, startDate: '', endDate: '' }))
+                    setPeriod('monthly')
+                  }} 
+                  className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                >
+                  Clear dates
+                </button>
+              )}
+            </div>
+            <input 
+              id="analytics-to-date"
+              type="date" 
+              value={filters.endDate} 
+              onChange={(event) => { 
+                setPeriod('custom')
+                setFilters((current) => ({ ...current, endDate: event.target.value })) 
+              }} 
+              className="input-field w-full min-h-[44px] text-base sm:text-sm" 
+            />
+          </label>
+          <label className="text-sm font-medium">
+            <span className="mb-1 block text-slate-700 dark:text-slate-300">Severity</span>
+            <select 
+              id="analytics-severity"
+              value={filters.severity} 
+              onChange={(event) => setFilters((current) => ({ ...current, severity: event.target.value }))} 
+              className="input-field w-full min-h-[44px] text-base sm:text-sm"
+            >
+              <option value="">All severities</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </label>
+          <label className="text-sm font-medium">
+            <span className="mb-1 block text-slate-700 dark:text-slate-300">Status</span>
+            <select 
+              id="analytics-status"
+              value={filters.status} 
+              onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} 
+              className="input-field w-full min-h-[44px] text-base sm:text-sm"
+            >
+              <option value="">All statuses</option>
+              <option value="open">Open</option>
+              <option value="in_progress">In progress</option>
+              <option value="closed">Closed</option>
+            </select>
+          </label>
         </div>
+        {isUpdating && (
+          <div className="mb-3 text-xs text-primary-600 dark:text-primary-400 flex items-center gap-1.5 animate-pulse">
+            <div className="w-2 h-2 rounded-full bg-primary-600 animate-ping"></div>
+            Updating analytics data...
+          </div>
+        )}
         {!comparison ? (
           <p className="text-slate-400 text-sm">{t.noComparisonData}</p>
         ) : (

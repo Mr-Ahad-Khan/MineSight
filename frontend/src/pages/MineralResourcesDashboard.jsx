@@ -698,23 +698,23 @@ export default function MineralResourcesDashboard() {
               ? t.noRecords
               : `${t.showingRecords} ${(page - 1) * RECORDS_PER_PAGE + 1}-${Math.min(page * RECORDS_PER_PAGE, totalRecordsCount)} ${t.of} ${totalRecordsCount.toLocaleString()} ${t.records}`}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => goToPage((currentPage) => currentPage - 1)}
               disabled={page <= 1}
-              className="relative z-10 inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-1 border border-slate-300 px-3 text-sm leading-none disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600"
+              className="relative z-10 inline-flex min-h-[44px] min-w-[100px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
             >
               <ChevronLeft className="h-4 w-4" /> {t.previous}
             </button>
-            <span className="min-w-20 text-center text-sm text-slate-500">
+            <span className="min-w-24 text-center text-sm font-medium text-slate-600 dark:text-slate-300">
               {t.page} {page} {t.of} {totalPages}
             </span>
             <button
               type="button"
               onClick={() => goToPage((currentPage) => currentPage + 1)}
               disabled={page >= totalPages}
-              className="relative z-10 inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-1 border border-slate-300 px-3 text-sm leading-none disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600"
+              className="relative z-10 inline-flex min-h-[44px] min-w-[100px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
             >
               {t.next} <ChevronRight className="h-4 w-4" />
             </button>
