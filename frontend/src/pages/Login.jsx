@@ -158,29 +158,33 @@ export default function Login() {
 
           <div className="grid max-w-[570px] grid-cols-4 gap-3 pb-1 sm:gap-6">
             {[
-              [
-                ShieldCheck,
-                language === "hi" ? "बेहतर" : "Enhanced",
-                language === "hi" ? "सुरक्षा" : "Safety",
-              ],
-              [
-                BarChart3,
-                language === "hi" ? "रियल-टाइम" : "Real-Time",
-                language === "hi" ? "निगरानी" : "Monitoring",
-              ],
-              [
-                Leaf,
-                language === "hi" ? "कुशल" : "Efficient",
-                language === "hi" ? "संसाधन उपयोग" : "Resource Use",
-              ],
-              [
-                Users,
-                language === "hi" ? "बेहतर" : "Better",
-                language === "hi" ? "सहयोग" : "Collaboration",
-              ],
-            ].map(([Icon, title, subtitle]) => (
+              {
+                id: "safety",
+                icon: ShieldCheck,
+                title: language === "hi" ? "बेहतर" : "Enhanced",
+                subtitle: language === "hi" ? "सुरक्षा" : "Safety",
+              },
+              {
+                id: "monitoring",
+                icon: BarChart3,
+                title: language === "hi" ? "रियल-टाइम" : "Real-Time",
+                subtitle: language === "hi" ? "निगरानी" : "Monitoring",
+              },
+              {
+                id: "resources",
+                icon: Leaf,
+                title: language === "hi" ? "कुशल" : "Efficient",
+                subtitle: language === "hi" ? "संसाधन उपयोग" : "Resource Use",
+              },
+              {
+                id: "collaboration",
+                icon: Users,
+                title: language === "hi" ? "बेहतर" : "Better",
+                subtitle: language === "hi" ? "सहयोग" : "Collaboration",
+              },
+            ].map(({ id, icon: Icon, title, subtitle }) => (
               <div
-                key={title}
+                key={id}
                 className={`text-center ${language === "hi" ? "hindi-copy" : ""}`}
               >
                 <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full border border-amber-400 text-amber-300 sm:h-14 sm:w-14">
@@ -199,9 +203,9 @@ export default function Login() {
 
       {/* Right panel */}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
+        <div className="flex min-h-full items-center justify-center p-3 sm:p-5">
           <div className="w-full max-w-md">
-            <div className="mb-5 flex items-center justify-between gap-4">
+            <div className="mb-3 flex items-center justify-between gap-4">
               <Link
                 to="/"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 transition hover:text-primary-700 dark:text-slate-300 dark:hover:text-primary-300"
@@ -216,18 +220,18 @@ export default function Login() {
                 {t.signUp}
               </Link>
             </div>
-            <div className="card p-5 sm:p-8">
-              <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="card p-4 sm:p-6 lg:p-7">
+              <h2 className="mb-1 text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                 {t.welcomeBack}
               </h2>
-              <p className="mb-6 text-sm text-slate-600 dark:text-slate-300">
+              <p className="mb-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                 {t.signInToAccount}
               </p>
 
               <form
                 onSubmit={handleSubmit}
                 autoComplete="on"
-                className="space-y-4"
+                className="space-y-3"
               >
                 {authError && (
                   <div
@@ -336,25 +340,24 @@ export default function Login() {
                 </button>
               </form>
 
-              <p className="mt-4 text-center text-xs leading-5 text-slate-600 dark:text-slate-300">
+              <p className="mt-2.5 text-center text-xs leading-4 text-slate-600 dark:text-slate-300">
                 {t.signInHint}
               </p>
 
               {/* Optional seeded demo accounts */}
               <details
-                className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700"
-                open
+                className="mt-3.5 border-t border-slate-200 pt-3 dark:border-slate-700"
               >
-                <summary className="cursor-pointer rounded-lg border border-primary-200 bg-primary-50 px-3 py-3 text-center text-sm font-semibold text-primary-800 transition hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-950/40 dark:text-primary-200 dark:hover:bg-primary-950/70">
+                <summary className="cursor-pointer rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-center text-xs font-semibold text-primary-800 transition hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-950/40 dark:text-primary-200 dark:hover:bg-primary-950/70">
                   {t.quickDemo} ({t.optional})
                 </summary>
-                <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="mt-2.5 grid grid-cols-2 gap-1.5">
                   <button
                     type="button"
                     onClick={() =>
                       quickLogin("rajesh@ncl.gov.in", "mine123", t.mineOfficial)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.mineOfficial}
@@ -365,7 +368,7 @@ export default function Login() {
                     onClick={() =>
                       quickLogin("corporate@cil.gov.in", "corp123", t.corporate)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.corporate}
@@ -376,7 +379,7 @@ export default function Login() {
                     onClick={() =>
                       quickLogin("admin@cil.gov.in", "admin123", t.admin)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.admin}
@@ -387,7 +390,7 @@ export default function Login() {
                     onClick={() =>
                       quickLogin("regulator@dgms.gov.in", "reg123", t.regulator)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.regulator}
@@ -402,7 +405,7 @@ export default function Login() {
                         t.worker || "Worker",
                       )
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.worker || "Worker"}
@@ -417,7 +420,7 @@ export default function Login() {
                         t.contractor || "Contractor",
                       )
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
                   >
                     <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
                       {t.contractor || "Contractor"}
@@ -425,11 +428,11 @@ export default function Login() {
                   </button>
                 </div>
 
-                <p className="mt-3 text-center text-[11px] font-semibold text-red-600 dark:text-red-400">
+                <p className="mt-2 text-center text-[10px] font-semibold text-red-600 dark:text-red-400">
                   * {t.demoNotice}
                 </p>
               </details>
-              <div className="mt-4 text-center text-sm text-slate-600 dark:text-slate-300">
+              <div className="mt-3 text-center text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                 {t.dontHaveAccount}{" "}
                 <Link
                   to="/register"

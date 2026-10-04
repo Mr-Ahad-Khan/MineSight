@@ -171,25 +171,37 @@ export default function Register() {
 
           <div className="space-y-4">
             {[
-              language === "hi"
-                ? "सुरक्षित परिचालन एक्सेस बनाएं"
-                : "Create secure operational access",
-              language === "hi"
-                ? "नियामक समय-सीमा रियल टाइम में ट्रैक करें"
-                : "Track regulatory deadlines in real time",
-              language === "hi"
-                ? "एक प्लेटफ़ॉर्म से खदान टीमों का समन्वय करें"
-                : "Coordinate mine teams from one platform",
-            ].map((item) => (
+              {
+                id: "secure",
+                text:
+                  language === "hi"
+                    ? "सुरक्षित परिचालन एक्सेस बनाएं"
+                    : "Create secure operational access",
+              },
+              {
+                id: "deadlines",
+                text:
+                  language === "hi"
+                    ? "नियामक समय-सीमा रियल टाइम में ट्रैक करें"
+                    : "Track regulatory deadlines in real time",
+              },
+              {
+                id: "coordinate",
+                text:
+                  language === "hi"
+                    ? "एक प्लेटफ़ॉर्म से खदान टीमों का समन्वय करें"
+                    : "Coordinate mine teams from one platform",
+              },
+            ].map(({ id, text }) => (
               <div
-                key={item}
+                key={id}
                 className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/20 p-3 backdrop-blur-sm"
               >
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
                 <span
                   className={`text-sm text-slate-100 ${language === "hi" ? "hindi-copy" : ""}`}
                 >
-                  {item}
+                  {text}
                 </span>
               </div>
             ))}
@@ -198,10 +210,10 @@ export default function Register() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex min-h-full items-center justify-center p-3 sm:p-6">
-          <div className="w-full max-w-md">
-            <div className="card p-5 sm:p-7">
-              <div className="mb-5 flex items-center justify-between gap-4">
+        <div className="flex min-h-full items-center justify-center p-3 sm:p-5">
+          <div className="w-full max-w-xl">
+            <div className="card p-4 sm:p-6">
+              <div className="mb-3 flex items-center justify-between gap-4">
                 <Link
                   to="/"
                   className="inline-flex items-center gap-2 rounded-md text-sm font-semibold text-slate-700 transition hover:text-[#0d3f6b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0d3f6b] dark:text-slate-300 dark:hover:text-white"
@@ -218,11 +230,11 @@ export default function Register() {
                   {language === "hi" ? "साइन इन" : "Sign in"}
                 </Link>
               </div>
-              <div className="mb-6 text-center">
-                <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
+              <div className="mb-3 text-center">
+                <h2 className="mb-0.5 text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                   {language === "hi" ? "खाता बनाएं" : "Create account"}
                 </h2>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
                   {language === "hi"
                     ? "खदान हितधारक के रूप में पंजीकरण करें"
                     : "Register as a mine stakeholder"}
@@ -232,133 +244,134 @@ export default function Register() {
               <form
                 onSubmit={handleSubmit}
                 autoComplete="off"
-                className="space-y-4"
+                className="space-y-3"
               >
-                <div>
-                  <label className="label" htmlFor="register-name">
-                    Full name
-                  </label>
-                  <input
-                    id="register-name"
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    className="input-field"
-                    placeholder="Enter full name"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="label" htmlFor="email">
-                    Email address
-                  </label>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
+                    <label className="label" htmlFor="register-name">
+                      Full name
+                    </label>
                     <input
-                      id="email"
-                      type="email"
-                      name="email"
-                      value={form.email}
+                      id="register-name"
+                      type="text"
+                      name="name"
+                      value={form.name}
                       onChange={handleChange}
                       className="input-field"
-                      placeholder="you@cil.gov.in"
+                      placeholder="Enter full name"
                       required
                     />
                   </div>
-                  <div className="mt-2 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={handleSendOtp}
-                      disabled={
-                        isSendingOtp ||
-                        !/^\S+@\S+\.\S+$/.test(form.email.trim()) ||
-                        Boolean(emailVerificationToken)
-                      }
-                      className={`shrink-0 rounded-lg px-3 text-sm font-semibold transition ${emailVerificationToken ? "bg-emerald-100 text-emerald-700" : "bg-[#0d3f6b] text-white hover:bg-[#092f52] disabled:cursor-not-allowed disabled:opacity-50"}`}
-                    >
-                      {emailVerificationToken ? (
-                        <CheckCircle2 className="h-5 w-5" />
-                      ) : isSendingOtp ? (
-                        "Sending..."
-                      ) : (
-                        "Verify"
-                      )}
-                    </button>
-                  </div>
-                  {otpSent && !emailVerificationToken && (
-                    <div className="mt-2">
-                      {developmentOtp && (
-                        <p
-                          className="mb-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900"
-                          role="status"
-                        >
-                          Development verification code:{" "}
-                          <strong>{developmentOtp}</strong>
-                        </p>
-                      )}
+
+                  <div>
+                    <label className="label" htmlFor="email">
+                      Email address
+                    </label>
+                    <div className="flex gap-2">
                       <input
-                        id="email-otp"
-                        name="emailOtp"
-                        type="text"
-                        inputMode="numeric"
-                        value={otp}
-                        onChange={handleOtpChange}
-                        className="input-field tracking-[0.4em]"
-                        placeholder="Enter 6-digit OTP"
-                        maxLength={6}
-                        autoComplete="one-time-code"
-                        aria-label="Email verification code"
+                        id="email"
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        className="input-field min-w-0 flex-1"
+                        placeholder="you@cil.gov.in"
+                        required
                       />
-                      <p className="mt-1 text-xs text-slate-500">
-                        {isVerifyingOtp
-                          ? "Verifying code..."
-                          : "Code expires in 10 minutes."}
-                      </p>
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={
+                          isSendingOtp ||
+                          !/^\S+@\S+\.\S+$/.test(form.email.trim()) ||
+                          Boolean(emailVerificationToken)
+                        }
+                        className={`shrink-0 rounded-lg px-3 text-xs sm:text-sm font-semibold transition ${emailVerificationToken ? "bg-emerald-100 text-emerald-700" : "bg-[#0d3f6b] text-white hover:bg-[#092f52] disabled:cursor-not-allowed disabled:opacity-50"}`}
+                      >
+                        {emailVerificationToken ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : isSendingOtp ? (
+                          "Sending..."
+                        ) : (
+                          "Verify"
+                        )}
+                      </button>
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                <div>
-                  <label className="label" htmlFor="phone">
-                    Phone number (optional)
-                  </label>
-                  <div className="flex gap-2">
+                {otpSent && !emailVerificationToken && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-2.5 dark:border-amber-900/40 dark:bg-amber-950/20">
+                    {developmentOtp && (
+                      <p
+                        className="mb-1.5 text-xs text-amber-900 dark:text-amber-200"
+                        role="status"
+                      >
+                        Development verification code:{" "}
+                        <strong>{developmentOtp}</strong>
+                      </p>
+                    )}
+                    <input
+                      id="email-otp"
+                      name="emailOtp"
+                      type="text"
+                      inputMode="numeric"
+                      value={otp}
+                      onChange={handleOtpChange}
+                      className="input-field tracking-[0.3em] text-center"
+                      placeholder="Enter 6-digit OTP"
+                      maxLength={6}
+                      autoComplete="one-time-code"
+                      aria-label="Email verification code"
+                    />
+                    <p className="mt-1 text-center text-[11px] text-slate-500">
+                      {isVerifyingOtp
+                        ? "Verifying code..."
+                        : "Code expires in 10 minutes."}
+                    </p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="label" htmlFor="phone">
+                      Phone number (optional)
+                    </label>
                     <input
                       id="phone"
                       type="tel"
                       name="phone"
                       value={form.phone}
                       onChange={handleChange}
-                      className="input-field min-w-0 flex-1"
+                      className="input-field"
                       placeholder="9876543210"
                       maxLength={10}
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="label" htmlFor="register-role">
-                    Role
-                  </label>
-                  <select
-                    id="register-role"
-                    name="role"
-                    value={form.role}
-                    onChange={handleChange}
-                    className="input-field"
-                  >
-                    <option value="mine_official">Mine Official</option>
-                    <option value="corporate">Corporate</option>
-                    <option value="admin">Admin</option>
-                    <option value="regulator">Regulator</option>
-                    <option value="contractor">Contractor</option>
-                    <option value="worker">Worker</option>
-                  </select>
+                  <div>
+                    <label className="label" htmlFor="register-role">
+                      Role
+                    </label>
+                    <select
+                      id="register-role"
+                      name="role"
+                      value={form.role}
+                      onChange={handleChange}
+                      className="input-field"
+                    >
+                      <option value="mine_official">Mine Official</option>
+                      <option value="corporate">Corporate</option>
+                      <option value="admin">Admin</option>
+                      <option value="regulator">Regulator</option>
+                      <option value="contractor">Contractor</option>
+                      <option value="worker">Worker</option>
+                    </select>
+                  </div>
                 </div>
 
                 {form.role === "worker" && (
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <div>
                       <label className="label" htmlFor="employeeId">
                         Employee ID
@@ -437,7 +450,7 @@ export default function Register() {
                     isLoading ||
                     (!isNativeApp && (!recaptchaToken || !recaptchaSiteKey))
                   }
-                  className="btn-primary w-full flex items-center justify-center gap-2"
+                  className="btn-primary w-full py-2.5 flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <>
@@ -450,7 +463,7 @@ export default function Register() {
                 </button>
               </form>
 
-              <div className="mt-6 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
+              <div className="mt-3 text-center text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                 {language === "hi"
                   ? "क्या आपका खाता पहले से है?"
                   : "Already have an account?"}{" "}
