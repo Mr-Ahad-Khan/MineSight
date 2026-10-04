@@ -35,10 +35,9 @@ export default function Register() {
   const t = translations[language];
   const isNativeApp = Capacitor.isNativePlatform();
   const recaptchaSiteKey =
-    !isNativeApp && (import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
-    (import.meta.env.DEV
-      ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-      : ""));
+    !isNativeApp &&
+    (import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+      (import.meta.env.DEV ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" : ""));
 
   useEffect(() => {
     if (token) {
@@ -172,16 +171,26 @@ export default function Register() {
 
           <div className="space-y-4">
             {[
-              language === "hi" ? "सुरक्षित परिचालन एक्सेस बनाएं" : "Create secure operational access",
-              language === "hi" ? "नियामक समय-सीमा रियल टाइम में ट्रैक करें" : "Track regulatory deadlines in real time",
-              language === "hi" ? "एक प्लेटफ़ॉर्म से खदान टीमों का समन्वय करें" : "Coordinate mine teams from one platform",
+              language === "hi"
+                ? "सुरक्षित परिचालन एक्सेस बनाएं"
+                : "Create secure operational access",
+              language === "hi"
+                ? "नियामक समय-सीमा रियल टाइम में ट्रैक करें"
+                : "Track regulatory deadlines in real time",
+              language === "hi"
+                ? "एक प्लेटफ़ॉर्म से खदान टीमों का समन्वय करें"
+                : "Coordinate mine teams from one platform",
             ].map((item) => (
               <div
                 key={item}
                 className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/20 p-3 backdrop-blur-sm"
               >
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
-                <span className={`text-sm text-slate-100 ${language === "hi" ? "hindi-copy" : ""}`}>{item}</span>
+                <span
+                  className={`text-sm text-slate-100 ${language === "hi" ? "hindi-copy" : ""}`}
+                >
+                  {item}
+                </span>
               </div>
             ))}
           </div>
@@ -190,15 +199,17 @@ export default function Register() {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-3 sm:p-6">
-        <div className="w-full max-w-md">
-          <div className="card p-5 sm:p-7">
+          <div className="w-full max-w-md">
+            <div className="card p-5 sm:p-7">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <Link
                   to="/"
                   className="inline-flex items-center gap-2 rounded-md text-sm font-semibold text-slate-700 transition hover:text-[#0d3f6b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0d3f6b] dark:text-slate-300 dark:hover:text-white"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  {language === "hi" ? "लैंडिंग पेज पर वापस जाएं" : "Back to landing page"}
+                  {language === "hi"
+                    ? "लैंडिंग पेज पर वापस जाएं"
+                    : "Back to landing page"}
                 </Link>
                 <Link
                   to="/login"
@@ -207,7 +218,7 @@ export default function Register() {
                   {language === "hi" ? "साइन इन" : "Sign in"}
                 </Link>
               </div>
-            <div className="mb-6 text-center">
+              <div className="mb-6 text-center">
                 <h2 className="mb-1 text-2xl font-bold text-slate-900 dark:text-white">
                   {language === "hi" ? "खाता बनाएं" : "Create account"}
                 </h2>
@@ -215,218 +226,243 @@ export default function Register() {
                   {language === "hi"
                     ? "खदान हितधारक के रूप में पंजीकरण करें"
                     : "Register as a mine stakeholder"}
-              </p>
-            </div>
-
-            <form
-              onSubmit={handleSubmit}
-              autoComplete="off"
-              className="space-y-4"
-            >
-              <div>
-                <label className="label" htmlFor="register-name">
-                  Full name
-                </label>
-                <input
-                  id="register-name"
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="Enter full name"
-                  required
-                />
+                </p>
               </div>
 
-              <div>
-                <label className="label" htmlFor="email">
-                  Email address
-                </label>
+              <form
+                onSubmit={handleSubmit}
+                autoComplete="off"
+                className="space-y-4"
+              >
                 <div>
+                  <label className="label" htmlFor="register-name">
+                    Full name
+                  </label>
                   <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={form.email}
+                    id="register-name"
+                    type="text"
+                    name="name"
+                    value={form.name}
                     onChange={handleChange}
                     className="input-field"
-                    placeholder="you@cil.gov.in"
+                    placeholder="Enter full name"
                     required
                   />
                 </div>
-                <div className="mt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={
-                      isSendingOtp ||
-                      !/^\S+@\S+\.\S+$/.test(form.email.trim()) ||
-                      Boolean(emailVerificationToken)
-                    }
-                    className={`shrink-0 rounded-lg px-3 text-sm font-semibold transition ${emailVerificationToken ? "bg-emerald-100 text-emerald-700" : "bg-[#0d3f6b] text-white hover:bg-[#092f52] disabled:cursor-not-allowed disabled:opacity-50"}`}
-                  >
-                    {emailVerificationToken ? (
-                      <CheckCircle2 className="h-5 w-5" />
-                    ) : isSendingOtp ? (
-                      "Sending..."
-                    ) : (
-                      "Verify"
-                    )}
-                  </button>
-                </div>
-                {otpSent && !emailVerificationToken && (
-                  <div className="mt-2">
-                    {developmentOtp && (
-                      <p
-                        className="mb-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900"
-                        role="status"
-                      >
-                        Development verification code: <strong>{developmentOtp}</strong>
-                      </p>
-                    )}
+
+                <div>
+                  <label className="label" htmlFor="email">
+                    Email address
+                  </label>
+                  <div>
                     <input
-                      id="email-otp"
-                      name="emailOtp"
-                      type="text"
-                      inputMode="numeric"
-                      value={otp}
-                      onChange={handleOtpChange}
-                      className="input-field tracking-[0.4em]"
-                      placeholder="Enter 6-digit OTP"
-                      maxLength={6}
-                      autoComplete="one-time-code"
-                      aria-label="Email verification code"
+                      id="email"
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      className="input-field"
+                      placeholder="you@cil.gov.in"
+                      required
                     />
-                    <p className="mt-1 text-xs text-slate-500">
-                      {isVerifyingOtp
-                        ? "Verifying code..."
-                        : "Code expires in 10 minutes."}
-                    </p>
                   </div>
-                )}
-              </div>
-
-              <div>
-                <label className="label" htmlFor="phone">
-                  Phone number (optional)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    id="phone"
-                    type="tel"
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    className="input-field min-w-0 flex-1"
-                    placeholder="9876543210"
-                    maxLength={10}
-                  />
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={
+                        isSendingOtp ||
+                        !/^\S+@\S+\.\S+$/.test(form.email.trim()) ||
+                        Boolean(emailVerificationToken)
+                      }
+                      className={`shrink-0 rounded-lg px-3 text-sm font-semibold transition ${emailVerificationToken ? "bg-emerald-100 text-emerald-700" : "bg-[#0d3f6b] text-white hover:bg-[#092f52] disabled:cursor-not-allowed disabled:opacity-50"}`}
+                    >
+                      {emailVerificationToken ? (
+                        <CheckCircle2 className="h-5 w-5" />
+                      ) : isSendingOtp ? (
+                        "Sending..."
+                      ) : (
+                        "Verify"
+                      )}
+                    </button>
+                  </div>
+                  {otpSent && !emailVerificationToken && (
+                    <div className="mt-2">
+                      {developmentOtp && (
+                        <p
+                          className="mb-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                          role="status"
+                        >
+                          Development verification code:{" "}
+                          <strong>{developmentOtp}</strong>
+                        </p>
+                      )}
+                      <input
+                        id="email-otp"
+                        name="emailOtp"
+                        type="text"
+                        inputMode="numeric"
+                        value={otp}
+                        onChange={handleOtpChange}
+                        className="input-field tracking-[0.4em]"
+                        placeholder="Enter 6-digit OTP"
+                        maxLength={6}
+                        autoComplete="one-time-code"
+                        aria-label="Email verification code"
+                      />
+                      <p className="mt-1 text-xs text-slate-500">
+                        {isVerifyingOtp
+                          ? "Verifying code..."
+                          : "Code expires in 10 minutes."}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              <div>
-                <label className="label" htmlFor="register-role">
-                  Role
-                </label>
-                <select
-                  id="register-role"
-                  name="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  className="input-field"
-                >
-                  <option value="mine_official">Mine Official</option>
-                  <option value="corporate">Corporate</option>
-                  <option value="admin">Admin</option>
-                  <option value="regulator">Regulator</option>
-                  <option value="contractor">Contractor</option>
-                  <option value="worker">Worker</option>
-                </select>
-              </div>
-
-              {form.role === "worker" && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="label" htmlFor="employeeId">Employee ID</label>
-                    <input id="employeeId" name="employeeId" value={form.employeeId} onChange={handleChange} className="input-field" placeholder="EMP-001" />
-                  </div>
-                  <div>
-                    <label className="label" htmlFor="department">Department</label>
-                    <input id="department" name="department" value={form.department} onChange={handleChange} className="input-field" placeholder="Operations" />
+                <div>
+                  <label className="label" htmlFor="phone">
+                    Phone number (optional)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      id="phone"
+                      type="tel"
+                      name="phone"
+                      value={form.phone}
+                      onChange={handleChange}
+                      className="input-field min-w-0 flex-1"
+                      placeholder="9876543210"
+                      maxLength={10}
+                    />
                   </div>
                 </div>
-              )}
 
-              <div>
-                <label className="label" htmlFor="register-password">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="register-password"
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={form.password}
+                <div>
+                  <label className="label" htmlFor="register-role">
+                    Role
+                  </label>
+                  <select
+                    id="register-role"
+                    name="role"
+                    value={form.role}
                     onChange={handleChange}
-                    className="input-field pr-10"
-                    placeholder="Create a strong password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="input-field"
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
+                    <option value="mine_official">Mine Official</option>
+                    <option value="corporate">Corporate</option>
+                    <option value="admin">Admin</option>
+                    <option value="regulator">Regulator</option>
+                    <option value="contractor">Contractor</option>
+                    <option value="worker">Worker</option>
+                  </select>
                 </div>
-              </div>
 
-              {recaptchaSiteKey ? (
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={recaptchaSiteKey}
-                  onChange={setRecaptchaToken}
-                  onExpired={() => setRecaptchaToken(null)}
-                />
-              ) : (
-                <p className="text-sm text-red-600" role="alert">
-                  Account verification is not configured. Set VITE_RECAPTCHA_SITE_KEY.
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading || (!isNativeApp && (!recaptchaToken || !recaptchaSiteKey))}
-                className="btn-primary w-full flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating account...
-                  </>
-                ) : (
-                  "Create account"
+                {form.role === "worker" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="label" htmlFor="employeeId">
+                        Employee ID
+                      </label>
+                      <input
+                        id="employeeId"
+                        name="employeeId"
+                        value={form.employeeId}
+                        onChange={handleChange}
+                        className="input-field"
+                        placeholder="EMP-001"
+                      />
+                    </div>
+                    <div>
+                      <label className="label" htmlFor="department">
+                        Department
+                      </label>
+                      <input
+                        id="department"
+                        name="department"
+                        value={form.department}
+                        onChange={handleChange}
+                        className="input-field"
+                        placeholder="Operations"
+                      />
+                    </div>
+                  </div>
                 )}
-              </button>
-            </form>
 
-            <div className="mt-6 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
-              {language === "hi" ? "क्या आपका खाता पहले से है?" : "Already have an account?"}{" "}
-              <Link
-                to="/login"
-                className="font-semibold text-primary-700 hover:text-primary-800"
-              >
-                {language === "hi" ? "साइन इन" : "Sign in"}
-              </Link>
+                <div>
+                  <label className="label" htmlFor="register-password">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="register-password"
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={form.password}
+                      onChange={handleChange}
+                      className="input-field pr-10"
+                      placeholder="Create a strong password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {recaptchaSiteKey ? (
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={recaptchaSiteKey}
+                    onChange={setRecaptchaToken}
+                    onExpired={() => setRecaptchaToken(null)}
+                  />
+                ) : (
+                  <p className="text-sm text-red-600" role="alert">
+                    Account verification is not configured. Set
+                    VITE_RECAPTCHA_SITE_KEY.
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={
+                    isLoading ||
+                    (!isNativeApp && (!recaptchaToken || !recaptchaSiteKey))
+                  }
+                  className="btn-primary w-full flex items-center justify-center gap-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Create account"
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-6 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
+                {language === "hi"
+                  ? "क्या आपका खाता पहले से है?"
+                  : "Already have an account?"}{" "}
+                <Link
+                  to="/login"
+                  className="font-semibold text-primary-700 hover:text-primary-800"
+                >
+                  {language === "hi" ? "साइन इन" : "Sign in"}
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

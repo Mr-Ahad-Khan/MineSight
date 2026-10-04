@@ -193,10 +193,27 @@ export const login = async (data) => {
     // Allow offline login with standard field roles if offline
     const offlineAccounts = {
       "admin@cil.gov.in": { name: "System Admin", role: "admin", email },
-      "rajesh@ncl.gov.in": { name: "Rajesh Kumar", role: "mine_official", email },
-      "priya@ncl.gov.in": { name: "Priya Sharma", role: "mine_official", email },
-      "worker@cil.gov.in": { name: "Amit Yadav", role: "worker", email, employeeId: "EMP-001" },
-      "ananya@shakticontractors.in": { name: "Ananya Singh", role: "contractor", email },
+      "rajesh@ncl.gov.in": {
+        name: "Rajesh Kumar",
+        role: "mine_official",
+        email,
+      },
+      "priya@ncl.gov.in": {
+        name: "Priya Sharma",
+        role: "mine_official",
+        email,
+      },
+      "worker@cil.gov.in": {
+        name: "Amit Yadav",
+        role: "worker",
+        email,
+        employeeId: "EMP-001",
+      },
+      "ananya@shakticontractors.in": {
+        name: "Ananya Singh",
+        role: "contractor",
+        email,
+      },
     };
 
     const matchedAccount = offlineAccounts[email] || {
@@ -277,8 +294,10 @@ export const updateProfile = async (data) => {
   return api.put("/auth/profile", data);
 };
 
-export const requestEmailOtp = (data) => api.post("/auth/email/request-otp", data);
-export const verifyEmailOtp = (data) => api.post("/auth/email/verify-otp", data);
+export const requestEmailOtp = (data) =>
+  api.post("/auth/email/request-otp", data);
+export const verifyEmailOtp = (data) =>
+  api.post("/auth/email/verify-otp", data);
 
 // ==========================================
 // DASHBOARD & ANALYTICS
@@ -393,7 +412,12 @@ export const sendContactMessage = async (data) => {
       payload: data,
       label: "Contact Message",
     });
-    return { data: { success: true, message: "Message queued offline. Will send when online." } };
+    return {
+      data: {
+        success: true,
+        message: "Message queued offline. Will send when online.",
+      },
+    };
   }
 
   try {
@@ -407,7 +431,12 @@ export const sendContactMessage = async (data) => {
         payload: data,
         label: "Contact Message",
       });
-      return { data: { success: true, message: "Message queued offline. Will send when online." } };
+      return {
+        data: {
+          success: true,
+          message: "Message queued offline. Will send when online.",
+        },
+      };
     }
     throw error;
   }
@@ -505,7 +534,9 @@ export const createMine = async (data) => {
         label: `Mine: ${data.name}`,
       });
       toast.success("Connection lost: Mine saved offline for sync.");
-      return { data: { success: true, data: optimisticMine, _isOffline: true } };
+      return {
+        data: { success: true, data: optimisticMine, _isOffline: true },
+      };
     }
     throw error;
   }
@@ -584,7 +615,9 @@ export const getMineralResourceRecords = async (params) => {
   try {
     const res = await api.get("/mineral-resources/records", { params });
     if (res.data?.data?.records) {
-      offlineStorage.saveMineralResourceRecords(res.data.data.records).catch(() => {});
+      offlineStorage
+        .saveMineralResourceRecords(res.data.data.records)
+        .catch(() => {});
     }
     return res;
   } catch (error) {
@@ -603,7 +636,8 @@ export const getInspections = async (params) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     let list = await offlineStorage.getInspections();
     if (params?.status) list = list.filter((i) => i.status === params.status);
-    if (params?.severity) list = list.filter((i) => i.severity === params.severity);
+    if (params?.severity)
+      list = list.filter((i) => i.severity === params.severity);
     return { data: { success: true, data: list } };
   }
 
@@ -617,7 +651,8 @@ export const getInspections = async (params) => {
     if (isOfflineOrNetworkError(error)) {
       let list = await offlineStorage.getInspections();
       if (params?.status) list = list.filter((i) => i.status === params.status);
-      if (params?.severity) list = list.filter((i) => i.severity === params.severity);
+      if (params?.severity)
+        list = list.filter((i) => i.severity === params.severity);
       return { data: { success: true, data: list } };
     }
     throw error;
@@ -654,7 +689,8 @@ export const getInspectionAuditHistory = async (id) => {
           totalEntries: 1,
           logs: [
             {
-              action: "Inspection captured and securely stored in local offline vault",
+              action:
+                "Inspection captured and securely stored in local offline vault",
               timestamp: new Date().toISOString(),
               performedBy: "Local Inspector",
             },
@@ -705,11 +741,10 @@ export const createInspection = async (data) => {
   }
 
   // Find linked mine info
-  const mineInfo =
-    (await offlineStorage.getMine(payload.mineId)) || {
-      _id: payload.mineId,
-      name: "Selected Mine",
-    };
+  const mineInfo = (await offlineStorage.getMine(payload.mineId)) || {
+    _id: payload.mineId,
+    name: "Selected Mine",
+  };
 
   // Build optimistic inspection
   const photoPreviews = files
@@ -722,12 +757,12 @@ export const createInspection = async (data) => {
     Number(payload.riskScore) > 0
       ? Number(payload.riskScore)
       : payload.severity === "critical"
-      ? 88
-      : payload.severity === "high"
-      ? 72
-      : payload.severity === "medium"
-      ? 50
-      : 20;
+        ? 88
+        : payload.severity === "high"
+          ? 72
+          : payload.severity === "medium"
+            ? 50
+            : 20;
 
   const optimisticInspection = {
     _id: localId,
@@ -748,8 +783,8 @@ export const createInspection = async (data) => {
     violations: Array.isArray(payload.violations)
       ? payload.violations
       : payload.violations
-      ? JSON.parse(payload.violations)
-      : [],
+        ? JSON.parse(payload.violations)
+        : [],
     createdAt: new Date().toISOString(),
     _isOffline: true,
     _pendingSync: true,
@@ -801,7 +836,9 @@ export const createInspection = async (data) => {
         localId,
         label: `Inspection: ${payload.title}`,
       });
-      toast.success("Network unreachable. Inspection saved offline and queued.");
+      toast.success(
+        "Network unreachable. Inspection saved offline and queued.",
+      );
       return {
         data: {
           success: true,
@@ -922,7 +959,9 @@ export const closeViolation = async (id, violationId) => {
     const inspection = await offlineStorage.getInspection(id);
     if (inspection && inspection.violations) {
       inspection.violations = inspection.violations.map((v) =>
-        v._id === violationId ? { ...v, status: "closed", closedAt: new Date().toISOString() } : v
+        v._id === violationId
+          ? { ...v, status: "closed", closedAt: new Date().toISOString() }
+          : v,
       );
       await offlineStorage.saveInspection(inspection);
     }
@@ -935,7 +974,13 @@ export const closeViolation = async (id, violationId) => {
       label: "Close Violation",
     });
     toast.success("Violation marked closed offline.");
-    return { data: { success: true, message: "Violation closed offline", data: inspection } };
+    return {
+      data: {
+        success: true,
+        message: "Violation closed offline",
+        data: inspection,
+      },
+    };
   }
 
   try {
@@ -947,7 +992,9 @@ export const closeViolation = async (id, violationId) => {
       const inspection = await offlineStorage.getInspection(id);
       if (inspection && inspection.violations) {
         inspection.violations = inspection.violations.map((v) =>
-          v._id === violationId ? { ...v, status: "closed", closedAt: new Date().toISOString() } : v
+          v._id === violationId
+            ? { ...v, status: "closed", closedAt: new Date().toISOString() }
+            : v,
         );
         await offlineStorage.saveInspection(inspection);
       }
@@ -960,7 +1007,13 @@ export const closeViolation = async (id, violationId) => {
         label: "Close Violation",
       });
       toast.success("Violation marked closed offline.");
-      return { data: { success: true, message: "Violation closed offline", data: inspection } };
+      return {
+        data: {
+          success: true,
+          message: "Violation closed offline",
+          data: inspection,
+        },
+      };
     }
     throw error;
   }
@@ -1059,7 +1112,8 @@ export const createCompliance = async (data) => {
 
 export const updateCompliance = async (id, data) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    const existing = (await offlineStorage.getCompliances()).find((c) => c._id === id) || {};
+    const existing =
+      (await offlineStorage.getCompliances()).find((c) => c._id === id) || {};
     const updated = { ...existing, ...data, _pendingSync: true };
     await offlineStorage.saveCompliance(updated);
     await enqueueMutation({
@@ -1081,7 +1135,8 @@ export const updateCompliance = async (id, data) => {
     return res;
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
-      const existing = (await offlineStorage.getCompliances()).find((c) => c._id === id) || {};
+      const existing =
+        (await offlineStorage.getCompliances()).find((c) => c._id === id) || {};
       const updated = { ...existing, ...data, _pendingSync: true };
       await offlineStorage.saveCompliance(updated);
       await enqueueMutation({
@@ -1276,7 +1331,8 @@ export const createContractor = async (data) => {
 
 export const updateContractor = async (id, data) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    const existing = (await offlineStorage.getContractors()).find((c) => c._id === id) || {};
+    const existing =
+      (await offlineStorage.getContractors()).find((c) => c._id === id) || {};
     const updated = { ...existing, ...data, _pendingSync: true };
     await offlineStorage.saveContractor(updated);
     await enqueueMutation({
@@ -1298,7 +1354,8 @@ export const updateContractor = async (id, data) => {
     return res;
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
-      const existing = (await offlineStorage.getContractors()).find((c) => c._id === id) || {};
+      const existing =
+        (await offlineStorage.getContractors()).find((c) => c._id === id) || {};
       const updated = { ...existing, ...data, _pendingSync: true };
       await offlineStorage.saveContractor(updated);
       await enqueueMutation({
@@ -1396,7 +1453,9 @@ export const createWorkerTask = async (data) => {
       label: `Task: ${data.title}`,
     });
     toast.success("Task created offline.");
-    return { data: { success: true, data: { ...data, _id: `task_${Date.now()}` } } };
+    return {
+      data: { success: true, data: { ...data, _id: `task_${Date.now()}` } },
+    };
   }
 
   try {
@@ -1411,7 +1470,9 @@ export const createWorkerTask = async (data) => {
         label: `Task: ${data.title}`,
       });
       toast.success("Task created offline.");
-      return { data: { success: true, data: { ...data, _id: `task_${Date.now()}` } } };
+      return {
+        data: { success: true, data: { ...data, _id: `task_${Date.now()}` } },
+      };
     }
     throw error;
   }
@@ -1501,10 +1562,15 @@ export const getAttendance = async (params) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     let list = await offlineStorage.getAttendance();
     if (params?.shift) list = list.filter((a) => a.shift === params.shift);
-    if (params?.liveStatus) list = list.filter((a) => a.liveStatus === params.liveStatus);
+    if (params?.liveStatus)
+      list = list.filter((a) => a.liveStatus === params.liveStatus);
     if (params?.search) {
       const q = params.search.toLowerCase();
-      list = list.filter((a) => a.workerName?.toLowerCase().includes(q) || a.workerId?.toLowerCase().includes(q));
+      list = list.filter(
+        (a) =>
+          a.workerName?.toLowerCase().includes(q) ||
+          a.workerId?.toLowerCase().includes(q),
+      );
     }
     return { data: { success: true, data: list } };
   }
@@ -1519,10 +1585,15 @@ export const getAttendance = async (params) => {
     if (isOfflineOrNetworkError(error)) {
       let list = await offlineStorage.getAttendance();
       if (params?.shift) list = list.filter((a) => a.shift === params.shift);
-      if (params?.liveStatus) list = list.filter((a) => a.liveStatus === params.liveStatus);
+      if (params?.liveStatus)
+        list = list.filter((a) => a.liveStatus === params.liveStatus);
       if (params?.search) {
         const q = params.search.toLowerCase();
-        list = list.filter((a) => a.workerName?.toLowerCase().includes(q) || a.workerId?.toLowerCase().includes(q));
+        list = list.filter(
+          (a) =>
+            a.workerName?.toLowerCase().includes(q) ||
+            a.workerId?.toLowerCase().includes(q),
+        );
       }
       return { data: { success: true, data: list } };
     }
@@ -1532,11 +1603,10 @@ export const getAttendance = async (params) => {
 
 export const markCheckIn = async (data) => {
   const localId = `att_offline_${Date.now()}`;
-  const mineInfo =
-    (await offlineStorage.getMine(data.mineId)) || {
-      _id: data.mineId,
-      name: "Current Mine",
-    };
+  const mineInfo = (await offlineStorage.getMine(data.mineId)) || {
+    _id: data.mineId,
+    name: "Current Mine",
+  };
 
   const optimistic = {
     _id: localId,
@@ -1719,7 +1789,8 @@ export const getSupportDirectory = async () => {
 export const getSupportTickets = async (params) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     let list = await offlineStorage.getSupportTickets();
-    if (params?.category) list = list.filter((t) => t.category === params.category);
+    if (params?.category)
+      list = list.filter((t) => t.category === params.category);
     return { data: { success: true, data: list } };
   }
 
@@ -1732,7 +1803,8 @@ export const getSupportTickets = async (params) => {
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
       let list = await offlineStorage.getSupportTickets();
-      if (params?.category) list = list.filter((t) => t.category === params.category);
+      if (params?.category)
+        list = list.filter((t) => t.category === params.category);
       return { data: { success: true, data: list } };
     }
     throw error;

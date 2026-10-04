@@ -31,11 +31,14 @@ const verifyRecaptcha = async (token, res) => {
 
   let verification;
   try {
-    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret, response: token }),
-    });
+    const response = await fetch(
+      "https://www.google.com/recaptcha/api/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ secret, response: token }),
+      },
+    );
     verification = await response.json();
   } catch {
     res.status(503);
@@ -44,21 +47,33 @@ const verifyRecaptcha = async (token, res) => {
 
   if (!verification.success) {
     const errorCodes = verification["error-codes"] || [];
-    console.warn("Google reCAPTCHA verification failed:", errorCodes.join(", "));
+    console.warn(
+      "Google reCAPTCHA verification failed:",
+      errorCodes.join(", "),
+    );
 
-    if (errorCodes.includes("invalid-input-secret") || errorCodes.includes("missing-input-secret")) {
+    if (
+      errorCodes.includes("invalid-input-secret") ||
+      errorCodes.includes("missing-input-secret")
+    ) {
       res.status(503);
-      throw new Error("The reCAPTCHA secret key is invalid or missing on the backend.");
+      throw new Error(
+        "The reCAPTCHA secret key is invalid or missing on the backend.",
+      );
     }
 
     if (errorCodes.includes("timeout-or-duplicate")) {
       res.status(400);
-      throw new Error("The reCAPTCHA expired. Complete the checkbox again and retry.");
+      throw new Error(
+        "The reCAPTCHA expired. Complete the checkbox again and retry.",
+      );
     }
 
     res.status(400);
     if (errorCodes.includes("invalid-input-response")) {
-      throw new Error("The reCAPTCHA token was rejected. Check that both keys belong to the same v2 checkbox and that localhost is allowed.");
+      throw new Error(
+        "The reCAPTCHA token was rejected. Check that both keys belong to the same v2 checkbox and that localhost is allowed.",
+      );
     }
     throw new Error("reCAPTCHA verification failed. Please try again");
   }
@@ -97,7 +112,9 @@ const sendOtpEmail = async (email, code) => {
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-      const error = new Error(result.message || "Email provider rejected the request");
+      const error = new Error(
+        result.message || "Email provider rejected the request",
+      );
       error.statusCode = 502;
       throw error;
     }
@@ -273,11 +290,13 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  let user = await User.findOne({ email: normalizedEmail }).select(
-    "+password",
-  );
+  let user = await User.findOne({ email: normalizedEmail }).select("+password");
 
-  if (!user && normalizedEmail === "worker@cil.gov.in" && password === "worker123") {
+  if (
+    !user &&
+    normalizedEmail === "worker@cil.gov.in" &&
+    password === "worker123"
+  ) {
     const anyMine = await Mine.findOne();
     user = await User.create({
       name: "Amit Yadav",
@@ -291,7 +310,11 @@ const loginUser = asyncHandler(async (req, res) => {
     });
   }
 
-  if (!user && normalizedEmail === "ananya@shakticontractors.in" && password === "contract123") {
+  if (
+    !user &&
+    normalizedEmail === "ananya@shakticontractors.in" &&
+    password === "contract123"
+  ) {
     const anyMine = await Mine.findOne();
     user = await User.create({
       name: "Ananya Singh",
