@@ -1136,7 +1136,7 @@ export default function CreateInspection() {
                       </div>
 
                       {/* Bottom Risk Analysis Action */}
-                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-2 pt-4">
+                      <div className="absolute bottom-0 inset-x-0 bg-black/80 p-2">
                         {risk ? (
                           <button
                             type="button"

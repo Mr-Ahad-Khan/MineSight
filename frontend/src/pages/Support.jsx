@@ -189,7 +189,7 @@ export default function Support() {
         <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 md:flex-row md:items-center md:justify-between dark:border-slate-800">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0d3f6d] to-[#1a62a3] text-white shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-700 text-white shadow-sm">
                 <LifeBuoy className="h-5 w-5" />
               </div>
               <h1 className="text-3xl font-extrabold tracking-tight text-[#1a1a1a] sm:text-4xl dark:text-white">

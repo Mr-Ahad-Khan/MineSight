@@ -1329,13 +1329,12 @@ export default function HomePage() {
         {/* Solutions */}
         <section
           id="solutions"
-          className="relative scroll-mt-[76px] overflow-hidden border-y border-[#2d706e] bg-gradient-to-b from-[#0e272d] via-[#102d32] to-[#101416]"
+          className="relative scroll-mt-[76px] overflow-hidden border-y border-slate-700/80 bg-[#0e1922]"
         >
-          <div className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-[#e5a416]/[0.06] blur-3xl" />
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="mb-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#39c7b0]">
+                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#39c7b0]">
                   {localizedCopy.operationsOverview}
                 </p>
                 <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
@@ -1343,10 +1342,10 @@ export default function HomePage() {
                 </h2>
               </div>
 
-              <div className="landing-monitoring-badge inline-flex items-center gap-2.5 rounded-full border border-emerald-300/80 bg-emerald-100/90 dark:border-[#39c7b0]/40 dark:bg-[#39c7b0]/10 px-5 py-2 text-sm font-bold text-emerald-800 dark:text-[#8de4d7] shadow-lg shadow-black/10 dark:shadow-black/20">
+              <div className="landing-monitoring-badge inline-flex items-center gap-2.5 rounded-full border border-emerald-500/40 bg-emerald-950/40 px-5 py-2 text-sm font-bold text-emerald-300 shadow-sm">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-600 dark:bg-[#39c7b0] opacity-75" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-600 dark:bg-[#39c7b0]" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
                 </span>
                 {localizedCopy.monitoringActive}
               </div>
@@ -1400,13 +1399,13 @@ export default function HomePage() {
                 >
                   <div className="relative h-52 overflow-hidden">
                     <div
-                      className="h-full w-full bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-125"
+                      className="h-full w-full bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
                       style={{ backgroundImage: `url(${card.image})` }}
                     />
                     <div
-                      className={`absolute inset-0 bg-gradient-to-t ${card.accent} to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90`}
+                      className="absolute inset-0 bg-slate-950/40 transition-colors duration-300 group-hover:bg-slate-950/20"
                     />
-                    <div className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-[#e5a416] transition-transform duration-500 group-hover:scale-x-100" />
+                    <div className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-[#e5a416] transition-transform duration-300 group-hover:scale-x-100" />
                   </div>
 
                   <div className="p-6">
@@ -1465,16 +1464,14 @@ export default function HomePage() {
         {/* Features / Audit readiness */}
         <section
           id="features"
-          className="landing-audit relative scroll-mt-[76px] border-y border-amber-300/10 bg-gradient-to-br from-[#2a241c] via-[#20212a] to-[#151c2a]"
+          className="landing-audit relative scroll-mt-[76px] border-y border-slate-800 bg-[#0f172a]"
         >
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
               {/* Left card */}
-              <div className="audit-feature-card w-full max-w-xl mx-auto lg:max-w-none relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-8 shadow-2xl">
-                <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl" />
-
+              <div className="audit-feature-card w-full max-w-xl mx-auto lg:max-w-none relative overflow-hidden rounded-2xl border border-slate-800 bg-[#15202e] p-8 shadow-xl">
                 <div className="relative">
-                  <div className="mb-5 inline-flex rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 p-3 text-slate-950 shadow-lg shadow-emerald-500/30">
+                  <div className="mb-5 inline-flex rounded-xl bg-teal-700 p-3 text-white shadow-sm">
                     <Shield className="h-6 w-6" />
                   </div>
 
@@ -1506,9 +1503,9 @@ export default function HomePage() {
                     ].map((item) => (
                       <div
                         key={item}
-                        className="audit-feature-item group flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all hover:border-emerald-400/30 hover:bg-emerald-500/5"
+                        className="audit-feature-item group flex items-start gap-3 rounded-xl border border-slate-700/60 bg-slate-900/60 p-4 transition hover:border-slate-600 hover:bg-slate-900"
                       >
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400 transition-transform group-hover:scale-110" />
+                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-400" />
                         <span className="text-slate-200">{item}</span>
                       </div>
                     ))}
@@ -1517,21 +1514,21 @@ export default function HomePage() {
               </div>
 
               {/* Right snapshot */}
-              <div className="audit-snapshot w-full max-w-xl mx-auto lg:max-w-none rounded-[32px] border border-white/10 bg-slate-900/70 p-6 sm:p-7 shadow-2xl backdrop-blur-sm">
-                <div className="mb-7 flex flex-col items-center text-center sm:flex-row sm:items-center sm:justify-between sm:text-left gap-4">
+              <div className="audit-snapshot w-full max-w-xl mx-auto lg:max-w-none rounded-2xl border border-slate-800 bg-[#15202e] p-6 sm:p-7 shadow-xl">
+                <div className="mb-6 flex flex-col items-center justify-center text-center gap-3">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
                       {language === "en"
                         ? "Operations summary"
                         : "संचालन सारांश"}
                     </p>
-                    <h3 className="mt-2 text-2xl font-black text-white">
+                    <h3 className="mt-1 text-2xl font-bold text-white">
                       {language === "en"
                         ? "Mine performance snapshot"
                         : "खदान प्रदर्शन स्नैपशॉट"}
                     </h3>
                   </div>
-                  <div className="audit-percent-badge rounded-full bg-emerald-100/90 border border-emerald-300/80 dark:bg-gradient-to-r dark:from-emerald-500/20 dark:to-cyan-500/20 dark:border-emerald-400/30 px-4 py-1.5 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-sm">
+                  <div className="audit-percent-badge inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-1.5 text-xs sm:text-sm font-bold text-white shadow-sm tracking-wide">
                     {language === "en" ? "+18.2% month" : "+18.2% महीना"}
                   </div>
                 </div>
@@ -1543,41 +1540,41 @@ export default function HomePage() {
                         language === "en" ? "Active sites" : "सक्रिय साइट्स",
                       value: homeStats?.activeMines ?? 0,
                       icon: Building2,
-                      color: "from-emerald-400 to-teal-500",
+                      iconBg: "bg-teal-950 text-teal-300 border-teal-800/60",
                     },
                     {
                       label:
                         language === "en" ? "Safety score" : "सुरक्षा स्कोर",
                       value: `${homeStats?.averageCompliance ?? 0}%`,
                       icon: ShieldCheck,
-                      color: "from-cyan-400 to-blue-500",
+                      iconBg: "bg-blue-950 text-blue-300 border-blue-800/60",
                     },
                     {
                       label: language === "en" ? "Alerts" : "अलर्ट",
                       value: homeStats?.totalAlerts ?? 0,
                       icon: Gauge,
-                      color: "from-amber-400 to-orange-500",
+                      iconBg: "bg-amber-950 text-amber-300 border-amber-800/60",
                     },
                     {
                       label: language === "en" ? "Reports" : "रिपोर्ट्स",
                       value: homeStats?.totalReports ?? 0,
                       icon: BarChart3,
-                      color: "from-violet-400 to-purple-500",
+                      iconBg: "bg-indigo-950 text-indigo-300 border-indigo-800/60",
                     },
-                  ].map(({ label, value, icon: Icon, color }) => (
+                  ].map(({ label, value, icon: Icon, iconBg }) => (
                     <div
                       key={label}
-                      className="audit-metric group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-lg"
+                      className="audit-metric group flex flex-col items-center justify-center text-center rounded-xl border border-slate-700/60 bg-[#0c131c] p-5 transition hover:border-slate-600 shadow-sm"
                     >
                       <div
-                        className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${color} text-slate-950 shadow-md transition-transform group-hover:scale-110 group-hover:rotate-6`}
+                        className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg border ${iconBg}`}
                       >
                         <Icon className="h-5 w-5" />
                       </div>
-                      <div className="text-2xl font-black text-white">
+                      <div className="text-2xl font-bold text-white tracking-tight">
                         {value}
                       </div>
-                      <div className="mt-1 text-sm text-slate-400">{label}</div>
+                      <div className="mt-1 text-sm font-medium text-slate-300">{label}</div>
                     </div>
                   ))}
                 </div>
@@ -1589,16 +1586,12 @@ export default function HomePage() {
         {/* Contact / Login */}
         <section
           id="contact"
-          className="landing-contact relative scroll-mt-[76px] border-y border-[#e5a416]/20 bg-gradient-to-br from-[#102b46] via-[#102338] to-[#17232a] px-4 pb-24 pt-8 sm:px-6 lg:px-8"
+          className="landing-contact relative scroll-mt-[76px] border-y border-slate-800 bg-[#0b121a] px-4 pb-24 pt-8 sm:px-6 lg:px-8"
         >
-          <div className="contact-shell relative overflow-hidden rounded-[40px] border border-[#3b5662] bg-gradient-to-br from-[#172b3a] via-[#101b2b] to-[#0d1622] p-7 shadow-2xl lg:p-10">
-            {/* Background accents */}
-            <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-emerald-500/15 blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
-
+          <div className="contact-shell relative overflow-hidden rounded-3xl border border-slate-800 bg-[#111c2a] p-7 shadow-xl lg:p-10">
             <div className="relative grid items-center gap-10 xl:grid-cols-[minmax(0,1fr)_420px]">
               <div className="flex flex-col items-center justify-center text-center">
-                <p className="text-sm font-bold uppercase tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                <p className="text-sm font-bold uppercase tracking-[0.2em] text-teal-400">
                   {localizedCopy.readyToScale}
                 </p>
                 <h2 className="mt-4 text-3xl font-black text-white sm:text-4xl leading-tight">
@@ -1616,9 +1609,9 @@ export default function HomePage() {
                   ].map(({ icon: Icon, label }) => (
                     <span
                       key={label}
-                      className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 backdrop-blur-sm"
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-sm text-slate-200 shadow-sm"
                     >
-                      <Icon className="h-4 w-4 text-emerald-400" />
+                      <Icon className="h-4 w-4 text-teal-400" />
                       {label}
                     </span>
                   ))}
@@ -1626,9 +1619,9 @@ export default function HomePage() {
               </div>
 
               {/* Contact card */}
-              <div className="contact-card relative w-full max-w-[420px] justify-self-center rounded-[28px] border border-[#526875] bg-[#0a1420]/95 p-6 shadow-2xl backdrop-blur-xl">
+              <div className="contact-card relative w-full max-w-[420px] justify-self-center rounded-2xl border border-slate-700 bg-[#0c1420] p-6 shadow-xl">
                 <div className="mb-6 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f3c24b] to-[#e5a416] text-[#17232a] shadow-lg shadow-[#e5a416]/30">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-600 text-white shadow-sm">
                     <Mail className="h-5 w-5" />
                   </div>
                   <div>
@@ -1774,7 +1767,7 @@ export default function HomePage() {
                   <button
                     type="submit"
                     disabled={contactSending}
-                    className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#e5a416] via-[#f3c24b] to-[#24b6c7] px-4 py-3.5 font-bold text-[#10202b] shadow-lg shadow-[#e5a416]/25 transition-all hover:shadow-[#f3c24b]/40 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.98]"
+                    className="group relative w-full overflow-hidden rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-3.5 font-bold text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {contactSending ? t.sending : t.sendMessage}
@@ -2044,8 +2037,8 @@ export default function HomePage() {
             )}
 
             <div className="mt-3 flex justify-end pr-1">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#f6f7f8] bg-gradient-to-br from-[#f7d9b7] to-[#d4b5a3] shadow-[0_8px_22px_rgba(0,0,0,0.25)]">
-                <div className="h-10 w-10 rounded-full bg-[radial-gradient(circle_at_30%_30%,_#f9d5bc,_#d2a77d_62%,_#6d4738)]" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-700 bg-amber-600 text-white shadow-md">
+                <Bot className="h-6 w-6" />
               </div>
             </div>
           </div>

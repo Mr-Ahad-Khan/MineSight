@@ -229,7 +229,7 @@ export default function Attendance() {
                 }));
                 setModalOpen(true);
               }}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0d3f6d] to-[#175d9e] px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-[#0d3f6d]/20 transition hover:brightness-110 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-700 hover:bg-blue-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
               <span>
@@ -242,7 +242,7 @@ export default function Attendance() {
         {/* Real-time KPI Cards */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 sm:gap-4">
           {/* Card 1: Inside Mine */}
-          <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-50 to-[#ebf7f0] p-4 shadow-sm dark:border-emerald-500/20 dark:from-emerald-950/20 dark:to-slate-900">
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-300 bg-emerald-50 p-4 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/40">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
                 {t.insideMine}
