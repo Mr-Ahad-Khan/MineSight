@@ -85,6 +85,14 @@ export default function MineralResourcesDashboard() {
   });
   const [expandedRecordId, setExpandedRecordId] = useState(null);
   const recordsRequestId = useRef(0);
+  const tableSectionRef = useRef(null);
+  const detailsRef = useRef(null);
+
+  useEffect(() => {
+    if (expandedRecordId && detailsRef.current) {
+      detailsRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [expandedRecordId]);
 
   useEffect(() => {
     getMineralResourceSummary()
@@ -184,9 +192,12 @@ export default function MineralResourcesDashboard() {
     setPage((currentPage) => {
       const nextPage =
         typeof pageChange === "function" ? pageChange(currentPage) : pageChange;
-      return Math.min(Math.max(nextPage, 1), totalPages);
+      return Math.min(Math.max(Number(nextPage) || 1, 1), totalPages);
     });
     setExpandedRecordId(null);
+    if (tableSectionRef.current) {
+      tableSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   if (loading) {
@@ -488,7 +499,7 @@ export default function MineralResourcesDashboard() {
         </p>
       </details>
 
-      <section className="border-t-2 border-teal-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
+      <section ref={tableSectionRef} className="border-t-2 border-teal-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="font-semibold text-slate-900 dark:text-white">{t.datasetRecordsTitle}</h2>
@@ -568,123 +579,192 @@ export default function MineralResourcesDashboard() {
           </p>
         )}
 
-        <TableScrollContainer className="mt-4">
-          <table className="mobile-readable-table text-sm">
-            <thead className="border-y border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-700">
-              <tr>
-                {PREVIEW_FIELDS.map((field) => (
-                  <th key={field} className="px-3 py-3 font-semibold">
-                    {field}
-                  </th>
-                ))}
-                <th className="px-3 py-3 font-semibold">{t.details}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {recordsLoading ? (
-                <tr>
-                  <td
-                    colSpan={PREVIEW_FIELDS.length + 1}
-                    className="px-3 py-8 text-center text-slate-500"
-                  >
-                    {t.loadingRecords}
-                  </td>
-                </tr>
-              ) : records.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={PREVIEW_FIELDS.length + 1}
-                    className="px-3 py-8 text-center text-slate-500"
-                  >
-                    {t.noMatchingRecords}
-                  </td>
-                </tr>
-              ) : (
-                records.map((record) => {
-                  const recordId = String(record.FID || record.index);
-                  const isExpanded = expandedRecordId === recordId;
+        {/* Top Pagination and Count Bar */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-y border-slate-200 py-2.5 dark:border-slate-800">
+          <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
+            {totalRecordsCount === 0
+              ? t.noRecords
+              : `${(page - 1) * RECORDS_PER_PAGE + 1}-${Math.min(page * RECORDS_PER_PAGE, totalRecordsCount)} of ${totalRecordsCount.toLocaleString()} ${t.records}`}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => goToPage((p) => p - 1)}
+              disabled={page <= 1 || recordsLoading}
+              className="inline-flex min-h-[38px] min-w-[80px] items-center justify-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
+            >
+              <ChevronLeft className="h-4 w-4" /> {t.previous}
+            </button>
+            <span className="px-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
+              {page} / {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => goToPage((p) => p + 1)}
+              disabled={page >= totalPages || recordsLoading}
+              className="inline-flex min-h-[38px] min-w-[80px] items-center justify-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
+            >
+              {t.next} <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
 
-                  return (
-                    <Fragment key={recordId}>
-                      <tr key={recordId}>
-                        {PREVIEW_FIELDS.map((field) => (
-                          <td
-                            key={field}
-                            className="max-w-64 break-words px-3 py-3 text-slate-800 dark:text-slate-200"
-                            title={record[field] || ""}
-                          >
-                            {record[field] || "—"}
-                          </td>
-                        ))}
-                        <td className="px-3 py-3">
-                          <button
-                            type="button"
-                            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                            aria-expanded={isExpanded}
-                            onClick={() =>
-                              setExpandedRecordId(isExpanded ? null : recordId)
-                            }
-                          >
-                            {isExpanded ? t.hideFields : t.viewAllFields}
-                          </button>
-                        </td>
-                      </tr>
-                      {isExpanded && (
-                        <tr key={`${recordId}-details`} className="hidden md:table-row">
-                          <td
-                            colSpan={PREVIEW_FIELDS.length + 1}
-                            className="bg-slate-50 px-3 py-4 dark:bg-slate-800/60"
-                          >
-                            <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
-                              {(summary?.columns || []).map((field) => (
-                                <div key={field} className="min-w-0">
-                                  <dt className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                    {field}
-                                  </dt>
-                                  <dd className="break-words text-sm text-slate-900 dark:text-slate-100">
-                                    {record[field] || "—"}
-                                  </dd>
-                                </div>
-                              ))}
-                            </dl>
+        {/* Stable table container preventing layout height shifts */}
+        <div className="relative min-h-[380px] mt-2">
+          {recordsLoading && records.length > 0 && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-white/50 backdrop-blur-[1px] dark:bg-slate-900/50">
+              <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                <Loader2 className="h-4 w-4 animate-spin text-teal-600 dark:text-teal-400" />
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                  {t.loadingRecords || "Loading records..."}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <TableScrollContainer className="mt-0">
+            <table className={`mobile-readable-table text-sm transition-opacity duration-150 ${recordsLoading && records.length > 0 ? "opacity-50" : "opacity-100"}`}>
+              <thead className="border-y border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-700">
+                <tr>
+                  {PREVIEW_FIELDS.map((field) => (
+                    <th key={field} className="px-3 py-3 font-semibold">
+                      {field}
+                    </th>
+                  ))}
+                  <th className="px-3 py-3 font-semibold">{t.details}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {recordsLoading && records.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={PREVIEW_FIELDS.length + 1}
+                      className="px-3 py-16 text-center text-slate-500"
+                    >
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-teal-600" />
+                      {t.loadingRecords}
+                    </td>
+                  </tr>
+                ) : records.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={PREVIEW_FIELDS.length + 1}
+                      className="px-3 py-12 text-center text-slate-500"
+                    >
+                      {t.noMatchingRecords}
+                    </td>
+                  </tr>
+                ) : (
+                  records.map((record) => {
+                    const recordId = String(record.FID || record.index);
+                    const isExpanded = expandedRecordId === recordId;
+
+                    return (
+                      <Fragment key={recordId}>
+                        <tr key={recordId} className={isExpanded ? "bg-teal-50/50 dark:bg-teal-950/20" : ""}>
+                          {PREVIEW_FIELDS.map((field) => (
+                            <td
+                              key={field}
+                              className="max-w-64 break-words px-3 py-3 text-slate-800 dark:text-slate-200"
+                              title={record[field] || ""}
+                            >
+                              {record[field] || "—"}
+                            </td>
+                          ))}
+                          <td className="px-3 py-3">
+                            <button
+                              type="button"
+                              className="font-semibold text-teal-700 underline underline-offset-2 dark:text-teal-300 min-h-[36px] inline-flex items-center"
+                              aria-expanded={isExpanded}
+                              onClick={() =>
+                                setExpandedRecordId(isExpanded ? null : recordId)
+                              }
+                            >
+                              {isExpanded ? t.hideFields : t.viewAllFields}
+                            </button>
                           </td>
                         </tr>
-                      )}
-                    </Fragment>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </TableScrollContainer>
+                        {isExpanded && (
+                          <tr key={`${recordId}-details`} className="table-row">
+                            <td
+                              colSpan={PREVIEW_FIELDS.length + 1}
+                              className="bg-slate-50 p-3.5 sm:p-5 dark:bg-slate-800/90 border-y-2 border-teal-600/40"
+                            >
+                              <div className="mb-3 flex items-center justify-between gap-2 border-b border-slate-200 pb-2.5 dark:border-slate-700">
+                                <div>
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
+                                    All Fields
+                                  </span>
+                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                                    {record.NAME || `Record #${recordId}`}
+                                  </h4>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedRecordId(null)}
+                                  className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 flex items-center gap-1"
+                                >
+                                  <X className="h-3.5 w-3.5" />
+                                  <span>{t.hideFields || "Close"}</span>
+                                </button>
+                              </div>
+                              <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                                {(summary?.columns || Object.keys(record)).map((field) => (
+                                  <div key={field} className="min-w-0 rounded-lg bg-white p-2.5 border border-slate-200 shadow-xs dark:bg-slate-900 dark:border-slate-700/80">
+                                    <dt className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">
+                                      {field}
+                                    </dt>
+                                    <dd className="break-words text-xs font-semibold text-slate-900 dark:text-slate-100 mt-0.5">
+                                      {record[field] !== undefined && record[field] !== null && record[field] !== "" ? String(record[field]) : "—"}
+                                    </dd>
+                                  </div>
+                                ))}
+                              </dl>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </TableScrollContainer>
+        </div>
 
         {expandedRecord && (
           <section
-            className="mt-3 border border-slate-200 bg-slate-50 px-3 py-4 dark:border-slate-700 dark:bg-slate-800/60 md:hidden"
+            ref={detailsRef}
+            className="mt-4 rounded-xl border border-teal-500/40 bg-slate-50 p-4 shadow-md dark:border-teal-500/30 dark:bg-slate-800/90"
             aria-label={`${t.viewAllFields}: ${expandedRecord.NAME || expandedRecordId}`}
           >
             <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-200 pb-3 dark:border-slate-700">
-              <h3 className="min-w-0 break-words text-sm font-semibold text-slate-900 dark:text-slate-100">
-                {expandedRecord.NAME || expandedRecordId}
-              </h3>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
+                  Record Overview
+                </span>
+                <h3 className="min-w-0 break-words text-base font-bold text-slate-900 dark:text-slate-100">
+                  {expandedRecord.NAME || expandedRecordId}
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setExpandedRecordId(null)}
-                className="shrink-0 rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+                className="shrink-0 rounded-lg p-1.5 text-slate-500 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-100 min-h-[36px] min-w-[36px] flex items-center justify-center border border-slate-300 dark:border-slate-600"
                 aria-label={t.hideFields}
                 title={t.hideFields}
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-              {(summary?.columns || []).map((field) => (
-                <div key={field} className="min-w-0">
-                  <dt className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+              {(summary?.columns || Object.keys(expandedRecord)).map((field) => (
+                <div key={field} className="min-w-0 rounded-lg bg-white p-2.5 border border-slate-200 shadow-xs dark:bg-slate-900 dark:border-slate-700">
+                  <dt className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">
                     {field}
                   </dt>
-                  <dd className="break-words text-sm text-slate-900 dark:text-slate-100">
-                    {expandedRecord[field] || "—"}
+                  <dd className="break-words text-xs font-semibold text-slate-900 dark:text-slate-100 mt-0.5">
+                    {expandedRecord[field] !== undefined && expandedRecord[field] !== null && expandedRecord[field] !== "" ? String(expandedRecord[field]) : "—"}
                   </dd>
                 </div>
               ))}
@@ -692,29 +772,29 @@ export default function MineralResourcesDashboard() {
           </section>
         )}
 
-        <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-500">
+        <div className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 pb-20 sm:pb-6 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
             {totalRecordsCount === 0
               ? t.noRecords
               : `${t.showingRecords} ${(page - 1) * RECORDS_PER_PAGE + 1}-${Math.min(page * RECORDS_PER_PAGE, totalRecordsCount)} ${t.of} ${totalRecordsCount.toLocaleString()} ${t.records}`}
           </p>
-          <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+          <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => goToPage((currentPage) => currentPage - 1)}
-              disabled={page <= 1}
-              className="relative z-10 inline-flex min-h-[44px] min-w-[100px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
+              disabled={page <= 1 || recordsLoading}
+              className="relative z-10 inline-flex min-h-[46px] min-w-[110px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
             >
               <ChevronLeft className="h-4 w-4" /> {t.previous}
             </button>
-            <span className="min-w-24 text-center text-sm font-medium text-slate-600 dark:text-slate-300">
+            <span className="min-w-24 text-center text-sm font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
               {t.page} {page} {t.of} {totalPages}
             </span>
             <button
               type="button"
               onClick={() => goToPage((currentPage) => currentPage + 1)}
-              disabled={page >= totalPages}
-              className="relative z-10 inline-flex min-h-[44px] min-w-[100px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
+              disabled={page >= totalPages || recordsLoading}
+              className="relative z-10 inline-flex min-h-[46px] min-w-[110px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750"
             >
               {t.next} <ChevronRight className="h-4 w-4" />
             </button>
