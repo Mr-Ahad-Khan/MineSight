@@ -171,11 +171,11 @@ export default function Analytics() {
 
       <section className="card p-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
-          <div>
+          <div className="text-center sm:text-left">
             <h2 className="font-semibold text-slate-900 dark:text-slate-100">{t.periodComparison}</h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">{t.periodComparisonSubtitle}</p>
           </div>
-          <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 p-1" role="tablist">
+          <div className="grid grid-cols-3 sm:inline-flex w-full sm:w-auto rounded-lg border border-slate-200 dark:border-slate-700 p-1" role="tablist">
             {[
               ['weekly', t.weekly],
               ['monthly', t.monthly],
@@ -187,7 +187,7 @@ export default function Analytics() {
                 role="tab"
                 aria-selected={period === value}
                 onClick={() => setPeriod(value)}
-                className={`px-3 py-1.5 text-sm rounded-md transition ${period === value ? 'bg-primary-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition flex items-center justify-center text-center ${period === value ? 'bg-primary-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'}`}
               >
                 {label}
               </button>

@@ -58,11 +58,11 @@ const formatDate = (value) =>
 
 function Stat({ icon: Icon, label, value, tone }) {
   return (
-    <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 shadow-[0_2px_5px_rgba(80,60,30,0.08)] dark:border-slate-700 dark:bg-slate-900">
+    <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 shadow-[0_2px_5px_rgba(80,60,30,0.08)] dark:border-slate-700 dark:bg-slate-900 flex flex-col items-center text-center sm:items-start sm:text-left">
       <div className={`mb-4 flex h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
         <Icon className="h-5 w-5" />
       </div>
-      <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
       <p className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">{value}</p>
     </div>
   );
@@ -233,7 +233,7 @@ export default function Workers() {
         )}
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 max-w-md mx-auto sm:max-w-none w-full">
         <Stat icon={Users} label={t.totalWorkers} value={isWorker ? 1 : totals.workers || 0} tone="bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300" />
         <Stat icon={Activity} label={t.pendingWork} value={isWorker ? currentWorker?.pendingTasks || 0 : totals.pendingTasks || 0} tone="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
         <Stat icon={CheckCircle2} label={t.completedWork} value={isWorker ? currentWorker?.completedTasks || 0 : totals.completedTasks || 0} tone="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" />
@@ -265,20 +265,20 @@ export default function Workers() {
                 </Link>
               </div>
               <dl className="mt-4 space-y-3 text-sm">
-                <div className="flex justify-between gap-4"><dt className="text-slate-500">{t.name}</dt><dd className="font-semibold">{currentWorker?.name || user.name}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-slate-500">{t.employeeId}</dt><dd className="font-semibold">{currentWorker?.employeeId || t.notAssigned}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-slate-500">{t.department}</dt><dd className="font-semibold">{currentWorker?.department || t.notAssigned}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-slate-500">{t.latestAttendance}</dt><dd className="font-semibold">{currentWorker?.attendance?.latest ? attendanceLabels[currentWorker.attendance.latest.status] : t.notMarked}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="text-slate-500 dark:text-slate-400">{t.name}</dt><dd className="font-semibold text-slate-900 dark:text-white">{currentWorker?.name || user.name}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="text-slate-500 dark:text-slate-400">{t.employeeId}</dt><dd className="font-semibold text-slate-900 dark:text-white">{currentWorker?.employeeId || t.notAssigned}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="text-slate-500 dark:text-slate-400">{t.department}</dt><dd className="font-semibold text-slate-900 dark:text-white">{currentWorker?.department || t.notAssigned}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="text-slate-500 dark:text-slate-400">{t.latestAttendance}</dt><dd className="font-semibold text-slate-900 dark:text-white">{currentWorker?.attendance?.latest ? attendanceLabels[currentWorker.attendance.latest.status] : t.notMarked}</dd></div>
               </dl>
             </div>
             <div className="rounded-2xl border border-[#cbbda7] bg-[#fffdf8] p-5 dark:border-slate-700 dark:bg-slate-900">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t.workByMine}</h2>
               <MineWorkList items={currentWorker?.mineWork || []} />
               {!currentWorker?.mineWork?.length && currentWorker?.mineSites?.length > 0 && (
-                <p className="mt-3 text-sm text-slate-500">Assigned sites: {currentWorker.mineSites.map((mine) => mine.name).join(", ")}. No task or attendance history recorded yet.</p>
+                <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Assigned sites: {currentWorker.mineSites.map((mine) => mine.name).join(", ")}. No task or attendance history recorded yet.</p>
               )}
               {!currentWorker?.mineSites?.length && !currentWorker?.mineWork?.length && (
-                <p className="mt-3 text-sm text-slate-500">No mine site assigned yet.</p>
+                <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">No mine site assigned yet.</p>
               )}
             </div>
           </div>

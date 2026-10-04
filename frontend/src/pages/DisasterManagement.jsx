@@ -258,16 +258,16 @@ export default function DisasterManagement() {
 
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-col items-center text-center sm:items-start sm:text-left gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-rose-600">
+          <div className="flex items-center justify-center sm:justify-start gap-2 text-rose-600">
             <Siren className="h-5 w-5" />
             <span className="text-sm font-semibold uppercase tracking-wide">{t.emergencyOperations}</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold">{t.disasterManagement}</h1>
-          <p className="mt-1 text-sm text-slate-500">{t.disasterSubtitle}</p>
+          <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{t.disasterManagement}</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t.disasterSubtitle}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap justify-center sm:justify-start gap-2">
           <button type="button" onClick={exportCsv} className="btn-secondary">{t.exportCsv}</button>
           <button type="button" onClick={exportJson} className="btn-secondary">{t.exportJson}</button>
           <button type="button" onClick={exportPdf} className="btn-secondary">{t.exportPdf}</button>
@@ -277,15 +277,33 @@ export default function DisasterManagement() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <div className="card border-t-4 border-t-rose-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">{t.activeIncidents}</p><AlertOctagon className="h-5 w-5 text-rose-600" /></div><p className="mt-3 text-3xl font-bold text-rose-600">{activeIncidents.length}</p></div>
-        <div className="card border-t-4 border-t-amber-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">{t.responseReadiness}</p><CheckCircle2 className="h-5 w-5 text-amber-600" /></div><p className="mt-3 text-3xl font-bold text-amber-600">{Math.round((checkedItems.length / checklistItems.length) * 100)}%</p></div>
-        <div className="card border-t-4 border-t-emerald-500 p-5"><div className="flex items-center justify-between"><p className="text-sm font-medium text-gray-600">{t.emergencyChannels}</p><PhoneCall className="h-5 w-5 text-emerald-600" /></div><p className="mt-3 text-3xl font-bold text-emerald-600">{emergencyContacts.length}</p></div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 max-w-md mx-auto sm:max-w-none w-full">
+        <div className="card border-t-4 border-t-rose-500 p-5 flex flex-col items-center text-center sm:items-stretch sm:text-left">
+          <div className="flex w-full items-center justify-between">
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{t.activeIncidents}</p>
+            <AlertOctagon className="h-5 w-5 text-rose-600" />
+          </div>
+          <p className="mt-3 text-3xl font-bold text-rose-600">{activeIncidents.length}</p>
+        </div>
+        <div className="card border-t-4 border-t-amber-500 p-5 flex flex-col items-center text-center sm:items-stretch sm:text-left">
+          <div className="flex w-full items-center justify-between">
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{t.responseReadiness}</p>
+            <CheckCircle2 className="h-5 w-5 text-amber-600" />
+          </div>
+          <p className="mt-3 text-3xl font-bold text-amber-600">{Math.round((checkedItems.length / checklistItems.length) * 100)}%</p>
+        </div>
+        <div className="card border-t-4 border-t-emerald-500 p-5 flex flex-col items-center text-center sm:items-stretch sm:text-left">
+          <div className="flex w-full items-center justify-between">
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{t.emergencyChannels}</p>
+            <PhoneCall className="h-5 w-5 text-emerald-600" />
+          </div>
+          <p className="mt-3 text-3xl font-bold text-emerald-600">{emergencyContacts.length}</p>
+        </div>
       </div>
 
       {formOpen && (
         <form onSubmit={submitIncident} className="card space-y-4 border border-rose-200 p-5 dark:border-rose-900">
-            <div className="flex items-center gap-2"><AlertOctagon className="h-5 w-5 text-rose-600" /><h2 className="font-semibold">{t.escalateEmergencyIncident}</h2></div>
+            <div className="flex items-center gap-2"><AlertOctagon className="h-5 w-5 text-rose-600" /><h2 className="font-semibold text-slate-900 dark:text-white">{t.escalateEmergencyIncident}</h2></div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <input className="input" placeholder={t.incidentTitle} value={form.subject} onChange={(event) => updateForm("subject", event.target.value)} />
             <select className="input" value={form.mineId} onChange={(event) => updateForm("mineId", event.target.value)}>
@@ -301,19 +319,19 @@ export default function DisasterManagement() {
         </form>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 max-w-md mx-auto sm:max-w-none w-full">
         <section className="card p-5 lg:col-span-2">
-          <div className="mb-4 flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-600" /><h2 className="font-semibold">{t.activeIncidentRegister}</h2></div>
-          {loading ? <p className="text-sm text-slate-500">{t.loadingIncidents}</p> : activeIncidents.length === 0 ? <p className="text-sm text-slate-500">{t.noActiveIncidents}</p> : <div className="space-y-3">{activeIncidents.map((incident) => <article key={incident._id} className="rounded-lg border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900 dark:bg-rose-950/20"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold">{incident.subject}</h3><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{incident.mineId?.name || t.mineNotSpecified}</p></div><span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold uppercase text-rose-700">{incident.status}</span></div><p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{incident.description}</p></article>)}</div>}
+          <div className="mb-4 flex items-center gap-2"><ShieldAlert className="h-5 w-5 text-rose-600" /><h2 className="font-semibold text-slate-900 dark:text-white">{t.activeIncidentRegister}</h2></div>
+          {loading ? <p className="text-sm text-slate-500 dark:text-slate-400">{t.loadingIncidents}</p> : activeIncidents.length === 0 ? <p className="text-sm text-slate-500 dark:text-slate-400">{t.noActiveIncidents}</p> : <div className="space-y-3">{activeIncidents.map((incident) => <article key={incident._id} className="rounded-lg border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900 dark:bg-rose-950/20"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold text-slate-900 dark:text-white">{incident.subject}</h3><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{incident.mineId?.name || t.mineNotSpecified}</p></div><span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold uppercase text-rose-700">{incident.status}</span></div><p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{incident.description}</p></article>)}</div>}
         </section>
 
         <section className="card p-5">
-          <div className="mb-4 flex items-center gap-2"><ClipboardCheck className="h-5 w-5 text-amber-600" /><h2 className="font-semibold">{t.responseChecklist}</h2></div>
-          <div className="space-y-3">{translatedChecklistItems.map((item, index) => <label key={item} className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={checkedItems.includes(index)} onChange={() => toggleChecklist(index)} className="mt-0.5 h-4 w-4 accent-amber-600" /><span className={checkedItems.includes(index) ? "text-slate-400 line-through" : ""}>{item}</span></label>)}</div>
+          <div className="mb-4 flex items-center gap-2"><ClipboardCheck className="h-5 w-5 text-amber-600" /><h2 className="font-semibold text-slate-900 dark:text-white">{t.responseChecklist}</h2></div>
+          <div className="space-y-3">{translatedChecklistItems.map((item, index) => <label key={item} className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={checkedItems.includes(index)} onChange={() => toggleChecklist(index)} className="mt-0.5 h-4 w-4 accent-amber-600" /><span className={checkedItems.includes(index) ? "text-slate-400 line-through dark:text-slate-500" : "text-slate-700 dark:text-slate-200"}>{item}</span></label>)}</div>
         </section>
       </div>
 
-      <section className="card p-5"><div className="mb-4 flex items-center gap-2"><LifeBuoy className="h-5 w-5 text-sky-600" /><h2 className="font-semibold">{t.emergencyContacts}</h2></div><div className="grid grid-cols-1 gap-3 md:grid-cols-3">{emergencyContacts.map((contact) => <a key={contact.title} href={`tel:${contact.number}`} className="rounded-lg border border-slate-200 p-4 transition hover:border-sky-400 dark:border-slate-700"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold">{contact.title}</p><PhoneCall className="h-4 w-4 shrink-0 text-sky-600" /></div><p className="mt-2 font-mono text-sm text-sky-700 dark:text-sky-300">{contact.number}</p><p className="mt-1 text-xs text-slate-500">{contact.timing}</p></a>)}</div></section>
+      <section className="card p-5 max-w-md mx-auto sm:max-w-none w-full"><div className="mb-4 flex items-center gap-2"><LifeBuoy className="h-5 w-5 text-sky-600" /><h2 className="font-semibold text-slate-900 dark:text-white">{t.emergencyContacts}</h2></div><div className="grid grid-cols-1 gap-3 md:grid-cols-3">{emergencyContacts.map((contact) => <a key={contact.title} href={`tel:${contact.number}`} className="rounded-lg border border-slate-200 p-4 transition hover:border-sky-400 dark:border-slate-700"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold text-slate-900 dark:text-white">{contact.title}</p><PhoneCall className="h-4 w-4 shrink-0 text-sky-600" /></div><p className="mt-2 font-mono text-sm text-sky-700 dark:text-sky-300">{contact.number}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{contact.timing}</p></a>)}</div></section>
     </div>
   );
 }

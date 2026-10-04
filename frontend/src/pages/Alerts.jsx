@@ -8,9 +8,9 @@ import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 
 const severityColor = {
-  info: "border-blue-500 bg-blue-50/70 dark:bg-slate-800/90 dark:border-blue-500/70",
-  warning: "border-amber-500 bg-amber-50/70 dark:bg-slate-800/90 dark:border-amber-500/70",
-  critical: "border-red-500 bg-red-50/70 dark:bg-slate-800/90 dark:border-red-500/70",
+  info: "border-l-blue-500 bg-blue-50/50 dark:bg-slate-900/90 dark:border-l-blue-400",
+  warning: "border-l-amber-500 bg-amber-50/50 dark:bg-slate-900/90 dark:border-l-amber-400",
+  critical: "border-l-rose-500 bg-rose-50/50 dark:bg-slate-900/90 dark:border-l-rose-500",
 };
 
 export default function Alerts() {
@@ -64,7 +64,7 @@ export default function Alerts() {
       <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{t.alertTitle}</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t.alertSubtitle}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">{t.alertSubtitle}</p>
         </div>
         <button
           onClick={handleMarkAll}
@@ -76,9 +76,9 @@ export default function Alerts() {
 
       <div className="mx-auto w-full max-w-6xl space-y-3">
         {loading ? (
-          <p className="text-slate-400">{t.loading}</p>
+          <p className="text-slate-500 dark:text-slate-400">{t.loading}</p>
         ) : alerts.length === 0 ? (
-          <div className="card p-12 text-center text-slate-400">
+          <div className="card p-12 text-center text-slate-500 dark:text-slate-400">
             <Bell className="w-10 h-10 mx-auto mb-3 opacity-50" />
             <p>{t.noAlerts}</p>
           </div>
@@ -86,19 +86,30 @@ export default function Alerts() {
           alerts.map((alert) => (
             <div
               key={alert._id}
-              className={`card grid min-h-28 grid-cols-1 items-center gap-4 border-l-4 p-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] ${severityColor[alert.severity] || ""} ${
-                alert.isRead ? "opacity-60" : ""
+              className={`card grid min-h-24 grid-cols-1 items-center gap-4 border-l-4 p-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] ${
+                alert.isRead
+                  ? "border-l-slate-400/80 dark:border-l-slate-600 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+                  : `${severityColor[alert.severity] || "border-l-slate-400 bg-white dark:bg-slate-900"} border border-slate-200 dark:border-slate-800`
               }`}
             >
               {(() => {
                 const alertText = getAlertText(alert);
                 return (
                   <div className="min-w-0 text-center sm:text-left">
-                    <p className="font-semibold text-slate-900 dark:text-white text-base">{alertText.title}</p>
-                    <p className="text-sm text-slate-700 dark:text-slate-200 mt-1 leading-relaxed">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                      <p className="font-bold text-slate-950 dark:text-white text-base tracking-tight">
+                        {alertText.title}
+                      </p>
+                      {alert.isRead && (
+                        <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                          Read
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-100 mt-1.5 leading-relaxed">
                       {alertText.message}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-300 mt-2 font-medium">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 font-medium">
                       {formatDistanceToNow(new Date(alert.createdAt), {
                         addSuffix: true,
                         locale: language === "hi" ? hi : undefined,

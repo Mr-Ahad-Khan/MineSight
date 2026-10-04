@@ -344,6 +344,21 @@
     border-color: #d5c4a8 !important;
   }
 
+  .home-page.theme-light .landing-monitoring-badge {
+    background: #d1fae5 !important;
+    border-color: #6ee7b7 !important;
+    color: #065f46 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 12px rgba(6, 95, 70, 0.12) !important;
+  }
+
+  .home-page.theme-light .audit-percent-badge {
+    background: #d1fae5 !important;
+    border-color: #6ee7b7 !important;
+    color: #065f46 !important;
+    font-weight: 700 !important;
+  }
+
   .home-page.theme-light .audit-metric > div:nth-child(2) {
     color: #17314a !important;
   }

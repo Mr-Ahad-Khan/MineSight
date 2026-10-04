@@ -1343,10 +1343,10 @@ export default function HomePage() {
                 </h2>
               </div>
 
-              <div className="inline-flex items-center gap-2.5 rounded-full border border-[#39c7b0]/40 bg-[#39c7b0]/10 px-5 py-2 text-sm font-medium text-[#8de4d7] shadow-lg shadow-black/20">
+              <div className="landing-monitoring-badge inline-flex items-center gap-2.5 rounded-full border border-emerald-300/80 bg-emerald-100/90 dark:border-[#39c7b0]/40 dark:bg-[#39c7b0]/10 px-5 py-2 text-sm font-bold text-emerald-800 dark:text-[#8de4d7] shadow-lg shadow-black/10 dark:shadow-black/20">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#39c7b0] opacity-75" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#39c7b0]" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-600 dark:bg-[#39c7b0] opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-600 dark:bg-[#39c7b0]" />
                 </span>
                 {localizedCopy.monitoringActive}
               </div>
@@ -1470,7 +1470,7 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
               {/* Left card */}
-              <div className="audit-feature-card relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-8 shadow-2xl">
+              <div className="audit-feature-card w-full max-w-xl mx-auto lg:max-w-none relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-8 shadow-2xl">
                 <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl" />
 
                 <div className="relative">
@@ -1517,8 +1517,8 @@ export default function HomePage() {
               </div>
 
               {/* Right snapshot */}
-              <div className="audit-snapshot rounded-[32px] border border-white/10 bg-slate-900/70 p-7 shadow-2xl backdrop-blur-sm">
-                <div className="mb-7 flex items-center justify-between gap-4">
+              <div className="audit-snapshot w-full max-w-xl mx-auto lg:max-w-none rounded-[32px] border border-white/10 bg-slate-900/70 p-6 sm:p-7 shadow-2xl backdrop-blur-sm">
+                <div className="mb-7 flex flex-col items-center text-center sm:flex-row sm:items-center sm:justify-between sm:text-left gap-4">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">
                       {language === "en"
@@ -1531,7 +1531,7 @@ export default function HomePage() {
                         : "खदान प्रदर्शन स्नैपशॉट"}
                     </h3>
                   </div>
-                  <div className="rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/30 px-4 py-1.5 text-sm font-bold text-emerald-300">
+                  <div className="audit-percent-badge rounded-full bg-emerald-100/90 border border-emerald-300/80 dark:bg-gradient-to-r dark:from-emerald-500/20 dark:to-cyan-500/20 dark:border-emerald-400/30 px-4 py-1.5 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-sm">
                     {language === "en" ? "+18.2% month" : "+18.2% महीना"}
                   </div>
                 </div>

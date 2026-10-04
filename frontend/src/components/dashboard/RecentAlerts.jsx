@@ -52,8 +52,8 @@ export default function RecentAlerts() {
         <div key={alert._id} className="dashboard-subcard flex gap-3">
           <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${severityColor[alert.severity] || 'bg-slate-400'}`} />
           <div className="min-w-0">
-            <p className="text-sm font-medium line-clamp-1">{translateAlertTitle(alert.title)}</p>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-sm font-semibold text-slate-900 dark:text-white line-clamp-1">{translateAlertTitle(alert.title)}</p>
+            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 mt-0.5">
               {formatDistanceToNow(new Date(alert.createdAt), {
                 addSuffix: true,
                 locale: language === 'hi' ? hi : undefined,

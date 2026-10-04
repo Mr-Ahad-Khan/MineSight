@@ -225,22 +225,22 @@ export default function MineralResourcesDashboard() {
       </header>
 
       <section
-        className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+        className="grid grid-cols-1 gap-3 sm:grid-cols-3 max-w-md mx-auto sm:max-w-none w-full"
         aria-label="Dataset summary"
       >
-        <div className="border-l-4 border-teal-700 bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
-          <p className="text-sm text-slate-500">{t.datasetRecords}</p>
-          <p className="mt-1 text-2xl font-semibold">
+        <div className="border-l-4 border-teal-700 bg-white px-4 py-3 shadow-sm rounded-xl border border-slate-200 dark:border-slate-800 dark:bg-slate-900 flex flex-col items-center text-center sm:items-start sm:text-left">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.datasetRecords}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
             {summary?.totalRecords?.toLocaleString()}
           </p>
         </div>
-        <div className="border-l-4 border-orange-600 bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
-          <p className="text-sm text-slate-500">{t.statesTerritories}</p>
-          <p className="mt-1 text-2xl font-semibold">{stateData.length}</p>
+        <div className="border-l-4 border-orange-600 bg-white px-4 py-3 shadow-sm rounded-xl border border-slate-200 dark:border-slate-800 dark:bg-slate-900 flex flex-col items-center text-center sm:items-start sm:text-left">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.statesTerritories}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{stateData.length}</p>
         </div>
-        <div className="border-l-4 border-blue-700 bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
-          <p className="text-sm text-slate-500">{t.industryClassifications}</p>
-          <p className="mt-1 text-2xl font-semibold">
+        <div className="border-l-4 border-blue-700 bg-white px-4 py-3 shadow-sm rounded-xl border border-slate-200 dark:border-slate-800 dark:bg-slate-900 flex flex-col items-center text-center sm:items-start sm:text-left">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t.industryClassifications}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
             {industryClasses.length}
           </p>
         </div>
@@ -249,8 +249,8 @@ export default function MineralResourcesDashboard() {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <section className="min-w-0 border-t-2 border-teal-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
           <div className="mb-4">
-            <h2 className="font-semibold">{t.recordsByState}</h2>
-            <p className="mt-1 text-sm text-slate-500">{t.allStateCodes}</p>
+            <h2 className="font-semibold text-slate-900 dark:text-white">{t.recordsByState}</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t.allStateCodes}</p>
           </div>
           {stateData.length === 0 ? (
             <p className="text-sm text-slate-400">{t.noStateRecords}</p>
@@ -309,8 +309,8 @@ export default function MineralResourcesDashboard() {
 
         <section className="min-w-0 border-t-2 border-orange-600 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
           <div className="mb-2">
-            <h2 className="font-semibold">{t.mineralWiseDistribution}</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="font-semibold text-slate-900 dark:text-white">{t.mineralWiseDistribution}</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               {t.industryDescription}
             </p>
           </div>
@@ -354,10 +354,10 @@ export default function MineralResourcesDashboard() {
 
       <section className="border-t-2 border-blue-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
         <div className="mb-4 space-y-1">
-          <h2 className="font-semibold">
+          <h2 className="font-semibold text-slate-900 dark:text-white">
             Machine learning: geographic site clusters
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             K-means groups facilities by longitude and latitude into five
             geographic clusters. This shows location patterns, not mine safety
             or risk.
@@ -458,15 +458,15 @@ export default function MineralResourcesDashboard() {
                     borderColor: CLUSTER_COLORS[index % CLUSTER_COLORS.length],
                   }}
                 >
-                  <p className="font-semibold">
+                  <p className="font-semibold text-slate-900 dark:text-white">
                     Cluster {cluster.id} · {cluster.siteCount.toLocaleString()}{" "}
                     sites
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Center: {cluster.center.latitude.toFixed(2)},{" "}
                     {cluster.center.longitude.toFixed(2)}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Most common state: {cluster.dominantState}
                   </p>
                 </div>
@@ -477,10 +477,10 @@ export default function MineralResourcesDashboard() {
       </section>
 
       <details className="border-t border-slate-300 py-3 dark:border-slate-700">
-        <summary className="cursor-pointer text-sm font-medium">
+        <summary className="cursor-pointer text-sm font-medium text-slate-800 dark:text-slate-200">
           {t.csvColumns} ({summary?.columns?.length || 0})
         </summary>
-        <p className="mt-3 break-words text-xs leading-6 text-slate-500">
+        <p className="mt-3 break-words text-xs leading-6 text-slate-600 dark:text-slate-300">
           {(summary?.columns || []).join(", ")}
         </p>
       </details>
@@ -488,8 +488,8 @@ export default function MineralResourcesDashboard() {
       <section className="border-t-2 border-teal-700 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="font-semibold">{t.datasetRecordsTitle}</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="font-semibold text-slate-900 dark:text-white">{t.datasetRecordsTitle}</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               {t.datasetRecordsDescription}
             </p>
           </div>
@@ -607,7 +607,7 @@ export default function MineralResourcesDashboard() {
                         {PREVIEW_FIELDS.map((field) => (
                           <td
                             key={field}
-                            className="max-w-64 break-words px-3 py-3"
+                            className="max-w-64 break-words px-3 py-3 text-slate-800 dark:text-slate-200"
                             title={record[field] || ""}
                           >
                             {record[field] || "—"}
@@ -635,7 +635,7 @@ export default function MineralResourcesDashboard() {
                             <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
                               {(summary?.columns || []).map((field) => (
                                 <div key={field} className="min-w-0">
-                                  <dt className="text-xs font-semibold text-slate-500">
+                                  <dt className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                                     {field}
                                   </dt>
                                   <dd className="break-words text-sm text-slate-900 dark:text-slate-100">
