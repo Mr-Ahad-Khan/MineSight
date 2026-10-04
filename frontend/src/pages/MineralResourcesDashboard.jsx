@@ -177,6 +177,9 @@ export default function MineralResourcesDashboard() {
       Math.ceil(totalRecordsCount / RECORDS_PER_PAGE) ||
       1,
   );
+  const expandedRecord = records.find(
+    (record) => String(record.FID || record.index) === expandedRecordId,
+  );
   const goToPage = (pageChange) => {
     setPage((currentPage) => {
       const nextPage =
@@ -627,7 +630,7 @@ export default function MineralResourcesDashboard() {
                         </td>
                       </tr>
                       {isExpanded && (
-                        <tr key={`${recordId}-details`}>
+                        <tr key={`${recordId}-details`} className="hidden md:table-row">
                           <td
                             colSpan={PREVIEW_FIELDS.length + 1}
                             className="bg-slate-50 px-3 py-4 dark:bg-slate-800/60"
@@ -654,6 +657,40 @@ export default function MineralResourcesDashboard() {
             </tbody>
           </table>
         </TableScrollContainer>
+
+        {expandedRecord && (
+          <section
+            className="mt-3 border border-slate-200 bg-slate-50 px-3 py-4 dark:border-slate-700 dark:bg-slate-800/60 md:hidden"
+            aria-label={`${t.viewAllFields}: ${expandedRecord.NAME || expandedRecordId}`}
+          >
+            <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-200 pb-3 dark:border-slate-700">
+              <h3 className="min-w-0 break-words text-sm font-semibold text-slate-900 dark:text-slate-100">
+                {expandedRecord.NAME || expandedRecordId}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setExpandedRecordId(null)}
+                className="shrink-0 rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+                aria-label={t.hideFields}
+                title={t.hideFields}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+              {(summary?.columns || []).map((field) => (
+                <div key={field} className="min-w-0">
+                  <dt className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    {field}
+                  </dt>
+                  <dd className="break-words text-sm text-slate-900 dark:text-slate-100">
+                    {expandedRecord[field] || "—"}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
         <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-slate-500">

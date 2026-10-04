@@ -85,7 +85,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   const languageControl = (
@@ -352,7 +352,7 @@ export default function Navbar() {
                   setNavigationMenuOpen(false);
                   handleLogout();
                 }}
-                className="inline-flex items-center gap-1 rounded-md bg-red-950/40 px-2.5 py-1.5 font-medium text-red-400 border border-red-900/60 hover:bg-red-900/50 hover:text-red-200 transition"
+                className="relative z-10 inline-flex min-h-10 touch-manipulation items-center gap-1 rounded-md bg-red-950/40 px-2.5 py-1.5 font-medium text-red-400 border border-red-900/60 transition hover:bg-red-900/50 hover:text-red-200 active:bg-red-900/60"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 <span>{t.logout}</span>
