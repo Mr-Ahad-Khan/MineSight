@@ -38,6 +38,7 @@ function notifyQueueChange(pendingCount) {
 
 let isSyncing = false;
 let syncListeners = [];
+let retryTimer = null;
 
 export function subscribeToSyncStatus(listener) {
   syncListeners.push(listener);
@@ -274,9 +275,28 @@ async function updateLocalRecordWithServer(entityType, localId, serverData) {
 export function initAutoSync(apiClient) {
   if (typeof window === "undefined") return;
 
-  const handleOnline = () => {
+  const syncAfterReconnect = async () => {
+    const retryDelays = [1200, 3000, 6000];
+
     toast("Internet restored. Starting auto-sync...", { icon: "🔄", id: "sync-online" });
-    processSyncQueue(apiClient);
+
+    for (const delay of [0, ...retryDelays]) {
+      if (delay > 0) {
+        await new Promise((resolve) => {
+          retryTimer = window.setTimeout(resolve, delay);
+        });
+      }
+
+      if (!navigator.onLine || !getStoredQueue().length) return;
+
+      const result = await processSyncQueue(apiClient);
+      if (result.success || !getStoredQueue().length) return;
+    }
+  };
+
+  const handleOnline = () => {
+    if (retryTimer) window.clearTimeout(retryTimer);
+    syncAfterReconnect();
   };
 
   window.addEventListener("online", handleOnline);
@@ -290,5 +310,6 @@ export function initAutoSync(apiClient) {
 
   return () => {
     window.removeEventListener("online", handleOnline);
+    if (retryTimer) window.clearTimeout(retryTimer);
   };
 }
