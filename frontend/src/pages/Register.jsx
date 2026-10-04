@@ -424,12 +424,12 @@ export default function Register() {
                     onChange={setRecaptchaToken}
                     onExpired={() => setRecaptchaToken(null)}
                   />
-                ) : (
+                ) : !isNativeApp && import.meta.env.PROD ? (
                   <p className="text-sm text-red-600" role="alert">
                     Account verification is not configured. Set
                     VITE_RECAPTCHA_SITE_KEY.
                   </p>
-                )}
+                ) : null}
 
                 <button
                   type="submit"

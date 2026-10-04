@@ -295,7 +295,7 @@ export default function Login() {
                       />
                     </div>
                   </div>
-                ) : import.meta.env.PROD ? (
+                ) : !isNativeApp && import.meta.env.PROD ? (
                   <p className="text-sm text-red-600" role="alert">
                     Login verification is not configured. Set
                     VITE_RECAPTCHA_SITE_KEY.
