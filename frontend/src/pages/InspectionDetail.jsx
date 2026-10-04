@@ -84,6 +84,33 @@ export default function InspectionDetail() {
   });
   const proofInputRef = useRef(null);
 
+  useEffect(() => {
+    const handleBackButton = (e) => {
+      if (selectedPhoto) {
+        e.preventDefault();
+        setSelectedPhoto(null);
+        return;
+      }
+      if (isCameraOpen) {
+        e.preventDefault();
+        setIsCameraOpen(false);
+        return;
+      }
+      if (riskModalOpen) {
+        e.preventDefault();
+        setRiskModalOpen(false);
+        return;
+      }
+      if (isEditing) {
+        e.preventDefault();
+        setIsEditing(false);
+        return;
+      }
+    };
+    window.addEventListener("minesight:back-button", handleBackButton);
+    return () => window.removeEventListener("minesight:back-button", handleBackButton);
+  }, [selectedPhoto, isCameraOpen, riskModalOpen, isEditing]);
+
   const handleOpenEdit = () => {
     setEditForm({
       title: inspection?.title || "",

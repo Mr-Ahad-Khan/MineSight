@@ -33,7 +33,12 @@ export default function Register() {
   const { language } = useLanguageStore();
   const navigate = useNavigate();
   const t = translations[language];
-  const isNativeApp = Capacitor.isNativePlatform();
+  const isNativeApp =
+    Capacitor.isNativePlatform() ||
+    (typeof window !== "undefined" &&
+      (Boolean(window.Capacitor?.isNativePlatform?.()) ||
+        window.location.protocol === "capacitor:" ||
+        window.location.protocol === "ionic:"));
   const recaptchaSiteKey =
     !isNativeApp &&
     (import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
@@ -101,7 +106,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isNativeApp && !recaptchaToken) {
+    if (!isNativeApp && recaptchaSiteKey && !recaptchaToken) {
       toast.error("Please complete the reCAPTCHA.");
       return;
     }
@@ -430,7 +435,7 @@ export default function Register() {
                   </div>
                 </div>
 
-                {recaptchaSiteKey ? (
+                {!isNativeApp && recaptchaSiteKey ? (
                   <ReCAPTCHA
                     ref={recaptchaRef}
                     sitekey={recaptchaSiteKey}
@@ -448,7 +453,7 @@ export default function Register() {
                   type="submit"
                   disabled={
                     isLoading ||
-                    (!isNativeApp && (!recaptchaToken || !recaptchaSiteKey))
+                    (!isNativeApp && recaptchaSiteKey && !recaptchaToken)
                   }
                   className="btn-primary w-full py-2.5 flex items-center justify-center gap-2"
                 >

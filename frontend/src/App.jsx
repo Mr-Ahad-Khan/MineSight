@@ -1,6 +1,9 @@
 import { lazy, Suspense, useEffect, useState, useRef } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { WifiOff, RefreshCw, AlertTriangle, LogIn, LogOut } from "lucide-react";
+import { App as CapApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
+import toast from "react-hot-toast";
 import useAuthStore from "./store/authStore";
 import useThemeStore from "./store/themeStore";
 import { triggerSyncNow, getPendingSyncCount } from "./services/api";
@@ -167,6 +170,81 @@ function App() {
       clearInterval(interval);
     };
   }, []);
+
+  const lastBackPressRef = useRef(0);
+
+  // Handle Android mobile hardware back button
+  useEffect(() => {
+    const isNative =
+      Capacitor.isNativePlatform() ||
+      (typeof window !== "undefined" &&
+        (Boolean(window.Capacitor?.isNativePlatform?.()) ||
+          window.location.protocol === "capacitor:" ||
+          window.location.protocol === "ionic:"));
+
+    if (!isNative) return;
+
+    let removeListener = null;
+
+    const setupBackListener = async () => {
+      try {
+        const handler = await CapApp.addListener("backButton", () => {
+          // 1. Dispatch custom event allowing modals, sidebars, or viewers to intercept
+          const backEvent = new CustomEvent("minesight:back-button", {
+            cancelable: true,
+          });
+          const cancelled = !window.dispatchEvent(backEvent);
+          if (cancelled) return;
+
+          // 2. Dismiss any active modal/drawer with standard close buttons
+          const openModalCloseBtn = document.querySelector(
+            "[data-modal-open='true'] button[aria-label='Close'], [role='dialog'] button[aria-label='Close'], [role='dialog'] button[aria-label='close'], .modal-active button[aria-label='Close']"
+          );
+          if (openModalCloseBtn) {
+            openModalCloseBtn.click();
+            return;
+          }
+
+          // 3. Navigate backwards if not on top-level root
+          const pathname = window.location.pathname;
+          const isRootPath = pathname === "/app" || pathname === "/" || pathname === "/login";
+          const historyIdx = window.history.state?.idx ?? 0;
+
+          if (!isRootPath) {
+            if (historyIdx > 0) {
+              navigate(-1);
+            } else {
+              const token = localStorage.getItem("token");
+              navigate(token ? "/app" : "/");
+            }
+          } else {
+            // If on root route, check if history allows navigating back (e.g. was on /app, navigated to /login)
+            if (historyIdx > 0 && pathname !== "/app") {
+              navigate(-1);
+            } else {
+              const now = Date.now();
+              if (now - lastBackPressRef.current < 2000) {
+                CapApp.exitApp();
+              } else {
+                lastBackPressRef.current = now;
+                toast("Press back again to exit", { id: "mobile-exit-app", duration: 2000 });
+              }
+            }
+          }
+        });
+
+        removeListener = () => handler.remove();
+      } catch (err) {
+        console.warn("Capacitor backButton setup:", err);
+      }
+    };
+
+    setupBackListener();
+
+    return () => {
+      if (removeListener) removeListener();
+    };
+  }, [navigate]);
 
   const handleReLogin = () => {
     localStorage.removeItem("token");

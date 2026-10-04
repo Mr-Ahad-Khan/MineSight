@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/app": "^6.0.3",
     "@capacitor/browser": "^6.0.6",
     "axios": "^1.7.2",
     "clsx": "^2.1.1",

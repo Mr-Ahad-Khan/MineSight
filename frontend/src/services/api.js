@@ -50,7 +50,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    if (Capacitor.isNativePlatform()) {
+    const isNative =
+      Capacitor.isNativePlatform() ||
+      (typeof window !== "undefined" &&
+        (Boolean(window.Capacitor?.isNativePlatform?.()) ||
+          window.location.protocol === "capacitor:" ||
+          window.location.protocol === "ionic:"));
+    if (isNative) {
       config.headers["X-MineSight-Client"] = "native";
     }
     if (config.data instanceof FormData) {
@@ -208,8 +214,13 @@ async function extractFormData(formData) {
 // ==========================================
 export const login = async (data) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    const isNativeApp = Capacitor.isNativePlatform();
-    // In offline mode, verify reCAPTCHA challenge was completed
+    const isNativeApp =
+      Capacitor.isNativePlatform() ||
+      (typeof window !== "undefined" &&
+        (Boolean(window.Capacitor?.isNativePlatform?.()) ||
+          window.location.protocol === "capacitor:" ||
+          window.location.protocol === "ionic:"));
+    // In offline mode, verify reCAPTCHA challenge was completed only for web
     if (!isNativeApp && !data.recaptchaToken) {
       const err = new Error("Please complete the reCAPTCHA verification.");
       err.response = {
@@ -341,10 +352,26 @@ export const login = async (data) => {
     };
   }
 
-  return api.post("/auth/login", data);
+  const isNative =
+    Capacitor.isNativePlatform() ||
+    (typeof window !== "undefined" &&
+      (Boolean(window.Capacitor?.isNativePlatform?.()) ||
+        window.location.protocol === "capacitor:" ||
+        window.location.protocol === "ionic:"));
+  const payload = isNative ? { ...data, isNativeApp: true, client: "native" } : data;
+  return api.post("/auth/login", payload);
 };
 
-export const register = (data) => api.post("/auth/register", data);
+export const register = (data) => {
+  const isNative =
+    Capacitor.isNativePlatform() ||
+    (typeof window !== "undefined" &&
+      (Boolean(window.Capacitor?.isNativePlatform?.()) ||
+        window.location.protocol === "capacitor:" ||
+        window.location.protocol === "ionic:"));
+  const payload = isNative ? { ...data, isNativeApp: true, client: "native" } : data;
+  return api.post("/auth/register", payload);
+};
 
 export const getMe = async () => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {

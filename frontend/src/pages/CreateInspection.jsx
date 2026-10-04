@@ -275,6 +275,34 @@ export default function CreateInspection() {
     };
   }, []);
 
+  // Handle mobile hardware back button for active modals / full preview
+  useEffect(() => {
+    const handleBackButton = (e) => {
+      if (selectedPreview) {
+        e.preventDefault();
+        setSelectedPreview(null);
+        return;
+      }
+      if (isCameraOpen) {
+        e.preventDefault();
+        setIsCameraOpen(false);
+        return;
+      }
+      if (riskModalOpen) {
+        e.preventDefault();
+        setRiskModalOpen(false);
+        return;
+      }
+      if (showMobilePreview) {
+        e.preventDefault();
+        setShowMobilePreview(false);
+        return;
+      }
+    };
+    window.addEventListener("minesight:back-button", handleBackButton);
+    return () => window.removeEventListener("minesight:back-button", handleBackButton);
+  }, [selectedPreview, isCameraOpen, riskModalOpen, showMobilePreview]);
+
   // Sync coordinates to manual input fields
   useEffect(() => {
     if (Array.isArray(position) && position.length >= 2 && position.every(Number.isFinite)) {

@@ -226,7 +226,13 @@ const registerUser = asyncHandler(async (req, res) => {
     recaptchaToken,
   } = req.body;
 
-  if (req.get("X-MineSight-Client") !== "native") {
+  const isNativeClient =
+    req.get("X-MineSight-Client") === "native" ||
+    req.get("x-minesight-client") === "native" ||
+    req.body?.isNativeApp === true ||
+    req.body?.client === "native";
+
+  if (!isNativeClient) {
     await verifyRecaptcha(recaptchaToken, res);
   }
 
@@ -280,7 +286,13 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password, recaptchaToken } = req.body;
 
-  if (req.get("X-MineSight-Client") !== "native") {
+  const isNativeClient =
+    req.get("X-MineSight-Client") === "native" ||
+    req.get("x-minesight-client") === "native" ||
+    req.body?.isNativeApp === true ||
+    req.body?.client === "native";
+
+  if (!isNativeClient) {
     await verifyRecaptcha(recaptchaToken, res);
   }
 

@@ -34,7 +34,12 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const t = translations[language];
-  const isNativeApp = Capacitor.isNativePlatform();
+  const isNativeApp =
+    Capacitor.isNativePlatform() ||
+    (typeof window !== "undefined" &&
+      (Boolean(window.Capacitor?.isNativePlatform?.()) ||
+        window.location.protocol === "capacitor:" ||
+        window.location.protocol === "ionic:"));
   const recaptchaSiteKey =
     !isNativeApp &&
     (import.meta.env.VITE_RECAPTCHA_SITE_KEY ||

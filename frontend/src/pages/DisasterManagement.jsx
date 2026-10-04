@@ -49,6 +49,17 @@ export default function DisasterManagement() {
   const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const handleBackButton = (e) => {
+      if (formOpen) {
+        e.preventDefault();
+        setFormOpen(false);
+      }
+    };
+    window.addEventListener("minesight:back-button", handleBackButton);
+    return () => window.removeEventListener("minesight:back-button", handleBackButton);
+  }, [formOpen]);
   const formRef = useRef(null);
   const [form, setForm] = useState({
     subject: "",
@@ -300,6 +311,7 @@ export default function DisasterManagement() {
             <button 
               type="button" 
               onClick={() => setFormOpen(false)}
+              aria-label="Close"
               className="p-1 rounded-lg hover:bg-rose-200 dark:hover:bg-rose-900 text-slate-600 dark:text-slate-300 min-h-[36px] min-w-[36px] flex items-center justify-center"
             >
               <X className="h-5 w-5" />

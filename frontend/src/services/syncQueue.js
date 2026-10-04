@@ -2,6 +2,8 @@
 
 import { offlineStorage, saveOfflineMedia, getOfflineMedia } from "./offlineStorage";
 import toast from "react-hot-toast";
+import { App as CapApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 
 const QUEUE_STORAGE_KEY = "minesight_offline_sync_queue";
 
@@ -204,20 +206,26 @@ export async function processSyncQueue(apiClient) {
       } catch (error) {
         console.error(`Sync failed for item ${item.id} (${item.label}):`, error);
 
-        // If it's a client error (4xx except 408/429), it won't succeed on retry, dequeue to avoid blocking
         const status = error.response?.status;
-        if (status && status >= 400 && status < 500 && status !== 408 && status !== 429) {
+        const isAuthError = status === 401 || status === 403;
+        const isSyntaxError = status === 400 || status === 422;
+
+        // Never drop pending mutations on auth errors (expired token / offline login)
+        if (isSyntaxError && (item.retries || 0) >= 3) {
+          console.warn(`Dropping permanently invalid mutation [${status}]:`, item);
+          dequeueMutation(item.id);
+        } else if (!isAuthError && status && status >= 400 && status < 500 && status !== 404 && status !== 408 && status !== 429) {
           console.warn(`Dropping permanently invalid mutation [${status}]:`, item);
           dequeueMutation(item.id);
         } else {
-          // Network error or server 5xx: increment retry and stop queue processing for now
+          // Increment retry count and stop this queue pass to preserve sequential execution
           item.retries = (item.retries || 0) + 1;
           const currentQueue = getStoredQueue();
           const itemIndex = currentQueue.findIndex((q) => q.id === item.id);
           if (itemIndex >= 0) currentQueue[itemIndex] = item;
           setStoredQueue(currentQueue);
           failCount++;
-          break; // Stop on first network failure to preserve ordering
+          break; // Stop on first network/auth failure to preserve ordering
         }
       }
     }
@@ -235,6 +243,9 @@ export async function processSyncQueue(apiClient) {
         `Successfully synced ${successCount} offline change${successCount > 1 ? "s" : ""} to server!`,
         { id: "sync-success" }
       );
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
+      }
     }
   }
 
@@ -244,6 +255,26 @@ export async function processSyncQueue(apiClient) {
 // Update local entity when server assigns permanent ID
 async function updateLocalRecordWithServer(entityType, localId, serverData) {
   try {
+    const serverId = serverData?._id;
+    if (localId && serverId && localId !== serverId) {
+      // Reconcile remaining queued actions that reference this localId
+      const currentQueue = getStoredQueue();
+      let updatedQueue = false;
+      for (const qItem of currentQueue) {
+        if (qItem.localId === localId) {
+          qItem.localId = serverId;
+          updatedQueue = true;
+        }
+        if (typeof qItem.url === "string" && qItem.url.includes(localId)) {
+          qItem.url = qItem.url.split(localId).join(serverId);
+          updatedQueue = true;
+        }
+      }
+      if (updatedQueue) {
+        setStoredQueue(currentQueue);
+      }
+    }
+
     switch (entityType) {
       case "inspections": {
         if (localId && localId !== serverData._id) {
@@ -253,22 +284,37 @@ async function updateLocalRecordWithServer(entityType, localId, serverData) {
         break;
       }
       case "mines": {
+        if (localId && localId !== serverData._id) {
+          await offlineStorage.deleteMine(localId);
+        }
         await offlineStorage.saveMine({ ...serverData, _pendingSync: false, _isOffline: false });
         break;
       }
       case "compliances": {
+        if (localId && localId !== serverData._id) {
+          await offlineStorage.deleteCompliance(localId);
+        }
         await offlineStorage.saveCompliance({ ...serverData, _pendingSync: false, _isOffline: false });
         break;
       }
       case "contractors": {
+        if (localId && localId !== serverData._id) {
+          await offlineStorage.deleteContractor(localId);
+        }
         await offlineStorage.saveContractor({ ...serverData, _pendingSync: false, _isOffline: false });
         break;
       }
       case "attendance": {
+        if (localId && localId !== serverData._id) {
+          await offlineStorage.deleteAttendance(localId);
+        }
         await offlineStorage.saveAttendance({ ...serverData, _pendingSync: false, _isOffline: false });
         break;
       }
       case "supportTickets": {
+        if (localId && localId !== serverData._id) {
+          await offlineStorage.deleteSupportTicket(localId);
+        }
         await offlineStorage.saveSupportTicket({ ...serverData, _pendingSync: false, _isOffline: false });
         break;
       }
@@ -284,6 +330,16 @@ async function updateLocalRecordWithServer(entityType, localId, serverData) {
 export function initAutoSync(apiClient) {
   if (typeof window === "undefined") return;
 
+  const triggerBackgroundSync = async () => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) return;
+    if (getStoredQueue().length === 0) return;
+    try {
+      await processSyncQueue(apiClient);
+    } catch (e) {
+      console.warn("Auto-sync attempt:", e);
+    }
+  };
+
   const syncAfterReconnect = async () => {
     const retryDelays = [1000, 2500, 5000];
 
@@ -291,9 +347,7 @@ export function initAutoSync(apiClient) {
 
     // Instantly notify listeners and views to refresh
     notifySyncStatus({ isSyncing: false, pendingCount: getStoredQueue().length, lastSynced: new Date() });
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
-    }
+    window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
 
     for (const delay of [0, ...retryDelays]) {
       if (delay > 0) {
@@ -307,15 +361,11 @@ export function initAutoSync(apiClient) {
       if (getStoredQueue().length > 0) {
         const result = await processSyncQueue(apiClient);
         if (result.success || !getStoredQueue().length) {
-          if (typeof window !== "undefined") {
-            window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
-          }
+          window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
           return;
         }
       } else {
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
-        }
+        window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
         return;
       }
     }
@@ -326,17 +376,48 @@ export function initAutoSync(apiClient) {
     syncAfterReconnect();
   };
 
-  window.addEventListener("online", handleOnline);
+  const handleVisibilityOrFocus = () => {
+    if (document.visibilityState === "visible" || document.hasFocus()) {
+      triggerBackgroundSync();
+    }
+  };
 
-  // If already online and queue has items, attempt sync after 2 seconds
+  window.addEventListener("online", handleOnline);
+  window.addEventListener("visibilitychange", handleVisibilityOrFocus);
+  window.addEventListener("focus", handleVisibilityOrFocus);
+
+  // Native app resume listener
+  let appStateListener = null;
+  if (Capacitor.isNativePlatform()) {
+    CapApp.addListener("appStateChange", (state) => {
+      if (state.isActive) {
+        handleOnline();
+      }
+    }).then((handle) => {
+      appStateListener = handle;
+    });
+  }
+
+  // Periodic polling sync check every 15 seconds if items are queued and online
+  const periodicSyncInterval = setInterval(() => {
+    if (navigator.onLine && getStoredQueue().length > 0 && !isSyncing) {
+      processSyncQueue(apiClient);
+    }
+  }, 15000);
+
+  // If already online and queue has items, attempt sync after 1.5 seconds
   if (navigator.onLine && getStoredQueue().length > 0) {
     setTimeout(() => {
       processSyncQueue(apiClient);
-    }, 2000);
+    }, 1500);
   }
 
   return () => {
     window.removeEventListener("online", handleOnline);
+    window.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+    window.removeEventListener("focus", handleVisibilityOrFocus);
+    clearInterval(periodicSyncInterval);
+    if (appStateListener) appStateListener.remove();
     if (retryTimer) window.clearTimeout(retryTimer);
   };
 }

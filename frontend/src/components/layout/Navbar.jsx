@@ -133,6 +133,28 @@ export default function Navbar() {
     }
   }, [navigationMenuOpen]);
 
+  useEffect(() => {
+    const handleBackButton = (e) => {
+      if (navigationMenuOpen) {
+        e.preventDefault();
+        setNavigationMenuOpen(false);
+        return;
+      }
+      if (accountMenuOpen) {
+        e.preventDefault();
+        setAccountMenuOpen(false);
+        return;
+      }
+      if (moreMenuOpen) {
+        e.preventDefault();
+        setMoreMenuOpen(false);
+        return;
+      }
+    };
+    window.addEventListener("minesight:back-button", handleBackButton);
+    return () => window.removeEventListener("minesight:back-button", handleBackButton);
+  }, [navigationMenuOpen, accountMenuOpen, moreMenuOpen]);
+
   const handleLogout = (e) => {
     if (e) {
       e.preventDefault();
