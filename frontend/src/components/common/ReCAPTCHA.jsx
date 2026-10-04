@@ -10,7 +10,7 @@ import { Check, Loader2, ShieldCheck } from "lucide-react";
 /**
  * High-performance reCAPTCHA v2 wrapper with Offline Fallback.
  * Directly binds to window.grecaptcha when available, and provides
- * a secure offline verification challenge when disconnected.
+ * a clean offline verification challenge when disconnected.
  */
 const ReCAPTCHA = forwardRef(function ReCAPTCHA(
   { sitekey, onChange, onExpired, theme = "light", size = "normal" },
@@ -37,6 +37,10 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
       setIsOfflineMode(offline);
       if (offline) {
         setIsRendered(true);
+        if (containerRef.current) {
+          containerRef.current.innerHTML = "";
+        }
+        widgetIdRef.current = null;
       } else {
         setIsRendered(false);
         setOfflineChecked(false);
@@ -51,6 +55,28 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
       window.removeEventListener("offline", handleConnectionChange);
     };
   }, []);
+
+  // When switching to offline mode, immediately purge any injected Google reCAPTCHA iframes
+  useEffect(() => {
+    if (isOfflineMode) {
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
+      }
+      widgetIdRef.current = null;
+      try {
+        const strayIframes = document.querySelectorAll(
+          'iframe[src*="recaptcha"], iframe[title*="reCAPTCHA"], .recaptcha-wrapper iframe'
+        );
+        strayIframes.forEach((f) => {
+          if (f.src?.includes("anchor") || f.closest(".recaptcha-wrapper")) {
+            f.remove();
+          }
+        });
+      } catch {
+        // ignore
+      }
+    }
+  }, [isOfflineMode]);
 
   useImperativeHandle(ref, () => ({
     reset: () => {
@@ -125,7 +151,7 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
     };
 
     const renderWidget = () => {
-      if (!isMounted || !containerRef.current) return false;
+      if (!isMounted || !containerRef.current || isOfflineMode) return false;
       if (
         !window.grecaptcha ||
         typeof window.grecaptcha.render !== "function"
@@ -156,7 +182,7 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
 
         waitForIframe();
         return true;
-      } catch (err) {
+      } catch {
         if (containerRef.current?.querySelector("iframe")) {
           waitForIframe();
           return true;
@@ -175,7 +201,7 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
       }
     } else {
       let attempts = 0;
-      const maxAttempts = (typeof navigator !== "undefined" && !navigator.onLine) ? 20 : 60;
+      const maxAttempts = typeof navigator !== "undefined" && !navigator.onLine ? 20 : 60;
       timerId = setInterval(() => {
         attempts++;
         if (renderWidget()) {
@@ -198,31 +224,50 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
       iframeObserver?.disconnect();
       widgetIdRef.current = null;
     };
-  }, [sitekey, theme, size]);
+  }, [sitekey, theme, size, isOfflineMode]);
 
   if (isOfflineMode) {
     return (
-      <div className="relative flex h-[76px] w-[302px] items-center justify-between rounded border border-slate-300 bg-[#f9f9f9] px-3 py-2 text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
-        <label className="flex cursor-pointer items-center gap-3">
-          <button
-            type="button"
-            onClick={handleOfflineToggle}
-            aria-label="Offline Security Verification Checkbox"
-            className={`flex h-7 w-7 items-center justify-center rounded border-2 transition-colors ${
+      <div
+        key="recaptcha-offline-box"
+        onClick={handleOfflineToggle}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === " " || e.key === "Enter") {
+            e.preventDefault();
+            handleOfflineToggle();
+          }
+        }}
+        className={`group relative flex h-[76px] w-[302px] cursor-pointer select-none items-center justify-between rounded-lg border px-3.5 py-2.5 transition-all duration-200 shadow-sm ${
+          offlineChecked
+            ? "border-emerald-500/80 bg-emerald-950/20 dark:bg-emerald-950/30"
+            : "border-slate-300 bg-[#f9f9f9] hover:border-slate-400 dark:border-slate-700/80 dark:bg-[#162330] dark:hover:border-slate-600"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded border-2 transition-all duration-150 ${
               offlineChecked
                 ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
-                : "border-slate-400 bg-white hover:border-slate-600 dark:border-slate-600 dark:bg-slate-800"
+                : "border-slate-400 bg-white group-hover:border-slate-600 dark:border-slate-500 dark:bg-[#0f1722]"
             }`}
           >
             {offlineChecked && <Check className="h-5 w-5 stroke-[3]" />}
-          </button>
-          <span className="text-sm font-semibold select-none">
+          </div>
+          <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
             I am not a robot
           </span>
-        </label>
+        </div>
         <div className="flex flex-col items-center justify-center text-center">
-          <ShieldCheck className={`h-7 w-7 ${offlineChecked ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`} />
-          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">
+          <ShieldCheck
+            className={`h-7 w-7 transition-colors ${
+              offlineChecked
+                ? "text-emerald-500 dark:text-emerald-400"
+                : "text-slate-400 dark:text-slate-500"
+            }`}
+          />
+          <span className="text-[9px] font-bold uppercase tracking-tighter text-slate-500 dark:text-slate-400">
             Offline Verify
           </span>
         </div>
@@ -231,7 +276,7 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
   }
 
   return (
-    <div className="relative h-[78px] w-full max-w-[304px]">
+    <div key="recaptcha-online-box" className="recaptcha-wrapper relative h-[78px] w-full max-w-[304px]">
       {!isRendered && (
         <div
           className="absolute inset-0 flex items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"

@@ -193,6 +193,7 @@ import {
 } from 'lucide-react'
 
 import { getDashboardSummary, getAnalytics, getRealtimeAttendance, getMineralResourceSummary } from '../services/api'
+import { offlineStorage } from '../services/offlineStorage'
 import HighRiskList from '../components/dashboard/HighRiskList'
 import RecentAlerts from '../components/dashboard/RecentAlerts'
 import { useLanguageStore } from '../store/themeStore'
@@ -224,19 +225,31 @@ export default function Dashboard() {
   }, [showAnalytics])
 
   useEffect(() => {
+    let t1, t2;
     const refreshDashboard = () => setRefreshKey((current) => current + 1)
     const handleSyncStatus = (event) => {
       if (!event.detail?.isSyncing) refreshDashboard()
     }
+    const handleOnline = () => {
+      refreshDashboard()
+      t1 = setTimeout(refreshDashboard, 800)
+      t2 = setTimeout(refreshDashboard, 2500)
+    }
 
     window.addEventListener('focus', refreshDashboard)
-    window.addEventListener('online', refreshDashboard)
+    window.addEventListener('online', handleOnline)
     window.addEventListener('minesight:sync-status', handleSyncStatus)
+    window.addEventListener('minesight:sync-completed', refreshDashboard)
+    window.addEventListener('minesight:queue-updated', refreshDashboard)
 
     return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
       window.removeEventListener('focus', refreshDashboard)
-      window.removeEventListener('online', refreshDashboard)
+      window.removeEventListener('online', handleOnline)
       window.removeEventListener('minesight:sync-status', handleSyncStatus)
+      window.removeEventListener('minesight:sync-completed', refreshDashboard)
+      window.removeEventListener('minesight:queue-updated', refreshDashboard)
     }
   }, [])
 
@@ -260,16 +273,33 @@ export default function Dashboard() {
 
         const [summaryResult, analyticsResult, attendanceResult, resourceResult] = results
 
-        if (summaryResult.status === 'fulfilled') {
+        if (summaryResult.status === 'fulfilled' && summaryResult.value?.data?.data) {
           setSummary(summaryResult.value.data.data)
+          setSummaryUnavailable(false)
         } else {
-          setSummaryUnavailable(true)
+          try {
+            const fallback = await offlineStorage.getDashboardSummary()
+            if (fallback && fallback.totalMines > 0) {
+              setSummary(fallback)
+              setSummaryUnavailable(false)
+            } else {
+              setSummaryUnavailable(true)
+            }
+          } catch {
+            setSummaryUnavailable(true)
+          }
           console.error('Failed to load dashboard summary:', summaryResult.reason)
         }
 
-        if (analyticsResult.status === 'fulfilled') {
+        if (analyticsResult.status === 'fulfilled' && analyticsResult.value?.data?.data) {
           setAnalytics(analyticsResult.value.data.data)
         } else {
+          try {
+            const fallback = await offlineStorage.getAnalytics()
+            if (fallback) setAnalytics(fallback)
+          } catch {
+            // ignore
+          }
           console.error('Failed to load dashboard analytics:', analyticsResult.reason)
         }
 
@@ -627,9 +657,16 @@ export default function Dashboard() {
 
 
       {summaryUnavailable && (
-        <p role="alert" className="mb-5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {t.dashboardSummaryLoadError}
-        </p>
+        <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/60 dark:text-amber-200">
+          <span>{t.dashboardSummaryLoadError}</span>
+          <button
+            type="button"
+            onClick={() => setRefreshKey((k) => k + 1)}
+            className="rounded-md bg-amber-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-amber-700 transition"
+          >
+            Retry
+          </button>
+        </div>
       )}
 
       {/* ======================================================

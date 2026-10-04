@@ -276,9 +276,15 @@ export function initAutoSync(apiClient) {
   if (typeof window === "undefined") return;
 
   const syncAfterReconnect = async () => {
-    const retryDelays = [1200, 3000, 6000];
+    const retryDelays = [1000, 2500, 5000];
 
-    toast("Internet restored. Starting auto-sync...", { icon: "🔄", id: "sync-online" });
+    toast("Internet restored. Synchronizing data...", { icon: "🔄", id: "sync-online" });
+
+    // Instantly notify listeners and views to refresh
+    notifySyncStatus({ isSyncing: false, pendingCount: getStoredQueue().length, lastSynced: new Date() });
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
+    }
 
     for (const delay of [0, ...retryDelays]) {
       if (delay > 0) {
@@ -287,10 +293,22 @@ export function initAutoSync(apiClient) {
         });
       }
 
-      if (!navigator.onLine || !getStoredQueue().length) return;
+      if (!navigator.onLine) return;
 
-      const result = await processSyncQueue(apiClient);
-      if (result.success || !getStoredQueue().length) return;
+      if (getStoredQueue().length > 0) {
+        const result = await processSyncQueue(apiClient);
+        if (result.success || !getStoredQueue().length) {
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
+          }
+          return;
+        }
+      } else {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("minesight:sync-completed"));
+        }
+        return;
+      }
     }
   };
 

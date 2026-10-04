@@ -146,12 +146,17 @@ export const getMediaUrl = (mediaPath) => {
 function isOfflineOrNetworkError(error) {
   if (typeof navigator !== "undefined" && !navigator.onLine) return true;
   if (!error) return false;
+  const status = error.response?.status;
   return (
     !error.response ||
+    status === 502 ||
+    status === 503 ||
+    status === 504 ||
     error.code === "ERR_NETWORK" ||
     error.code === "ECONNABORTED" ||
     error.message?.includes("Network Error") ||
-    error.message?.includes("timeout")
+    error.message?.includes("timeout") ||
+    error.message?.includes("Failed to fetch")
   );
 }
 
@@ -450,6 +455,14 @@ export const getDashboardSummary = async () => {
       const local = await offlineStorage.getDashboardSummary();
       return { data: { success: true, data: local } };
     }
+    try {
+      const fallback = await offlineStorage.getDashboardSummary();
+      if (fallback) {
+        return { data: { success: true, data: fallback } };
+      }
+    } catch {
+      // ignore fallback error
+    }
     throw error;
   }
 };
@@ -466,6 +479,14 @@ export const getAnalytics = async (params) => {
     if (isOfflineOrNetworkError(error)) {
       const local = await offlineStorage.getAnalytics();
       return { data: { success: true, data: local } };
+    }
+    try {
+      const fallback = await offlineStorage.getAnalytics();
+      if (fallback) {
+        return { data: { success: true, data: fallback } };
+      }
+    } catch {
+      // ignore fallback error
     }
     throw error;
   }

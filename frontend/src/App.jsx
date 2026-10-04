@@ -158,13 +158,14 @@ function App() {
   useEffect(() => {
     if (!isOffline && pendingCount === 0) {
       setBannerHeight(0);
+      document.documentElement.style.setProperty("--status-banner-height", "0px");
       return;
     }
 
     const updateHeight = () => {
-      if (bannerRef.current) {
-        setBannerHeight(bannerRef.current.offsetHeight);
-      }
+      const h = bannerRef.current ? bannerRef.current.offsetHeight : (isOffline ? 40 : 0);
+      setBannerHeight(h);
+      document.documentElement.style.setProperty("--status-banner-height", `${h}px`);
     };
 
     updateHeight();

@@ -122,15 +122,32 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    if (navigationMenuOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [navigationMenuOpen]);
+
+  const handleLogout = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setAccountMenuOpen(false);
     setNavigationMenuOpen(false);
     logout();
     navigate("/login", { replace: true });
   };
 
-  const handleProfileNavigation = (event) => {
-    event.stopPropagation();
+  const handleProfileNavigation = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setAccountMenuOpen(false);
     setNavigationMenuOpen(false);
     navigate("/app/profile");
@@ -159,7 +176,11 @@ export default function Navbar() {
   );
 
   return (
-    <header className="fixed inset-x-0 top-[var(--status-banner-height,0px)] z-40 border-b border-white/10 bg-[#121a21] text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)]">
+    <header
+      className={`fixed inset-x-0 top-[var(--status-banner-height,0px)] border-b border-white/10 bg-[#121a21] text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)] ${
+        navigationMenuOpen ? "z-[150]" : "z-40"
+      }`}
+    >
       {/* Single-Row Clean Desktop & Mobile Header */}
       <div className="flex h-16 min-w-0 items-center justify-between px-3 sm:px-5 xl:px-6">
         {/* Left: Brand Logo */}
@@ -353,63 +374,67 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Hamburger Dropdown: 100% Solid Opaque Background & uses available screen space without forced scrolling */}
+      {/* Mobile Navigation Drawer: Full height, pinned bottom controls, completely opaque and touch friendly */}
       {navigationMenuOpen && (
         <>
           {/* Deep dimmed backdrop covering remaining screen */}
           <div
-            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-40 bg-black/75 transition-opacity xl:hidden"
+            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-[150] bg-black/80 backdrop-blur-sm transition-opacity xl:hidden"
             onClick={() => setNavigationMenuOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Mobile Screen Dropdown Panel with 100% SOLID OPAQUE BACKGROUND - expands naturally so all items fit without scrolling */}
-          <div className="fixed inset-x-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-50 flex max-h-[calc(100vh-4.5rem-var(--status-banner-height,0px))] flex-col overflow-y-auto border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-[0_25px_50px_rgba(0,0,0,0.9)] xl:hidden">
-            {/* 2-Column Grid of ALL Navigation Items with SOLID OPAQUE Card Backgrounds */}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {allNavigation.map((item) => (
-                <NavLink
-                  key={item.name}
-                  to={item.href}
-                  end={item.href === "/app"}
-                  onClick={() => setNavigationMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 rounded-lg px-2.5 py-2.5 text-xs font-semibold transition-all ${
-                      isActive
-                        ? "bg-[#ff6f00] text-white shadow-md border border-[#ffa040]"
-                        : "bg-[#162330] text-slate-100 border border-slate-700/70 hover:bg-[#1f3042] hover:text-white"
-                    }`
-                  }
-                >
-                  <item.icon className="h-4 w-4 shrink-0 text-[#ff9a3c]" />
-                  <span className="truncate">{item.name}</span>
-                </NavLink>
-              ))}
+          {/* Full mobile menu drawer from bottom of header to bottom of screen */}
+          <div className="fixed inset-x-0 bottom-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-[155] flex flex-col bg-[#0d151d] text-white shadow-2xl xl:hidden">
+            {/* Scrollable Navigation Grid */}
+            <div className="flex-1 overflow-y-auto overscroll-contain p-3.5 pb-4">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {allNavigation.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    end={item.href === "/app"}
+                    onClick={() => setNavigationMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 rounded-xl px-3 py-3 text-xs font-semibold transition-all ${
+                        isActive
+                          ? "bg-[#ff6f00] text-white shadow-md border border-[#ffa040]"
+                          : "bg-[#162330] text-slate-100 border border-slate-700/70 hover:bg-[#1f3042] hover:text-white active:bg-[#223547]"
+                      }`
+                    }
+                  >
+                    <item.icon className="h-4 w-4 shrink-0 text-[#ff9a3c]" />
+                    <span className="truncate">{item.name}</span>
+                  </NavLink>
+                ))}
+              </div>
             </div>
 
-            {/* Quick Profile & Logout Footer */}
-            <div className="sticky bottom-0 mt-3 grid grid-cols-2 gap-2 border-t border-slate-700/80 bg-[#0d151d] pt-2.5 text-xs">
-              <button
-                type="button"
-                onClick={handleProfileNavigation}
-                className="relative z-10 inline-flex min-h-11 min-w-0 touch-manipulation items-center justify-center gap-1.5 rounded-md bg-[#162330] px-2.5 py-1.5 font-medium text-slate-200 border border-slate-700 hover:bg-[#1f3042] hover:text-white transition"
-              >
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6f00] text-[10px] font-bold text-white">
-                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                </div>
-                <span className="max-w-[140px] truncate">
-                  {user?.name || t.profile}
-                </span>
-              </button>
+            {/* Pinned Bottom Bar: User Profile & Logout - Guaranteed Accessibility */}
+            <div className="shrink-0 border-t border-slate-800 bg-[#090e14] p-3 sm:px-4">
+              <div className="grid grid-cols-2 gap-2.5 text-xs">
+                <button
+                  type="button"
+                  onClick={handleProfileNavigation}
+                  className="flex min-h-[46px] w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl bg-[#162330] px-3 py-2 font-medium text-slate-100 border border-slate-700/80 shadow-sm transition hover:bg-[#1f3042] hover:text-white active:bg-[#273d52]"
+                >
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ff6f00] text-xs font-bold text-white shadow-sm">
+                    {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                  <span className="truncate font-semibold">
+                    {user?.name || "System Admin"}
+                  </span>
+                </button>
 
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="relative z-10 inline-flex min-h-11 min-w-0 touch-manipulation items-center justify-center gap-1 rounded-md bg-red-950/40 px-2.5 py-1.5 font-medium text-red-400 border border-red-900/60 transition hover:bg-red-900/50 hover:text-red-200 active:bg-red-900/60"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span>{t.logout}</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex min-h-[46px] w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl bg-red-950/50 px-3 py-2 font-semibold text-red-300 border border-red-800/60 shadow-sm transition hover:bg-red-900/60 hover:text-red-100 active:bg-red-800"
+                >
+                  <LogOut className="h-4 w-4 shrink-0 text-red-400" />
+                  <span>{t.logout}</span>
+                </button>
+              </div>
             </div>
           </div>
         </>
