@@ -408,38 +408,44 @@ export default function CameraCaptureModal({
         {/* Footer Action Bar */}
         <div className="flex items-center justify-between border-t border-slate-800 bg-slate-950 p-4">
           {!capturedBlob ? (
-            <div className="flex w-full items-center justify-between">
-              {/* Fallback button */}
-              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700 transition">
-                <Upload className="h-3.5 w-3.5" />
-                Upload / Device
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={handleFallbackCapture}
-                />
-              </label>
+            <div className="w-full space-y-3">
+              <p className="text-center text-[11px] leading-relaxed text-slate-400">
+                Please capture or upload clear, relevant mine photos. Better photo evidence helps produce more accurate results.
+              </p>
 
-              {/* Shutter Button */}
-              <button
-                type="button"
-                onClick={takeSnapshot}
-                disabled={isInitializing || !!cameraError}
-                aria-label="Take Photo"
-                className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-white transition hover:scale-105 active:scale-95 disabled:opacity-50"
-              >
-                <div className="h-13 w-13 rounded-full border-4 border-slate-900 bg-sky-500 group-hover:bg-sky-400 transition" />
-              </button>
+              <div className="flex items-center justify-between">
+                {/* Fallback button */}
+                <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700 transition">
+                  <Upload className="h-3.5 w-3.5" />
+                  Upload / Device
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={handleFallbackCapture}
+                  />
+                </label>
 
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-medium text-slate-400 hover:text-white transition"
-              >
-                Cancel
-              </button>
+                {/* Shutter Button */}
+                <button
+                  type="button"
+                  onClick={takeSnapshot}
+                  disabled={isInitializing || !!cameraError}
+                  aria-label="Take Photo"
+                  className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-white transition hover:scale-105 active:scale-95 disabled:opacity-50"
+                >
+                  <div className="h-13 w-13 rounded-full border-4 border-slate-900 bg-sky-500 group-hover:bg-sky-400 transition" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-medium text-slate-400 hover:text-white transition"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex w-full flex-wrap items-center justify-between gap-3">
