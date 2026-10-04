@@ -1362,7 +1362,8 @@ export default function HomePage() {
                     language === "en"
                       ? "Monitor permit status, near miss trends, and incident escalation in one place."
                       : "परमिट स्थिति, नज़दीकी घटना रुझान और दुर्घटना एस्केलेशन को एक ही स्थान पर देखें।",
-                  image: `${import.meta.env.BASE_URL}solutions/safety-dashboard.svg`,
+                  image:
+                    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=900&q=80",
                   accent: "from-emerald-500/20 to-teal-500/10",
                 },
                 {
@@ -1374,7 +1375,8 @@ export default function HomePage() {
                     language === "en"
                       ? "Review contractor performance and compliance track records before approvals."
                       : "स्वीकृति से पहले ठेकेदार के प्रदर्शन और अनुपालन ट्रैक रिकॉर्ड की समीक्षा करें।",
-                  image: `${import.meta.env.BASE_URL}solutions/contractor-governance.svg`,
+                  image:
+                    "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80",
                   accent: "from-cyan-500/20 to-blue-500/10",
                 },
                 {
@@ -1386,7 +1388,8 @@ export default function HomePage() {
                     language === "en"
                       ? "Track moisture, dust, ventilation, and environmental checkpoints across all sites."
                       : "सभी स्थलों पर नमी, धूल, वेंटिलेशन और पर्यावरणीय चेकपॉइंट ट्रैक करें।",
-                  image: `${import.meta.env.BASE_URL}solutions/environmental-assurance.svg`,
+                  image:
+                    "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?auto=format&fit=crop&w=900&q=80",
                   accent: "from-violet-500/20 to-purple-500/10",
                 },
               ].map((card) => (
