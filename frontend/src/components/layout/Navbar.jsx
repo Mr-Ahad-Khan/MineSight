@@ -18,6 +18,7 @@ import {
   UserCheck,
   LifeBuoy,
   Siren,
+  Plus,
   X,
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -178,7 +179,7 @@ export default function Navbar() {
   return (
     <header
       className={`fixed inset-x-0 top-[var(--status-banner-height,0px)] border-b border-white/10 bg-[#121a21] text-white shadow-[0_8px_24px_rgba(12,18,24,0.22)] ${
-        navigationMenuOpen ? "z-[150]" : "z-40"
+        navigationMenuOpen ? "z-[150]" : "z-50"
       }`}
     >
       {/* Single-Row Clean Desktop & Mobile Header */}
@@ -386,6 +387,18 @@ export default function Navbar() {
 
           {/* Snug mobile menu panel from bottom of header */}
           <div className="fixed inset-x-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-[155] flex max-h-[calc(100dvh-5rem-var(--status-banner-height,0px))] flex-col border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-2xl xl:hidden">
+            {/* Direct 1-Click New Inspection Action */}
+            <div className="mb-2">
+              <NavLink
+                to="/app/inspections/new"
+                onClick={() => setNavigationMenuOpen(false)}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6f00] px-3.5 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-[#e65100] active:scale-[0.98]"
+              >
+                <Plus className="h-4 w-4 shrink-0 text-white" />
+                <span>{language === "hi" ? "+ नया निरीक्षण फॉर्म खोलें" : "+ New Inspection Form"}</span>
+              </NavLink>
+            </div>
+
             {/* Scrollable Navigation Grid */}
             <div className="grid grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
               {allNavigation.map((item) => (

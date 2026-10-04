@@ -114,10 +114,10 @@ export default function Inspections() {
             {t.inspections}
           </h1>
 
-          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3">
+          <div className="flex w-full flex-wrap items-center justify-center sm:w-auto sm:justify-end gap-3">
             <Link
               to="/app/inspections/new"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#0d3f6d] px-5 py-2.5 text-[15px] font-medium text-white shadow-[0_3px_10px_rgba(13,63,109,0.25)] transition hover:bg-[#0a3560]"
+              className="inline-flex w-full sm:w-auto min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-xl bg-[#0d3f6d] px-5 py-2.5 text-[15px] font-semibold text-white shadow-[0_3px_10px_rgba(13,63,109,0.25)] transition hover:bg-[#0a3560] active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
               {t.newInspection}

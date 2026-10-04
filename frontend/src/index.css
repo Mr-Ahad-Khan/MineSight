@@ -36,7 +36,7 @@
 
   @media (max-width: 640px) {
     .offline-status-banner {
-      min-height: 5.5rem;
+      min-height: 2.75rem;
     }
   }
 

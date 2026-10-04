@@ -82,7 +82,9 @@ export default function CameraCaptureModal({
 
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Camera API is not supported in this browser. Please use file upload.");
+        throw new Error(
+          "Camera API is not supported in this browser. Please use file upload.",
+        );
       }
 
       const constraints = {
@@ -181,7 +183,7 @@ export default function CameraCaptureModal({
         runInstantRiskAnalysis(compressed);
       },
       "image/jpeg",
-      0.92
+      0.92,
     );
   };
 
@@ -240,7 +242,9 @@ export default function CameraCaptureModal({
           <div className="flex items-center gap-2">
             <Camera className="h-5 w-5 text-sky-400" />
             <h3 className="text-base font-semibold">
-              {capturedBlob ? "Review Captured Photo" : "Capture Inspection Photo"}
+              {capturedBlob
+                ? "Review Captured Photo"
+                : "Capture Inspection Photo"}
             </h3>
           </div>
           <button
@@ -305,9 +309,12 @@ export default function CameraCaptureModal({
               {cameraError && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/95 p-6 text-center">
                   <AlertTriangle className="h-12 w-12 text-amber-400 mb-3" />
-                  <h4 className="text-base font-semibold text-white">Camera Access Required</h4>
+                  <h4 className="text-base font-semibold text-white">
+                    Camera Access Required
+                  </h4>
                   <p className="mt-1 text-xs text-slate-300 max-w-sm mb-4">
-                    {cameraError}. You can capture photos directly using your device's native camera.
+                    {cameraError}. You can capture photos directly using your
+                    device's native camera.
                   </p>
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-sky-600 transition shadow-lg">
                     <Camera className="h-4 w-4" />
@@ -328,7 +335,9 @@ export default function CameraCaptureModal({
               {isInitializing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm">
                   <Loader2 className="h-8 w-8 text-sky-400 animate-spin mb-2" />
-                  <p className="text-xs text-slate-300">Initializing camera lens...</p>
+                  <p className="text-xs text-slate-300">
+                    Initializing camera lens...
+                  </p>
                 </div>
               )}
             </>
@@ -360,42 +369,47 @@ export default function CameraCaptureModal({
                               detectedRisk.riskLevel === "critical"
                                 ? "text-rose-400 font-bold"
                                 : detectedRisk.riskLevel === "high"
-                                ? "text-amber-400 font-bold"
-                                : detectedRisk.riskLevel === "medium"
-                                ? "text-yellow-300 font-bold"
-                                : "text-emerald-400 font-bold"
+                                  ? "text-amber-400 font-bold"
+                                  : detectedRisk.riskLevel === "medium"
+                                    ? "text-yellow-300 font-bold"
+                                    : "text-emerald-400 font-bold"
                             }
                           >
-                            {detectedRisk.riskScore}/100 ({detectedRisk.riskLevel?.toUpperCase()})
+                            {detectedRisk.riskScore}/100 (
+                            {detectedRisk.riskLevel?.toUpperCase()})
                           </span>
                         </span>
                       </div>
                       <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-[10px] text-slate-300 border border-slate-700">
-                        {detectedRisk.source === "online_ai" ? "🟢 Cloud AI" : "⚡ Edge AI Offline"}
+                        {detectedRisk.source === "online_ai"
+                          ? "🟢 Cloud AI"
+                          : "⚡ Edge AI Offline"}
                       </span>
                     </div>
 
-                    {detectedRisk.hazards && detectedRisk.hazards.length > 0 && (
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Detected Safety Hazards:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {detectedRisk.hazards.map((h, i) => (
-                            <span
-                              key={i}
-                              className="inline-flex items-center rounded-md bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-300 border border-amber-500/30"
-                            >
-                              {h.label}
-                            </span>
-                          ))}
+                    {detectedRisk.hazards &&
+                      detectedRisk.hazards.length > 0 && (
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Detected Safety Hazards:
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {detectedRisk.hazards.map((h, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center rounded-md bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-300 border border-amber-500/30"
+                              >
+                                {h.label}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {detectedRisk.observations && (
                       <p className="text-[11px] text-slate-300 line-clamp-2">
-                        <strong>Observations:</strong> {detectedRisk.observations}
+                        <strong>Observations:</strong>{" "}
+                        {detectedRisk.observations}
                       </p>
                     )}
                   </div>
@@ -410,7 +424,8 @@ export default function CameraCaptureModal({
           {!capturedBlob ? (
             <div className="w-full space-y-3">
               <p className="text-center text-[11px] leading-relaxed text-slate-400">
-                Please capture or upload clear, relevant mine photos. Better photo evidence helps produce more accurate results.
+                Please capture or upload clear, relevant mine photos. Better
+                photo evidence helps produce more accurate results.
               </p>
 
               <div className="flex items-center justify-between">

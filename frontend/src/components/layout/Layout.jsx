@@ -29,7 +29,8 @@ export default function Layout() {
     return () => window.removeEventListener("minesight:open-camera-scan", handleOpenScan);
   }, []);
 
-  const hasLauncher = pathname !== "/app/chat";
+  const isInspectionForm = pathname === "/app/inspections/new";
+  const hasLauncher = pathname !== "/app/chat" && !isInspectionForm;
 
   return (
     <div className="app-shell flex min-h-screen flex-col bg-[#f5f7fa] text-gray-700 dark:bg-[#0f1720] dark:text-slate-100">
@@ -39,6 +40,8 @@ export default function Layout() {
         className={`flex-1 overflow-x-hidden ${
           pathname === "/app/chat"
             ? "pt-[calc(4rem+var(--status-banner-height,0px))] pb-20 xl:pb-4"
+            : isInspectionForm
+            ? "pb-36 pt-[calc(5rem+var(--status-banner-height,0px))] sm:pb-28 xl:pb-16"
             : "pb-32 pt-[calc(5rem+var(--status-banner-height,0px))] sm:pb-24 xl:pb-12"
         }`}
       >
@@ -57,7 +60,7 @@ export default function Layout() {
           <Camera className="h-5 w-5" />
         </button>
       )}
-      {showScrollTop && (
+      {showScrollTop && !isInspectionForm && (
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

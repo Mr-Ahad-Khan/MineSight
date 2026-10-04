@@ -17,16 +17,18 @@ const HomePage = lazy(() => import("./pages/HomePage"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 
-// Preload auth pages in idle time so reCAPTCHA wrapper chunk is immediately ready
+// Preload auth and core inspection form pages so single-click navigation is instantaneous even offline
 if (typeof window !== "undefined") {
-  const preloadAuth = () => {
+  const preloadCriticalPages = () => {
     import("./pages/Login");
     import("./pages/Register");
+    import("./pages/CreateInspection");
+    import("./pages/Inspections");
   };
   if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(preloadAuth);
+    window.requestIdleCallback(preloadCriticalPages);
   } else {
-    setTimeout(preloadAuth, 120);
+    setTimeout(preloadCriticalPages, 120);
   }
 }
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -186,7 +188,7 @@ function App() {
         <aside
           ref={bannerRef}
           aria-label="Offline status"
-          className="offline-status-banner fixed inset-x-0 top-0 z-[100] flex flex-wrap items-center justify-center gap-2 border-b border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-950 shadow-sm backdrop-blur-md dark:border-amber-700/60 dark:bg-amber-950/90 dark:text-amber-100 sm:text-sm"
+          className="offline-status-banner fixed inset-x-0 top-0 z-[45] flex flex-wrap items-center justify-center gap-2 border-b border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-950 shadow-sm backdrop-blur-md dark:border-amber-700/60 dark:bg-amber-950/90 dark:text-amber-100 sm:text-sm"
           role="status"
         >
           <WifiOff className="h-4 w-4 shrink-0 text-[#78350f] dark:text-amber-300" strokeWidth={2.25} aria-hidden="true" />
@@ -203,7 +205,7 @@ function App() {
         <aside
           ref={bannerRef}
           aria-label="Pending sync status"
-          className="pending-status-banner fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 border-b border-sky-400/40 bg-sky-500/15 px-4 py-1.5 text-center text-xs font-medium text-sky-950 shadow-sm backdrop-blur-md dark:border-sky-700/60 dark:bg-sky-950/90 dark:text-sky-100 sm:text-sm"
+          className="pending-status-banner fixed inset-x-0 top-0 z-[45] flex items-center justify-center gap-2 border-b border-sky-400/40 bg-sky-500/15 px-4 py-1.5 text-center text-xs font-medium text-sky-950 shadow-sm backdrop-blur-md dark:border-sky-700/60 dark:bg-sky-950/90 dark:text-sky-100 sm:text-sm"
           role="status"
         >
           <RefreshCw className="h-3.5 w-3.5 shrink-0 text-sky-600 dark:text-sky-400" aria-hidden="true" />
