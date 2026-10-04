@@ -822,13 +822,24 @@ export default function CreateInspection() {
     <div className="w-full max-w-7xl mx-auto space-y-6 px-3.5 py-4 sm:px-6 lg:px-8 pb-36">
       {/* Top Header & Context */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            {t.createInspectionTitle || "Create Field Inspection"}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {t.createInspectionSubtitle || "Record mine observations, safety hazards, coordinates, and violations."}
-          </p>
+        <div className="flex items-center justify-between gap-3 w-full sm:w-auto">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              {t.createInspectionTitle || "Create Field Inspection"}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {t.createInspectionSubtitle || "Record mine observations, safety hazards, coordinates, and violations."}
+            </p>
+          </div>
+          <button
+            type="submit"
+            form="create-inspection-form"
+            disabled={loading}
+            className="btn-primary inline-flex min-h-[44px] py-2 px-4 touch-manipulation items-center justify-center gap-2 text-sm font-bold shadow-md active:scale-95 sm:hidden shrink-0 cursor-pointer"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            <span>{loading ? "Creating..." : "Save"}</span>
+          </button>
         </div>
 
         {/* Status Indicators & Controls */}
@@ -869,7 +880,7 @@ export default function CreateInspection() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} autoComplete="on" className="grid grid-cols-1 items-start gap-6 xl:grid-cols-12">
+      <form id="create-inspection-form" onSubmit={handleSubmit} autoComplete="on" className="grid grid-cols-1 items-start gap-6 xl:grid-cols-12">
         {/* Left Primary Form Stack (7 columns on desktop, full width on mobile) */}
         <div className="space-y-6 xl:col-span-7">
           

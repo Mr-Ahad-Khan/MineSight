@@ -74,7 +74,46 @@ export default function InspectionDetail() {
   const [isAnalyzingRisk, setIsAnalyzingRisk] = useState(false);
   const [auditTrail, setAuditTrail] = useState(null);
   const [auditError, setAuditError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    severity: "medium",
+    type: "safety",
+    description: "",
+    observations: "",
+  });
   const proofInputRef = useRef(null);
+
+  const handleOpenEdit = () => {
+    setEditForm({
+      title: inspection?.title || "",
+      severity: inspection?.severity || "medium",
+      type: inspection?.type || "safety",
+      description: inspection?.description || "",
+      observations: inspection?.observations || "",
+    });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setUpdating(true);
+    try {
+      const res = await updateInspection(id, editForm);
+      if (res?.data?.data) {
+        setInspection(res.data.data);
+      } else {
+        setInspection((prev) => ({ ...prev, ...editForm }));
+      }
+      await fetchAuditTrail();
+      setIsEditing(false);
+      toast.success(t.inspectionUpdated || "Inspection updated successfully");
+    } catch (error) {
+      toast.error(t.failedUpdate || "Failed to update inspection");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const adjustPhotoZoom = (amount) => {
     setPhotoZoom((current) => Math.min(4, Math.max(1, current + amount)));
@@ -280,7 +319,7 @@ export default function InspectionDetail() {
   const proofCount = closureProofPhotos.length;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6 pb-36 sm:pb-16">
       {/* Header */}
       <div className="flex items-start gap-4">
         <button
@@ -317,6 +356,62 @@ export default function InspectionDetail() {
             <p className="text-2xl font-extrabold tabular-nums">{inspection.riskScore}</p>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Actions Strip (instantly accessible on mobile without scrolling) */}
+      <div className="flex flex-wrap items-center gap-2 p-3 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 lg:hidden shadow-xs">
+        {inspection.status !== "closed" && (
+          <>
+            <button
+              type="button"
+              onClick={() => handleStatusChange("closed")}
+              disabled={updating}
+              className="btn-primary flex-1 min-h-[44px] py-2 px-3 text-xs font-bold flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+            >
+              <CheckCircle className="w-4 h-4" />
+              {t.closeInspection || "Close Inspection"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleStatusChange("escalated")}
+              disabled={updating}
+              className="btn-secondary flex-1 min-h-[44px] py-2 px-3 text-xs font-bold text-orange-600 dark:text-orange-400 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+            >
+              <ShieldAlert className="w-4 h-4" />
+              {t.escalate || "Escalate"}
+            </button>
+          </>
+        )}
+        <button
+          type="button"
+          onClick={handleOpenEdit}
+          disabled={updating}
+          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+        >
+          <FileText className="w-4 h-4" />
+          Edit
+        </button>
+        <button
+          type="button"
+          onClick={() => proofInputRef.current?.click()}
+          disabled={updating || proofUploading}
+          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+        >
+          <Upload className="w-4 h-4" />
+          Upload Photo
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setCameraForClosure(false);
+            setIsCameraOpen(true);
+          }}
+          disabled={updating || proofUploading}
+          className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-sky-700 dark:text-sky-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95"
+        >
+          <Camera className="w-4 h-4" />
+          Capture
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -555,6 +650,15 @@ export default function InspectionDetail() {
                   className="hidden"
                   onChange={(e) => handleUploadPhotos(e, true)}
                 />
+                <button
+                  type="button"
+                  onClick={handleOpenEdit}
+                  disabled={updating}
+                  className="btn-secondary w-full text-sm flex items-center justify-center gap-1.5"
+                >
+                  <FileText className="w-4 h-4" />
+                  Edit Inspection
+                </button>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -866,6 +970,130 @@ export default function InspectionDetail() {
         riskData={currentRiskData}
         photoPreview={currentRiskPhoto}
       />
+
+      {/* Edit Inspection Modal */}
+      {isEditing && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4 backdrop-blur-xs"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3 dark:border-slate-800 mb-4">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary-600" />
+                Edit Inspection
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div>
+                <label className="label" htmlFor="edit-title">
+                  Inspection Title
+                </label>
+                <input
+                  id="edit-title"
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  className="input-field"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label" htmlFor="edit-type">
+                    Type
+                  </label>
+                  <select
+                    id="edit-type"
+                    value={editForm.type}
+                    onChange={(e) => setEditForm({ ...editForm, type: e.target.value })}
+                    className="input-field"
+                  >
+                    <option value="safety">Safety</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="unannounced">Unannounced</option>
+                    <option value="environment">Environment</option>
+                    <option value="machinery">Machinery</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="label" htmlFor="edit-severity">
+                    Severity
+                  </label>
+                  <select
+                    id="edit-severity"
+                    value={editForm.severity}
+                    onChange={(e) => setEditForm({ ...editForm, severity: e.target.value })}
+                    className="input-field"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="label" htmlFor="edit-description">
+                  Description
+                </label>
+                <textarea
+                  id="edit-description"
+                  rows={3}
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  className="input-field resize-y"
+                  placeholder="Inspection description..."
+                />
+              </div>
+
+              <div>
+                <label className="label" htmlFor="edit-observations">
+                  Observations
+                </label>
+                <textarea
+                  id="edit-observations"
+                  rows={3}
+                  value={editForm.observations}
+                  onChange={(e) => setEditForm({ ...editForm, observations: e.target.value })}
+                  className="input-field resize-y"
+                  placeholder="Key field observations..."
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="btn-secondary px-4 py-2 text-sm font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="btn-primary px-5 py-2 text-sm font-bold flex items-center gap-2"
+                >
+                  {updating && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

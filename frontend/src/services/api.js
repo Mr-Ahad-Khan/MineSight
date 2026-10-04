@@ -89,13 +89,21 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/request-otp");
 
     if (error.response?.status === 401 && !isAuthRoute && !isOfflineSession) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      if (
+      const isFieldRoute =
         typeof window !== "undefined" &&
-        window.location.pathname !== "/login"
-      ) {
-        window.location.href = "/login";
+        (window.location.pathname.includes("/inspections") ||
+          window.location.pathname.includes("/mines") ||
+          window.location.pathname.includes("/capture"));
+
+      if (!isFieldRoute) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        if (
+          typeof window !== "undefined" &&
+          window.location.pathname !== "/login"
+        ) {
+          window.location.href = "/login";
+        }
       }
     }
     return Promise.reject(error);
@@ -151,6 +159,8 @@ function isOfflineOrNetworkError(error) {
     !error.response ||
     status >= 500 ||
     status === 408 ||
+    status === 401 ||
+    status === 403 ||
     status === 0 ||
     error.code === "ERR_NETWORK" ||
     error.code === "ECONNABORTED" ||
