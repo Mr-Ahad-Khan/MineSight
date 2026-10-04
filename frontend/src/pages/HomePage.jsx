@@ -1767,12 +1767,13 @@ export default function HomePage() {
                   <button
                     type="submit"
                     disabled={contactSending}
-                    className="group relative w-full overflow-hidden rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-3.5 font-bold text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.98]"
+                    className="group relative w-full overflow-hidden rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-3.5 font-bold !text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.98]"
+                    style={{ color: '#ffffff' }}
                   >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
+                    <span className="relative z-10 flex items-center justify-center gap-2 !text-white" style={{ color: '#ffffff' }}>
                       {contactSending ? t.sending : t.sendMessage}
                       {!contactSending && (
-                        <Send className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        <Send className="h-4 w-4 !text-white transition-transform group-hover:translate-x-1" style={{ color: '#ffffff' }} />
                       )}
                     </span>
                   </button>

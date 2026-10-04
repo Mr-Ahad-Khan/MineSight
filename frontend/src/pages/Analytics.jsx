@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, Legend
 } from 'recharts'
-import { useLanguageStore } from '../store/themeStore'
+import useThemeStore, { useLanguageStore } from '../store/themeStore'
 import { translations } from '../i18n/translations'
 import TableScrollContainer from '../components/common/TableScrollContainer'
 
@@ -12,13 +12,27 @@ const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
 
   return (
-    <div className="rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100 shadow-lg">
-      <p className="font-medium text-slate-200">{label}</p>
-      {payload.map((entry) => (
-        <p key={entry.dataKey} className="mt-1" style={{ color: entry.color || '#f8fafc' }}>
-          {entry.name}: {entry.value}
-        </p>
-      ))}
+    <div className="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-xs text-white shadow-xl backdrop-blur-sm z-50">
+      {label && <p className="mb-1.5 border-b border-slate-700/80 pb-1 font-semibold text-slate-100">{label}</p>}
+      <div className="space-y-1">
+        {payload.map((entry, index) => {
+          const colorDot = entry.color || entry.fill || entry.stroke || '#38bdf8'
+          return (
+            <div key={entry.dataKey || entry.name || index} className="flex items-center justify-between gap-4">
+              <span className="flex items-center gap-1.5 text-slate-200 font-medium">
+                <span
+                  className="inline-block h-2 w-2 rounded-full shrink-0"
+                  style={{ backgroundColor: colorDot }}
+                />
+                {entry.name || entry.dataKey}:
+              </span>
+              <span className="font-bold text-white tabular-nums">
+                {entry.value}
+              </span>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -85,8 +99,15 @@ export default function Analytics() {
   const [period, setPeriod] = useState('monthly')
   const [filters, setFilters] = useState({ startDate: '', endDate: '', severity: '', status: '' })
   const [refreshKey, setRefreshKey] = useState(0)
+  const { darkMode } = useThemeStore()
   const { language } = useLanguageStore()
   const t = translations[language]
+
+  const axisTextColor = darkMode ? '#cbd5e1' : '#334155'
+  const axisLineColor = darkMode ? '#64748b' : '#94a3b8'
+  const gridColor = darkMode ? '#334155' : '#e2e8f0'
+  const legendTextColor = darkMode ? '#e2e8f0' : '#1e293b'
+  const cursorFill = darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 23, 42, 0.06)'
 
   useEffect(() => {
     const refreshAnalytics = () => setRefreshKey((current) => current + 1)
@@ -323,12 +344,22 @@ export default function Analytics() {
             <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
           ) : (
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={recurringData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
+              <BarChart data={recurringData} margin={{ top: 8, right: 12, left: -10, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                  axisLine={{ stroke: axisLineColor }} 
+                  tickLine={{ stroke: axisLineColor }} 
+                />
+                <YAxis 
+                  allowDecimals={false} 
+                  tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                  axisLine={{ stroke: axisLineColor }} 
+                  tickLine={{ stroke: axisLineColor }} 
+                />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: cursorFill, radius: 4 }} />
+                <Bar dataKey="count" fill="#2563eb" name={t.count || 'Count'} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -341,12 +372,22 @@ export default function Analytics() {
             <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
           ) : (
             <ResponsiveContainer width="100%" height={250}>
-              <AreaChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
+              <AreaChart data={trendData} margin={{ top: 8, right: 12, left: -10, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                  axisLine={{ stroke: axisLineColor }} 
+                  tickLine={{ stroke: axisLineColor }} 
+                />
+                <YAxis 
+                  allowDecimals={false} 
+                  tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                  axisLine={{ stroke: axisLineColor }} 
+                  tickLine={{ stroke: axisLineColor }} 
+                />
                 <Tooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="inspections" stroke="#0d9488" fill="#0d9488" fillOpacity={0.16} strokeWidth={3} name="Inspections" />
+                <Area type="monotone" dataKey="inspections" stroke="#0d9488" fill="#0d9488" fillOpacity={0.16} strokeWidth={3} name={t.inspections || 'Inspections'} />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -355,7 +396,7 @@ export default function Analytics() {
 
       <section className="card p-5">
         <div className="mb-4">
-          <h2 className="font-semibold">ML risk forecast (prototype)</h2>
+          <h2 className="font-semibold text-slate-900 dark:text-slate-100">ML risk forecast (prototype)</h2>
           <p className="text-sm text-slate-500">Linear regression on monthly average inspection risk</p>
         </div>
         {!riskForecast ? (
@@ -363,12 +404,22 @@ export default function Analytics() {
         ) : (
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={riskForecast.chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+              <LineChart data={riskForecast.chartData} margin={{ top: 8, right: 12, left: -10, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis 
+                  dataKey="month" 
+                  tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                  axisLine={{ stroke: axisLineColor }} 
+                  tickLine={{ stroke: axisLineColor }} 
+                />
+                <YAxis 
+                  domain={[0, 100]} 
+                  tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                  axisLine={{ stroke: axisLineColor }} 
+                  tickLine={{ stroke: axisLineColor }} 
+                />
                 <Tooltip content={<ChartTooltip />} />
-                <Legend wrapperStyle={{ color: '#cbd5e1' }} />
+                <Legend wrapperStyle={{ color: legendTextColor, fontWeight: 500 }} />
                 <Line type="monotone" dataKey="actualRisk" stroke="#0f766e" strokeWidth={2} dot={{ r: 3 }} connectNulls name="Observed risk" />
                 <Line type="linear" dataKey="modelRisk" stroke="#e11d48" strokeWidth={2} strokeDasharray="6 4" dot={false} name="Model trend and estimate" />
               </LineChart>
@@ -390,12 +441,26 @@ export default function Analytics() {
             <p className="text-slate-400 text-sm">{t.noComparisonData}</p>
           ) : (
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={comparisonChartData} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#cbd5e1' }} interval={0} angle={-12} textAnchor="end" height={55} axisLine={{ stroke: '#64748b' }} tickLine={{ stroke: '#64748b' }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#cbd5e1' }} axisLine={{ stroke: '#64748b' }} tickLine={{ stroke: '#64748b' }} />
-                <Tooltip content={<ChartTooltip />} />
-                <Legend wrapperStyle={{ color: '#cbd5e1' }} />
+              <BarChart data={comparisonChartData} margin={{ top: 8, right: 12, left: -10, bottom: 16 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 11, fill: axisTextColor, fontWeight: 600 }} 
+                  interval={0} 
+                  angle={-12} 
+                  textAnchor="end" 
+                  height={55} 
+                  axisLine={{ stroke: axisLineColor }} 
+                  tickLine={{ stroke: axisLineColor }} 
+                />
+                <YAxis 
+                  allowDecimals={false} 
+                  tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                  axisLine={{ stroke: axisLineColor }} 
+                  tickLine={{ stroke: axisLineColor }} 
+                />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: cursorFill, radius: 4 }} />
+                <Legend wrapperStyle={{ color: legendTextColor, fontWeight: 500 }} />
                 <Bar dataKey="current" fill="#0f766e" name={t.currentPeriod} radius={[4, 4, 0, 0]} />
                 <Bar dataKey="previous" fill="#94a3b8" name={t.previousPeriod} radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -414,7 +479,7 @@ export default function Analytics() {
                   {riskChartData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
                 </Pie>
                 <Tooltip content={<ChartTooltip />} />
-                <Legend verticalAlign="bottom" height={42} wrapperStyle={{ fontSize: 11, color: '#cbd5e1' }} />
+                <Legend verticalAlign="bottom" height={42} wrapperStyle={{ fontSize: 11, color: legendTextColor, fontWeight: 500 }} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -428,10 +493,20 @@ export default function Analytics() {
           <p className="text-slate-400 text-sm">{t.noDataAvailable}</p>
         ) : (
           <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={burndownData} margin={{ top: 12, right: 20, bottom: 8, left: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#64748b" opacity={0.65} />
-              <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={{ stroke: '#64748b' }} tickLine={{ stroke: '#64748b' }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={{ stroke: '#64748b' }} tickLine={{ stroke: '#64748b' }} />
+            <LineChart data={burndownData} margin={{ top: 12, right: 20, bottom: 8, left: -10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} opacity={0.65} />
+              <XAxis 
+                dataKey="name" 
+                tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                axisLine={{ stroke: axisLineColor }} 
+                tickLine={{ stroke: axisLineColor }} 
+              />
+              <YAxis 
+                allowDecimals={false} 
+                tick={{ fontSize: 12, fill: axisTextColor, fontWeight: 600 }} 
+                axisLine={{ stroke: axisLineColor }} 
+                tickLine={{ stroke: axisLineColor }} 
+              />
               <Tooltip content={<ChartTooltip />} />
               <Line type="monotone" dataKey="remaining" stroke="#e11d48" strokeWidth={3} dot={{ r: 4 }} name="Remaining" />
             </LineChart>

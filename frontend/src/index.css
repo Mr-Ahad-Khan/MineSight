@@ -326,8 +326,14 @@
   .home-page.theme-light .audit-feature-card h3,
   .home-page.theme-light .audit-snapshot h3,
   .home-page.theme-light .contact-shell h2,
-  .home-page.theme-light .contact-card .font-bold {
+  .home-page.theme-light .contact-card .font-bold:not(button):not(button *) {
     color: #17314a !important;
+  }
+
+  .home-page.theme-light .contact-card button,
+  .home-page.theme-light .contact-card button *,
+  .home-page.theme-light .contact-card button span {
+    color: #ffffff !important;
   }
 
   .home-page.theme-light .audit-feature-card p,
