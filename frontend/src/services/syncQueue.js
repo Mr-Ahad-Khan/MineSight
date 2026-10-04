@@ -79,6 +79,15 @@ export async function enqueueMutation({
 }) {
   const queue = getStoredQueue();
 
+  // Strip raw dataUrl strings to prevent localStorage QuotaExceededError;
+  // prepareRequestData retrieves full media data via mediaKey
+  const sanitizedFiles = (files || []).map((f) => ({
+    fieldName: f.fieldName,
+    mediaKey: f.mediaKey,
+    fileName: f.fileName,
+    type: f.type,
+  }));
+
   const queueItem = {
     id: `sync_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     type,
@@ -86,7 +95,7 @@ export async function enqueueMutation({
     url,
     payload,
     isFormData,
-    files,
+    files: sanitizedFiles,
     entityType,
     localId,
     label,

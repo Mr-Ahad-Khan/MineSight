@@ -1,7 +1,7 @@
 // offlineStorage.js - Robust IndexedDB & localStorage persistence layer for MineSight Offline-First Architecture
 
 const DB_NAME = "minesight_offline_db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORES = [
   "mines",
   "inspections",
@@ -17,9 +17,12 @@ const STORES = [
   "media",
 ];
 
-// Open / initialize IndexedDB
+// Open / initialize IndexedDB with cached connection promise
+let cachedDbPromise = null;
 function openDatabase() {
-  return new Promise((resolve, reject) => {
+  if (cachedDbPromise) return cachedDbPromise;
+
+  cachedDbPromise = new Promise((resolve) => {
     if (typeof window === "undefined" || !window.indexedDB) {
       return resolve(null); // Fallback to localStorage
     }
@@ -35,12 +38,33 @@ function openDatabase() {
       });
     };
 
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => {
+      const db = request.result;
+      db.onversionchange = () => {
+        try {
+          db.close();
+        } catch {
+          // ignore
+        }
+        cachedDbPromise = null;
+      };
+      resolve(db);
+    };
+
     request.onerror = () => {
       console.warn("IndexedDB open error, falling back to localStorage:", request.error);
+      cachedDbPromise = null;
+      resolve(null);
+    };
+
+    request.onblocked = () => {
+      console.warn("IndexedDB open blocked by another tab or connection");
+      cachedDbPromise = null;
       resolve(null);
     };
   });
+
+  return cachedDbPromise;
 }
 
 // Fallback localStorage helpers
@@ -105,15 +129,35 @@ async function dbPut(storeName, item) {
   if (!item._id) item._id = `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   const db = await openDatabase();
 
-  // Also update localStorage mirror for instant reliability
-  const currentLs = getLs(storeName, []);
-  const existingIdx = currentLs.findIndex((i) => i._id === item._id);
-  if (existingIdx >= 0) {
-    currentLs[existingIdx] = { ...currentLs[existingIdx], ...item };
-  } else {
-    currentLs.unshift(item);
+  // Safely update localStorage mirror without large media payloads to prevent QuotaExceededError
+  if (storeName !== "media") {
+    try {
+      const currentLs = getLs(storeName, []);
+      const existingIdx = currentLs.findIndex((i) => i._id === item._id);
+
+      // Strip giant inline data URLs from localStorage mirror; IndexedDB retains full resolution
+      const itemToMirror = storeName === "inspections" && Array.isArray(item.photos)
+        ? {
+            ...item,
+            photos: item.photos.map((p) => ({
+              ...p,
+              url: (typeof p?.url === "string" && p.url.startsWith("data:")) ? (p.mediaKey || "stored_offline_media") : p?.url,
+            })),
+            audio: (typeof item.audio === "string" && item.audio.startsWith("data:")) ? "stored_offline_audio" : item.audio,
+            audioUrl: (typeof item.audioUrl === "string" && item.audioUrl.startsWith("data:")) ? "stored_offline_audio" : item.audioUrl,
+          }
+        : item;
+
+      if (existingIdx >= 0) {
+        currentLs[existingIdx] = { ...currentLs[existingIdx], ...itemToMirror };
+      } else {
+        currentLs.unshift(itemToMirror);
+      }
+      setLs(storeName, currentLs);
+    } catch (e) {
+      console.warn("localStorage mirror update skipped:", e);
+    }
   }
-  setLs(storeName, currentLs);
 
   if (!db) return item;
 
@@ -615,8 +659,12 @@ export const initialSupportTickets = [
   },
 ];
 
+let isStorageSeeded = false;
+
 // Seed storage if empty
 export async function seedStorageIfEmpty() {
+  if (isStorageSeeded) return;
+
   const existingMines = await dbGetAll("mines");
   if (!existingMines || existingMines.length === 0) {
     await dbPutBatch("mines", initialMines);
@@ -656,6 +704,8 @@ export async function seedStorageIfEmpty() {
   if (!existingTickets || existingTickets.length === 0) {
     await dbPutBatch("supportTickets", initialSupportTickets);
   }
+
+  isStorageSeeded = true;
 }
 
 // Higher-level collection accessors with dynamic computation

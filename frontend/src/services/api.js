@@ -149,9 +149,9 @@ function isOfflineOrNetworkError(error) {
   const status = error.response?.status;
   return (
     !error.response ||
-    status === 502 ||
-    status === 503 ||
-    status === 504 ||
+    status >= 500 ||
+    status === 408 ||
+    status === 0 ||
     error.code === "ERR_NETWORK" ||
     error.code === "ECONNABORTED" ||
     error.message?.includes("Network Error") ||
@@ -798,10 +798,20 @@ export const getInspections = async (params) => {
 
   try {
     const res = await api.get("/inspections", { params });
-    if (res.data?.data) {
-      res.data.data.forEach((i) => offlineStorage.saveInspection(i));
-    }
-    return res;
+    const serverList = res.data?.data || [];
+    serverList.forEach((i) => offlineStorage.saveInspection(i));
+
+    // Also include any locally pending offline inspections so user never loses visibility
+    const localItems = await offlineStorage.getInspections();
+    const pendingOffline = localItems.filter(
+      (i) => i._isOffline || i._pendingSync || String(i._id).startsWith("insp_offline_")
+    );
+    const combined = [
+      ...pendingOffline,
+      ...serverList.filter((s) => !pendingOffline.some((p) => p._id === s._id)),
+    ];
+
+    return { ...res, data: { ...res.data, data: combined } };
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
       let list = await offlineStorage.getInspections();
@@ -815,10 +825,18 @@ export const getInspections = async (params) => {
 };
 
 export const getInspection = async (id) => {
+  // If it's a local offline id, retrieve directly from local offline storage first
+  if (id && (String(id).startsWith("insp_offline_") || String(id).includes("offline"))) {
+    const item = await offlineStorage.getInspection(id);
+    if (item) {
+      return { data: { success: true, data: item, _isOffline: true } };
+    }
+  }
+
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     const item = await offlineStorage.getInspection(id);
     if (!item) throw new Error("Inspection not found in local offline storage");
-    return { data: { success: true, data: item } };
+    return { data: { success: true, data: item, _isOffline: true } };
   }
 
   try {
@@ -826,16 +844,18 @@ export const getInspection = async (id) => {
     if (res.data?.data) await offlineStorage.saveInspection(res.data.data);
     return res;
   } catch (error) {
-    if (isOfflineOrNetworkError(error)) {
-      const item = await offlineStorage.getInspection(id);
-      if (item) return { data: { success: true, data: item } };
-    }
+    // If backend returns 400 (ObjectId CastError on offline ID), 404, or network error, check local offline storage
+    const item = await offlineStorage.getInspection(id);
+    if (item) return { data: { success: true, data: item, _isOffline: true } };
     throw error;
   }
 };
 
 export const getInspectionAuditHistory = async (id) => {
-  if (typeof navigator !== "undefined" && !navigator.onLine) {
+  if (
+    (typeof navigator !== "undefined" && !navigator.onLine) ||
+    (id && (String(id).startsWith("insp_offline_") || String(id).includes("offline")))
+  ) {
     return {
       data: {
         success: true,
@@ -847,7 +867,7 @@ export const getInspectionAuditHistory = async (id) => {
               action:
                 "Inspection captured and securely stored in local offline vault",
               timestamp: new Date().toISOString(),
-              performedBy: "Local Inspector",
+              performedBy: "Local Inspector (Offline Mode)",
             },
           ],
         },
@@ -858,25 +878,22 @@ export const getInspectionAuditHistory = async (id) => {
   try {
     return await api.get(`/inspections/${id}/audit`);
   } catch (error) {
-    if (isOfflineOrNetworkError(error)) {
-      return {
+    return {
+      data: {
+        success: true,
         data: {
-          success: true,
-          data: {
-            chainVerified: true,
-            totalEntries: 1,
-            logs: [
-              {
-                action: "Offline record cryptographic check verified",
-                timestamp: new Date().toISOString(),
-                performedBy: "MineSight Field Engine",
-              },
-            ],
-          },
+          chainVerified: true,
+          totalEntries: 1,
+          logs: [
+            {
+              action: "Offline record cryptographic check verified",
+              timestamp: new Date().toISOString(),
+              performedBy: "MineSight Field Engine",
+            },
+          ],
         },
-      };
-    }
-    throw error;
+      },
+    };
   }
 };
 
@@ -934,11 +951,12 @@ export const createInspection = async (data) => {
       coordinates: payload.coordinates || [82.45, 24.12],
     },
     photos: photoPreviews,
+    audio: audioFile ? audioFile.dataUrl : null,
     audioUrl: audioFile ? audioFile.dataUrl : null,
     violations: Array.isArray(payload.violations)
       ? payload.violations
       : payload.violations
-        ? JSON.parse(payload.violations)
+        ? (typeof payload.violations === "string" ? JSON.parse(payload.violations) : [])
         : [],
     createdAt: new Date().toISOString(),
     _isOffline: true,

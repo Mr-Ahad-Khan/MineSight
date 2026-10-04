@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  ArrowLeft,
   Bot,
   ChevronLeft,
   ChevronRight,
@@ -12,7 +13,9 @@ import {
   User,
   Volume2,
   VolumeX,
+  X,
 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
@@ -218,6 +221,8 @@ export default function Chat() {
   const { user } = useAuthStore();
   const { language, setLanguage } = useLanguageStore();
   const t = translations[language];
+  const navigate = useNavigate();
+  const location = useLocation();
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [listening, setListening] = useState(false);
@@ -228,6 +233,26 @@ export default function Chat() {
   const suggestionsScrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const handleCloseBot = () => {
+    if (location.state?.from) {
+      navigate(location.state.from, { replace: true });
+    } else if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/app", { replace: true });
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleCloseBot();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [location.state]);
 
   const speechSupported =
     typeof window !== "undefined" && "speechSynthesis" in window;
@@ -391,20 +416,41 @@ export default function Chat() {
   return (
     <section className="mx-auto flex h-[calc(100dvh-9.5rem)] sm:h-[calc(100dvh-10rem)] xl:h-[calc(100dvh-5.5rem)] w-full max-w-5xl flex-col px-2.5 py-1.5 sm:px-6 sm:py-3 lg:px-8 dark:text-slate-100">
       <div className="mb-2 flex flex-col gap-2 shrink-0 sm:mb-2.5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-[#17314a] dark:text-white">
-              {t.coalAi}
-            </h1>
-            <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#9b6b16] dark:bg-amber-950/60 dark:text-amber-300">
-              {t.operationsAssistant}
-            </span>
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <button
+            type="button"
+            onClick={handleCloseBot}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            aria-label={language === "hi" ? "बॉट बंद करें और वापस जाएँ" : "Close Bot & Return"}
+            title={language === "hi" ? "बॉट बंद करें और पिछले पेज पर जाएँ (डेटा सुरक्षित रहेगा)" : "Close Bot & return to previous page (without losing data)"}
+          >
+            <ArrowLeft className="h-4 w-4 text-[#e5a416]" />
+            <span>{language === "hi" ? "वापस जाएँ" : "Close / Return"}</span>
+          </button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-[#17314a] dark:text-white">
+                {t.coalAi}
+              </h1>
+              <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#9b6b16] dark:bg-amber-950/60 dark:text-amber-300">
+                {t.operationsAssistant}
+              </span>
+            </div>
+            <p className="hidden text-xs text-[#655b4e] dark:text-slate-400 sm:block sm:mt-0.5">
+              {t.chatSubtitle}
+            </p>
           </div>
-          <p className="hidden text-xs text-[#655b4e] dark:text-slate-400 sm:block sm:mt-0.5">
-            {t.chatSubtitle}
-          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          <button
+            type="button"
+            onClick={handleCloseBot}
+            className="inline-flex items-center gap-1 rounded-full border border-slate-300/80 bg-slate-100/80 px-2.5 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+            title="Return to previous page (Esc)"
+          >
+            <X className="h-3.5 w-3.5 text-slate-500" />
+            <span className="hidden sm:inline">Esc to close</span>
+          </button>
           <a
             href="tel:+918004197890"
             className="inline-flex items-center gap-1.5 rounded-full border border-orange-200/80 bg-orange-50/80 px-2.5 py-1 text-xs font-bold text-[#17314a] transition-colors hover:text-[#d45b00] dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-200"
@@ -510,6 +556,15 @@ export default function Chat() {
                     ? "आवाज़: बंद"
                     : "Voice: OFF"}
               </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleCloseBot}
+              className="ml-1 rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+              aria-label={language === "hi" ? "चैट बंद करें" : "Close Chat"}
+              title={language === "hi" ? "चैट बंद करें और पिछले पेज पर जाएँ" : "Close Chat & return to previous page"}
+            >
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>

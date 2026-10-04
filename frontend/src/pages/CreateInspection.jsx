@@ -238,10 +238,79 @@ export default function CreateInspection() {
   });
 
   const location = useLocation();
+  const DRAFT_KEY = "minesight_create_inspection_draft";
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
+
+  // Restore draft on mount so form data is never lost if bot was opened or user navigated away
+  useEffect(() => {
+    try {
+      const rawDraft = localStorage.getItem(DRAFT_KEY) || sessionStorage.getItem(DRAFT_KEY);
+      if (rawDraft) {
+        const parsed = JSON.parse(rawDraft);
+        if (parsed.form) {
+          setForm((prev) => ({ ...prev, ...parsed.form }));
+        }
+        if (Array.isArray(parsed.position) && parsed.position.length >= 2) {
+          setPosition(parsed.position);
+        }
+        if (parsed.violation) {
+          setViolation((prev) => ({ ...prev, ...parsed.violation }));
+        }
+        setHasRestoredDraft(true);
+        toast("Restored draft inspection (form data preserved)", {
+          id: "draft-restored",
+          icon: "📝",
+        });
+      }
+    } catch (e) {
+      console.warn("Failed to restore inspection draft:", e);
+    }
+  }, []);
+
+  // Save draft whenever form values change
+  useEffect(() => {
+    const hasData = form.title || form.description || form.observations || form.violations?.length > 0;
+    if (hasData) {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ form, position, violation }));
+      } catch (e) {
+        console.warn("Failed to save inspection draft:", e);
+      }
+    }
+  }, [form, position, violation]);
+
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+      sessionStorage.removeItem(DRAFT_KEY);
+      setForm({
+        mineId: mines[0]?._id || "",
+        type: "scheduled",
+        title: "",
+        description: "",
+        observations: "",
+        severity: "medium",
+        violations: [],
+      });
+      setHasRestoredDraft(false);
+      toast.success("Draft cleared");
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     getMines()
-      .then((res) => setMines(res.data.data || []))
+      .then((res) => {
+        const list = res.data.data || [];
+        setMines(list);
+        setForm((prev) => {
+          if (!prev.mineId && list.length > 0) {
+            return { ...prev, mineId: list[0]._id };
+          }
+          return prev;
+        });
+      })
       .catch(console.error);
 
     // Try get current location
@@ -616,10 +685,18 @@ export default function CreateInspection() {
       });
 
       const res = await createInspection(formData);
-      toast.success(`${t.inspectionCreated} ${res.data.data.riskScore}`);
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+        sessionStorage.removeItem(DRAFT_KEY);
+      } catch {
+        // ignore
+      }
+      const score = res.data?.data?.riskScore ?? "";
+      toast.success(`${t.inspectionCreated} ${score}`);
       navigate(`/app/inspections/${res.data.data._id}`);
     } catch (error) {
-      toast.error(error.response?.data?.message || t.failedToCreate);
+      console.error("Failed to create inspection:", error);
+      toast.error(error.response?.data?.message || error.message || t.failedToCreate);
     } finally {
       setLoading(false);
     }
@@ -641,17 +718,31 @@ export default function CreateInspection() {
         autoComplete="on"
         className="grid w-full grid-cols-1 items-start gap-5 lg:gap-6 xl:grid-cols-2"
       >
-        <div className="flex items-center justify-end gap-3 text-sm xl:col-span-2">
-          <button
-            type="button"
-            onClick={() => setVoiceEnabled((enabled) => !enabled)}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-            aria-pressed={voiceEnabled}
-          >
-            {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            {voiceEnabled ? "Voice guidance on" : "Enable voice guidance"}
-          </button>
-          <span className="text-xs text-slate-500">Off by default</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm xl:col-span-2">
+          {hasRestoredDraft ? (
+            <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 dark:bg-amber-950/60 dark:text-amber-200">
+              <span>Saved draft active</span>
+              <button
+                type="button"
+                onClick={clearDraft}
+                className="underline hover:text-amber-950 dark:hover:text-white"
+              >
+                Clear draft
+              </button>
+            </div>
+          ) : <div />}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setVoiceEnabled((enabled) => !enabled)}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+              aria-pressed={voiceEnabled}
+            >
+              {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              {voiceEnabled ? "Voice guidance on" : "Enable voice guidance"}
+            </button>
+            <span className="text-xs text-slate-500">Off by default</span>
+          </div>
         </div>
         <div className="grid items-stretch gap-6 lg:grid-cols-2 xl:contents">
           {/* Basic Info */}
@@ -1291,7 +1382,15 @@ export default function CreateInspection() {
           </button>
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              try {
+                localStorage.removeItem(DRAFT_KEY);
+                sessionStorage.removeItem(DRAFT_KEY);
+              } catch {
+                // ignore
+              }
+              navigate(-1);
+            }}
             className="btn-secondary inline-flex min-h-12 min-w-28 touch-manipulation items-center justify-center"
           >
             Cancel

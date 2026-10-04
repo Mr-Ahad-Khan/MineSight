@@ -1,35 +1,69 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, MessageCircle, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguageStore } from "../../store/themeStore";
 import { translations } from "../../i18n/translations";
 
 export default function CoalAiLauncher() {
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const panelRef = useRef(null);
   const launcherRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { language } = useLanguageStore();
-  const t = translations[language];
+  const t = translations[language] || translations.en;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setReady(true);
-      setOpen(true);
-    }, 250);
-    return () => clearTimeout(timer);
+    setReady(true);
   }, []);
 
+  // Close panel on click outside or Escape key
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (e) => {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(e.target) &&
+        launcherRef.current &&
+        !launcherRef.current.contains(e.target)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        launcherRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
   const closePanel = () => {
-    // Move focus before hiding the panel so assistive technology never has
-    // a focused control inside an aria-hidden ancestor.
     launcherRef.current?.focus();
     setOpen(false);
+  };
+
+  const handleOpenChat = () => {
+    setOpen(false);
+    navigate("/app/chat", {
+      state: { from: location.pathname + location.search },
+    });
   };
 
   return (
     <div className="pointer-events-none fixed bottom-20 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-20 sm:right-6 xl:bottom-6 xl:right-6">
       <div
+        ref={panelRef}
         className={`pointer-events-auto w-[min(320px,calc(100vw-2rem))] origin-bottom-right overflow-hidden rounded-2xl border border-[#29414b] bg-[#101c24] text-white shadow-[0_16px_35px_rgba(0,0,0,0.3)] transition-all duration-500 ease-out dark:border-slate-700 dark:bg-slate-900 ${open && ready ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-95 opacity-0"}`}
         aria-hidden={!open}
       >
@@ -59,7 +93,7 @@ export default function CoalAiLauncher() {
           </p>
           <button
             type="button"
-            onClick={() => navigate("/app/chat")}
+            onClick={handleOpenChat}
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#e5a416] px-4 py-2.5 text-sm font-bold text-[#151719] transition hover:bg-[#f5b82c]"
           >
             <MessageCircle className="h-4 w-4" />
