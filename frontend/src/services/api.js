@@ -89,21 +89,17 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/request-otp");
 
     if (error.response?.status === 401 && !isAuthRoute && !isOfflineSession) {
-      const isFieldRoute =
-        typeof window !== "undefined" &&
-        (window.location.pathname.includes("/inspections") ||
-          window.location.pathname.includes("/mines") ||
-          window.location.pathname.includes("/capture"));
-
-      if (!isFieldRoute) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        if (
-          typeof window !== "undefined" &&
-          window.location.pathname !== "/login"
-        ) {
-          window.location.href = "/login";
-        }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("minesight:token-expired", {
+            detail: {
+              message:
+                error.response?.data?.message ||
+                "Your session has expired. Please log out and log in again to continue.",
+              status: 401,
+            },
+          })
+        );
       }
     }
     return Promise.reject(error);

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-gov" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e1726" />
+      <stop offset="50%" stop-color="#14213d" />
+      <stop offset="100%" stop-color="#0a101d" />
+    </linearGradient>
+    <linearGradient id="cyan-blue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <pattern id="grid-gov" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#1e293b" stroke-width="0.75" stroke-opacity="0.4" />
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="360" fill="url(#bg-gov)" />
+  <rect width="600" height="360" fill="url(#grid-gov)" />
+
+  <circle cx="200" cy="180" r="150" fill="#38bdf8" opacity="0.10" filter="blur(40px)" />
+  <circle cx="450" cy="130" r="140" fill="#6366f1" opacity="0.12" filter="blur(35px)" />
+
+  <!-- Shell Frame -->
+  <rect x="36" y="32" width="528" height="296" rx="14" fill="#0d1527" stroke="#253556" stroke-width="1.5" />
+  
+  <!-- Header -->
+  <rect x="36" y="32" width="528" height="42" rx="14" fill="#15213b" />
+  <circle cx="60" cy="53" r="5" fill="#ef4444" opacity="0.8" />
+  <circle cx="76" cy="53" r="5" fill="#f59e0b" opacity="0.8" />
+  <circle cx="92" cy="53" r="5" fill="#10b981" opacity="0.8" />
+  <text x="120" y="58" fill="#bae6fd" font-family="system-ui, sans-serif" font-size="12" font-weight="700" letter-spacing="1">CONTRACTOR AUDIT &amp; STATUTORY COMPLIANCE</text>
+  <rect x="420" y="44" width="128" height="18" rx="9" fill="#0c2340" stroke="#38bdf8" stroke-width="1" />
+  <text x="432" y="57" fill="#7dd3fc" font-family="system-ui, sans-serif" font-size="9" font-weight="700">DGMS AUDITED ✓</text>
+
+  <!-- Contractor Profile Item 1 -->
+  <rect x="56" y="88" width="492" height="66" rx="10" fill="#080d19" stroke="#1e293b" stroke-width="1" />
+  <rect x="72" y="101" width="40" height="40" rx="8" fill="#1e3a8a" />
+  <text x="83" y="126" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="16" font-weight="800">KC</text>
+  <text x="126" y="116" fill="#ffffff" font-family="system-ui, sans-serif" font-size="13" font-weight="700">Kalyani Coal Haulage Ltd.</text>
+  <text x="126" y="134" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11">Permit #CL-9821 • 140 Operators</text>
+  <rect x="360" y="106" width="76" height="26" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1" />
+  <text x="372" y="123" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="11" font-weight="700">APPROVED</text>
+  <text x="460" y="123" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="16" font-weight="800">99.2%</text>
+
+  <!-- Contractor Profile Item 2 -->
+  <rect x="56" y="162" width="492" height="66" rx="10" fill="#080d19" stroke="#1e293b" stroke-width="1" />
+  <rect x="72" y="175" width="40" height="40" rx="8" fill="#312e81" />
+  <text x="83" y="200" fill="#c7d2fe" font-family="system-ui, sans-serif" font-size="16" font-weight="800">BM</text>
+  <text x="126" y="190" fill="#ffffff" font-family="system-ui, sans-serif" font-size="13" font-weight="700">Bharat Mining &amp; Excavation</text>
+  <text x="126" y="208" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11">Permit #CL-4109 • 85 Operators</text>
+  <rect x="360" y="180" width="76" height="26" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1" />
+  <text x="372" y="197" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="11" font-weight="700">APPROVED</text>
+  <text x="460" y="197" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="16" font-weight="800">96.8%</text>
+
+  <!-- Contractor Profile Item 3 -->
+  <rect x="56" y="236" width="492" height="66" rx="10" fill="#080d19" stroke="#1e293b" stroke-width="1" />
+  <rect x="72" y="249" width="40" height="40" rx="8" fill="#451a03" />
+  <text x="82" y="274" fill="#fed7aa" font-family="system-ui, sans-serif" font-size="16" font-weight="800">ST</text>
+  <text x="126" y="264" fill="#ffffff" font-family="system-ui, sans-serif" font-size="13" font-weight="700">Singrauli Tech Drilling Works</text>
+  <text x="126" y="282" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11">Permit #CL-3081 • Verification Pending</text>
+  <rect x="360" y="254" width="76" height="26" rx="6" fill="#78350f" stroke="#d97706" stroke-width="1" />
+  <text x="376" y="271" fill="#fef3c7" font-family="system-ui, sans-serif" font-size="11" font-weight="700">REVIEW</text>
+  <text x="460" y="271" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="16" font-weight="800">88.4%</text>
+</svg>

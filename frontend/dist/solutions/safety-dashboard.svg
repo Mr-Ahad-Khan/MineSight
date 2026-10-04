@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-safety" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1b1c" />
+      <stop offset="50%" stop-color="#11292d" />
+      <stop offset="100%" stop-color="#071213" />
+    </linearGradient>
+    <linearGradient id="emerald-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <linearGradient id="amber-glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <pattern id="grid-safety" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#164e63" stroke-width="0.75" stroke-opacity="0.3" />
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="360" fill="url(#bg-safety)" />
+  <rect width="600" height="360" fill="url(#grid-safety)" />
+
+  <!-- Radial highlight -->
+  <circle cx="180" cy="140" r="160" fill="#10b981" opacity="0.12" filter="blur(40px)" />
+  <circle cx="480" cy="220" r="140" fill="#06b6d4" opacity="0.10" filter="blur(35px)" />
+
+  <!-- Main Dashboard Panel -->
+  <rect x="36" y="32" width="528" height="296" rx="14" fill="#0f2226" stroke="#1f4b54" stroke-width="1.5" />
+  
+  <!-- Top bar in dashboard -->
+  <rect x="36" y="32" width="528" height="42" rx="14" fill="#143237" />
+  <circle cx="60" cy="53" r="5" fill="#ef4444" opacity="0.8" />
+  <circle cx="76" cy="53" r="5" fill="#f59e0b" opacity="0.8" />
+  <circle cx="92" cy="53" r="5" fill="#10b981" opacity="0.8" />
+  <text x="120" y="58" fill="#99f6e4" font-family="system-ui, sans-serif" font-size="12" font-weight="700" letter-spacing="1">SAFETY RADAR &amp; INCIDENT ESCALATION</text>
+  <rect x="440" y="44" width="108" height="18" rx="9" fill="#042f2e" stroke="#14b8a6" stroke-width="1" />
+  <circle cx="452" cy="53" r="3.5" fill="#14b8a6" />
+  <text x="463" y="57" fill="#5eead4" font-family="system-ui, sans-serif" font-size="9" font-weight="700">LIVE FEED</text>
+
+  <!-- Left Stat card: Risk Index -->
+  <rect x="56" y="90" width="150" height="100" rx="10" fill="#09181b" stroke="#193b42" stroke-width="1" />
+  <text x="70" y="112" fill="#5eead4" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-transform="uppercase">Safety Rating</text>
+  <text x="70" y="152" fill="#ffffff" font-family="system-ui, sans-serif" font-size="34" font-weight="800">98.4<tspan font-size="18" fill="#10b981">%</tspan></text>
+  <rect x="70" y="166" width="122" height="6" rx="3" fill="#134e4a" />
+  <rect x="70" y="166" width="108" height="6" rx="3" fill="url(#emerald-glow)" />
+
+  <!-- Center Stat card: Open Permits -->
+  <rect x="222" y="90" width="150" height="100" rx="10" fill="#09181b" stroke="#193b42" stroke-width="1" />
+  <text x="236" y="112" fill="#fde68a" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-transform="uppercase">Verified Permits</text>
+  <text x="236" y="152" fill="#ffffff" font-family="system-ui, sans-serif" font-size="34" font-weight="800">142</text>
+  <text x="236" y="174" fill="#34d399" font-family="system-ui, sans-serif" font-size="10" font-weight="600">✓ 0 Critical Violations</text>
+
+  <!-- Right Stat card: Near Misses -->
+  <rect x="388" y="90" width="160" height="100" rx="10" fill="#09181b" stroke="#193b42" stroke-width="1" />
+  <text x="402" y="112" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-transform="uppercase">Resolved Alerts</text>
+  <text x="402" y="152" fill="#ffffff" font-family="system-ui, sans-serif" font-size="34" font-weight="800">28<tspan font-size="14" fill="#94a3b8">/30</tspan></text>
+  <text x="402" y="174" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Avg Resolution: 24m</text>
+
+  <!-- Bottom Telemetry Chart -->
+  <rect x="56" y="206" width="492" height="106" rx="10" fill="#09181b" stroke="#193b42" stroke-width="1" />
+  <text x="72" y="228" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="700">HAZARD REDUCTION TREND (LAST 7 DAYS)</text>
+
+  <!-- Wave chart path -->
+  <path d="M 72 284 Q 130 250, 190 265 T 310 240 T 430 220 T 520 215" fill="none" stroke="url(#emerald-glow)" stroke-width="3" stroke-linecap="round" />
+  <path d="M 72 284 Q 130 250, 190 265 T 310 240 T 430 220 T 520 215 L 520 295 L 72 295 Z" fill="url(#emerald-glow)" opacity="0.12" />
+
+  <!-- Data nodes on wave -->
+  <circle cx="190" cy="265" r="4.5" fill="#10b981" stroke="#042f2e" stroke-width="2" />
+  <circle cx="310" cy="240" r="4.5" fill="#06b6d4" stroke="#042f2e" stroke-width="2" />
+  <circle cx="430" cy="220" r="4.5" fill="#38bdf8" stroke="#042f2e" stroke-width="2" />
+  <circle cx="520" cy="215" r="5" fill="#f59e0b" stroke="#042f2e" stroke-width="2" />
+</svg>

@@ -191,19 +191,19 @@
   .home-page.theme-light
     main
     > section:not(:first-child)
-    [class*="bg-[#101416]"],
+    [class*="bg-[#101416]"]:not(.solution-media-container):not(.solution-card-overlay),
   .home-page.theme-light
     main
     > section:not(:first-child)
-    [class*="bg-[#172730]"],
+    [class*="bg-[#172730]"]:not(.solution-media-container):not(.solution-card-overlay),
   .home-page.theme-light
     main
     > section:not(:first-child)
-    [class*="bg-slate-900"],
+    [class*="bg-slate-900"]:not(.solution-media-container):not(.solution-card-overlay),
   .home-page.theme-light
     main
     > section:not(:first-child)
-    [class*="bg-slate-950"] {
+    [class*="bg-slate-950"]:not(.solution-media-container):not(.solution-card-overlay) {
     background: #fffdf8 !important;
     border-color: #d5c4a8 !important;
     color: #243746 !important;
@@ -323,6 +323,97 @@
     color: #243746 !important;
   }
 
+  /* Solution Cards in Light Mode */
+  .home-page.theme-light .solution-card {
+    background: #ffffff !important;
+    border-color: #d5c4a8 !important;
+    box-shadow: 0 4px 16px rgba(36, 55, 70, 0.08) !important;
+  }
+
+  .home-page.theme-light .solution-card:hover {
+    border-color: #e5a416 !important;
+    box-shadow: 0 16px 32px rgba(229, 164, 22, 0.16) !important;
+    transform: translateY(-10px) !important;
+  }
+
+  .home-page.theme-light .solution-card-overlay {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.4) 100%) !important;
+  }
+
+  /* Circled Audit Shield Badge - ultra readable in both modes */
+  .audit-shield-badge {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+    border: 1.5px solid #6ee7b7 !important;
+  }
+
+  .audit-shield-badge svg {
+    color: #065f46 !important;
+    stroke: #065f46 !important;
+  }
+
+  .theme-dark .audit-shield-badge,
+  .home-page:not(.theme-light) .audit-shield-badge {
+    background: #064e3b !important;
+    color: #6ee7b7 !important;
+    border: 1.5px solid #059669 !important;
+  }
+
+  .theme-dark .audit-shield-badge svg,
+  .home-page:not(.theme-light) .audit-shield-badge svg {
+    color: #6ee7b7 !important;
+    stroke: #6ee7b7 !important;
+  }
+
+  /* Card Hover Animations */
+  .audit-feature-card,
+  .audit-snapshot {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease !important;
+  }
+
+  .audit-feature-card:hover,
+  .audit-snapshot:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(45, 212, 191, 0.6) !important;
+  }
+
+  .home-page.theme-light .audit-feature-card:hover,
+  .home-page.theme-light .audit-snapshot:hover {
+    box-shadow: 0 20px 35px -8px rgba(36, 55, 70, 0.16) !important;
+    border-color: #0d9488 !important;
+  }
+
+  .audit-metric {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+  }
+
+  .audit-metric:hover {
+    transform: translateY(-5px) scale(1.025) !important;
+    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.25) !important;
+    border-color: rgba(56, 189, 248, 0.7) !important;
+  }
+
+  .home-page.theme-light .audit-metric:hover {
+    background: #ffffff !important;
+    box-shadow: 0 12px 24px -6px rgba(36, 55, 70, 0.12) !important;
+    border-color: #0d9488 !important;
+  }
+
+  .audit-feature-item {
+    transition: transform 0.25s ease, border-color 0.25s ease, background-color 0.25s ease !important;
+  }
+
+  .audit-feature-item:hover {
+    transform: translateX(6px) !important;
+    border-color: rgba(45, 212, 191, 0.6) !important;
+  }
+
+  .home-page.theme-light .audit-feature-item:hover {
+    background: #f0fdf9 !important;
+    border-color: #5eead4 !important;
+  }
+
   .home-page.theme-light .audit-feature-card h3,
   .home-page.theme-light .audit-snapshot h3,
   .home-page.theme-light .contact-shell h2,
@@ -371,6 +462,20 @@
 
   .home-page.theme-light .home-metric:hover {
     background: #fffaf0 !important;
+  }
+
+  /* Session Expired Banner: High WCAG contrast in both themes */
+  .session-expired-banner {
+    background: #fff1f2 !important;
+    border-bottom: 2px solid #ef4444 !important;
+    color: #4c0519 !important;
+  }
+
+  .dark .session-expired-banner,
+  .theme-dark .session-expired-banner {
+    background: #2b0c13 !important;
+    border-bottom: 2px solid #f43f5e !important;
+    color: #ffe4e6 !important;
   }
 
   .home-page.theme-light .contact-card input,

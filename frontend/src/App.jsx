@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect, useState, useRef } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { WifiOff, RefreshCw } from "lucide-react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { WifiOff, RefreshCw, AlertTriangle, LogIn, LogOut } from "lucide-react";
 import useAuthStore from "./store/authStore";
 import useThemeStore from "./store/themeStore";
 import { triggerSyncNow, getPendingSyncCount } from "./services/api";
+import { isTokenExpired } from "./utils/authUtils";
 
 function PublicHomeRoute() {
   const { token } = useAuthStore();
@@ -122,8 +123,13 @@ function AppLoadingSkeleton() {
 
 function App() {
   const { initTheme } = useThemeStore();
+  const navigate = useNavigate();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [pendingCount, setPendingCount] = useState(getPendingSyncCount());
+  const [sessionExpired, setSessionExpired] = useState(() => {
+    const token = localStorage.getItem("token");
+    return Boolean(token && isTokenExpired(token));
+  });
 
   useEffect(() => {
     const updateConnection = () => setIsOffline(!navigator.onLine);
@@ -143,6 +149,42 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const handleTokenExpired = () => {
+      setSessionExpired(true);
+    };
+
+    window.addEventListener("minesight:token-expired", handleTokenExpired);
+
+    const interval = setInterval(() => {
+      const currentToken = localStorage.getItem("token");
+      if (currentToken && isTokenExpired(currentToken)) {
+        setSessionExpired(true);
+      }
+    }, 10000);
+
+    return () => {
+      window.removeEventListener("minesight:token-expired", handleTokenExpired);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const handleReLogin = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setSessionExpired(false);
+    useAuthStore.getState().logout();
+    navigate("/login", { state: { message: "Session expired. Please log in with your credentials to continue." } });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setSessionExpired(false);
+    useAuthStore.getState().logout();
+    navigate("/login");
+  };
+
+  useEffect(() => {
     initTheme();
 
     const handlePreloadError = () => {
@@ -158,14 +200,14 @@ function App() {
   ));
 
   useEffect(() => {
-    if (!isOffline && pendingCount === 0) {
+    if (!sessionExpired && !isOffline && pendingCount === 0) {
       setBannerHeight(0);
       document.documentElement.style.setProperty("--status-banner-height", "0px");
       return;
     }
 
     const updateHeight = () => {
-      const h = bannerRef.current ? bannerRef.current.offsetHeight : (isOffline ? 40 : 0);
+      const h = bannerRef.current ? bannerRef.current.offsetHeight : (sessionExpired ? 48 : (isOffline ? 40 : 0));
       setBannerHeight(h);
       document.documentElement.style.setProperty("--status-banner-height", `${h}px`);
     };
@@ -180,11 +222,50 @@ function App() {
       observer.disconnect();
       window.removeEventListener("resize", updateHeight);
     };
-  }, [isOffline, pendingCount]);
+  }, [sessionExpired, isOffline, pendingCount]);
 
   return (
     <div style={{ "--status-banner-height": `${bannerHeight}px` }}>
-      {isOffline ? (
+      {sessionExpired ? (
+        <aside
+          ref={bannerRef}
+          aria-label="Session token expired alert"
+          className="session-expired-banner fixed inset-x-0 top-0 z-[60] flex flex-wrap items-center justify-between gap-3 border-b-2 border-red-500 bg-[#fff1f2] px-4 py-2.5 text-red-950 shadow-md backdrop-blur-md dark:border-red-600 dark:bg-[#280c12] dark:text-red-100 sm:px-6"
+          role="alert"
+        >
+          <div className="flex items-center gap-2.5 text-xs sm:text-sm font-medium">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-300">
+              <AlertTriangle className="h-4 w-4" strokeWidth={2.5} />
+            </span>
+            <div className="leading-snug">
+              <strong className="font-extrabold text-red-800 dark:text-red-300">
+                Session Token Expired:
+              </strong>{" "}
+              <span>
+                Your session has expired. Please <strong>Log Out</strong> and <strong>Log In again</strong> to continue accessing live services.
+              </span>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={handleReLogin}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3.5 py-1.5 text-xs font-bold text-white shadow hover:bg-red-700 active:scale-95 transition"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              Log In Again
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-xs font-bold text-red-900 hover:bg-red-50 dark:border-red-800 dark:bg-red-950/80 dark:text-red-200 dark:hover:bg-red-900 active:scale-95 transition"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Log Out
+            </button>
+          </div>
+        </aside>
+      ) : isOffline ? (
         <aside
           ref={bannerRef}
           aria-label="Offline status"

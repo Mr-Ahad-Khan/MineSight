@@ -1362,8 +1362,7 @@ export default function HomePage() {
                     language === "en"
                       ? "Monitor permit status, near miss trends, and incident escalation in one place."
                       : "परमिट स्थिति, नज़दीकी घटना रुझान और दुर्घटना एस्केलेशन को एक ही स्थान पर देखें।",
-                  image:
-                    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=900&q=80",
+                  image: `${import.meta.env.BASE_URL}solutions/safety-dashboard.svg`,
                   accent: "from-emerald-500/20 to-teal-500/10",
                 },
                 {
@@ -1375,8 +1374,7 @@ export default function HomePage() {
                     language === "en"
                       ? "Review contractor performance and compliance track records before approvals."
                       : "स्वीकृति से पहले ठेकेदार के प्रदर्शन और अनुपालन ट्रैक रिकॉर्ड की समीक्षा करें।",
-                  image:
-                    "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80",
+                  image: `${import.meta.env.BASE_URL}solutions/contractor-governance.svg`,
                   accent: "from-cyan-500/20 to-blue-500/10",
                 },
                 {
@@ -1388,23 +1386,26 @@ export default function HomePage() {
                     language === "en"
                       ? "Track moisture, dust, ventilation, and environmental checkpoints across all sites."
                       : "सभी स्थलों पर नमी, धूल, वेंटिलेशन और पर्यावरणीय चेकपॉइंट ट्रैक करें।",
-                  image:
-                    "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?auto=format&fit=crop&w=900&q=80",
+                  image: `${import.meta.env.BASE_URL}solutions/environmental-assurance.svg`,
                   accent: "from-violet-500/20 to-purple-500/10",
                 },
               ].map((card) => (
                 <div
                   key={card.title}
-                  className="group relative overflow-hidden rounded-2xl border border-[#354548] bg-[#101416]/95 shadow-[0_14px_32px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-3 hover:border-[#e5a416]/70 hover:bg-[#151b1c] hover:shadow-2xl hover:shadow-[#e5a416]/15"
+                  className="solution-card group relative overflow-hidden rounded-2xl border border-[#354548] bg-[#101416]/95 shadow-[0_14px_32px_rgba(0,0,0,0.2)] transition-all duration-300 ease-out hover:-translate-y-2.5 hover:border-[#e5a416]/80 hover:bg-[#151b1c] hover:shadow-2xl hover:shadow-[#e5a416]/20 cursor-pointer"
                 >
-                  <div className="relative h-52 overflow-hidden">
-                    <div
-                      className="h-full w-full bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
-                      style={{ backgroundImage: `url(${card.image})` }}
+                  <div className="solution-media-container relative h-52 overflow-hidden bg-slate-900">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `${import.meta.env.BASE_URL}coal-miners.webp`;
+                      }}
+                      className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
                     />
-                    <div
-                      className="absolute inset-0 bg-slate-950/40 transition-colors duration-300 group-hover:bg-slate-950/20"
-                    />
+                    <div className="solution-card-overlay absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-[#e5a416] transition-transform duration-300 group-hover:scale-x-100" />
                   </div>
 
@@ -1469,10 +1470,10 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
               {/* Left card */}
-              <div className="audit-feature-card w-full max-w-xl mx-auto lg:max-w-none relative overflow-hidden rounded-2xl border border-slate-800 bg-[#15202e] p-8 shadow-xl">
+              <div className="audit-feature-card group/card w-full max-w-xl mx-auto lg:max-w-none relative overflow-hidden rounded-2xl border border-slate-800 bg-[#15202e] p-8 shadow-xl transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl hover:border-teal-500/50">
                 <div className="relative">
-                  <div className="mb-5 inline-flex rounded-xl bg-teal-700 p-3 text-white shadow-sm">
-                    <Shield className="h-6 w-6" />
+                  <div className="audit-shield-badge mb-5 inline-flex rounded-xl p-3 shadow-md transition-transform duration-300 group-hover/card:scale-110">
+                    <Shield className="h-6 w-6" strokeWidth={2.4} />
                   </div>
 
                   <h3 className="text-3xl font-black text-white">
@@ -1503,10 +1504,10 @@ export default function HomePage() {
                     ].map((item) => (
                       <div
                         key={item}
-                        className="audit-feature-item group flex items-start gap-3 rounded-xl border border-slate-700/60 bg-slate-900/60 p-4 transition hover:border-slate-600 hover:bg-slate-900"
+                        className="audit-feature-item group flex items-start gap-3 rounded-xl border border-slate-700/60 bg-slate-900/60 p-4 transition-all duration-200 hover:translate-x-1.5 hover:border-teal-500/50 hover:bg-teal-500/5 cursor-pointer"
                       >
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-400" />
-                        <span className="text-slate-200">{item}</span>
+                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-400 transition-transform duration-200 group-hover:scale-110" />
+                        <span className="text-slate-200 font-medium">{item}</span>
                       </div>
                     ))}
                   </div>
@@ -1514,7 +1515,7 @@ export default function HomePage() {
               </div>
 
               {/* Right snapshot */}
-              <div className="audit-snapshot w-full max-w-xl mx-auto lg:max-w-none rounded-2xl border border-slate-800 bg-[#15202e] p-6 sm:p-7 shadow-xl">
+              <div className="audit-snapshot w-full max-w-xl mx-auto lg:max-w-none rounded-2xl border border-slate-800 bg-[#15202e] p-6 sm:p-7 shadow-xl transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl hover:border-teal-500/50">
                 <div className="mb-6 flex flex-col items-center justify-center text-center gap-3">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
@@ -1528,7 +1529,7 @@ export default function HomePage() {
                         : "खदान प्रदर्शन स्नैपशॉट"}
                     </h3>
                   </div>
-                  <div className="audit-percent-badge inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-1.5 text-xs sm:text-sm font-bold text-white shadow-sm tracking-wide">
+                  <div className="audit-percent-badge inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-1.5 text-xs sm:text-sm font-bold text-white shadow-sm tracking-wide transition-transform duration-300 hover:scale-105">
                     {language === "en" ? "+18.2% month" : "+18.2% महीना"}
                   </div>
                 </div>
@@ -1564,14 +1565,14 @@ export default function HomePage() {
                   ].map(({ label, value, icon: Icon, iconBg }) => (
                     <div
                       key={label}
-                      className="audit-metric group flex flex-col items-center justify-center text-center rounded-xl border border-slate-700/60 bg-[#0c131c] p-5 transition hover:border-slate-600 shadow-sm"
+                      className="audit-metric group flex flex-col items-center justify-center text-center rounded-xl border border-slate-700/60 bg-[#0c131c] p-5 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-lg hover:border-teal-500/60 cursor-pointer shadow-sm"
                     >
                       <div
-                        className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg border ${iconBg}`}
+                        className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg border transition-transform duration-300 group-hover:scale-110 ${iconBg}`}
                       >
                         <Icon className="h-5 w-5" />
                       </div>
-                      <div className="text-2xl font-bold text-white tracking-tight">
+                      <div className="text-2xl font-bold text-white tracking-tight transition-transform duration-300 group-hover:scale-105">
                         {value}
                       </div>
                       <div className="mt-1 text-sm font-medium text-slate-300">{label}</div>

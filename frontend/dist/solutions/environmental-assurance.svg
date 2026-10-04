@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-env" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1a1f" />
+      <stop offset="50%" stop-color="#122a28" />
+      <stop offset="100%" stop-color="#071317" />
+    </linearGradient>
+    <linearGradient id="teal-emerald" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2dd4bf" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <pattern id="grid-env" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#134e4a" stroke-width="0.75" stroke-opacity="0.3" />
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="360" fill="url(#bg-env)" />
+  <rect width="600" height="360" fill="url(#grid-env)" />
+
+  <circle cx="160" cy="180" r="140" fill="#2dd4bf" opacity="0.10" filter="blur(40px)" />
+  <circle cx="480" cy="200" r="140" fill="#10b981" opacity="0.10" filter="blur(35px)" />
+
+  <!-- Shell Frame -->
+  <rect x="36" y="32" width="528" height="296" rx="14" fill="#0d1f22" stroke="#1b494f" stroke-width="1.5" />
+  
+  <!-- Header -->
+  <rect x="36" y="32" width="528" height="42" rx="14" fill="#143136" />
+  <circle cx="60" cy="53" r="5" fill="#ef4444" opacity="0.8" />
+  <circle cx="76" cy="53" r="5" fill="#f59e0b" opacity="0.8" />
+  <circle cx="92" cy="53" r="5" fill="#10b981" opacity="0.8" />
+  <text x="120" y="58" fill="#99f6e4" font-family="system-ui, sans-serif" font-size="12" font-weight="700" letter-spacing="1">MINE VENTILATION &amp; ATMOSPHERIC TELEMETRY</text>
+  <rect x="440" y="44" width="108" height="18" rx="9" fill="#042f2e" stroke="#14b8a6" stroke-width="1" />
+  <circle cx="452" cy="53" r="3.5" fill="#14b8a6" />
+  <text x="463" y="57" fill="#5eead4" font-family="system-ui, sans-serif" font-size="9" font-weight="700">SENSORS OK</text>
+
+  <!-- Metric 1: Methane (CH4) Sensor -->
+  <rect x="56" y="90" width="150" height="100" rx="10" fill="#081719" stroke="#1a3d42" stroke-width="1" />
+  <text x="70" y="112" fill="#5eead4" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-transform="uppercase">CH₄ Methane</text>
+  <text x="70" y="152" fill="#ffffff" font-family="system-ui, sans-serif" font-size="32" font-weight="800">0.18<tspan font-size="16" fill="#94a3b8">%</tspan></text>
+  <text x="70" y="174" fill="#34d399" font-family="system-ui, sans-serif" font-size="10" font-weight="700">NORMAL (&lt; 0.75%)</text>
+
+  <!-- Metric 2: Dust (PM2.5/PM10) Sensor -->
+  <rect x="222" y="90" width="150" height="100" rx="10" fill="#081719" stroke="#1a3d42" stroke-width="1" />
+  <text x="236" y="112" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-transform="uppercase">Respirable Dust</text>
+  <text x="236" y="152" fill="#ffffff" font-family="system-ui, sans-serif" font-size="32" font-weight="800">1.4<tspan font-size="14" fill="#94a3b8"> mg/m³</tspan></text>
+  <text x="236" y="174" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="10" font-weight="700">OPTIMAL SUPPRESSION</text>
+
+  <!-- Metric 3: Air Velocity / Ventilation -->
+  <rect x="388" y="90" width="160" height="100" rx="10" fill="#081719" stroke="#1a3d42" stroke-width="1" />
+  <text x="402" y="112" fill="#fed7aa" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-transform="uppercase">Ventilation Flow</text>
+  <text x="402" y="152" fill="#ffffff" font-family="system-ui, sans-serif" font-size="32" font-weight="800">18.6<tspan font-size="14" fill="#94a3b8"> m³/s</tspan></text>
+  <text x="402" y="174" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="10" font-weight="700">MAIN SHAFT ACTIVE</text>
+
+  <!-- Bottom Panel: 4 Pit Environmental Status Grid -->
+  <rect x="56" y="206" width="492" height="106" rx="10" fill="#081719" stroke="#1a3d42" stroke-width="1" />
+  <text x="72" y="228" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="700">PIT ENVIRONMENTAL STATUS MATRIX</text>
+  
+  <g transform="translate(72 245)">
+    <rect x="0" y="0" width="105" height="52" rx="6" fill="#0f2b2e" stroke="#164e52" stroke-width="1" />
+    <text x="12" y="20" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Pit Alpha-01</text>
+    <text x="12" y="38" fill="#34d399" font-family="system-ui, sans-serif" font-size="11" font-weight="800">Clear • 24°C</text>
+
+    <rect x="117" y="0" width="105" height="52" rx="6" fill="#0f2b2e" stroke="#164e52" stroke-width="1" />
+    <text x="129" y="20" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Seam-3 North</text>
+    <text x="129" y="38" fill="#34d399" font-family="system-ui, sans-serif" font-size="11" font-weight="800">Clear • 26°C</text>
+
+    <rect x="234" y="0" width="105" height="52" rx="6" fill="#0f2b2e" stroke="#164e52" stroke-width="1" />
+    <text x="246" y="20" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Haul Road 4</text>
+    <text x="246" y="38" fill="#38bdf8" font-family="system-ui, sans-serif" font-size="11" font-weight="800">Mist Active</text>
+
+    <rect x="351" y="0" width="105" height="52" rx="6" fill="#0f2b2e" stroke="#164e52" stroke-width="1" />
+    <text x="363" y="20" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="10" font-weight="600">Tailings Area</text>
+    <text x="363" y="38" fill="#34d399" font-family="system-ui, sans-serif" font-size="11" font-weight="800">Stabilized</text>
+  </g>
+</svg>
