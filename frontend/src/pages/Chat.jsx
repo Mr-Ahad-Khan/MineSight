@@ -56,13 +56,13 @@ const getAssistantReply = (message, language = "en") => {
 
   if (has("hello", "hi", "hey", "नमस्ते", "हेलो")) {
     return isHindi
-      ? "नमस्ते। मैं अलर्ट, निरीक्षण, अनुपालन, जोखिम, ठेकेदार और डैशबोर्ड कार्रवाई में मदद कर सकता हूँ। उदाहरण के लिए पूछें: ‘आज सबसे जरूरी क्या है?’"
+      ? "नमस्ते। मैं अलर्ट, निरीक्षण, अनुपालन, जोखिम, ठेकेदार और डैशबोर्ड कार्रवाई में आपकी सहायता कर सकता हूँ। उदाहरण के लिए पूछें: ‘आज सबसे जरूरी क्या है?’"
       : "Hello. I can help with alerts, inspections, compliance, risk, contractors, and dashboard actions. Try asking, ‘What needs attention today?’";
   }
 
   if (has("help", "what can you do", "मदद", "क्या कर सकते")) {
     return isHindi
-      ? "मैं इन कामों में मदद कर सकता हूँ:\n• आज की प्राथमिकताएँ और critical alerts\n• निरीक्षण और corrective actions\n• overdue compliance और permits\n• mine risk और trend review\n• contractor compliance\n\nकिसी खदान का नाम, समस्या और deadline दें, मैं अगला action plan बनाऊँगा।"
+      ? "मैं इन कार्यों में आपकी सहायता कर सकता हूँ:\n• आज की मुख्य प्राथमिकताएँ और गंभीर अलर्ट्स\n• निरीक्षण एवं सुधारात्मक कार्रवाइयाँ\n• समय-सीमा पार अनुपालन और वैधानिक परमिट\n• खदान जोखिम स्तर और सुरक्षा प्रवृत्तियाँ\n• ठेकेदार अनुपालन एवं कार्यबल निगरानी\n\nकिसी खदान का नाम, समस्या और समय-सीमा साझा करें, मैं तुरंत कार्य योजना तैयार करूँगा।"
       : "I can help with:\n• Today’s priorities and critical alerts\n• Inspections and corrective actions\n• Overdue compliance and permits\n• Mine risk and trend review\n• Contractor compliance\n\nShare the mine, issue, and deadline and I’ll turn it into a clear action plan.";
   }
 
@@ -88,17 +88,17 @@ const getAssistantReply = (message, language = "en") => {
   if (has("go", "open", "show", "demo", "navigate", "जाएँ", "खोलें")) {
     if (has("dashboard", "डैशबोर्ड")) {
       return isHindi
-        ? "डैशबोर्ड खोलकर पहले risk distribution, high-risk inspections और recent alerts देखें। फिर किसी item को खोलकर owner और due date असाइन करें।"
+        ? "डैशबोर्ड खोलकर सबसे पहले जोखिम वितरण, उच्च जोखिम वाले निरीक्षण और हाल के अलर्ट देखें। इसके बाद संबंधित आइटम खोलकर प्रभारी अधिकारी और अंतिम तिथि निर्धारित करें।"
         : "Open the dashboard and start with risk distribution, high-risk inspections, and recent alerts. Open an item next, then assign an owner and due date.";
     }
     if (has("alert", "अलर्ट")) {
       return isHindi
-        ? "Alerts में Critical और High को पहले फ़िल्टर करें। प्रभावित खदान, तत्काल नियंत्रण, owner और due date की पुष्टि करें।"
+        ? "अलर्ट सेक्शन में गंभीर (Critical) और उच्च (High) प्राथमिकता वाले मामलों को पहले फ़िल्टर करें। प्रभावित खदान, तत्काल सुरक्षा नियंत्रण, प्रभारी अधिकारी और अंतिम तिथि की पुष्टि करें।"
         : "In Alerts, filter Critical and High first. Confirm the affected mine, interim control, owner, and due date before closing anything.";
     }
     if (has("inspection", "निरीक्षण")) {
       return isHindi
-        ? "Inspections खोलें, सही खदान चुनें और नया निरीक्षण बनाएँ। हर finding में severity, corrective action, owner और target date भरें।"
+        ? "निरीक्षण तालिका खोलें, सही खदान चुनें और नया निरीक्षण दर्ज करें। प्रत्येक निष्कर्ष में गंभीरता, सुधारात्मक उपाय, जिम्मेदार व्यक्ति और लक्ष्य तिथि भरें।"
         : "Open Inspections, choose the correct mine, and create a new inspection. Add severity, corrective action, owner, and target date for every finding.";
     }
     return isHindi
@@ -120,7 +120,7 @@ const getAssistantReply = (message, language = "en") => {
     )
   ) {
     return isHindi
-      ? "आज की प्राथमिकता:\n1. Alerts में Critical और High आइटम खोलें।\n2. Overdue अनुपालन को जिम्मेदार व्यक्ति और तारीख दें।\n3. खुले उल्लंघनों वाले निरीक्षणों की समीक्षा करें।\n4. कम compliance score वाले ठेकेदार देखें।\n\nहर कार्रवाई का मालिक, अंतरिम नियंत्रण और अगली समीक्षा तिथि दर्ज करें।"
+      ? "आज की मुख्य प्राथमिकताएँ:\n1. अलर्ट (Alerts) में गंभीर (Critical) और उच्च (High) प्राथमिकता वाले मामले तुरंत देखें।\n2. समय-सीमा पार (Overdue) अनुपालन के लिए उत्तरदायी अधिकारी और नियत तिथि तय करें।\n3. खुले उल्लंघनों वाले सभी सक्रिय निरीक्षणों की समीक्षा करें।\n4. कम अनुपालन स्कोर (Compliance Score) वाले ठेकेदारों की प्रगति जाँचें और सुधारात्मक उपाय लागू करें।\n\nप्रत्येक कार्रवाई के लिए प्रभारी अधिकारी, अंतरिम सुरक्षा उपाय और अगली समीक्षा तिथि अवश्य दर्ज करें।"
       : "Today’s priority:\n1. Open Critical and High items in Alerts.\n2. Assign an owner and due date to overdue compliance.\n3. Review inspections with open violations.\n4. Check contractors with lower compliance scores.\n\nRecord an owner, interim control, and next review date for every action.";
   }
 
@@ -137,19 +137,19 @@ const getAssistantReply = (message, language = "en") => {
     )
   ) {
     return isHindi
-      ? `अलर्ट कार्रवाई योजना:\n1. Critical, फिर High के अनुसार छाँटें।\n2. प्रभावित खदान और तत्काल खतरे की पुष्टि करें।\n3. जिम्मेदार व्यक्ति, समय-सीमा और अंतरिम नियंत्रण जोड़ें।\n4. प्रमाण संलग्न करके ही आइटम बंद करें; गंभीर सुरक्षा मुद्दे प्रबंधक तक पहुँचाएँ।${mineNote}`
+      ? `अलर्ट कार्य योजना:\n1. सबसे पहले गंभीर (Critical), फिर उच्च (High) प्राथमिकता के अनुसार छाँटें।\n2. प्रभावित खदान और तत्काल खतरे की पुष्टि करें।\n3. जिम्मेदार अधिकारी, समय-सीमा और अंतरिम सुरक्षा नियंत्रण जोड़ें।\n4. फोटो प्रमाण संलग्न करने के बाद ही मामला बंद करें; गंभीर सुरक्षा मुद्दों को खदान प्रबंधक तक एस्केलेट करें।${mineNote}`
       : `Alert action plan:\n1. Sort Critical first, then High.\n2. Confirm the affected mine and immediate hazard.\n3. Add an accountable owner, due date, and interim control.\n4. Attach evidence before closing; escalate critical safety issues to the mine manager.${mineNote}`;
   }
 
   if (has("inspection", "inspect", "checklist", "निरीक्षण", "जांच", "जाँच")) {
     return isHindi
-      ? `निरीक्षण चेकलिस्ट:\n1. सही खदान और स्थान चुनें।\n2. स्पष्ट शीर्षक, तथ्यात्मक अवलोकन, फोटो और वॉइस नोट जोड़ें।\n3. हर उल्लंघन में गंभीरता, सुधारात्मक कार्रवाई, मालिक और लक्ष्य तिथि भरें।\n4. सबमिट करने से पहले प्रीव्यू और प्रमाण जाँचें।${mineNote}`
+      ? `निरीक्षण चेकलिस्ट:\n1. सही खदान और स्थान चुनें।\n2. स्पष्ट शीर्षक, तथ्यात्मक अवलोकन, फोटो और वॉइस नोट जोड़ें।\n3. प्रत्येक उल्लंघन में गंभीरता, सुधारात्मक कार्रवाई, प्रभारी और लक्ष्य तिथि भरें।\n4. सबमिट करने से पहले प्रीव्यू और प्रमाण जाँचें।${mineNote}`
       : `Inspection checklist:\n1. Select the correct mine and location.\n2. Add a specific title, factual observations, photos, and a voice note.\n3. For each violation, set severity, corrective action, owner, and target date.\n4. Review the preview and evidence before submitting.${mineNote}`;
   }
 
   if (has("risk", "safety", "hazard", "danger", "जोखिम", "सुरक्षा", "खतरा")) {
     return isHindi
-      ? `सुरक्षा प्राथमिकता:\n• पहले Critical और High जोखिम पर काम करें।\n• खुले उल्लंघन, लंबित सुधार और नवीनतम risk score देखें।\n• स्थायी समाधान तक अंतरिम नियंत्रण लागू रखें।\n• कार्रवाई और समीक्षा का ऑडिट रिकॉर्ड बनाएँ।${mineNote}`
+      ? `सुरक्षा प्राथमिकताएँ:\n• पहले गंभीर (Critical) और उच्च (High) जोखिम वाले बिंदुओं पर कार्रवाई करें।\n• खुले उल्लंघन, लंबित सुधार और वर्तमान जोखिम स्कोर की जाँच करें।\n• स्थायी समाधान होने तक अंतरिम सुरक्षा उपाय अनिवार्य रूप से लागू रखें।\n• सभी सुधारात्मक कदमों का ऑडिट रिकॉर्ड बनाए रखें।${mineNote}`
       : `Safety prioritisation:\n• Act on Critical and High risk first.\n• Check open violations, overdue corrective actions, and the latest risk score.\n• Keep interim controls in place until the permanent fix.\n• Preserve an auditable record of the action and review.${mineNote}`;
   }
 
@@ -165,13 +165,13 @@ const getAssistantReply = (message, language = "en") => {
     )
   ) {
     return isHindi
-      ? "अनुपालन कार्यप्रवाह:\n1. Overdue और इस महीने देय रिकॉर्ड फ़िल्टर करें।\n2. वैधानिक संदर्भ, मालिक और अगली देय तिथि की पुष्टि करें।\n3. प्रमाण अपलोड करें और कमी होने पर सुधारात्मक कार्रवाई बनाएँ।\n4. पूरा होने के बाद ऑडिट ट्रेल अपडेट करें।"
+      ? "अनुपालन कार्यप्रवाह:\n1. समय-सीमा पार (Overdue) और इस माह देय रिकॉर्ड फ़िल्टर करें।\n2. वैधानिक संदर्भ, प्रभारी अधिकारी और आगामी देय तिथि की पुष्टि करें।\n3. दस्तावेज या फोटो प्रमाण अपलोड करें और किसी भी कमी पर सुधारात्मक कार्रवाई दर्ज करें।\n4. कार्य पूरा होने पर ब्लॉकचेन ऑडिट ट्रेल अद्यतन करें।"
       : "Compliance workflow:\n1. Filter overdue and due-this-month records.\n2. Verify the statutory reference, owner, and next due date.\n3. Upload evidence and create corrective action for any gap.\n4. Update the audit trail after completion.";
   }
 
   if (has("contractor", "vendor", "ठेकेदार")) {
     return isHindi
-      ? "ठेकेदार समीक्षा में अनुबंध स्थिति, खदान असाइनमेंट, compliance score, induction रिकॉर्ड और खुले सुधार देखें। कम स्कोर या समाप्त अनुबंध वाले रिकॉर्ड को पहले एस्केलेट करें।"
+      ? "ठेकेदार समीक्षा में अनुबंध स्थिति, खदान आवंटन, अनुपालन स्कोर (Compliance Score), सुरक्षा इंडक्शन रिकॉर्ड और खुले सुधार देखें। कम स्कोर या समाप्त अनुबंध वाले ठेकेदारों को पहले एस्केलेट करें।"
       : "For contractor oversight, review contract status, mine assignments, compliance score, induction records, and open corrective actions. Escalate low-score or expired-contract records first.";
   }
 
@@ -269,6 +269,25 @@ export default function Chat() {
           : `Hello${user?.name ? ` ${user.name}` : ""}! I can help with inspections, compliance, mine safety, and dashboards.`,
     },
   ]);
+
+  useEffect(() => {
+    // If the initial welcome message is shown, update it to match current language
+    setMessages((prev) => {
+      if (prev.length === 0) return prev;
+      return prev.map((msg) => {
+        if (msg.id === 1 && msg.sender === "bot") {
+          return {
+            ...msg,
+            text:
+              language === "hi"
+                ? `नमस्ते${user?.name ? ` ${user.name}` : ""}! मैं निरीक्षण, अनुपालन, खदान सुरक्षा और डैशबोर्ड में आपकी मदद कर सकता हूँ।`
+                : `Hello${user?.name ? ` ${user.name}` : ""}! I can help with inspections, compliance, mine safety, and dashboards.`,
+          };
+        }
+        return msg;
+      });
+    });
+  }, [language, user?.name]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -445,11 +464,11 @@ export default function Chat() {
           <button
             type="button"
             onClick={handleCloseBot}
-            className="inline-flex items-center gap-1 rounded-full border border-slate-300/80 bg-slate-100/80 px-2.5 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-            title="Return to previous page (Esc)"
+            className="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 shadow-sm transition hover:bg-red-100 hover:border-red-400 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200"
+            title={language === "hi" ? "चैट बंद करें और पिछले पेज पर जाएँ" : "Close Chat & return to previous page"}
           >
-            <X className="h-3.5 w-3.5 text-slate-500" />
-            <span className="hidden sm:inline">Esc to close</span>
+            <X className="h-3.5 w-3.5 text-red-600 stroke-[2.5]" />
+            <span>{language === "hi" ? "बंद करें" : "Close (Esc)"}</span>
           </button>
           <a
             href="tel:+918004197890"
@@ -478,13 +497,13 @@ export default function Chat() {
             <div
               role="group"
               aria-label={language === "hi" ? "जवाब की भाषा चुनें" : "Choose reply language"}
-              className="inline-flex items-center rounded-lg border border-white/20 bg-white/5 p-0.5"
+              className="inline-flex items-center rounded-lg border border-white/30 bg-slate-900/60 p-0.5 shadow-inner"
             >
               <button
                 type="button"
                 onClick={() => setLanguage("en")}
                 aria-pressed={language === "en"}
-                className={`rounded px-1.5 py-1 text-[11px] sm:px-2 sm:py-1 sm:text-xs font-semibold transition ${language === "en" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
+                className={`rounded px-2 py-1 text-[11px] sm:px-2.5 sm:py-1 sm:text-xs font-bold transition ${language === "en" ? "bg-amber-400 text-slate-950 shadow-sm ring-1 ring-amber-300" : "text-white/90 hover:bg-white/15"}`}
               >
                 EN
               </button>
@@ -492,7 +511,7 @@ export default function Chat() {
                 type="button"
                 onClick={() => setLanguage("hi")}
                 aria-pressed={language === "hi"}
-                className={`rounded px-1.5 py-1 text-[11px] sm:px-2 sm:py-1 sm:text-xs font-semibold transition ${language === "hi" ? "bg-white text-[#1e3a8a]" : "text-white/80 hover:bg-white/10"}`}
+                className={`rounded px-2 py-1 text-[11px] sm:px-2.5 sm:py-1 sm:text-xs font-bold transition ${language === "hi" ? "bg-amber-400 text-slate-950 shadow-sm ring-1 ring-amber-300" : "text-white/90 hover:bg-white/15"}`}
               >
                 हिंदी
               </button>
@@ -560,11 +579,14 @@ export default function Chat() {
             <button
               type="button"
               onClick={handleCloseBot}
-              className="ml-1 rounded-lg p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+              className="ml-1 inline-flex items-center justify-center gap-1 rounded-lg border border-red-300/60 bg-red-600 px-2 py-1 text-xs font-bold text-white shadow-md transition hover:bg-red-700 hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-400 sm:px-2.5 sm:py-1.5"
               aria-label={language === "hi" ? "चैट बंद करें" : "Close Chat"}
               title={language === "hi" ? "चैट बंद करें और पिछले पेज पर जाएँ" : "Close Chat & return to previous page"}
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 text-white stroke-[2.5]" />
+              <span className="text-[11px] font-bold sm:text-xs">
+                {language === "hi" ? "बंद करें" : "Close"}
+              </span>
             </button>
           </div>
         </div>

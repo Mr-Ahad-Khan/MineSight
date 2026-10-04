@@ -37,6 +37,17 @@ import RiskAnalysisModal from "../components/common/RiskAnalysisModal";
 import { detectPhotoRisk } from "../services/riskDetectionService";
 import { compressImage } from "../utils/imageCompressor";
 
+const safeFormatDate = (dateVal, formatStr = "dd MMM yyyy, HH:mm") => {
+  if (!dateVal) return "—";
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return "—";
+    return format(d, formatStr);
+  } catch {
+    return "—";
+  }
+};
+
 const severityBadge = {
   low: "badge-low",
   medium: "badge-medium",
@@ -286,8 +297,8 @@ export default function InspectionDetail() {
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            {inspection.mineId?.name} •{" "}
-            {format(new Date(inspection.createdAt), "dd MMM yyyy, HH:mm")}
+            {inspection.mineId?.name || (typeof inspection.mineId === "string" ? inspection.mineId : "Selected Mine")} •{" "}
+            {safeFormatDate(inspection.createdAt)}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -688,24 +699,24 @@ export default function InspectionDetail() {
             ) : auditTrail ? (
               <>
                 <div
-                  className={`flex items-center gap-2 text-sm font-semibold ${auditTrail.integrity.valid ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}`}
+                  className={`flex items-center gap-2 text-sm font-semibold ${auditTrail?.integrity?.valid ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}`}
                 >
-                  {auditTrail.integrity.valid ? (
+                  {auditTrail?.integrity?.valid ? (
                     <ShieldCheck className="h-4 w-4" />
                   ) : (
                     <ShieldAlert className="h-4 w-4" />
                   )}
-                  {auditTrail.integrity.valid
+                  {auditTrail?.integrity?.valid
                     ? "Chain verified"
-                    : `Integrity issue at block ${auditTrail.integrity.brokenAt}`}
+                    : `Integrity issue at block ${auditTrail?.integrity?.brokenAt ?? "unknown"}`}
                 </div>
                 <p className="text-xs text-slate-500">
-                  {auditTrail.integrity.checkedBlocks} blocks checked. This hash
+                  {auditTrail?.integrity?.checkedBlocks ?? 1} blocks checked. This hash
                   chain is stored in this app's database; it is not a
                   decentralized public blockchain.
                 </p>
                 <div className="max-h-80 space-y-3 overflow-y-auto border-t border-slate-200 pt-3 dark:border-slate-700">
-                  {(auditTrail.blocks || []).map((block) => (
+                  {(auditTrail?.blocks || []).map((block) => (
                     <div
                       key={block._id}
                       className="border-l-2 border-teal-700 pl-3"
@@ -719,10 +730,7 @@ export default function InspectionDetail() {
                           className="text-xs text-slate-500"
                           dateTime={block.blockTimestamp}
                         >
-                          {format(
-                            new Date(block.blockTimestamp),
-                            "dd MMM yyyy, HH:mm",
-                          )}
+                          {safeFormatDate(block.blockTimestamp)}
                         </time>
                       </div>
                       <p className="mt-1 text-xs text-slate-500">

@@ -302,7 +302,7 @@ export default function CreateInspection() {
   useEffect(() => {
     getMines()
       .then((res) => {
-        const list = res.data.data || [];
+        const list = res.data?.data || [];
         setMines(list);
         setForm((prev) => {
           if (!prev.mineId && list.length > 0) {
@@ -311,7 +311,14 @@ export default function CreateInspection() {
           return prev;
         });
       })
-      .catch(console.error);
+      .catch(() => {
+        setForm((prev) => {
+          if (!prev.mineId) {
+            return { ...prev, mineId: "mine_001" };
+          }
+          return prev;
+        });
+      });
 
     // Try get current location
     if (navigator.geolocation) {
@@ -693,7 +700,7 @@ export default function CreateInspection() {
       }
       const score = res.data?.data?.riskScore ?? "";
       toast.success(`${t.inspectionCreated} ${score}`);
-      navigate(`/app/inspections/${res.data.data._id}`);
+      navigate("/app/inspections");
     } catch (error) {
       console.error("Failed to create inspection:", error);
       toast.error(error.response?.data?.message || error.message || t.failedToCreate);
@@ -758,7 +765,6 @@ export default function CreateInspection() {
                   type="text"
                   name="mineId"
                   value={form.mineId}
-                  required
                   tabIndex={-1}
                   aria-hidden="true"
                   className="sr-only"

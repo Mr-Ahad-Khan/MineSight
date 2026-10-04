@@ -1,12 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Camera, CheckCircle, Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
-import { deleteInspection, getInspections, getMediaUrl } from "../services/api";
+import { deleteInspection, getInspections, getMediaUrl, getMines } from "../services/api";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 import TableScrollContainer from "../components/common/TableScrollContainer";
+
+const safeFormatDate = (dateVal, formatStr = "dd MMM yyyy") => {
+  if (!dateVal) return "—";
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return "—";
+    return format(d, formatStr);
+  } catch {
+    return "—";
+  }
+};
 
 const statusBadge = {
   open: "badge-medium",
@@ -24,6 +35,7 @@ const severityBadge = {
 
 export default function Inspections() {
   const [inspections, setInspections] = useState([]);
+  const [mines, setMines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ status: "", severity: "" });
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,6 +55,9 @@ export default function Inspections() {
 
   useEffect(() => {
     fetchInspections();
+    getMines()
+      .then((res) => setMines(res.data?.data || []))
+      .catch(() => {});
   }, [filters]);
 
   useEffect(() => {
@@ -319,7 +334,7 @@ export default function Inspections() {
                         </td>
 
                         <td className="px-4 py-4 align-middle text-[#2d2d2d]">
-                          {insp.mineId?.name || "—"}
+                          {insp.mineId?.name || (typeof insp.mineId === "string" ? (mines.find((m) => m._id === insp.mineId)?.name || insp.mineId) : "—")}
                         </td>
 
                         <td className="px-4 py-4 align-middle">
@@ -360,9 +375,7 @@ export default function Inspections() {
                         </td>
 
                         <td className="px-4 py-4 align-middle text-[#474747]">
-                          {insp.createdAt
-                            ? format(new Date(insp.createdAt), "dd MMM yyyy")
-                            : "—"}
+                          {safeFormatDate(insp.createdAt)}
                         </td>
 
                         <td className="px-4 py-4 align-middle">
