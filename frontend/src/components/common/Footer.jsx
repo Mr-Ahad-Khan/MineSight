@@ -5,7 +5,7 @@ import useAuthStore from "../../store/authStore";
 import { useLanguageStore } from "../../store/themeStore";
 import { translations } from "../../i18n/translations";
 
-export default function Footer() {
+export default function Footer({ onOpenScan }) {
   const { user } = useAuthStore();
   const { language } = useLanguageStore();
   const location = useLocation();
@@ -21,9 +21,18 @@ export default function Footer() {
   ];
   const mobileNavigation = [
     ...navigation.slice(0, 2),
-    { name: "Capture", href: "/app/inspections/new", icon: Camera },
+    { name: t.capture || (language === "hi" ? "कैप्चर" : "Capture"), isCapture: true, icon: Camera },
     ...navigation.slice(2),
   ];
+
+  const handleCaptureClick = (e) => {
+    e.preventDefault();
+    if (onOpenScan) {
+      onOpenScan();
+    } else {
+      window.dispatchEvent(new CustomEvent("minesight:open-camera-scan"));
+    }
+  };
 
   return (
     <footer className={isChat ? "xl:hidden" : "border-t border-white/10 bg-[#212121] pb-16 text-white/75 xl:pb-0"}>
@@ -88,22 +97,40 @@ export default function Footer() {
         className="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-5 border-t border-white/10 bg-[#121a21]/95 px-1 text-white shadow-[0_-8px_24px_rgba(12,18,24,0.22)] backdrop-blur-lg xl:hidden"
         aria-label="Footer navigation"
       >
-        {mobileNavigation.map((item) => (
-          <NavLink
-            key={item.href}
-            to={item.href}
-            end={item.href === "/app"}
-            aria-label={item.name}
-            className={({ isActive }) =>
-              `flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-3 text-[10px] font-semibold transition-colors ${
-                isActive ? "text-[#ff9a3c]" : "text-white/65 hover:text-white"
-              }`
-            }
-          >
-            <item.icon className="h-5 w-5 shrink-0" />
-            <span className="w-full truncate text-center">{item.name}</span>
-          </NavLink>
-        ))}
+        {mobileNavigation.map((item) => {
+          if (item.isCapture) {
+            return (
+              <button
+                key="mobile-nav-capture"
+                type="button"
+                onClick={handleCaptureClick}
+                aria-label="Capture and Scan Photo"
+                className="flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] font-semibold text-white/80 hover:text-white transition-colors"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sky-500 text-white shadow-md">
+                  <item.icon className="h-4 w-4 shrink-0" />
+                </div>
+                <span className="w-full truncate text-center text-sky-400 font-medium">{item.name}</span>
+              </button>
+            );
+          }
+          return (
+            <NavLink
+              key={item.href}
+              to={item.href}
+              end={item.href === "/app"}
+              aria-label={item.name}
+              className={({ isActive }) =>
+                `flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-3 text-[10px] font-semibold transition-colors ${
+                  isActive ? "text-[#ff9a3c]" : "text-white/65 hover:text-white"
+                }`
+              }
+            >
+              <item.icon className="h-5 w-5 shrink-0" />
+              <span className="w-full truncate text-center">{item.name}</span>
+            </NavLink>
+          );
+        })}
       </nav>
     </footer>
   );

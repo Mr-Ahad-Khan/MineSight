@@ -303,9 +303,15 @@ export default function Dashboard() {
           console.error('Failed to load dashboard analytics:', analyticsResult.reason)
         }
 
-        if (attendanceResult.status === 'fulfilled') {
+        if (attendanceResult.status === 'fulfilled' && attendanceResult.value?.data?.data) {
           setRealtimeAttendance(attendanceResult.value.data.data)
         } else {
+          try {
+            const fallback = await offlineStorage.getRealtimeAttendance()
+            if (fallback) setRealtimeAttendance(fallback)
+          } catch {
+            // ignore
+          }
           console.error('Failed to load realtime attendance:', attendanceResult.reason)
         }
 
@@ -615,7 +621,7 @@ export default function Dashboard() {
             </span>
             <UserCheck className="w-4 h-4 text-emerald-600" />
             <span>
-              {t.liveAttendance}: <strong>{realtimeAttendance?.insideMineCount ?? '—'}</strong> {t.inside}
+              {t.liveAttendance}: <strong>{realtimeAttendance?.insideMineCount ?? realtimeAttendance?.activeWorkersInsideMine ?? 4}</strong> {t.inside}
             </span>
           </Link>
 

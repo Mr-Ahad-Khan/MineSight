@@ -374,67 +374,63 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer: Full height, pinned bottom controls, completely opaque and touch friendly */}
+      {/* Mobile Navigation Dropdown: Snug layout hugging content without extra empty screen space */}
       {navigationMenuOpen && (
         <>
           {/* Deep dimmed backdrop covering remaining screen */}
           <div
-            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-[150] bg-black/80 backdrop-blur-sm transition-opacity xl:hidden"
+            className="fixed inset-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-[150] bg-black/60 backdrop-blur-sm transition-opacity xl:hidden"
             onClick={() => setNavigationMenuOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Full mobile menu drawer from bottom of header to bottom of screen */}
-          <div className="fixed inset-x-0 bottom-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-[155] flex flex-col bg-[#0d151d] text-white shadow-2xl xl:hidden">
+          {/* Snug mobile menu panel from bottom of header */}
+          <div className="fixed inset-x-0 top-[calc(var(--status-banner-height,0px)+4rem)] z-[155] flex max-h-[calc(100dvh-5rem-var(--status-banner-height,0px))] flex-col border-b border-[#ff6f00]/40 bg-[#0d151d] p-3 text-white shadow-2xl xl:hidden">
             {/* Scrollable Navigation Grid */}
-            <div className="flex-1 overflow-y-auto overscroll-contain p-3.5 pb-4">
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {allNavigation.map((item) => (
-                  <NavLink
-                    key={item.name}
-                    to={item.href}
-                    end={item.href === "/app"}
-                    onClick={() => setNavigationMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 rounded-xl px-3 py-3 text-xs font-semibold transition-all ${
-                        isActive
-                          ? "bg-[#ff6f00] text-white shadow-md border border-[#ffa040]"
-                          : "bg-[#162330] text-slate-100 border border-slate-700/70 hover:bg-[#1f3042] hover:text-white active:bg-[#223547]"
-                      }`
-                    }
-                  >
-                    <item.icon className="h-4 w-4 shrink-0 text-[#ff9a3c]" />
-                    <span className="truncate">{item.name}</span>
-                  </NavLink>
-                ))}
-              </div>
+            <div className="grid grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
+              {allNavigation.map((item) => (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  end={item.href === "/app"}
+                  onClick={() => setNavigationMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all ${
+                      isActive
+                        ? "bg-[#ff6f00] text-white shadow-md border border-[#ffa040]"
+                        : "bg-[#162330] text-slate-100 border border-slate-700/70 hover:bg-[#1f3042] hover:text-white active:bg-[#223547]"
+                    }`
+                  }
+                >
+                  <item.icon className="h-4 w-4 shrink-0 text-[#ff9a3c]" />
+                  <span className="truncate">{item.name}</span>
+                </NavLink>
+              ))}
             </div>
 
-            {/* Pinned Bottom Bar: User Profile & Logout - Guaranteed Accessibility */}
-            <div className="shrink-0 border-t border-slate-800 bg-[#090e14] p-3 sm:px-4">
-              <div className="grid grid-cols-2 gap-2.5 text-xs">
-                <button
-                  type="button"
-                  onClick={handleProfileNavigation}
-                  className="flex min-h-[46px] w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl bg-[#162330] px-3 py-2 font-medium text-slate-100 border border-slate-700/80 shadow-sm transition hover:bg-[#1f3042] hover:text-white active:bg-[#273d52]"
-                >
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ff6f00] text-xs font-bold text-white shadow-sm">
-                    {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                  </div>
-                  <span className="truncate font-semibold">
-                    {user?.name || "System Admin"}
-                  </span>
-                </button>
+            {/* Quick Profile & Logout Footer */}
+            <div className="mt-3 grid grid-cols-2 gap-2.5 border-t border-slate-700/80 pt-2.5 text-xs">
+              <button
+                type="button"
+                onClick={handleProfileNavigation}
+                className="flex min-h-[44px] w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl bg-[#162330] px-3 py-2 font-semibold text-white border border-slate-600 shadow-sm transition hover:bg-[#1f3042] active:bg-[#273d52]"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#ff6f00] text-xs font-bold text-white shadow-sm">
+                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+                <span className="truncate text-white font-semibold">
+                  {user?.name || "System Admin"}
+                </span>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex min-h-[46px] w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl bg-red-950/50 px-3 py-2 font-semibold text-red-300 border border-red-800/60 shadow-sm transition hover:bg-red-900/60 hover:text-red-100 active:bg-red-800"
-                >
-                  <LogOut className="h-4 w-4 shrink-0 text-red-400" />
-                  <span>{t.logout}</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex min-h-[44px] w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl bg-red-600 px-3 py-2 font-semibold text-white shadow-md border border-red-500 transition hover:bg-red-700 active:bg-red-800"
+              >
+                <LogOut className="h-4 w-4 shrink-0 text-white" />
+                <span className="text-white font-semibold tracking-wide">{t.logout}</span>
+              </button>
             </div>
           </div>
         </>

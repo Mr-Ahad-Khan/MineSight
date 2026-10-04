@@ -4,6 +4,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "../common/Footer";
 import CoalAiLauncher from "../common/CoalAiLauncher";
+import CameraCaptureModal from "../common/CameraCaptureModal";
 import { useLanguageStore } from "../../store/themeStore";
 import { translations } from "../../i18n/translations";
 
@@ -13,12 +14,19 @@ export default function Layout() {
   const { language } = useLanguageStore();
   const t = translations[language] || translations.en;
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scanModalOpen, setScanModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 320);
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleOpenScan = () => setScanModalOpen(true);
+    window.addEventListener("minesight:open-camera-scan", handleOpenScan);
+    return () => window.removeEventListener("minesight:open-camera-scan", handleOpenScan);
   }, []);
 
   const hasLauncher = pathname !== "/app/chat";
@@ -36,15 +44,15 @@ export default function Layout() {
       >
         <Outlet />
       </main>
-      <Footer />
+      <Footer onOpenScan={() => setScanModalOpen(true)} />
       {hasLauncher && <CoalAiLauncher />}
       {hasLauncher && (
         <button
           type="button"
-          onClick={() => navigate("/app/inspections/new")}
+          onClick={() => setScanModalOpen(true)}
           className="fixed bottom-6 right-24 z-40 hidden h-14 w-14 items-center justify-center rounded-full border-4 border-[#d8f3ff] bg-[#0798d1] text-white shadow-[0_8px_22px_rgba(0,0,0,0.28)] transition hover:-translate-y-1 hover:scale-105 hover:bg-[#0788bb] focus:outline-none focus:ring-2 focus:ring-sky-300 xl:inline-flex"
-          aria-label="Capture photo"
-          title="Capture photo"
+          aria-label="Scan site photo & detect hazards"
+          title="Scan & Detect Hazards Directly"
         >
           <Camera className="h-5 w-5" />
         </button>
@@ -63,6 +71,19 @@ export default function Layout() {
         >
           <ArrowUp className="h-5 w-5" />
         </button>
+      )}
+
+      {/* Global Camera Scanner Modal with Direct Hazard Analysis & Optional Inspection Routing */}
+      {scanModalOpen && (
+        <CameraCaptureModal
+          isOpen={scanModalOpen}
+          onClose={() => setScanModalOpen(false)}
+          onOpenInspection={(photoData) => {
+            setScanModalOpen(false);
+            window.__pendingScannedPhoto = photoData;
+            navigate("/app/inspections/new", { state: { scannedPhoto: photoData } });
+          }}
+        />
       )}
     </div>
   );

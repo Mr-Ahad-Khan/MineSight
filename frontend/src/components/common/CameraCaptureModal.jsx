@@ -10,6 +10,8 @@ import {
   Shield,
   Loader2,
   Upload,
+  Plus,
+  FileText,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { compressImage } from "../../utils/imageCompressor";
@@ -48,6 +50,7 @@ export default function CameraCaptureModal({
   isOpen,
   onClose,
   onPhotoCaptured,
+  onOpenInspection,
   inspectionContext = {},
 }) {
   const videoRef = useRef(null);
@@ -339,19 +342,19 @@ export default function CameraCaptureModal({
               />
 
               {/* Instant Risk Detection Floating Overlay */}
-              <div className="absolute bottom-3 left-3 right-3 z-20">
+              <div className="absolute bottom-3 left-3 right-3 z-20 max-h-[50%] overflow-y-auto">
                 {analyzingRisk ? (
-                  <div className="flex items-center gap-2 rounded-xl bg-slate-900/90 p-3 text-xs text-sky-300 backdrop-blur-md border border-slate-700">
+                  <div className="flex items-center gap-2 rounded-xl bg-slate-900/95 p-3 text-xs text-sky-300 backdrop-blur-md border border-slate-700 shadow-xl">
                     <Loader2 className="h-4 w-4 animate-spin text-sky-400" />
                     <span>Analyzing photo for mining safety hazards...</span>
                   </div>
                 ) : detectedRisk ? (
-                  <div className="rounded-xl bg-slate-900/95 p-3 text-xs text-white backdrop-blur-md border border-slate-700 shadow-xl space-y-1.5">
+                  <div className="rounded-xl bg-slate-900/95 p-3.5 text-xs text-white backdrop-blur-md border border-slate-700 shadow-2xl space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <Shield className="h-4 w-4 text-amber-400" />
                         <span className="font-semibold text-slate-200">
-                          Detected Risk:{" "}
+                          Scan Risk Score:{" "}
                           <span
                             className={
                               detectedRisk.riskLevel === "critical"
@@ -363,17 +366,36 @@ export default function CameraCaptureModal({
                                 : "text-emerald-400 font-bold"
                             }
                           >
-                            {detectedRisk.riskScore}/100 ({detectedRisk.riskLevel.toUpperCase()})
+                            {detectedRisk.riskScore}/100 ({detectedRisk.riskLevel?.toUpperCase()})
                           </span>
                         </span>
                       </div>
-                      <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-slate-300 border border-slate-700">
+                      <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-[10px] text-slate-300 border border-slate-700">
                         {detectedRisk.source === "online_ai" ? "🟢 Cloud AI" : "⚡ Edge AI Offline"}
                       </span>
                     </div>
-                    {detectedRisk.hazards?.[0] && (
-                      <p className="text-slate-300 line-clamp-1">
-                        <strong>Hazard:</strong> {detectedRisk.hazards[0].label}
+
+                    {detectedRisk.hazards && detectedRisk.hazards.length > 0 && (
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          Detected Safety Hazards:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {detectedRisk.hazards.map((h, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center rounded-md bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-300 border border-amber-500/30"
+                            >
+                              {h.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {detectedRisk.observations && (
+                      <p className="text-[11px] text-slate-300 line-clamp-2">
+                        <strong>Observations:</strong> {detectedRisk.observations}
                       </p>
                     )}
                   </div>
@@ -420,24 +442,53 @@ export default function CameraCaptureModal({
               </button>
             </div>
           ) : (
-            <div className="flex w-full items-center justify-between gap-3">
+            <div className="flex w-full flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={handleRetake}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition"
               >
                 <RotateCcw className="h-4 w-4" />
                 Retake
               </button>
 
-              <button
-                type="button"
-                onClick={handleAccept}
-                className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-2.5 text-xs font-semibold text-white hover:bg-sky-400 transition shadow-lg"
-              >
-                <Check className="h-4 w-4" />
-                Use Photo {detectedRisk ? "& Apply Risk" : ""}
-              </button>
+              <div className="flex items-center gap-2">
+                {onOpenInspection ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="rounded-xl border border-slate-700 px-3.5 py-2.5 text-xs font-medium text-slate-400 hover:text-white transition"
+                    >
+                      Done / Close
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onOpenInspection({
+                          file: capturedBlob,
+                          previewUrl: capturedPreview,
+                          initialRisk: detectedRisk,
+                        });
+                        onClose();
+                      }}
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#ff6f00] hover:bg-[#e65100] px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Open New Inspection Form (Optional)</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleAccept}
+                    className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-2.5 text-xs font-semibold text-white hover:bg-sky-400 transition shadow-lg"
+                  >
+                    <Check className="h-4 w-4" />
+                    Use Photo {detectedRisk ? "& Apply Risk" : ""}
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

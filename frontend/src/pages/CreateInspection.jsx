@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   MapPin,
   Loader2,
@@ -237,6 +237,8 @@ export default function CreateInspection() {
     correctiveAction: "",
   });
 
+  const location = useLocation();
+
   useEffect(() => {
     getMines()
       .then((res) => setMines(res.data.data || []))
@@ -250,6 +252,35 @@ export default function CreateInspection() {
       );
     }
   }, []);
+
+  // Auto-attach photo and hazard detections if navigated from direct camera scan
+  useEffect(() => {
+    const scanned = location.state?.scannedPhoto || window.__pendingScannedPhoto;
+    if (scanned) {
+      if (window.__pendingScannedPhoto) delete window.__pendingScannedPhoto;
+      const { file, previewUrl, initialRisk } = scanned;
+      if (file && previewUrl) {
+        handlePhotoCaptured(file, previewUrl, initialRisk);
+        if (initialRisk) {
+          setForm((prev) => ({
+            ...prev,
+            severity: initialRisk.riskLevel || prev.severity,
+            observations: initialRisk.observations
+              ? initialRisk.observations
+              : initialRisk.hazards?.[0]
+              ? `Safety Scan Observation: ${initialRisk.hazards[0].label} detected (${initialRisk.riskScore}/100)`
+              : prev.observations,
+          }));
+        }
+        toast.success("Scanned photo and detected safety analysis attached!", { id: "scanned-photo-applied" });
+      }
+      try {
+        window.history.replaceState({}, document.title);
+      } catch {
+        // ignore
+      }
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const mine = mines.find((item) => item._id === form.mineId);
