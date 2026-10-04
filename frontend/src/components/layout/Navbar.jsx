@@ -84,8 +84,17 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
+    setAccountMenuOpen(false);
+    setNavigationMenuOpen(false);
     logout();
     navigate("/login", { replace: true });
+  };
+
+  const handleProfileNavigation = (event) => {
+    event.stopPropagation();
+    setAccountMenuOpen(false);
+    setNavigationMenuOpen(false);
+    navigate("/app/profile");
   };
 
   const languageControl = (
@@ -258,10 +267,8 @@ export default function Navbar() {
                   </p>
                 </div>
                 <button
-                  onClick={() => {
-                    navigate("/app/profile");
-                    setAccountMenuOpen(false);
-                  }}
+                  type="button"
+                  onClick={handleProfileNavigation}
                   className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-200 transition hover:bg-white/10"
                 >
                   <UserCircle className="h-4 w-4" /> {t.profile}
@@ -334,11 +341,8 @@ export default function Navbar() {
             <div className="mt-3 flex items-center justify-between border-t border-slate-700/80 pt-2.5 text-xs">
               <button
                 type="button"
-                onClick={() => {
-                  navigate("/app/profile");
-                  setNavigationMenuOpen(false);
-                }}
-                className="inline-flex items-center gap-1.5 rounded-md bg-[#162330] px-2.5 py-1.5 font-medium text-slate-200 border border-slate-700 hover:bg-[#1f3042] hover:text-white transition"
+                onClick={handleProfileNavigation}
+                className="relative z-10 inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-md bg-[#162330] px-2.5 py-1.5 font-medium text-slate-200 border border-slate-700 hover:bg-[#1f3042] hover:text-white transition"
               >
                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6f00] text-[10px] font-bold text-white">
                   {user?.name?.charAt(0)?.toUpperCase() || "U"}
@@ -348,10 +352,7 @@ export default function Navbar() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setNavigationMenuOpen(false);
-                  handleLogout();
-                }}
+                onClick={handleLogout}
                 className="relative z-10 inline-flex min-h-10 touch-manipulation items-center gap-1 rounded-md bg-red-950/40 px-2.5 py-1.5 font-medium text-red-400 border border-red-900/60 transition hover:bg-red-900/50 hover:text-red-200 active:bg-red-900/60"
               >
                 <LogOut className="h-3.5 w-3.5" />
