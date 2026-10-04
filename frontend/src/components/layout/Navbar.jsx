@@ -42,32 +42,68 @@ export default function Navbar() {
   const t = translations[language];
 
   // Core/Primary navigation items always shown directly on desktop navbar
-  const primaryNavigation = user?.role === "worker" ? [
-    { name: t.myWorkAttendance, href: "/app/workers", icon: ClipboardList },
-    { name: t.profile || "Profile", href: "/app/profile", icon: UserCircle },
-  ] : [
-    { name: t.dashboard, href: "/app", icon: LayoutDashboard },
-    { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
-    { name: t.attendance || "Attendance", href: "/app/attendance", icon: UserCheck },
-    { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
-    { name: t.alerts, href: "/app/alerts", icon: Bell },
-  ];
+  const primaryNavigation =
+    user?.role === "worker"
+      ? [
+          {
+            name: t.myWorkAttendance,
+            href: "/app/workers",
+            icon: ClipboardList,
+          },
+          {
+            name: t.profile || "Profile",
+            href: "/app/profile",
+            icon: UserCircle,
+          },
+        ]
+      : [
+          { name: t.dashboard, href: "/app", icon: LayoutDashboard },
+          {
+            name: t.inspections,
+            href: "/app/inspections",
+            icon: ClipboardList,
+          },
+          {
+            name: t.attendance || "Attendance",
+            href: "/app/attendance",
+            icon: UserCheck,
+          },
+          { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
+          { name: t.alerts, href: "/app/alerts", icon: Bell },
+        ];
 
   // Secondary tabs and specialized modules inside "More ▾" dropdown on desktop
-  const secondaryNavigation = user?.role === "worker" ? [] : [
-    { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
-    { name: t.disasterManagement, href: "/app/disaster-management", icon: Siren },
-    { name: t.mines, href: "/app/mines", icon: MapPin },
-    { name: t.mineralResources, href: "/app/mineral-resources", icon: Gem },
-    { name: t.contractors, href: "/app/contractors", icon: Users },
-    { name: t.workersTitle, href: "/app/workers", icon: Users },
-    { name: t.support || "Support", href: "/app/support", icon: LifeBuoy },
-  ];
+  const secondaryNavigation =
+    user?.role === "worker"
+      ? []
+      : [
+          { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
+          {
+            name: t.disasterManagement,
+            href: "/app/disaster-management",
+            icon: Siren,
+          },
+          { name: t.mines, href: "/app/mines", icon: MapPin },
+          {
+            name: t.mineralResources,
+            href: "/app/mineral-resources",
+            icon: Gem,
+          },
+          { name: t.contractors, href: "/app/contractors", icon: Users },
+          { name: t.workersTitle, href: "/app/workers", icon: Users },
+          {
+            name: t.support || "Support",
+            href: "/app/support",
+            icon: LifeBuoy,
+          },
+        ];
 
   const allNavigation = [...primaryNavigation, ...secondaryNavigation];
 
   const isMoreActive = secondaryNavigation.some(
-    (item) => location.pathname === item.href || (item.href !== "/app" && location.pathname.startsWith(item.href))
+    (item) =>
+      location.pathname === item.href ||
+      (item.href !== "/app" && location.pathname.startsWith(item.href)),
   );
 
   useEffect(() => {
@@ -75,7 +111,10 @@ export default function Navbar() {
       if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
         setMoreMenuOpen(false);
       }
-      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+      if (
+        accountMenuRef.current &&
+        !accountMenuRef.current.contains(event.target)
+      ) {
         setAccountMenuOpen(false);
       }
     };
@@ -125,7 +164,10 @@ export default function Navbar() {
       <div className="flex h-16 min-w-0 items-center justify-between px-3 sm:px-5 xl:px-6">
         {/* Left: Brand Logo */}
         <div className="flex shrink-0 items-center">
-          <BrandLogo darkSurface imageClassName="h-9 w-[clamp(7.5rem,24vw,9.5rem)] max-w-full rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f00] max-[380px]:w-[5.5rem] sm:h-10 sm:w-40" />
+          <BrandLogo
+            darkSurface
+            imageClassName="h-9 w-[clamp(7.5rem,24vw,9.5rem)] max-w-full rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6f00] max-[380px]:w-[5.5rem] sm:h-10 sm:w-40"
+          />
         </div>
 
         {/* Desktop Single-Line Navigation: Core Tabs + More Dropdown */}
@@ -167,14 +209,18 @@ export default function Navbar() {
               >
                 <Menu className="h-3.5 w-3.5 shrink-0" />
                 <span>{language === "hi" ? "अन्य" : "More"}</span>
-                <ChevronDown className={`h-3 w-3 shrink-0 transition-transform duration-200 ${moreMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-3 w-3 shrink-0 transition-transform duration-200 ${moreMenuOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               {/* More Dropdown Popover with 100% Solid Opaque Background */}
               {moreMenuOpen && (
                 <div className="absolute right-0 top-full mt-2 z-50 w-64 rounded-xl border border-slate-700 bg-[#0d151e] p-2 text-white shadow-2xl ring-1 ring-white/10">
                   <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
-                    {language === "hi" ? "अतिरिक्त मॉड्यूल और विकल्प" : "Additional Modules & Options"}
+                    {language === "hi"
+                      ? "अतिरिक्त मॉड्यूल और विकल्प"
+                      : "Additional Modules & Options"}
                   </div>
                   <div className="mt-1 space-y-1">
                     {secondaryNavigation.map((item) => (
@@ -292,7 +338,11 @@ export default function Navbar() {
             }}
             className="inline-flex shrink-0 rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white transition max-[380px]:p-1.5 xl:hidden"
             aria-expanded={navigationMenuOpen}
-            aria-label={navigationMenuOpen ? "Close navigation menu" : t.openNavigationMenu}
+            aria-label={
+              navigationMenuOpen
+                ? "Close navigation menu"
+                : t.openNavigationMenu
+            }
           >
             {navigationMenuOpen ? (
               <X className="h-5 w-5" />
@@ -342,17 +392,27 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleProfileNavigation}
+                onTouchEnd={(event) => {
+                  event.preventDefault();
+                  handleProfileNavigation(event);
+                }}
                 className="relative z-10 inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-md bg-[#162330] px-2.5 py-1.5 font-medium text-slate-200 border border-slate-700 hover:bg-[#1f3042] hover:text-white transition"
               >
                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6f00] text-[10px] font-bold text-white">
                   {user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
-                <span className="max-w-[140px] truncate">{user?.name || t.profile}</span>
+                <span className="max-w-[140px] truncate">
+                  {user?.name || t.profile}
+                </span>
               </button>
 
               <button
                 type="button"
                 onClick={handleLogout}
+                onTouchEnd={(event) => {
+                  event.preventDefault();
+                  handleLogout();
+                }}
                 className="relative z-10 inline-flex min-h-10 touch-manipulation items-center gap-1 rounded-md bg-red-950/40 px-2.5 py-1.5 font-medium text-red-400 border border-red-900/60 transition hover:bg-red-900/50 hover:text-red-200 active:bg-red-900/60"
               >
                 <LogOut className="h-3.5 w-3.5" />

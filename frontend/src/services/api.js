@@ -72,6 +72,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const requestUrl = error.config?.url || "";
+    const storedToken = localStorage.getItem("token") || "";
+    let isOfflineSession = storedToken.startsWith("offline_token_");
+    if (!isOfflineSession) {
+      try {
+        isOfflineSession = JSON.parse(localStorage.getItem("user") || "null")?._isOffline === true;
+      } catch {
+        isOfflineSession = false;
+      }
+    }
     const isAuthRoute =
       requestUrl.includes("/auth/login") ||
       requestUrl.includes("/auth/register") ||
@@ -79,7 +88,7 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/verify-otp") ||
       requestUrl.includes("/auth/request-otp");
 
-    if (error.response?.status === 401 && !isAuthRoute) {
+    if (error.response?.status === 401 && !isAuthRoute && !isOfflineSession) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       if (
