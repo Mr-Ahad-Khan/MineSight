@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   LifeBuoy,
   PhoneCall,
@@ -53,6 +53,42 @@ export default function Support() {
     mineId: "",
     description: "",
   });
+
+  const normalizedDirectory = useMemo(() => {
+    if (!Array.isArray(directory) || directory.length === 0) return [];
+    if (directory.some((item) => Array.isArray(item.contacts))) {
+      return directory.map((item) => ({
+        category: item.category || "General Support",
+        contacts: Array.isArray(item.contacts)
+          ? item.contacts
+          : [
+              {
+                title: item.name || item.title || "Support Contact",
+                number: item.phone || item.number || "N/A",
+                timing: item.timing || item.location || "Available",
+                badge: item.role || item.badge || "Helpdesk",
+                email: item.email,
+              },
+            ],
+      }));
+    }
+    const groups = {};
+    directory.forEach((item) => {
+      const cat = item.category || "Support Directory";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push({
+        title: item.name || item.title || "Support Contact",
+        number: item.phone || item.number || "N/A",
+        timing: item.timing || item.location || "24/7 Available",
+        badge: item.role || item.badge || "Helpdesk",
+        email: item.email,
+      });
+    });
+    return Object.entries(groups).map(([category, contacts]) => ({
+      category,
+      contacts,
+    }));
+  }, [directory]);
 
   const loadSupportData = async () => {
     try {
@@ -270,12 +306,12 @@ export default function Support() {
                 {t.technicalStatutoryContacts}
               </h3>
               <div className="space-y-3">
-                {directory.map((sec, idx) => (
+                {normalizedDirectory.map((sec, idx) => (
                   <div key={idx} className="space-y-2">
                     <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                       {sec.category}
                     </p>
-                    {sec.contacts.map((c, cIdx) => (
+                    {(sec.contacts || []).map((c, cIdx) => (
                       <div
                         key={cIdx}
                         className="rounded-xl border border-[#ebdcc7] bg-white p-3 dark:border-slate-800 dark:bg-slate-800/60"
@@ -385,7 +421,7 @@ export default function Support() {
                               </span>
                               <span>•</span>
                               <span>
-                                {format(new Date(t.createdAt), "dd MMM yyyy, hh:mm a")}
+                                {format(new Date(t.createdAt || Date.now()), "dd MMM yyyy, hh:mm a")}
                               </span>
                               <span>•</span>
                                 <span>{t.responses?.length || 0} {translations[language].messages}</span>
@@ -428,7 +464,7 @@ export default function Support() {
                                   <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200">
                                     <span>{r.sender}</span>
                                     <span className="text-[10px] font-normal text-slate-400">
-                                      {format(new Date(r.createdAt), "hh:mm a")}
+                                      {format(new Date(r.createdAt || Date.now()), "hh:mm a")}
                                     </span>
                                   </div>
                                   <p className="mt-1 text-slate-700 dark:text-slate-300">

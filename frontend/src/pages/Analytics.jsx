@@ -32,11 +32,15 @@ const getPercentChange = (current, previous) => {
 
 const buildRiskForecast = (monthlyTrend) => {
   const observations = (monthlyTrend || [])
-    .filter((item) => Number.isFinite(item.avgRisk) && item.count > 0)
-    .map((item) => ({
-      monthIndex: item._id.year * 12 + item._id.month - 1,
-      risk: item.avgRisk,
-    }))
+    .filter((item) => Number.isFinite(item.avgRisk) && (item.count > 0 || item.inspections > 0))
+    .map((item, index) => {
+      const year = item._id?.year || new Date().getFullYear();
+      const month = item._id?.month || (index + 1);
+      return {
+        monthIndex: year * 12 + month - 1,
+        risk: item.avgRisk,
+      };
+    })
     .sort((left, right) => left.monthIndex - right.monthIndex)
 
   if (observations.length < 3) return null
@@ -121,9 +125,12 @@ export default function Analytics() {
     count: v.count,
   }))
 
-  const trendData = (data?.monthlyTrend || []).map((t) => ({
-    name: `${t._id.month}/${t._id.year}`,
-    inspections: t.count,
+  const trendData = (data?.monthlyTrend || []).map((t, idx) => ({
+    name:
+      t._id?.month && t._id?.year
+        ? `${t._id.month}/${t._id.year}`
+        : t.month || `M-${idx + 1}`,
+    inspections: t.count ?? t.inspections ?? 0,
     avgRisk: Math.round(t.avgRisk || 0),
   }))
   const riskForecast = buildRiskForecast(data?.monthlyTrend)

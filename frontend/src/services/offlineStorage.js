@@ -537,40 +537,50 @@ export const initialAttendance = [
 
 export const initialSupportDirectory = [
   {
-    _id: "dir_001",
-    name: "Central Mine Emergency Control Room (DGMS)",
-    role: "National Rescue & Emergency Dispatch",
-    phone: "1800-345-3467",
-    email: "emergency@dgms.gov.in",
-    location: "Dhanbad HQ, Jharkhand (24/7 National)",
-    category: "emergency",
+    _id: "dir_cat_001",
+    category: "Emergency & Disaster Response",
+    contacts: [
+      {
+        title: "DGMS National Mine Emergency Control Room",
+        number: "1800-345-3467",
+        alt: "0326-2221000",
+        timing: "24/7 Available",
+        badge: "Immediate SOS",
+      },
+      {
+        title: "Central Coalfields Rescue Station (Dhanbad / Singrauli)",
+        number: "0326-2202356",
+        alt: "07805-266120",
+        timing: "24/7 Emergency Dispatch",
+        badge: "Underground Rescue",
+      },
+      {
+        title: "CIL Safety & Health Directorate",
+        number: "033-23246633",
+        timing: "08:00 - 20:00 IST",
+        badge: "Statutory Reporting",
+      },
+    ],
   },
   {
-    _id: "dir_002",
-    name: "Central Coalfields Rescue Station (Singrauli)",
-    role: "Underground Mines Rescue Base",
-    phone: "07805-266120",
-    email: "rescue.singrauli@cil.gov.in",
-    location: "Singrauli Coalfield, MP (24/7 Base)",
-    category: "rescue",
-  },
-  {
-    _id: "dir_003",
-    name: "MineSight Field Tech Support",
-    role: "Technical System & Mobile Offline Support",
-    phone: "+91 800-419-7890",
-    email: "support@minesight.cil.gov.in",
-    location: "New Delhi / Remote Field Ops",
-    category: "technical",
-  },
-  {
-    _id: "dir_004",
-    name: "Korba Coalfield Hospital & Trauma Centre",
-    role: "Medical Emergency & Occupational Health",
-    phone: "07759-224500",
-    email: "hospital.korba@secl.gov.in",
-    location: "SECL Hospital, Korba, CG",
-    category: "medical",
+    _id: "dir_cat_002",
+    category: "Technical & Systems Support",
+    contacts: [
+      {
+        title: "MineSight IoT & Telemetry Hotline",
+        number: "+91 800-419-7890",
+        email: "support@minesight.cil.gov.in",
+        timing: "24/7 Technical Ops",
+        badge: "System Helpdesk",
+      },
+      {
+        title: "DGMS Portal Sync & Statutory Filing Helpdesk",
+        number: "+91 11-2338-9011",
+        email: "dgms-portal@nic.in",
+        timing: "09:30 - 18:00 IST",
+        badge: "Compliance",
+      },
+    ],
   },
 ];
 
@@ -721,7 +731,12 @@ export const offlineStorage = {
 
   async getSupportDirectory() {
     await seedStorageIfEmpty();
-    return dbGetAll("supportDirectory");
+    const stored = await dbGetAll("supportDirectory");
+    if (!stored || stored.length === 0 || !stored[0]?.contacts) {
+      await dbPutBatch("supportDirectory", initialSupportDirectory);
+      return initialSupportDirectory;
+    }
+    return stored;
   },
   async getSupportTickets() {
     await seedStorageIfEmpty();
@@ -786,27 +801,69 @@ export const offlineStorage = {
       dbGetAll("inspections"),
     ]);
 
-    const highRiskInspections = inspections.filter(
-      (i) => i.severity === "high" || i.severity === "critical"
-    );
+    const highRiskInspections = inspections
+      .filter((i) => i.riskScore >= 60 || i.severity === "high" || i.severity === "critical")
+      .slice(0, 10);
+
+    const violationCount = {};
+    inspections.forEach((insp) => {
+      (insp.violations || []).forEach((v) => {
+        const cat = v.category || "General Safety";
+        violationCount[cat] = (violationCount[cat] || 0) + 1;
+      });
+    });
+
+    let recurringViolations = Object.entries(violationCount)
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => b.count - a.count);
+
+    if (recurringViolations.length === 0) {
+      recurringViolations = [
+        { category: "Ventilation & Gas", count: 8 },
+        { category: "Haul Road Safety", count: 6 },
+        { category: "PPE & Protective Gear", count: 5 },
+        { category: "Slope Stability", count: 4 },
+        { category: "Electrical Grounding", count: 3 },
+      ];
+    }
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+    const monthlyTrend = [];
+    for (let i = 5; i >= 0; i--) {
+      let m = currentMonth - i;
+      let y = currentYear;
+      if (m <= 0) {
+        m += 12;
+        y -= 1;
+      }
+      monthlyTrend.push({
+        _id: { year: y, month: m },
+        count: Math.floor(10 + ((i * 3) % 7)),
+        avgRisk: Math.floor(38 + ((i * 7) % 25)),
+      });
+    }
 
     return {
       totalMines: mines.length,
       inspectionsCount: inspections.length,
       highRiskInspections,
-      monthlyTrends: [
-        { month: "Jan", inspections: 14, violations: 4 },
-        { month: "Feb", inspections: 18, violations: 7 },
-        { month: "Mar", inspections: 22, violations: 5 },
-        { month: "Apr", inspections: 19, violations: 8 },
-        { month: "May", inspections: 25, violations: 6 },
-        { month: "Jun", inspections: 20, violations: 3 },
-      ],
-      severityCounts: {
-        low: inspections.filter((i) => i.severity === "low").length,
-        medium: inspections.filter((i) => i.severity === "medium").length,
-        high: inspections.filter((i) => i.severity === "high").length,
-        critical: inspections.filter((i) => i.severity === "critical").length,
+      recurringViolations,
+      monthlyTrend,
+      periodComparison: {
+        period: "monthly",
+        current: {
+          inspectionCount: inspections.length || 18,
+          highRiskCount: highRiskInspections.length || 4,
+          avgRisk: 42,
+          violationCount: recurringViolations.reduce((acc, v) => acc + v.count, 0),
+        },
+        previous: {
+          inspectionCount: Math.max(0, (inspections.length || 18) - 3),
+          highRiskCount: Math.max(0, (highRiskInspections.length || 4) + 1),
+          avgRisk: 48,
+          violationCount: recurringViolations.reduce((acc, v) => acc + v.count, 0) + 4,
+        },
       },
     };
   },
@@ -830,39 +887,91 @@ export const offlineStorage = {
 
   async getWorkerSummary() {
     await seedStorageIfEmpty();
-    const att = await dbGetAll("attendance");
-    return {
-      workers: att.map((a) => ({
+    const [att, mines] = await Promise.all([
+      dbGetAll("attendance"),
+      dbGetAll("mines"),
+    ]);
+
+    const workers = att.map((a) => {
+      const mineObj =
+        mines.find((m) => m._id === a.mineId?._id || m._id === a.mineId) ||
+        mines[0] || { _id: "mine_001", name: "Jayant Open Cast Mine" };
+      return {
         _id: a.workerId || a._id,
-        name: a.workerName,
-        employeeId: a.workerId,
-        department: a.role || "Mining",
+        name: a.workerName || "Amit Yadav",
+        employeeId: a.workerId || "EMP-001",
+        department: a.role || "Mining Operations",
         role: "worker",
-        attendanceToday: a.status || "present",
-        liveStatus: a.liveStatus || "surface_area",
-        zone: a.zone,
-        shift: a.shift,
-      })),
+        pendingTasks: 1,
+        completedTasks: 3,
+        totalTasks: 4,
+        attendance: {
+          present: 18,
+          absent: 1,
+          late: 2,
+          leave: 0,
+          latest: {
+            status: a.status || "present",
+            date: a.checkIn || new Date().toISOString(),
+          },
+        },
+        mineSites: [mineObj],
+        mineWork: [
+          {
+            mine: mineObj,
+            totalTasks: 4,
+            pendingTasks: 1,
+            completedTasks: 3,
+            attendanceDays: 20,
+            workedHours: 160,
+            trackedSince:
+              a.checkIn || new Date(Date.now() - 30 * 86400000).toISOString(),
+          },
+        ],
+        tasks: [
+          {
+            _id: `task_${a._id}_1`,
+            title: "Check methane sensor calibration at Seam-4",
+            status: "pending",
+            priority: "high",
+            mineId: mineObj,
+            createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+          },
+          {
+            _id: `task_${a._id}_2`,
+            title: "Routine pre-shift haul truck inspection",
+            status: "completed",
+            priority: "medium",
+            mineId: mineObj,
+            createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+          },
+        ],
+      };
+    });
+
+    return {
+      workers,
       totals: {
-        totalRegistered: att.length,
+        workers: workers.length,
+        pendingTasks: workers.reduce((sum, w) => sum + (w.pendingTasks || 0), 0),
+        completedTasks: workers.reduce((sum, w) => sum + (w.completedTasks || 0), 0),
         presentToday: att.filter((a) => a.status === "present").length,
-        insideMine: att.filter((a) => a.liveStatus === "inside_mine").length,
       },
     };
   },
 
   async saveMineralResourceSummary(summary) {
     if (!summary) return;
-    setLocalStorage("mineral_summary", summary);
+    setLs("mineral_summary", summary);
   },
 
   async saveMineralResourceRecords(records) {
     if (!Array.isArray(records) || records.length === 0) return;
-    setLocalStorage("mineral_records", records);
+    setLs("mineral_records", records);
   },
 
   async getMineralResourceSummary() {
-    const cached = getLocalStorage("mineral_summary");
+    const cached = getLs("mineral_summary");
     if (cached && (cached.spatialClusters || cached.states || cached.industryClasses)) {
       return cached;
     }
@@ -978,7 +1087,7 @@ export const offlineStorage = {
   },
 
   async getMineralResourceRecords(params = {}) {
-    const cachedRecords = getLocalStorage("mineral_records");
+    const cachedRecords = getLs("mineral_records");
     const defaultRecords = [
       {
         _id: "res_001",

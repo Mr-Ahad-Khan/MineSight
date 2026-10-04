@@ -71,10 +71,23 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl = error.config?.url || "";
+    const isAuthRoute =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/email/") ||
+      requestUrl.includes("/auth/verify-otp") ||
+      requestUrl.includes("/auth/request-otp");
+
+    if (error.response?.status === 401 && !isAuthRoute) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login"
+      ) {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },
@@ -175,67 +188,134 @@ async function extractFormData(formData) {
 // ==========================================
 export const login = async (data) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    // Check for cached user or known offline test accounts
-    const email = data.email?.toLowerCase().trim();
-    const storedUserRaw = localStorage.getItem("user");
-    const storedUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
-
-    if (storedUser && storedUser.email?.toLowerCase() === email) {
-      return {
-        data: {
-          success: true,
-          data: storedUser,
-          token: localStorage.getItem("token") || `offline_token_${Date.now()}`,
-        },
+    const isNativeApp = Capacitor.isNativePlatform();
+    // In offline mode, verify reCAPTCHA challenge was completed
+    if (!isNativeApp && !data.recaptchaToken) {
+      const err = new Error("Please complete the reCAPTCHA verification.");
+      err.response = {
+        status: 400,
+        data: { message: "Please complete the reCAPTCHA verification." },
       };
+      throw err;
     }
 
-    // Allow offline login with standard field roles if offline
-    const offlineAccounts = {
-      "admin@cil.gov.in": { name: "System Admin", role: "admin", email },
+    const email = data.email?.toLowerCase().trim();
+    const password = data.password;
+
+    // Standard valid accounts and credentials for offline field operations
+    const OFFLINE_ACCOUNTS = {
+      "admin@cil.gov.in": {
+        name: "System Admin",
+        role: "admin",
+        password: "admin123",
+        phone: "9876543215",
+        department: "IT & Systems",
+      },
       "rajesh@ncl.gov.in": {
         name: "Rajesh Kumar",
         role: "mine_official",
-        email,
+        password: "mine123",
+        phone: "9876543210",
+        department: "Safety & Inspection",
       },
       "priya@ncl.gov.in": {
         name: "Priya Sharma",
         role: "mine_official",
-        email,
+        password: "mine123",
+        phone: "9876543211",
+        department: "Environmental Compliance",
+      },
+      "corporate@cil.gov.in": {
+        name: "Corporate Monitor",
+        role: "corporate",
+        password: "corp123",
+        phone: "9876543214",
+        department: "Executive Management",
+      },
+      "regulator@dgms.gov.in": {
+        name: "DGMS Inspector",
+        role: "regulator",
+        password: "reg123",
+        phone: "9876543216",
+        department: "Directorate General of Mines Safety",
       },
       "worker@cil.gov.in": {
         name: "Amit Yadav",
         role: "worker",
-        email,
+        password: "worker123",
+        phone: "9876543213",
         employeeId: "EMP-001",
+        department: "Mining Operations",
       },
       "ananya@shakticontractors.in": {
         name: "Ananya Singh",
         role: "contractor",
-        email,
+        password: "contract123",
+        phone: "9876543212",
+        department: "Safety Gear Ltd",
       },
     };
 
-    const matchedAccount = offlineAccounts[email] || {
-      name: email.split("@")[0] || "Mine Inspector",
-      role: email.includes("worker") ? "worker" : "mine_official",
-      email,
+    const storedUserRaw = localStorage.getItem("user");
+    const storedUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
+
+    let matchedUser = null;
+
+    if (OFFLINE_ACCOUNTS[email]) {
+      const account = OFFLINE_ACCOUNTS[email];
+      if (password !== account.password) {
+        const err = new Error("Invalid email or password");
+        err.response = {
+          status: 401,
+          data: { message: "Invalid email or password" },
+        };
+        throw err;
+      }
+      matchedUser = {
+        _id: `user_${email.replace(/[^a-z0-9]/gi, "_")}`,
+        email,
+        name: account.name,
+        role: account.role,
+        phone: account.phone,
+        department: account.department,
+        employeeId: account.employeeId,
+      };
+    } else if (storedUser && storedUser.email?.toLowerCase() === email) {
+      if (!password) {
+        const err = new Error("Please provide email and password");
+        err.response = {
+          status: 400,
+          data: { message: "Please provide email and password" },
+        };
+        throw err;
+      }
+      matchedUser = storedUser;
+    } else {
+      // Reject any wrong account or unverified email
+      const err = new Error("Invalid email or password");
+      err.response = {
+        status: 401,
+        data: { message: "Invalid email or password" },
+      };
+      throw err;
+    }
+
+    const offlineToken =
+      localStorage.getItem("token") || `offline_token_${Date.now()}`;
+    const userPayload = {
+      ...matchedUser,
+      token: offlineToken,
+      _isOffline: true,
     };
 
-    const offlineUser = {
-      _id: `user_offline_${Date.now()}`,
-      ...matchedAccount,
-      token: `offline_token_${Date.now()}`,
-    };
-
-    localStorage.setItem("user", JSON.stringify(offlineUser));
-    localStorage.setItem("token", offlineUser.token);
+    localStorage.setItem("user", JSON.stringify(userPayload));
+    localStorage.setItem("token", offlineToken);
 
     return {
       data: {
         success: true,
-        data: offlineUser,
-        token: offlineUser.token,
+        data: userPayload,
+        token: offlineToken,
         _isOffline: true,
       },
     };
@@ -294,10 +374,55 @@ export const updateProfile = async (data) => {
   return api.put("/auth/profile", data);
 };
 
-export const requestEmailOtp = (data) =>
-  api.post("/auth/email/request-otp", data);
-export const verifyEmailOtp = (data) =>
-  api.post("/auth/email/verify-otp", data);
+export const requestEmailOtp = async (data) => {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    return {
+      data: {
+        success: true,
+        verificationCode: "123456",
+        message: "Offline verification code: 123456",
+      },
+    };
+  }
+  try {
+    return await api.post("/auth/email/request-otp", data);
+  } catch (error) {
+    if (isOfflineOrNetworkError(error)) {
+      return {
+        data: {
+          success: true,
+          verificationCode: "123456",
+          message: "Offline verification code: 123456",
+        },
+      };
+    }
+    throw error;
+  }
+};
+
+export const verifyEmailOtp = async (data) => {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    return {
+      data: {
+        success: true,
+        emailVerificationToken: `offline_token_${Date.now()}`,
+      },
+    };
+  }
+  try {
+    return await api.post("/auth/email/verify-otp", data);
+  } catch (error) {
+    if (isOfflineOrNetworkError(error)) {
+      return {
+        data: {
+          success: true,
+          emailVerificationToken: `offline_token_${Date.now()}`,
+        },
+      };
+    }
+    throw error;
+  }
+};
 
 // ==========================================
 // DASHBOARD & ANALYTICS

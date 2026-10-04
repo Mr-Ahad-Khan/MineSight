@@ -10,6 +10,7 @@ import {
   Languages,
   Leaf,
   Loader2,
+  ShieldAlert,
   ShieldCheck,
   Users,
 } from "lucide-react";
@@ -22,6 +23,7 @@ import BrandLogo from "../components/common/BrandLogo";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [recaptchaScale, setRecaptchaScale] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -69,15 +71,12 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setAuthError("");
 
-    // In offline mode, bypass reCAPTCHA and allow direct offline login
-    if (
-      !isNativeApp &&
-      navigator.onLine &&
-      recaptchaSiteKey &&
-      !recaptchaToken
-    ) {
-      toast.error("Please complete the reCAPTCHA.");
+    if (!isNativeApp && recaptchaSiteKey && !recaptchaToken) {
+      const msg = "Please complete the reCAPTCHA verification.";
+      toast.error(msg);
+      setAuthError(msg);
       return;
     }
 
@@ -93,13 +92,16 @@ export default function Login() {
         (result.user?.role === "worker" ? "/app/workers" : "/app");
       navigate(target.startsWith("/app") ? target : "/app", { replace: true });
     } else {
-      toast.error(result.message);
+      const msg = result.message || "Invalid email or password";
+      setAuthError(msg);
+      toast.error(msg);
       setRecaptchaToken(null);
       recaptchaRef.current?.reset();
     }
   };
 
   const quickLogin = (roleEmail, rolePass, label) => {
+    setAuthError("");
     setEmail(roleEmail);
     setPassword(rolePass);
     if (label) toast.success(`${label} credentials loaded`);
@@ -227,6 +229,16 @@ export default function Login() {
                 autoComplete="on"
                 className="space-y-4"
               >
+                {authError && (
+                  <div
+                    role="alert"
+                    className="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300"
+                  >
+                    <ShieldAlert className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
+                    <span>{authError}</span>
+                  </div>
+                )}
+
                 <div>
                   <label className="label" htmlFor="login-email">
                     {t.email}
@@ -237,7 +249,10 @@ export default function Login() {
                     type="email"
                     autoComplete="username"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setAuthError("");
+                      setEmail(e.target.value);
+                    }}
                     className="input-field"
                     placeholder="you@cil.gov.in"
                     required
@@ -255,7 +270,10 @@ export default function Login() {
                       type={showPassword ? "text" : "password"}
                       autoComplete="current-password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setAuthError("");
+                        setPassword(e.target.value);
+                      }}
                       className="input-field pr-10"
                       placeholder="••••••••"
                       required
@@ -304,7 +322,7 @@ export default function Login() {
 
                 <button
                   type="submit"
-                  disabled={isLoading || (!isNativeApp && !recaptchaSiteKey)}
+                  disabled={isLoading || (!isNativeApp && recaptchaSiteKey && !recaptchaToken)}
                   className="btn-primary w-full flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
