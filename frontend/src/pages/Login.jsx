@@ -108,7 +108,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 lg:flex-row">
+    <div className="flex h-dvh flex-col overflow-hidden bg-slate-50 pt-[var(--status-banner-height)] dark:bg-slate-950 lg:flex-row">
       {/* Left panel */}
       <div className="relative hidden h-full overflow-hidden bg-[#071827] text-white lg:flex lg:w-1/2">
         <div

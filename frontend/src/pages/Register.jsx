@@ -136,7 +136,7 @@ export default function Register() {
   };
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-slate-50 dark:bg-slate-950">
+    <div className="flex h-dvh overflow-hidden bg-slate-50 pt-[var(--status-banner-height)] dark:bg-slate-950">
       <div className="relative hidden h-full overflow-hidden text-white lg:flex lg:w-1/2">
         <div
           className="absolute inset-0 bg-cover bg-center"

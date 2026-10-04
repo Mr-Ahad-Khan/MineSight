@@ -19,7 +19,9 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
   const [isRendered, setIsRendered] = useState(false);
-  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [isOfflineMode, setIsOfflineMode] = useState(
+    () => typeof navigator !== "undefined" && !navigator.onLine,
+  );
   const [offlineChecked, setOfflineChecked] = useState(false);
   const onChangeRef = useRef(onChange);
   const onExpiredRef = useRef(onExpired);
@@ -28,6 +30,27 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
     onChangeRef.current = onChange;
     onExpiredRef.current = onExpired;
   }, [onChange, onExpired]);
+
+  useEffect(() => {
+    const handleConnectionChange = () => {
+      const offline = !navigator.onLine;
+      setIsOfflineMode(offline);
+      if (offline) {
+        setIsRendered(true);
+      } else {
+        setIsRendered(false);
+        setOfflineChecked(false);
+        onChangeRef.current?.(null);
+      }
+    };
+
+    window.addEventListener("online", handleConnectionChange);
+    window.addEventListener("offline", handleConnectionChange);
+    return () => {
+      window.removeEventListener("online", handleConnectionChange);
+      window.removeEventListener("offline", handleConnectionChange);
+    };
+  }, []);
 
   useImperativeHandle(ref, () => ({
     reset: () => {
@@ -68,6 +91,12 @@ const ReCAPTCHA = forwardRef(function ReCAPTCHA(
   };
 
   useEffect(() => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setIsOfflineMode(true);
+      setIsRendered(true);
+      return undefined;
+    }
+
     let isMounted = true;
     let timerId = null;
     let iframeObserver = null;
