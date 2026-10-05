@@ -65,7 +65,7 @@ export default function CoalAiLauncher() {
       <div
         ref={panelRef}
         className={`pointer-events-auto w-[min(320px,calc(100vw-2rem))] origin-bottom-right overflow-hidden rounded-2xl border border-[#29414b] bg-[#101c24] text-white shadow-[0_16px_35px_rgba(0,0,0,0.3)] transition-all duration-500 ease-out dark:border-slate-700 dark:bg-slate-900 ${open && ready ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-95 opacity-0"}`}
-        aria-hidden={!open}
+        inert={!open ? "" : undefined}
       >
         <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
           <div className="flex items-center gap-2.5">
@@ -88,9 +88,7 @@ export default function CoalAiLauncher() {
           </button>
         </div>
         <div className="px-4 py-4">
-          <p className="text-sm leading-6 text-[#d5dfdf]">
-            {t.coalAiPrompt}
-          </p>
+          <p className="text-sm leading-6 text-[#d5dfdf]">{t.coalAiPrompt}</p>
           <button
             type="button"
             onClick={handleOpenChat}
