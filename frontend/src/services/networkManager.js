@@ -70,7 +70,7 @@ export async function verifyRealConnectivity() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3500);
 
-    const checkUrl = `https://minesight.onrender.com/api/mines?limit=1&t=${Date.now()}`;
+    const checkUrl = `https://minesight.onrender.com/api/health?t=${Date.now()}`;
     const res = await fetch(checkUrl, {
       method: "HEAD",
       cache: "no-cache",

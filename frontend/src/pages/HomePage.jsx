@@ -998,16 +998,16 @@ export default function HomePage() {
       <header
         className={`fixed inset-x-0 top-[var(--status-banner-height,0px)] z-40 border-b backdrop-blur-2xl ${darkMode ? "border-[#61543b] bg-[#151719]/95" : "border-[#c9b69d] bg-[#f3eadb]/95"}`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-2 py-1.5 sm:gap-4 sm:px-6 sm:py-2.5 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-2 py-1.5 sm:gap-2 sm:px-4 sm:py-2.5 lg:gap-4 lg:px-8">
           <div
             className="group flex min-w-0 items-center gap-2 cursor-pointer sm:gap-3"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            <BrandLogo imageClassName="h-9 w-28 rounded min-[380px]:h-10 min-[380px]:w-32 sm:h-11 sm:w-40" />
+            <BrandLogo imageClassName="h-9 w-28 rounded min-[380px]:h-10 min-[380px]:w-32 sm:h-11 sm:w-32 lg:w-40" />
           </div>
 
           <nav
-            className={`hidden items-center gap-8 text-sm font-medium md:flex ${darkMode ? "text-[#d7d0c4]" : "text-[#4d5b62]"}`}
+            className={`hidden items-center gap-3 text-xs font-medium md:flex lg:gap-8 lg:text-sm ${darkMode ? "text-[#d7d0c4]" : "text-[#4d5b62]"}`}
           >
             {navItems.map((item) => (
               <a
@@ -1020,7 +1020,7 @@ export default function HomePage() {
             ))}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5 lg:gap-3">
             <button
               type="button"
               onClick={toggleDarkMode}
@@ -1044,13 +1044,13 @@ export default function HomePage() {
               title="Change language"
             >
               <Languages className="mx-0.5 h-3.5 w-3.5 text-[#e5a416] sm:mx-1" />
-              <span
-                className={`rounded-full px-2 py-1 ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+                <span
+                className={`hidden rounded-full px-2 py-1 lg:inline ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
               >
                 EN
               </span>
               <span
-                className={`rounded-full px-2 py-1 ${language === "hi" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+                className={`hidden rounded-full px-2 py-1 lg:inline ${language === "hi" ? "bg-[#e5a416] text-[#151719]" : ""}`}
               >
                 हिंदी
               </span>
@@ -1078,14 +1078,14 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className={`hidden rounded-md border px-5 py-2 text-sm font-medium transition-all hover:border-[#e5a416] sm:inline-flex ${darkMode ? "border-white/30 bg-white/5 text-[#f1ece4] hover:bg-[#e5a416]/10 hover:text-white" : "border-[#b99a72] bg-white/50 text-[#17314a] hover:bg-[#e5a416]/10"}`}
+              className={`hidden rounded-md border px-5 py-2 text-sm font-medium transition-all hover:border-[#e5a416] lg:inline-flex ${darkMode ? "border-white/30 bg-white/5 text-[#f1ece4] hover:bg-[#e5a416]/10 hover:text-white" : "border-[#b99a72] bg-white/50 text-[#17314a] hover:bg-[#e5a416]/10"}`}
             >
               {t.signIn}
             </button>
             <button
               type="button"
               onClick={() => (token ? navigate("/app") : navigate("/login"))}
-              className="group relative inline-flex items-center overflow-hidden rounded-md bg-[#e5a416] px-2.5 py-2 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95 sm:gap-2 sm:px-5"
+              className="group relative inline-flex items-center overflow-hidden rounded-md bg-[#e5a416] px-2.5 py-2 text-sm font-bold text-[#151719] shadow-lg shadow-black/30 transition-all hover:bg-[#f5b82c] hover:scale-105 active:scale-95 sm:gap-2 sm:px-3 lg:px-5"
             >
               <span className="relative z-10 flex items-center sm:gap-2">
                 <span className="hidden sm:inline">
@@ -1820,7 +1820,7 @@ export default function HomePage() {
 
       <footer className="border-t border-[#29414b] bg-[#0b171d] pb-28 text-[#c5cfce] sm:pb-0">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-10 text-center md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
+          <div className="grid gap-10 text-center md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-3">
                 <BrandLogo imageClassName="h-16 w-44 rounded" />
