@@ -173,14 +173,11 @@ function isOfflineOrNetworkError(error) {
   if (!error) return false;
   const status = error.response?.status;
   return (
-    !error.response ||
     status >= 500 ||
     status === 408 ||
     status === 0 ||
     error.code === "ERR_NETWORK" ||
-    error.code === "ECONNABORTED" ||
     error.message?.includes("Network Error") ||
-    error.message?.includes("timeout") ||
     error.message?.includes("Failed to fetch")
   );
 }
@@ -1099,7 +1096,9 @@ export const createInspection = async (data) => {
 
   // If online, try network request
   try {
-    const config = isFormData ? { headers: { "Content-Type": undefined } } : {};
+    const config = isFormData
+      ? { headers: { "Content-Type": undefined }, timeout: 60000 }
+      : {};
     const res = await api.post("/inspections", data, config);
     if (res.data?.data) {
       await offlineStorage.saveInspection(res.data.data);
@@ -1181,7 +1180,9 @@ export const updateInspection = async (id, data) => {
   }
 
   try {
-    const config = isFormData ? { headers: { "Content-Type": undefined } } : {};
+    const config = isFormData
+      ? { headers: { "Content-Type": undefined }, timeout: 60000 }
+      : {};
     const res = await api.put(`/inspections/${id}`, data, config);
     if (res.data?.data) await offlineStorage.saveInspection(res.data.data);
     return res;
