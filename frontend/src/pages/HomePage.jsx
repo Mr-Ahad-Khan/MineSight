@@ -1912,8 +1912,8 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* Left-side Bot and Camera Controls (Accessible Even Without Login) */}
-      <div className="fixed bottom-5 left-4 z-50 flex items-end gap-3 sm:bottom-6 sm:left-6">
+      {/* Right-side Bot and Camera Controls (Accessible Even Without Login) */}
+      <div className="fixed bottom-5 right-4 z-50 flex items-end gap-3 sm:bottom-6 sm:right-6">
         {/* Floating Camera Button (Works without login) */}
         <button
           type="button"
@@ -1925,8 +1925,8 @@ export default function HomePage() {
           <Camera className="h-6 w-6" />
         </button>
 
-        {/* Left Side Bot Assistant */}
-        <div className="flex flex-col items-start">
+        {/* Right Side Bot Assistant */}
+        <div className="flex flex-col items-end">
           {!assistantOpen ? (
             <button
               type="button"
@@ -1952,7 +1952,7 @@ export default function HomePage() {
             </button>
           ) : (
             <div
-              className={`w-[300px] overflow-hidden rounded-2xl border border-[#6d5624] bg-[#101416] text-white shadow-[0_16px_35px_rgba(0,0,0,0.35)] transition-all duration-500 ease-out sm:w-[320px] origin-bottom-left ${assistantReady ? "translate-x-0 opacity-100" : "-translate-x-12 opacity-0"}`}
+              className={`w-[300px] overflow-hidden rounded-2xl border border-[#6d5624] bg-[#101416] text-white shadow-[0_16px_35px_rgba(0,0,0,0.35)] transition-all duration-500 ease-out sm:w-[320px] origin-bottom-right ${assistantReady ? "translate-x-0 opacity-100" : "translate-x-12 opacity-0"}`}
             >
               {!assistantChatOpen ? (
                 <div className="px-4 pb-4 pt-4">
@@ -2090,7 +2090,7 @@ export default function HomePage() {
                 </div>
               )}
 
-              <div className="mt-2 flex justify-start pl-2 pb-2">
+              <div className="mt-2 flex justify-end pr-2 pb-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-700 bg-amber-600 text-white shadow-md">
                   <Bot className="h-5 w-5" />
                 </div>
@@ -2126,7 +2126,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-24 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-[#d7c7ab] bg-[#f7f4ef] text-[#17314a] shadow-[0_6px_18px_rgba(0,0,0,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#e5a416] hover:bg-[#fffaf0] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/60 focus:ring-offset-2 focus:ring-offset-[#101416] sm:bottom-6 sm:right-24"
+          className="fixed bottom-24 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-[#d7c7ab] bg-[#f7f4ef] text-[#17314a] shadow-[0_6px_18px_rgba(0,0,0,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#e5a416] hover:bg-[#fffaf0] focus:outline-none focus:ring-2 focus:ring-[#e5a416]/60 focus:ring-offset-2 focus:ring-offset-[#101416] sm:bottom-24 sm:right-6"
           aria-label="Scroll to top"
           title="Scroll to top"
         >
