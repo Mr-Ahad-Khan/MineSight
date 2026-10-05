@@ -49,6 +49,11 @@ const EMERGENCY_DIRECTORY = [
   },
 ];
 
+const canManageTicket = (ticket, user) =>
+  ticket.userId.toString() === user._id.toString() ||
+  user.role === "admin" ||
+  user.role === "regulator";
+
 // @desc    Get support directory and emergency hotlines
 // @route   GET /api/support/directory
 // @access  Private
@@ -149,6 +154,71 @@ const getTicketById = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Update an incident ticket
+// @route   PATCH /api/support/tickets/:id
+// @access  Private
+const updateTicket = asyncHandler(async (req, res) => {
+  const ticket = await SupportTicket.findById(req.params.id);
+
+  if (!ticket) {
+    res.status(404);
+    throw new Error("Ticket not found");
+  }
+  if (!canManageTicket(ticket, req.user)) {
+    res.status(403);
+    throw new Error("You are not authorized to manage this ticket");
+  }
+
+  const { subject, description, priority, mineId, status } = req.body;
+  if (subject !== undefined) {
+    if (!subject.trim()) {
+      res.status(400);
+      throw new Error("Subject is required");
+    }
+    ticket.subject = subject.trim();
+  }
+  if (description !== undefined) {
+    if (!description.trim()) {
+      res.status(400);
+      throw new Error("Description is required");
+    }
+    ticket.description = description.trim();
+  }
+  if (priority !== undefined) ticket.priority = priority;
+  if (mineId !== undefined) ticket.mineId = mineId || undefined;
+  if (status !== undefined) {
+    ticket.status = status;
+    ticket.resolvedAt = ["resolved", "closed"].includes(status) ? new Date() : undefined;
+  }
+
+  await ticket.save();
+  const populated = await SupportTicket.findById(ticket._id).populate(
+    "mineId",
+    "name code subsidiary"
+  );
+
+  res.json({ success: true, data: populated });
+});
+
+// @desc    Delete an incident ticket
+// @route   DELETE /api/support/tickets/:id
+// @access  Private
+const deleteTicket = asyncHandler(async (req, res) => {
+  const ticket = await SupportTicket.findById(req.params.id);
+
+  if (!ticket) {
+    res.status(404);
+    throw new Error("Ticket not found");
+  }
+  if (!canManageTicket(ticket, req.user)) {
+    res.status(403);
+    throw new Error("You are not authorized to manage this ticket");
+  }
+
+  await ticket.deleteOne();
+  res.json({ success: true, message: "Ticket deleted successfully" });
+});
+
 // @desc    Add reply or comment to ticket
 // @route   POST /api/support/tickets/:id/responses
 // @access  Private
@@ -195,4 +265,6 @@ module.exports = {
   createTicket,
   getTicketById,
   addTicketResponse,
+  updateTicket,
+  deleteTicket,
 };

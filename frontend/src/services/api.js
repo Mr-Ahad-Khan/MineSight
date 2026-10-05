@@ -2125,6 +2125,77 @@ export const createSupportTicket = async (data) => {
   }
 };
 
+export const updateSupportTicket = async (id, data) => {
+  const ticket = await offlineStorage.getSupportTicket(id);
+  const optimistic = ticket ? { ...ticket, ...data, updatedAt: new Date().toISOString() } : null;
+
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    if (optimistic) await offlineStorage.saveSupportTicket(optimistic);
+    await enqueueMutation({
+      type: "UPDATE_SUPPORT_TICKET",
+      method: "PATCH",
+      url: `/support/tickets/${id}`,
+      payload: data,
+      entityType: "supportTickets",
+      localId: id,
+      label: `Update Ticket ${id}`,
+    });
+    return { data: { success: true, data: optimistic, _isOffline: true } };
+  }
+
+  try {
+    const res = await api.patch(`/support/tickets/${id}`, data);
+    if (res.data?.data) await offlineStorage.saveSupportTicket(res.data.data);
+    return res;
+  } catch (error) {
+    if (isOfflineOrNetworkError(error)) {
+      if (optimistic) await offlineStorage.saveSupportTicket(optimistic);
+      await enqueueMutation({
+        type: "UPDATE_SUPPORT_TICKET",
+        method: "PATCH",
+        url: `/support/tickets/${id}`,
+        payload: data,
+        entityType: "supportTickets",
+        localId: id,
+        label: `Update Ticket ${id}`,
+      });
+      return { data: { success: true, data: optimistic, _isOffline: true } };
+    }
+    throw error;
+  }
+};
+
+export const deleteSupportTicket = async (id) => {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    await enqueueMutation({
+      type: "DELETE_SUPPORT_TICKET",
+      method: "DELETE",
+      url: `/support/tickets/${id}`,
+      entityType: "supportTickets",
+      localId: id,
+      label: `Delete Ticket ${id}`,
+    });
+    return { data: { success: true, _isOffline: true } };
+  }
+
+  try {
+    return await api.delete(`/support/tickets/${id}`);
+  } catch (error) {
+    if (isOfflineOrNetworkError(error)) {
+      await enqueueMutation({
+        type: "DELETE_SUPPORT_TICKET",
+        method: "DELETE",
+        url: `/support/tickets/${id}`,
+        entityType: "supportTickets",
+        localId: id,
+        label: `Delete Ticket ${id}`,
+      });
+      return { data: { success: true, _isOffline: true } };
+    }
+    throw error;
+  }
+};
+
 export const replySupportTicket = async (id, data) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     const ticket = await offlineStorage.getSupportTicket(id);

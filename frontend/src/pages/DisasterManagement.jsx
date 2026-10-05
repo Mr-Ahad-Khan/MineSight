@@ -5,20 +5,24 @@ import {
   AlertOctagon,
   CheckCircle2,
   ClipboardCheck,
+  Edit3,
   LifeBuoy,
   PhoneCall,
   Plus,
   Radio,
   ShieldAlert,
   Siren,
+  Trash2,
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   createSupportTicket,
+  deleteSupportTicket,
   getMines,
   getSupportDirectory,
   getSupportTickets,
+  updateSupportTicket,
 } from "../services/api";
 import { initialMines } from "../services/offlineStorage";
 import { useLanguageStore } from "../store/themeStore";
@@ -49,6 +53,7 @@ export default function DisasterManagement() {
   const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [editingIncidentId, setEditingIncidentId] = useState(null);
 
   useEffect(() => {
     const handleBackButton = (e) => {
@@ -118,19 +123,60 @@ export default function DisasterManagement() {
     }
     setSubmitting(true);
     try {
-      await createSupportTicket({
-        ...form,
-        category: "emergency",
-        subject: `[DISASTER] ${form.subject.trim()}`,
-      });
-      toast.success("Emergency incident escalated");
+      if (editingIncidentId) {
+        await updateSupportTicket(editingIncidentId, {
+          ...form,
+          subject: `[DISASTER] ${form.subject.trim()}`,
+        });
+        toast.success("Incident updated");
+      } else {
+        await createSupportTicket({
+          ...form,
+          category: "emergency",
+          subject: `[DISASTER] ${form.subject.trim()}`,
+        });
+        toast.success("Emergency incident escalated");
+      }
       setForm({ subject: "", mineId: "", priority: "critical", description: "" });
+      setEditingIncidentId(null);
       setFormOpen(false);
       await loadData();
     } catch (error) {
       toast.error(error.response?.data?.message || "Could not escalate incident");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const editIncident = (incident) => {
+    setEditingIncidentId(incident._id);
+    setForm({
+      subject: incident.subject.replace(/^\[DISASTER\]\s*/i, ""),
+      mineId: incident.mineId?._id || incident.mineId || "",
+      priority: incident.priority || "critical",
+      description: incident.description || "",
+    });
+    setFormOpen(true);
+  };
+
+  const closeIncident = async (incident) => {
+    try {
+      await updateSupportTicket(incident._id, { status: "closed" });
+      toast.success("Incident closed");
+      await loadData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Could not close incident");
+    }
+  };
+
+  const removeIncident = async (incident) => {
+    if (!window.confirm("Delete this incident permanently?")) return;
+    try {
+      await deleteSupportTicket(incident._id);
+      toast.success("Incident deleted");
+      await loadData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Could not delete incident");
     }
   };
 
@@ -301,7 +347,10 @@ export default function DisasterManagement() {
           <button type="button" onClick={exportPdf} className="btn-secondary flex-1 sm:flex-none min-h-[44px] touch-manipulation cursor-pointer">{t.exportPdf}</button>
           <button 
             type="button" 
-            onClick={() => setFormOpen((open) => !open)} 
+            onClick={() => {
+              setFormOpen((open) => !open);
+              if (formOpen) setEditingIncidentId(null);
+            }} 
             className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 active:scale-95 transition touch-manipulation cursor-pointer relative z-10"
           >
             {formOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {formOpen ? (language === 'hi' ? "फॉर्म बंद करें" : "Close Form") : t.reportIncident}
@@ -314,11 +363,11 @@ export default function DisasterManagement() {
           <div className="flex items-center justify-between pb-2 border-b border-rose-200 dark:border-rose-900">
             <div className="flex items-center gap-2">
               <AlertOctagon className="h-5 w-5 text-rose-600" />
-              <h2 className="font-semibold text-slate-900 dark:text-white">{t.escalateEmergencyIncident}</h2>
+              <h2 className="font-semibold text-slate-900 dark:text-white">{editingIncidentId ? "Edit incident" : t.escalateEmergencyIncident}</h2>
             </div>
             <button 
               type="button" 
-              onClick={() => setFormOpen(false)}
+              onClick={() => { setFormOpen(false); setEditingIncidentId(null); }}
               aria-label="Close"
               className="p-1 rounded-lg hover:bg-rose-200 dark:hover:bg-rose-900 text-slate-600 dark:text-slate-300 min-h-[36px] min-w-[36px] flex items-center justify-center touch-manipulation cursor-pointer"
             >
@@ -387,7 +436,7 @@ export default function DisasterManagement() {
             </button>
             <button 
               type="button" 
-              onClick={() => setFormOpen(false)} 
+              onClick={() => { setFormOpen(false); setEditingIncidentId(null); }} 
               className="btn-secondary w-full sm:w-auto min-h-[50px] touch-manipulation cursor-pointer active:scale-95 transition relative z-50"
             >
               Cancel
@@ -454,7 +503,7 @@ export default function DisasterManagement() {
               </button>
             </div>
           ) : (
-            <div className="space-y-3">{activeIncidents.map((incident) => <article key={incident._id} className="rounded-lg border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900 dark:bg-rose-950/20"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold text-slate-900 dark:text-white">{incident.subject}</h3><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{incident.mineId?.name || t.mineNotSpecified}</p></div><span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold uppercase text-rose-700">{incident.status}</span></div><p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{incident.description}</p></article>)}</div>
+            <div className="space-y-3">{activeIncidents.map((incident) => <article key={incident._id} className="rounded-lg border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900 dark:bg-rose-950/20"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold text-slate-900 dark:text-white">{incident.subject}</h3><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{incident.mineId?.name || t.mineNotSpecified}</p></div><span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold uppercase text-rose-700">{incident.status}</span></div><p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{incident.description}</p><div className="mt-4 flex flex-wrap gap-2 border-t border-rose-100 pt-3 dark:border-rose-900"><button type="button" onClick={() => closeIncident(incident)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-700"><CheckCircle2 className="h-4 w-4" /> Close</button><button type="button" onClick={() => editIncident(incident)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"><Edit3 className="h-4 w-4" /> Edit</button><button type="button" onClick={() => removeIncident(incident)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-rose-200 px-3 text-xs font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:text-rose-300"><Trash2 className="h-4 w-4" /> Delete</button></div></article>)}</div>
           )}
         </section>
 
