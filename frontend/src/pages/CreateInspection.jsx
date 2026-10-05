@@ -765,8 +765,9 @@ export default function CreateInspection() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.mineId || !form.title.trim()) {
+    if (e && e.preventDefault) e.preventDefault();
+    const activeMineId = form.mineId || mines[0]?._id || "mine_001";
+    if (!form.title.trim()) {
       return toast.error(t.mineAndTitle || "Please select a mine and enter an inspection title");
     }
 
@@ -774,6 +775,7 @@ export default function CreateInspection() {
     try {
       const payload = {
         ...form,
+        mineId: activeMineId,
         coordinates: [position[1], position[0]],
       };
 

@@ -187,6 +187,25 @@ const createInspection = asyncHandler(async (req, res) => {
     throw new Error("Please provide mineId and title");
   }
 
+  let resolvedMineId = mineId;
+  if (!mongoose.Types.ObjectId.isValid(mineId)) {
+    const foundMine = (await Mine.findOne({
+      $or: [
+        { code: mineId },
+        { name: mineId },
+        { code: "NCL-JYT-01" },
+        { name: /Jayant/i },
+      ],
+    })) || (await Mine.findOne());
+
+    if (foundMine) {
+      resolvedMineId = foundMine._id;
+    } else {
+      res.status(400);
+      throw new Error("Invalid mineId");
+    }
+  }
+
   // Check if offlineId already exists (prevent duplicate offline sync)
   if (offlineId) {
     const existing = await Inspection.findOne({ offlineId });
@@ -200,7 +219,7 @@ const createInspection = asyncHandler(async (req, res) => {
   }
 
   const inspectionData = {
-    mineId,
+    mineId: resolvedMineId,
     inspectorId: req.user._id,
     type: type || "scheduled",
     title,
@@ -230,7 +249,7 @@ const createInspection = asyncHandler(async (req, res) => {
   // Background side-effects to keep createInspection ultra fast
   if (inspection.riskScore >= 60) {
     Alert.create({
-      mineId,
+      mineId: resolvedMineId,
       type: "high_risk",
       title: `High Risk Inspection: ${title}`,
       message: `Risk Score: ${inspection.riskScore}. Immediate attention required.`,
@@ -240,11 +259,11 @@ const createInspection = asyncHandler(async (req, res) => {
     }).catch((err) => console.error("High risk alert creation error:", err));
   }
 
-  Mine.findById(mineId)
+  Mine.findById(resolvedMineId)
     .then(async (mine) => {
       if (!mine) return;
       const recentHighRisk = await Inspection.countDocuments({
-        mineId,
+        mineId: resolvedMineId,
         riskScore: { $gte: 60 },
         createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
       });

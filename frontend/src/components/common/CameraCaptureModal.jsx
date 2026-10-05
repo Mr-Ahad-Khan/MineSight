@@ -66,8 +66,11 @@ export default function CameraCaptureModal({
   const [analyzingRisk, setAnalyzingRisk] = useState(false);
   const [detectedRisk, setDetectedRisk] = useState(null);
 
+  const startCameraSeqRef = useRef(0);
+
   // Stop camera tracks cleanly
   const stopStream = useCallback(() => {
+    startCameraSeqRef.current += 1;
     if (streamRef.current) {
       try {
         streamRef.current.getTracks().forEach((track) => {
@@ -89,9 +92,23 @@ export default function CameraCaptureModal({
 
   // Initialize camera stream
   const startCamera = useCallback(async () => {
+    const currentSeq = ++startCameraSeqRef.current;
     setIsInitializing(true);
     setCameraError(null);
-    stopStream();
+
+    // Stop previous tracks without bumping seq
+    if (streamRef.current) {
+      try {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+      } catch (_) {}
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+        videoRef.current.srcObject = null;
+      } catch (_) {}
+    }
 
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -110,19 +127,60 @@ export default function CameraCaptureModal({
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (startCameraSeqRef.current !== currentSeq) {
+        // A newer request has started or camera was stopped; discard this stream
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+
       streamRef.current = stream;
 
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        const video = videoRef.current;
+        video.srcObject = stream;
+
+        // Use onloadedmetadata to ensure video is ready to play without play() interruption
+        await new Promise((resolve) => {
+          video.onloadedmetadata = () => {
+            if (startCameraSeqRef.current === currentSeq) {
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise
+                  .then(() => resolve())
+                  .catch((err) => {
+                    // Safe to ignore AbortError/interrupted errors caused by new load
+                    if (err.name !== "AbortError" && !err.message?.includes("interrupted")) {
+                      console.warn("Video play warning:", err);
+                    }
+                    resolve();
+                  });
+              } else {
+                resolve();
+              }
+            } else {
+              resolve();
+            }
+          };
+          // Timeout fallback in case onloadedmetadata doesn't fire immediately
+          setTimeout(resolve, 800);
+        });
       }
-      setIsInitializing(false);
+      if (startCameraSeqRef.current === currentSeq) {
+        setIsInitializing(false);
+      }
     } catch (err) {
-      console.warn("Camera init failed:", err);
-      setCameraError(err.message || "Could not access camera");
-      setIsInitializing(false);
+      if (startCameraSeqRef.current === currentSeq) {
+        // If aborted or interrupted, do not treat as fatal error
+        if (err.name === "AbortError" || err.message?.includes("interrupted")) {
+          console.log("Benign camera play interruption ignored");
+          return;
+        }
+        console.warn("Camera init failed:", err);
+        setCameraError(err.message || "Could not access camera");
+        setIsInitializing(false);
+      }
     }
-  }, [facingMode, stopStream]);
+  }, [facingMode]);
 
   useEffect(() => {
     if (isOpen && !capturedBlob && !document.hidden) {

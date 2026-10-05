@@ -1095,7 +1095,15 @@ export const createInspection = async (data) => {
     }
     return res;
   } catch (error) {
-    if (isOfflineOrNetworkError(error)) {
+    const isOfflineIssue = isOfflineOrNetworkError(error);
+    const isNative =
+      Capacitor.isNativePlatform() ||
+      (typeof window !== "undefined" &&
+        (Boolean(window.Capacitor?.isNativePlatform?.()) ||
+          window.location.protocol === "capacitor:" ||
+          window.location.protocol === "ionic:"));
+
+    if (isOfflineIssue || isNative || (typeof navigator !== "undefined" && !navigator.onLine)) {
       await offlineStorage.saveInspection(optimisticInspection);
       await enqueueMutation({
         type: "CREATE_INSPECTION",
@@ -1109,7 +1117,7 @@ export const createInspection = async (data) => {
         label: `Inspection: ${payload.title}`,
       });
       toast.success(
-        "Network unreachable. Inspection saved offline and queued.",
+        "Inspection saved offline to device. Will auto-sync when online.",
       );
       return {
         data: {

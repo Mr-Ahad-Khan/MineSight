@@ -3,11 +3,13 @@
 export async function downloadOrExportFile(contentOrBlob, fileName, mimeType = "application/octet-stream") {
   if (typeof window === "undefined") return false;
 
+  const cleanMime = (mimeType || "application/octet-stream").split(";")[0].trim().toLowerCase();
+
   let blob;
   if (contentOrBlob instanceof Blob) {
     blob = contentOrBlob;
   } else {
-    blob = new Blob([contentOrBlob], { type: mimeType });
+    blob = new Blob([contentOrBlob], { type: cleanMime });
   }
 
   // 1. Android Native File Downloader (Directly writes to phone's Downloads directory)
@@ -20,7 +22,7 @@ export async function downloadOrExportFile(contentOrBlob, fileName, mimeType = "
         reader.readAsDataURL(blob);
       });
 
-      const success = window.AndroidBridge.saveBase64File(base64Data, fileName, mimeType);
+      const success = window.AndroidBridge.saveBase64File(base64Data, fileName, cleanMime);
       if (success) return true;
     } catch (err) {
       console.warn("Android native save failed, trying Web Share / URL fallback:", err);
@@ -29,8 +31,8 @@ export async function downloadOrExportFile(contentOrBlob, fileName, mimeType = "
 
   // 2. Web Share API with File support (Android Chrome/WebView standard)
   try {
-    const file = new File([blob], fileName, { type: mimeType });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    const file = new File([blob], fileName, { type: cleanMime });
+    if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({
         files: [file],
         title: fileName,
@@ -61,3 +63,4 @@ export async function downloadOrExportFile(contentOrBlob, fileName, mimeType = "
     return false;
   }
 }
+

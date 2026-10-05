@@ -115,13 +115,34 @@ public class MainActivity extends BridgeActivity {
 				}
 				byte[] fileBytes = Base64.decode(cleanBase64, Base64.DEFAULT);
 
+				// Sanitize MIME type (remove ;charset=... parameters which crash MediaStore)
+				String cleanMime = "application/octet-stream";
+				if (mimeType != null && !mimeType.trim().isEmpty()) {
+					cleanMime = mimeType.split(";")[0].trim().toLowerCase();
+				}
+				if (fileName.toLowerCase().endsWith(".csv") || cleanMime.contains("csv")) {
+					cleanMime = "text/csv";
+				} else if (fileName.toLowerCase().endsWith(".json") || cleanMime.contains("json")) {
+					cleanMime = "application/json";
+				} else if (fileName.toLowerCase().endsWith(".pdf") || cleanMime.contains("pdf")) {
+					cleanMime = "application/pdf";
+				}
+
+				String targetFileName = fileName;
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 					ContentValues values = new ContentValues();
-					values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-					values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType != null ? mimeType : "application/octet-stream");
+					values.put(MediaStore.MediaColumns.DISPLAY_NAME, targetFileName);
+					values.put(MediaStore.MediaColumns.MIME_TYPE, cleanMime);
 					values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
 
 					Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+					if (uri == null) {
+						// In case of conflict or rejection, append timestamp
+						targetFileName = System.currentTimeMillis() + "_" + fileName;
+						values.put(MediaStore.MediaColumns.DISPLAY_NAME, targetFileName);
+						uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+					}
+
 					if (uri != null) {
 						try (OutputStream out = getContentResolver().openOutputStream(uri)) {
 							if (out != null) {
@@ -129,25 +150,37 @@ public class MainActivity extends BridgeActivity {
 								out.flush();
 							}
 						}
+					} else {
+						// Fallback to external files downloads folder
+						File downloadsDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+						if (downloadsDir != null) {
+							if (!downloadsDir.exists()) downloadsDir.mkdirs();
+							File fallbackFile = new File(downloadsDir, targetFileName);
+							try (FileOutputStream fos = new FileOutputStream(fallbackFile)) {
+								fos.write(fileBytes);
+								fos.flush();
+							}
+						}
 					}
 				} else {
 					File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 					if (!downloadsDir.exists()) downloadsDir.mkdirs();
-					File file = new File(downloadsDir, fileName);
+					File file = new File(downloadsDir, targetFileName);
 					try (FileOutputStream fos = new FileOutputStream(file)) {
 						fos.write(fileBytes);
 						fos.flush();
 					}
 				}
 
+				final String savedName = targetFileName;
 				runOnUiThread(() -> {
-					Toast.makeText(MainActivity.this, "Downloaded: " + fileName, Toast.LENGTH_LONG).show();
+					Toast.makeText(MainActivity.this, "Saved to Downloads: " + savedName, Toast.LENGTH_LONG).show();
 				});
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
 				runOnUiThread(() -> {
-					Toast.makeText(MainActivity.this, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+					Toast.makeText(MainActivity.this, "Download error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 				});
 				return false;
 			}

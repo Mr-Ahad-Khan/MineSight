@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
+import { downloadOrExportFile } from "../utils/fileDownloader";
 import TableScrollContainer from "../components/common/TableScrollContainer";
 
 const safeFormatDate = (dateVal, formatStr = "dd MMM yyyy") => {
@@ -124,6 +125,58 @@ export default function Inspections() {
     }
   };
 
+  const exportInspectionsCsv = async () => {
+    if (!inspections || inspections.length === 0) {
+      return toast.error("No inspections available to export");
+    }
+
+    const escapeCsv = (val) => `"${String(val ?? "").replace(/"/g, '""')}"`;
+    const headers = ["Title", "Mine", "Type", "Severity", "Status", "Risk Score", "Violations Count", "Date Recorded"];
+    const rows = inspections.map((i) => [
+      escapeCsv(i.title || "Untitled"),
+      escapeCsv(i.mineId?.name || i.mineId?.code || "Not Specified"),
+      escapeCsv(i.type || "scheduled"),
+      escapeCsv(i.severity || "medium"),
+      escapeCsv(i.status || "open"),
+      escapeCsv(i.riskScore ?? "—"),
+      escapeCsv(i.violations?.length || 0),
+      escapeCsv(safeFormatDate(i.createdAt)),
+    ]);
+
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    const ok = await downloadOrExportFile(`\uFEFF${csvContent}`, `inspections-report-${Date.now()}.csv`, "text/csv");
+    if (ok) toast.success("Inspections CSV report downloaded!");
+  };
+
+  const exportInspectionsJson = async () => {
+    if (!inspections || inspections.length === 0) {
+      return toast.error("No inspections available to export");
+    }
+
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      totalInspections: inspections.length,
+      inspections: inspections.map((i) => ({
+        id: i._id,
+        title: i.title,
+        mine: i.mineId?.name || i.mineId?.code || null,
+        type: i.type,
+        severity: i.severity,
+        status: i.status,
+        riskScore: i.riskScore,
+        violations: i.violations,
+        createdAt: i.createdAt,
+      })),
+    };
+
+    const ok = await downloadOrExportFile(
+      JSON.stringify(exportData, null, 2),
+      `inspections-report-${Date.now()}.json`,
+      "application/json",
+    );
+    if (ok) toast.success("Inspections JSON report downloaded!");
+  };
+
   return (
     <div className="min-h-[calc(100vh-72px)] bg-[#f3eadb] px-4 pb-10 pt-3 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1600px]">
@@ -132,7 +185,7 @@ export default function Inspections() {
             {t.inspections}
           </h1>
 
-          <div className="flex w-full flex-wrap items-center justify-center sm:w-auto sm:justify-end gap-3">
+          <div className="flex w-full flex-wrap items-center justify-center sm:w-auto sm:justify-end gap-2.5">
             <Link
               to="/app/inspections/new"
               className="inline-flex w-full sm:w-auto min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-xl bg-[#0d3f6d] px-5 py-2.5 text-[15px] font-semibold text-white shadow-[0_3px_10px_rgba(13,63,109,0.25)] transition hover:bg-[#0a3560] active:scale-[0.98]"
@@ -140,6 +193,24 @@ export default function Inspections() {
               <Plus className="h-4 w-4" />
               {t.newInspection}
             </Link>
+
+            <button
+              type="button"
+              onClick={exportInspectionsCsv}
+              className="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-[#bca98e] bg-[#f8f4ed] px-4 py-2 text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] active:scale-[0.98]"
+              title="Download Inspections CSV Report"
+            >
+              CSV Report
+            </button>
+
+            <button
+              type="button"
+              onClick={exportInspectionsJson}
+              className="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-[#bca98e] bg-[#f8f4ed] px-4 py-2 text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] active:scale-[0.98]"
+              title="Download Inspections JSON Report"
+            >
+              JSON Report
+            </button>
             <label className="relative min-w-[220px] flex-1 sm:flex-none">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#786f63]" />
               <input

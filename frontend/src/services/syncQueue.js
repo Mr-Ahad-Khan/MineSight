@@ -417,10 +417,26 @@ export function initAutoSync(apiClient) {
     }
   };
 
+  let wasOffline = false;
+
+  const handleOffline = () => {
+    // Only mark offline if really not in background
+    if (typeof document !== "undefined" && (document.hidden || document.visibilityState === "hidden")) {
+      return;
+    }
+    wasOffline = true;
+  };
+
   const syncAfterReconnect = async () => {
     const retryDelays = [1000, 2500, 5000];
 
-    toast("Internet restored. Synchronizing data...", { icon: "🔄", id: "sync-online" });
+    // Only toast if previously recorded as offline
+    if (wasOffline) {
+      if (getStoredQueue().length > 0) {
+        toast("Internet restored. Synchronizing data...", { icon: "🔄", id: "sync-online" });
+      }
+      wasOffline = false;
+    }
 
     // Instantly notify listeners and views to refresh
     notifySyncStatus({ isSyncing: false, pendingCount: getStoredQueue().length, lastSynced: new Date() });
@@ -460,15 +476,16 @@ export function initAutoSync(apiClient) {
   };
 
   window.addEventListener("online", handleOnline);
+  window.addEventListener("offline", handleOffline);
   window.addEventListener("visibilitychange", handleVisibilityOrFocus);
   window.addEventListener("focus", handleVisibilityOrFocus);
 
-  // Native app resume listener
+  // Native app resume listener - sync quietly in background WITHOUT spurious 'Internet restored' toast
   let appStateListener = null;
   if (Capacitor.isNativePlatform()) {
     CapApp.addListener("appStateChange", (state) => {
       if (state.isActive) {
-        handleOnline();
+        triggerBackgroundSync();
       }
     }).then((handle) => {
       appStateListener = handle;
@@ -491,6 +508,7 @@ export function initAutoSync(apiClient) {
 
   return () => {
     window.removeEventListener("online", handleOnline);
+    window.removeEventListener("offline", handleOffline);
     window.removeEventListener("visibilitychange", handleVisibilityOrFocus);
     window.removeEventListener("focus", handleVisibilityOrFocus);
     clearInterval(periodicSyncInterval);
