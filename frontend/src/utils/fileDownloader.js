@@ -29,24 +29,8 @@ export async function downloadOrExportFile(contentOrBlob, fileName, mimeType = "
     }
   }
 
-  // 2. Web Share API with File support (Android Chrome/WebView standard)
-  try {
-    const file = new File([blob], fileName, { type: cleanMime });
-    if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: fileName,
-      });
-      return true;
-    }
-  } catch (shareErr) {
-    // User cancelled share or not supported; proceed to anchor download
-    if (shareErr.name !== "AbortError") {
-      console.warn("Web Share error:", shareErr);
-    }
-  }
-
-  // 3. Fallback standard browser anchor download
+  // 2. Standard browser download. Keep exports as downloads on desktop instead of
+  // opening the operating system share panel.
   try {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -60,7 +44,24 @@ export async function downloadOrExportFile(contentOrBlob, fileName, mimeType = "
     return true;
   } catch (err) {
     console.error("Browser download fallback failed:", err);
-    return false;
   }
+
+  // 3. Web Share API fallback for browsers that cannot download the file directly.
+  try {
+    const file = new File([blob], fileName, { type: cleanMime });
+    if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: fileName,
+      });
+      return true;
+    }
+  } catch (shareErr) {
+    if (shareErr.name !== "AbortError") {
+      console.warn("Web Share error:", shareErr);
+    }
+  }
+
+  return false;
 }
 
