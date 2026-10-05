@@ -118,6 +118,17 @@ export function dequeueMutation(id) {
   setStoredQueue(nextQueue);
 }
 
+// Remove any mutations associated with a local ID or URL
+export function removeQueuedMutationsByLocalId(localId) {
+  if (!localId) return;
+  const queue = getStoredQueue();
+  const idStr = String(localId);
+  const nextQueue = queue.filter(
+    (item) => item.localId !== localId && !item.url?.includes(idStr)
+  );
+  setStoredQueue(nextQueue);
+}
+
 // Reconstitute payload and files if needed (e.g. for FormData multipart uploads)
 async function prepareRequestData(item) {
   if (!item.isFormData) {

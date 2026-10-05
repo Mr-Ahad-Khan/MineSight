@@ -30,6 +30,9 @@ import {
 import { format } from "date-fns";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "../utils/leafletAssets";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { downloadOrExportFile } from "../utils/fileDownloader";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 import CameraCaptureModal from "../components/common/CameraCaptureModal";
@@ -358,20 +361,138 @@ export default function InspectionDetail() {
     }
   };
 
-  const handleDeleteInspection = async () => {
-    if (!window.confirm("Are you sure you want to delete this inspection?"))
-      return;
+  const exportInspectionPdf = async () => {
+    if (!inspection) return;
 
-    // Instant UI feedback - 0ms
-    toast.success("Inspection deleted successfully");
+    try {
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4",
+      });
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(20);
+      pdf.text("MineSight - Inspection Safety Audit Report", 36, 44);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.text(
+        `Generated: ${new Date().toLocaleString()} | ID: ${inspection._id || id}`,
+        36,
+        60
+      );
+
+      const mineName =
+        inspection.mineId?.name || inspection.mineId?.code || "N/A";
+      const inspectorName =
+        inspection.inspectorId?.name || "Field Officer";
+
+      const overviewRows = [
+        ["Title", inspection.title || "Untitled"],
+        ["Mine Site", mineName],
+        ["Type", (inspection.type || "scheduled").toUpperCase()],
+        ["Severity", (inspection.severity || "medium").toUpperCase()],
+        ["Status", (inspection.status || "open").replace("_", " ").toUpperCase()],
+        ["Risk Score", String(inspection.riskScore ?? "—")],
+        ["Inspector", inspectorName],
+        ["Created Date", safeFormatDate(inspection.createdAt)],
+      ];
+
+      autoTable(pdf, {
+        head: [["Attribute", "Details"]],
+        body: overviewRows,
+        startY: 75,
+        margin: { left: 36, right: 36 },
+        styles: { font: "helvetica", fontSize: 9, cellPadding: 5 },
+        headStyles: { fillColor: [13, 63, 109] },
+        columnStyles: { 0: { cellWidth: 140, fontStyle: "bold" }, 1: { cellWidth: 380 } },
+      });
+
+      let nextY = pdf.lastAutoTable.finalY + 20;
+
+      if (inspection.description) {
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(11);
+        pdf.text("Description", 36, nextY);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        const splitDesc = pdf.splitTextToSize(inspection.description, 520);
+        pdf.text(splitDesc, 36, nextY + 14);
+        nextY += 20 + splitDesc.length * 10;
+      }
+
+      if (inspection.observations) {
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(11);
+        pdf.text("Field Observations", 36, nextY);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        const splitObs = pdf.splitTextToSize(inspection.observations, 520);
+        pdf.text(splitObs, 36, nextY + 14);
+        nextY += 20 + splitObs.length * 10;
+      }
+
+      if (Array.isArray(inspection.violations) && inspection.violations.length > 0) {
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(11);
+        pdf.text("Violations Recorded", 36, nextY);
+        autoTable(pdf, {
+          head: [["Category", "Severity", "Description", "Corrective Action"]],
+          body: inspection.violations.map((v) => [
+            String(v.category || "General"),
+            String(v.severity || "medium").toUpperCase(),
+            String(v.description || "—"),
+            String(v.correctiveAction || "None specified"),
+          ]),
+          startY: nextY + 8,
+          margin: { left: 36, right: 36 },
+          styles: { font: "helvetica", fontSize: 8, cellPadding: 4, overflow: "linebreak" },
+          headStyles: { fillColor: [180, 40, 40] },
+        });
+      }
+
+      const pdfBlob = pdf.output("blob");
+      const fileName = `inspection-${inspection._id || id || Date.now()}.pdf`;
+      const ok = await downloadOrExportFile(pdfBlob, fileName, "application/pdf");
+      if (ok) {
+        toast.success(
+          language === "hi"
+            ? "निरीक्षण PDF रिपोर्ट डाउनलोड हो गई!"
+            : "Inspection PDF report downloaded!"
+        );
+      }
+    } catch (err) {
+      console.error("Single inspection PDF error:", err);
+      toast.error(
+        language === "hi"
+          ? "पीडीएफ रिपोर्ट तैयार करने में असमर्थ"
+          : "Unable to generate the PDF report"
+      );
+    }
+  };
+
+  const handleDeleteInspection = async () => {
+    const confirmMsg =
+      t.deleteInspectionConfirm ||
+      (language === "hi"
+        ? "क्या आप वाकई इस निरीक्षण को हटाना चाहते हैं?"
+        : "Are you sure you want to delete this inspection?");
+    if (!window.confirm(confirmMsg)) return;
+
+    // Instant UI feedback
+    toast.success(
+      t.inspectionDeletedSuccess ||
+        (language === "hi"
+          ? "निरीक्षण सफलतापूर्वक हटा दिया गया"
+          : "Inspection deleted successfully")
+    );
     navigate("/app/inspections");
 
     try {
       await deleteInspection(id);
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to delete inspection",
-      );
+      console.warn("Delete inspection error:", error);
     }
   };
 
@@ -842,11 +963,20 @@ export default function InspectionDetail() {
 
             <button
               type="button"
+              onClick={exportInspectionPdf}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#bca98e] bg-[#f8f4ed] px-3 py-2.5 text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] transition touch-manipulation cursor-pointer active:scale-98"
+            >
+              <FileText className="h-4 w-4 text-[#0d3f6d]" />
+              {language === "hi" ? "PDF रिपोर्ट डाउनलोड करें" : "Download PDF Report"}
+            </button>
+
+            <button
+              type="button"
               onClick={handleDeleteInspection}
               className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70 touch-manipulation cursor-pointer active:scale-98"
             >
               <Trash2 className="h-4 w-4" />
-              Delete Inspection
+              {language === "hi" ? "निरीक्षण हटाएं" : "Delete Inspection"}
             </button>
           </div>
 

@@ -104,9 +104,16 @@ const getInspections = asyncHandler(async (req, res) => {
 // @route   GET /api/inspections/:id
 // @access  Private
 const getInspectionById = asyncHandler(async (req, res) => {
-  const inspection = await Inspection.findById(req.params.id)
-    .populate("mineId", "name code subsidiary location")
-    .populate("inspectorId", "name email phone");
+  let inspection = null;
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    inspection = await Inspection.findById(req.params.id)
+      .populate("mineId", "name code subsidiary location")
+      .populate("inspectorId", "name email phone");
+  } else {
+    inspection = await Inspection.findOne({ offlineId: req.params.id })
+      .populate("mineId", "name code subsidiary location")
+      .populate("inspectorId", "name email phone");
+  }
 
   if (!inspection) {
     res.status(404);
@@ -303,7 +310,12 @@ const createInspection = asyncHandler(async (req, res) => {
 // @route   PUT /api/inspections/:id
 // @access  Private
 const updateInspection = asyncHandler(async (req, res) => {
-  let inspection = await Inspection.findById(req.params.id);
+  let inspection = null;
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    inspection = await Inspection.findById(req.params.id);
+  } else {
+    inspection = await Inspection.findOne({ offlineId: req.params.id });
+  }
 
   if (!inspection) {
     res.status(404);
@@ -398,11 +410,19 @@ const updateInspection = asyncHandler(async (req, res) => {
 // @route   DELETE /api/inspections/:id
 // @access  Private
 const deleteInspection = asyncHandler(async (req, res) => {
-  const inspection = await Inspection.findById(req.params.id);
+  let inspection = null;
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    inspection = await Inspection.findById(req.params.id);
+  } else {
+    inspection = await Inspection.findOne({ offlineId: req.params.id });
+  }
 
   if (!inspection) {
-    res.status(404);
-    throw new Error("Inspection not found");
+    return res.json({
+      success: true,
+      message: "Inspection removed successfully",
+      data: { id: req.params.id },
+    });
   }
 
   const oldValue = toAuditSnapshot(inspection);

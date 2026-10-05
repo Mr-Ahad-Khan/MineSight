@@ -10,6 +10,7 @@ import {
   getStoredQueue,
   processSyncQueue,
   initAutoSync,
+  removeQueuedMutationsByLocalId,
 } from "./syncQueue";
 import { reportNetworkError, reportNetworkSuccess } from "./networkManager";
 import toast from "react-hot-toast";
@@ -987,18 +988,25 @@ export const getInspectionAuditHistory = async (id) => {
 };
 
 export const createInspection = async (data) => {
-  const localId = `insp_offline_${Date.now()}`;
   const isFormData = data instanceof FormData;
+  const providedOfflineId = isFormData
+    ? data.get("offlineId")
+    : data?.offlineId;
+  const localId = providedOfflineId || `insp_offline_${Date.now()}`;
 
   let payload = {};
   let files = [];
 
   if (isFormData) {
+    if (!data.has("offlineId")) {
+      data.set("offlineId", localId);
+    }
     const extracted = await extractFormData(data);
     payload = extracted.fields;
     files = extracted.files;
+    payload.offlineId = localId;
   } else {
-    payload = data;
+    payload = { ...data, offlineId: localId };
   }
 
   // Find linked mine info
@@ -1206,26 +1214,19 @@ export const updateInspection = async (id, data) => {
 };
 
 export const deleteInspection = async (id) => {
-  if (typeof navigator !== "undefined" && !navigator.onLine) {
-    await offlineStorage.deleteInspection(id);
-    await enqueueMutation({
-      type: "DELETE_INSPECTION",
-      method: "DELETE",
-      url: `/inspections/${id}`,
-      entityType: "inspections",
-      localId: id,
-      label: `Delete Inspection: ${id}`,
-    });
-    return { data: { success: true, message: "Inspection deleted offline" } };
-  }
+  const idStr = String(id || "");
+  const isOfflineId =
+    !id ||
+    idStr.startsWith("insp_offline_") ||
+    idStr.includes("offline") ||
+    idStr.startsWith("local_");
 
-  try {
-    const res = await api.delete(`/inspections/${id}`);
-    await offlineStorage.deleteInspection(id);
-    return res;
-  } catch (error) {
-    if (isOfflineOrNetworkError(error)) {
-      await offlineStorage.deleteInspection(id);
+  // Always delete locally and purge any pending mutations for this item
+  await offlineStorage.deleteInspection(id);
+  removeQueuedMutationsByLocalId(id);
+
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    if (!isOfflineId) {
       await enqueueMutation({
         type: "DELETE_INSPECTION",
         method: "DELETE",
@@ -1234,6 +1235,37 @@ export const deleteInspection = async (id) => {
         localId: id,
         label: `Delete Inspection: ${id}`,
       });
+    }
+    return { data: { success: true, message: "Inspection deleted offline" } };
+  }
+
+  try {
+    const res = await api.delete(`/inspections/${id}`);
+    await offlineStorage.deleteInspection(id);
+    removeQueuedMutationsByLocalId(id);
+    return res;
+  } catch (error) {
+    const status = error.response?.status;
+    // 404 (already deleted) or 400/500 on offlineId -> cleanly treated as deleted
+    if (status === 404 || (isOfflineId && (status === 400 || status === 500))) {
+      await offlineStorage.deleteInspection(id);
+      removeQueuedMutationsByLocalId(id);
+      return { data: { success: true, message: "Inspection deleted successfully" } };
+    }
+
+    if (isOfflineOrNetworkError(error)) {
+      await offlineStorage.deleteInspection(id);
+      removeQueuedMutationsByLocalId(id);
+      if (!isOfflineId) {
+        await enqueueMutation({
+          type: "DELETE_INSPECTION",
+          method: "DELETE",
+          url: `/inspections/${id}`,
+          entityType: "inspections",
+          localId: id,
+          label: `Delete Inspection: ${id}`,
+        });
+      }
       return { data: { success: true, message: "Inspection deleted offline" } };
     }
     throw error;

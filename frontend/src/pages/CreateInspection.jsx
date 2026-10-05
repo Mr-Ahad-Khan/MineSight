@@ -810,6 +810,8 @@ export default function CreateInspection() {
         formData.append("photos", photo);
       });
 
+      formData.set("offlineId", `insp_offline_${Date.now()}`);
+
       const res = await createInspection(formData);
       try {
         localStorage.removeItem(DRAFT_KEY);

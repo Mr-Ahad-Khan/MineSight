@@ -9,6 +9,8 @@ import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 import { downloadOrExportFile } from "../utils/fileDownloader";
 import TableScrollContainer from "../components/common/TableScrollContainer";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const safeFormatDate = (dateVal, formatStr = "dd MMM yyyy") => {
   if (!dateVal) return "—";
@@ -109,25 +111,58 @@ export default function Inspections() {
   };
 
   const handleDeleteInspection = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this inspection?"))
-      return;
+    const confirmMsg =
+      t.deleteInspectionConfirm ||
+      (language === "hi"
+        ? "क्या आप वाकई इस निरीक्षण को हटाना चाहते हैं?"
+        : "Are you sure you want to delete this inspection?");
+    if (!window.confirm(confirmMsg)) return;
 
     try {
       await deleteInspection(id);
-      toast.success("Inspection deleted successfully");
+      toast.success(
+        t.inspectionDeletedSuccess ||
+          (language === "hi"
+            ? "निरीक्षण सफलतापूर्वक हटा दिया गया"
+            : "Inspection deleted successfully")
+      );
       setInspections((prev) =>
         prev.filter((inspection) => inspection._id !== id),
       );
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to delete inspection",
-      );
+      const isOfflineId =
+        !id ||
+        String(id).startsWith("insp_offline_") ||
+        String(id).includes("offline");
+      if (isOfflineId) {
+        await offlineStorage.deleteInspection(id);
+        setInspections((prev) =>
+          prev.filter((inspection) => inspection._id !== id),
+        );
+        toast.success(
+          t.inspectionDeletedSuccess ||
+            (language === "hi"
+              ? "निरीक्षण सफलतापूर्वक हटा दिया गया"
+              : "Inspection deleted successfully")
+        );
+      } else {
+        toast.error(
+          error.response?.data?.message ||
+            (language === "hi"
+              ? "निरीक्षण हटाने में विफल"
+              : "Failed to delete inspection"),
+        );
+      }
     }
   };
 
   const exportInspectionsCsv = async () => {
     if (!inspections || inspections.length === 0) {
-      return toast.error("No inspections available to export");
+      return toast.error(
+        language === "hi"
+          ? "निर्यात के लिए कोई निरीक्षण उपलब्ध नहीं है"
+          : "No inspections available to export"
+      );
     }
 
     const escapeCsv = (val) => `"${String(val ?? "").replace(/"/g, '""')}"`;
@@ -145,12 +180,22 @@ export default function Inspections() {
 
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
     const ok = await downloadOrExportFile(`\uFEFF${csvContent}`, `inspections-report-${Date.now()}.csv`, "text/csv");
-    if (ok) toast.success("Inspections CSV report downloaded!");
+    if (ok) {
+      toast.success(
+        language === "hi"
+          ? "निरीक्षण CSV रिपोर्ट डाउनलोड हो गई!"
+          : "Inspections CSV report downloaded!"
+      );
+    }
   };
 
   const exportInspectionsJson = async () => {
     if (!inspections || inspections.length === 0) {
-      return toast.error("No inspections available to export");
+      return toast.error(
+        language === "hi"
+          ? "निर्यात के लिए कोई निरीक्षण उपलब्ध नहीं है"
+          : "No inspections available to export"
+      );
     }
 
     const exportData = {
@@ -174,7 +219,102 @@ export default function Inspections() {
       `inspections-report-${Date.now()}.json`,
       "application/json",
     );
-    if (ok) toast.success("Inspections JSON report downloaded!");
+    if (ok) {
+      toast.success(
+        language === "hi"
+          ? "निरीक्षण JSON रिपोर्ट डाउनलोड हो गई!"
+          : "Inspections JSON report downloaded!"
+      );
+    }
+  };
+
+  const exportInspectionsPdf = async () => {
+    if (!inspections || inspections.length === 0) {
+      return toast.error(
+        language === "hi"
+          ? "निर्यात के लिए कोई निरीक्षण उपलब्ध नहीं है"
+          : "No inspections available to export"
+      );
+    }
+
+    try {
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: "a4",
+      });
+
+      const columns = [
+        "Title",
+        "Mine",
+        "Type",
+        "Severity",
+        "Status",
+        "Risk Score",
+        "Violations",
+        "Date Recorded",
+      ];
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(18);
+      pdf.text("MineSight - Inspections Audit Report", 36, 40);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.text(
+        `Generated: ${new Date().toLocaleString()}  |  Total Inspections: ${inspections.length}`,
+        36,
+        58,
+      );
+
+      autoTable(pdf, {
+        head: [columns],
+        body: inspections.map((i) => [
+          String(i.title || "Untitled"),
+          String(
+            i.mineId?.name ||
+              i.mineId?.code ||
+              (typeof i.mineId === "string" ? i.mineId : "Not Specified"),
+          ),
+          String(i.type || "scheduled"),
+          String(i.severity || "medium").toUpperCase(),
+          String(i.status || "open").replace("_", " ").toUpperCase(),
+          String(i.riskScore ?? "—"),
+          String(i.violations?.length || 0),
+          safeFormatDate(i.createdAt),
+        ]),
+        startY: 72,
+        margin: { left: 36, right: 36 },
+        styles: {
+          font: "helvetica",
+          fontSize: 8,
+          cellPadding: 5,
+          overflow: "linebreak",
+        },
+        headStyles: { fillColor: [13, 63, 109] },
+      });
+
+      const pdfBlob = pdf.output("blob");
+      const ok = await downloadOrExportFile(
+        pdfBlob,
+        `inspections-report-${Date.now()}.pdf`,
+        "application/pdf",
+      );
+      if (ok) {
+        toast.success(
+          language === "hi"
+            ? "निरीक्षण PDF रिपोर्ट डाउनलोड हो गई!"
+            : "Inspections PDF report downloaded!",
+        );
+      }
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      toast.error(
+        language === "hi"
+          ? "पीडीएफ रिपोर्ट तैयार करने में असमर्थ"
+          : "Unable to generate the PDF report",
+      );
+    }
   };
 
   return (
@@ -194,23 +334,34 @@ export default function Inspections() {
               {t.newInspection}
             </Link>
 
-            <button
-              type="button"
-              onClick={exportInspectionsCsv}
-              className="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-[#bca98e] bg-[#f8f4ed] px-4 py-2 text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] active:scale-[0.98]"
-              title="Download Inspections CSV Report"
-            >
-              CSV Report
-            </button>
+            <div className="grid grid-cols-3 gap-2 w-full sm:w-auto sm:flex sm:flex-wrap sm:gap-2.5">
+              <button
+                type="button"
+                onClick={exportInspectionsCsv}
+                className="inline-flex min-h-[44px] w-full sm:w-auto touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-[#bca98e] bg-[#f8f4ed] px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] active:scale-[0.96] select-none cursor-pointer"
+                title={t.downloadCsvReport || "Download Inspections CSV Report"}
+              >
+                {t.csvReport || "CSV Report"}
+              </button>
 
-            <button
-              type="button"
-              onClick={exportInspectionsJson}
-              className="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-[#bca98e] bg-[#f8f4ed] px-4 py-2 text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] active:scale-[0.98]"
-              title="Download Inspections JSON Report"
-            >
-              JSON Report
-            </button>
+              <button
+                type="button"
+                onClick={exportInspectionsJson}
+                className="inline-flex min-h-[44px] w-full sm:w-auto touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-[#bca98e] bg-[#f8f4ed] px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] active:scale-[0.96] select-none cursor-pointer"
+                title={t.downloadJsonReport || "Download Inspections JSON Report"}
+              >
+                {t.jsonReport || "JSON Report"}
+              </button>
+
+              <button
+                type="button"
+                onClick={exportInspectionsPdf}
+                className="inline-flex min-h-[44px] w-full sm:w-auto touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-[#bca98e] bg-[#f8f4ed] px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] active:scale-[0.96] select-none cursor-pointer"
+                title={t.downloadPdfReport || "Download Inspections PDF Report"}
+              >
+                {t.pdfReport || "PDF Report"}
+              </button>
+            </div>
             <label className="relative min-w-[220px] flex-1 sm:flex-none">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#786f63]" />
               <input
@@ -498,7 +649,7 @@ export default function Inspections() {
                             className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                            Delete
+                            {language === "hi" ? "हटाएं" : "Delete"}
                           </button>
                         </td>
                       </tr>
