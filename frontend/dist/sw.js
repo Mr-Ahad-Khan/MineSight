@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'minesight-shell-v' + 1791234147524;
+const SHELL_CACHE = 'minesight-shell-v' + 1791234395050;
 const TILE_CACHE = 'minesight-tiles-v1';
 const FONT_CACHE = 'minesight-fonts-v1';
 const RUNTIME_CACHE = 'minesight-runtime-v1';
