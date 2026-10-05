@@ -1,8 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Camera, CheckCircle, Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
-import { deleteInspection, getInspections, getMediaUrl, getMines } from "../services/api";
-import { offlineStorage } from "../services/offlineStorage";
+import {
+  Camera,
+  CheckCircle,
+  Mic,
+  Plus,
+  Search,
+  Trash2,
+  X,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
+import {
+  deleteInspection,
+  getInspections,
+  getMediaUrl,
+  getMines,
+} from "../services/api";
+import { getOfflineMedia, offlineStorage } from "../services/offlineStorage";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { useLanguageStore } from "../store/themeStore";
@@ -37,6 +52,58 @@ const severityBadge = {
   critical: "badge-critical",
 };
 
+const resolveInspectionPhoto = async (photo) => {
+  const mediaKey = typeof photo === "object" ? photo?.mediaKey : null;
+  if (mediaKey) {
+    const offlineMedia = await getOfflineMedia(mediaKey);
+    if (offlineMedia) return offlineMedia;
+  }
+  return getMediaUrl(photo);
+};
+
+function InspectionPhotoThumbnail({ photo, onClick }) {
+  const [src, setSrc] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    resolveInspectionPhoto(photo).then((resolvedSrc) => {
+      if (active) setSrc(resolvedSrc);
+    });
+    return () => {
+      active = false;
+    };
+  }, [photo]);
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group relative h-9 w-9 shrink-0 overflow-hidden rounded-md border border-[#d9c7a7] shadow-sm"
+      aria-label="Open inspection photos"
+    >
+      {src ? (
+        <img
+          src={src}
+          alt="Inspection preview"
+          className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+            if (event.currentTarget.nextElementSibling) {
+              event.currentTarget.nextElementSibling.style.display = "flex";
+            }
+          }}
+        />
+      ) : null}
+      <span
+        className="absolute inset-0 items-center justify-center bg-[#f1e8dc]"
+        style={{ display: src ? "none" : "flex" }}
+      >
+        <Camera className="h-4 w-4 text-slate-600" />
+      </span>
+    </button>
+  );
+}
+
 export default function Inspections() {
   const [inspections, setInspections] = useState([]);
   const [mines, setMines] = useState([]);
@@ -54,7 +121,9 @@ export default function Inspections() {
     setPhotoZoom((current) => Math.min(4, Math.max(1, current + amount)));
   };
   const filteredInspections = inspections.filter((inspection) =>
-    inspection.title?.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()),
+    inspection.title
+      ?.toLocaleLowerCase()
+      .includes(searchQuery.trim().toLocaleLowerCase()),
   );
 
   useEffect(() => {
@@ -88,27 +157,40 @@ export default function Inspections() {
       let list = res?.data?.data || res?.data || [];
       if (!Array.isArray(list) || list.length === 0) {
         let localItems = await offlineStorage.getInspections();
-        if (filters.status) localItems = localItems.filter((i) => i.status === filters.status);
-        if (filters.severity) localItems = localItems.filter((i) => i.severity === filters.severity);
+        if (filters.status)
+          localItems = localItems.filter((i) => i.status === filters.status);
+        if (filters.severity)
+          localItems = localItems.filter(
+            (i) => i.severity === filters.severity,
+          );
         if (localItems && localItems.length > 0) {
           list = localItems;
         }
       }
       const newestFirst = Array.isArray(list)
         ? [...list].sort(
-            (a, b) => new Date(b.createdAt || b.inspectionDate || 0).getTime() - new Date(a.createdAt || a.inspectionDate || 0).getTime(),
+            (a, b) =>
+              new Date(b.createdAt || b.inspectionDate || 0).getTime() -
+              new Date(a.createdAt || a.inspectionDate || 0).getTime(),
           )
         : [];
       setInspections(newestFirst);
     } catch (error) {
-      console.warn("fetchInspections error, falling back to offline storage:", error);
+      console.warn(
+        "fetchInspections error, falling back to offline storage:",
+        error,
+      );
       try {
         let localList = await offlineStorage.getInspections();
-        if (filters.status) localList = localList.filter((i) => i.status === filters.status);
-        if (filters.severity) localList = localList.filter((i) => i.severity === filters.severity);
+        if (filters.status)
+          localList = localList.filter((i) => i.status === filters.status);
+        if (filters.severity)
+          localList = localList.filter((i) => i.severity === filters.severity);
         const newestFirst = Array.isArray(localList)
           ? [...localList].sort(
-              (a, b) => new Date(b.createdAt || b.inspectionDate || 0).getTime() - new Date(a.createdAt || a.inspectionDate || 0).getTime(),
+              (a, b) =>
+                new Date(b.createdAt || b.inspectionDate || 0).getTime() -
+                new Date(a.createdAt || a.inspectionDate || 0).getTime(),
             )
           : [];
         setInspections(newestFirst);
@@ -134,7 +216,7 @@ export default function Inspections() {
         t.inspectionDeletedSuccess ||
           (language === "hi"
             ? "निरीक्षण सफलतापूर्वक हटा दिया गया"
-            : "Inspection deleted successfully")
+            : "Inspection deleted successfully"),
       );
       setInspections((prev) =>
         prev.filter((inspection) => inspection._id !== id),
@@ -153,7 +235,7 @@ export default function Inspections() {
           t.inspectionDeletedSuccess ||
             (language === "hi"
               ? "निरीक्षण सफलतापूर्वक हटा दिया गया"
-              : "Inspection deleted successfully")
+              : "Inspection deleted successfully"),
         );
       } else {
         toast.error(
@@ -171,12 +253,21 @@ export default function Inspections() {
       return toast.error(
         language === "hi"
           ? "निर्यात के लिए कोई निरीक्षण उपलब्ध नहीं है"
-          : "No inspections available to export"
+          : "No inspections available to export",
       );
     }
 
     const escapeCsv = (val) => `"${String(val ?? "").replace(/"/g, '""')}"`;
-    const headers = ["Title", "Mine", "Type", "Severity", "Status", "Risk Score", "Violations Count", "Date Recorded"];
+    const headers = [
+      "Title",
+      "Mine",
+      "Type",
+      "Severity",
+      "Status",
+      "Risk Score",
+      "Violations Count",
+      "Date Recorded",
+    ];
     const rows = inspections.map((i) => [
       escapeCsv(i.title || "Untitled"),
       escapeCsv(i.mineId?.name || i.mineId?.code || "Not Specified"),
@@ -188,13 +279,20 @@ export default function Inspections() {
       escapeCsv(safeFormatDate(i.createdAt)),
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
-    const ok = await downloadOrExportFile(`\uFEFF${csvContent}`, `inspections-report-${Date.now()}.csv`, "text/csv");
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\r\n");
+    const ok = await downloadOrExportFile(
+      `\uFEFF${csvContent}`,
+      `inspections-report-${Date.now()}.csv`,
+      "text/csv",
+    );
     if (ok) {
       toast.success(
         language === "hi"
           ? "निरीक्षण CSV रिपोर्ट डाउनलोड हो गई!"
-          : "Inspections CSV report downloaded!"
+          : "Inspections CSV report downloaded!",
       );
     }
   };
@@ -204,7 +302,7 @@ export default function Inspections() {
       return toast.error(
         language === "hi"
           ? "निर्यात के लिए कोई निरीक्षण उपलब्ध नहीं है"
-          : "No inspections available to export"
+          : "No inspections available to export",
       );
     }
 
@@ -233,7 +331,7 @@ export default function Inspections() {
       toast.success(
         language === "hi"
           ? "निरीक्षण JSON रिपोर्ट डाउनलोड हो गई!"
-          : "Inspections JSON report downloaded!"
+          : "Inspections JSON report downloaded!",
       );
     }
   };
@@ -243,7 +341,7 @@ export default function Inspections() {
       return toast.error(
         language === "hi"
           ? "निर्यात के लिए कोई निरीक्षण उपलब्ध नहीं है"
-          : "No inspections available to export"
+          : "No inspections available to export",
       );
     }
 
@@ -288,7 +386,9 @@ export default function Inspections() {
           ),
           String(i.type || "scheduled"),
           String(i.severity || "medium").toUpperCase(),
-          String(i.status || "open").replace("_", " ").toUpperCase(),
+          String(i.status || "open")
+            .replace("_", " ")
+            .toUpperCase(),
           String(i.riskScore ?? "—"),
           String(i.violations?.length || 0),
           safeFormatDate(i.createdAt),
@@ -358,7 +458,9 @@ export default function Inspections() {
                 type="button"
                 onClick={exportInspectionsJson}
                 className="inline-flex min-h-[44px] w-full sm:w-auto touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-[#bca98e] bg-[#f8f4ed] px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] active:scale-[0.96] select-none cursor-pointer"
-                title={t.downloadJsonReport || "Download Inspections JSON Report"}
+                title={
+                  t.downloadJsonReport || "Download Inspections JSON Report"
+                }
               >
                 {t.jsonReport || "JSON Report"}
               </button>
@@ -378,8 +480,16 @@ export default function Inspections() {
                 type="search"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder={language === "hi" ? "निरीक्षण का नाम खोजें" : "Search inspection name"}
-                aria-label={language === "hi" ? "निरीक्षण का नाम खोजें" : "Search inspection name"}
+                placeholder={
+                  language === "hi"
+                    ? "निरीक्षण का नाम खोजें"
+                    : "Search inspection name"
+                }
+                aria-label={
+                  language === "hi"
+                    ? "निरीक्षण का नाम खोजें"
+                    : "Search inspection name"
+                }
                 className="w-full rounded-full border border-[#bca98e] bg-[#f8f4ed] py-2.5 pl-10 pr-4 text-[16px] text-[#1f1f1f] outline-none placeholder:text-[#786f63] focus:border-[#8a7156] sm:w-64"
               />
             </label>
@@ -532,38 +642,27 @@ export default function Inspections() {
 
                             {insp.photos?.length > 0 ? (
                               <div className="flex items-center gap-1">
-                                <button
-                                  type="button"
-                                  onClick={(event) => {
+                                <InspectionPhotoThumbnail
+                                  photo={insp.photos[0]}
+                                  onClick={async (event) => {
                                     event.stopPropagation();
-                                    const photos = insp.photos.map(getMediaUrl);
+                                    const photos = await Promise.all(
+                                      insp.photos.map(resolveInspectionPhoto),
+                                    );
                                     setSelectedPhotos(photos);
                                     setSelectedPhotoIndex(0);
                                     setSelectedPhoto(null);
                                     setPhotoZoom(1);
                                   }}
-                                  className="group relative h-9 w-9 shrink-0 overflow-hidden rounded-md border border-[#d9c7a7] shadow-sm"
-                                  aria-label="Open inspection photos"
-                                >
-                                  <img
-                                    src={getMediaUrl(insp.photos[0])}
-                                    alt="Inspection preview"
-                                    className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
-                                    onError={(event) => {
-                                      event.currentTarget.style.display = "none";
-                                      if (event.currentTarget.nextElementSibling) {
-                                        event.currentTarget.nextElementSibling.style.display = "block";
-                                      }
-                                    }}
-                                  />
-                                  <Camera style={{ display: "none" }} className="w-4 h-4 text-slate-600 m-auto" />
-                                </button>
+                                />
                                 {insp.photos.length > 1 && (
                                   <button
                                     type="button"
-                                    onClick={(event) => {
+                                    onClick={async (event) => {
                                       event.stopPropagation();
-                                      const photos = insp.photos.map(getMediaUrl);
+                                      const photos = await Promise.all(
+                                        insp.photos.map(resolveInspectionPhoto),
+                                      );
                                       setSelectedPhotos(photos);
                                       setSelectedPhotoIndex(0);
                                       setSelectedPhoto(null);
@@ -585,7 +684,11 @@ export default function Inspections() {
                         </td>
 
                         <td className="px-4 py-4 align-middle text-[#2d2d2d]">
-                          {insp.mineId?.name || (typeof insp.mineId === "string" ? (mines.find((m) => m._id === insp.mineId)?.name || insp.mineId) : "—")}
+                          {insp.mineId?.name ||
+                            (typeof insp.mineId === "string"
+                              ? mines.find((m) => m._id === insp.mineId)
+                                  ?.name || insp.mineId
+                              : "—")}
                         </td>
 
                         <td className="px-4 py-4 align-middle">
@@ -680,7 +783,8 @@ export default function Inspections() {
                 )}
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-slate-300">
-                    {selectedPhoto ? `${selectedPhotoIndex + 1} / ` : ""}{selectedPhotos.length}
+                    {selectedPhoto ? `${selectedPhotoIndex + 1} / ` : ""}
+                    {selectedPhotos.length}
                   </span>
                   <button
                     type="button"
@@ -726,7 +830,9 @@ export default function Inspections() {
                       <button
                         type="button"
                         onClick={() => {
-                          const nextIndex = (selectedPhotoIndex - 1 + selectedPhotos.length) % selectedPhotos.length;
+                          const nextIndex =
+                            (selectedPhotoIndex - 1 + selectedPhotos.length) %
+                            selectedPhotos.length;
                           setSelectedPhotoIndex(nextIndex);
                           setSelectedPhoto(selectedPhotos[nextIndex]);
                           setPhotoZoom(1);
@@ -739,7 +845,8 @@ export default function Inspections() {
                       <button
                         type="button"
                         onClick={() => {
-                          const nextIndex = (selectedPhotoIndex + 1) % selectedPhotos.length;
+                          const nextIndex =
+                            (selectedPhotoIndex + 1) % selectedPhotos.length;
                           setSelectedPhotoIndex(nextIndex);
                           setSelectedPhoto(selectedPhotos[nextIndex]);
                           setPhotoZoom(1);
