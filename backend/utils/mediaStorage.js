@@ -115,6 +115,7 @@ module.exports = {
   createMediaStorage,
   getStoredMediaPath,
   cloudinaryConfigured,
+  getUploadFilePath,
   isAvailableMediaPath,
   serializeInspectionMedia,
 };

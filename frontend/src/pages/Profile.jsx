@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Camera, Save, UserCircle } from "lucide-react";
+import { ArrowLeft, Camera, Save, UserCircle, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
@@ -19,6 +19,7 @@ export default function Profile() {
     password: "",
   });
   const [profilePicture, setProfilePicture] = useState(null);
+  const [removePicture, setRemovePicture] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(
     getMediaUrl(user?.profilePicture),
   );
@@ -62,7 +63,15 @@ export default function Profile() {
     }
     if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     setProfilePicture(file);
+    setRemovePicture(false);
     setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemovePicture = () => {
+    if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+    setProfilePicture(null);
+    setPreviewUrl(null);
+    setRemovePicture(true);
   };
 
   const handleSubmit = async (event) => {
@@ -73,6 +82,9 @@ export default function Profile() {
       phone: form.phone.trim(),
     };
     if (form.password) payload.password = form.password;
+    if (removePicture && !profilePicture) {
+      payload.removeProfilePicture = "true";
+    }
 
     const requestData = profilePicture ? new FormData() : payload;
     if (profilePicture) {
@@ -88,6 +100,7 @@ export default function Profile() {
       toast.success("Profile updated successfully");
       setForm((current) => ({ ...current, password: "" }));
       setProfilePicture(null);
+      setRemovePicture(false);
       setPreviewUrl(getMediaUrl(result.user?.profilePicture));
     } else {
       toast.error(result.message);
@@ -139,12 +152,24 @@ export default function Profile() {
               </div>
             )}
             <div>
-              <label
-                htmlFor="profilePicture"
-                className="btn-secondary inline-flex cursor-pointer items-center gap-2"
-              >
-                <Camera className="h-4 w-4" /> {t.addProfilePicture}
-              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                <label
+                  htmlFor="profilePicture"
+                  className="btn-secondary inline-flex cursor-pointer items-center gap-2"
+                >
+                  <Camera className="h-4 w-4" />{" "}
+                  {previewUrl ? "Change Photo" : t.addProfilePicture}
+                </label>
+                {previewUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemovePicture}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300 cursor-pointer"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Remove Photo
+                  </button>
+                )}
+              </div>
               <input
                 id="profilePicture"
                 name="profilePicture"

@@ -399,7 +399,14 @@ const updateProfile = asyncHandler(async (req, res) => {
   if (name !== undefined) user.name = name.trim();
   if (email !== undefined) user.email = email.trim().toLowerCase();
   if (phone !== undefined) user.phone = phone.trim();
-  if (req.file) user.profilePicture = getStoredMediaPath(req.file);
+  if (req.file) {
+    user.profilePicture = getStoredMediaPath(req.file);
+  } else if (
+    req.body.removeProfilePicture === "true" ||
+    req.body.removeProfilePicture === true
+  ) {
+    user.profilePicture = null;
+  }
   if (password) user.password = password;
 
   if (!user.name || !user.email) {

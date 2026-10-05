@@ -1294,6 +1294,55 @@ export const deleteInspection = async (id) => {
   }
 };
 
+export const deleteInspectionPhoto = async (id, photoUrl, type = "photo") => {
+  const cleanTarget = String(photoUrl || "")
+    .replace(/^https?:\/\/[^\/]+/, "")
+    .split("?")[0];
+  const matchPhoto = (p) => {
+    if (!p) return false;
+    const cleanP = String(p).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+    return cleanP === cleanTarget || String(p) === String(photoUrl);
+  };
+
+  const updateOfflineInspection = async () => {
+    const cached = await offlineStorage.getInspection(id);
+    if (cached) {
+      if (type === "closurePhoto") {
+        cached.closurePhotos = (cached.closurePhotos || []).filter(
+          (p) => !matchPhoto(p),
+        );
+        cached.proofVerified = (cached.closurePhotos || []).length > 0;
+      } else {
+        cached.photos = (cached.photos || []).filter((p) => !matchPhoto(p));
+      }
+      await offlineStorage.saveInspection(cached);
+      return cached;
+    }
+    return null;
+  };
+
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    const updated = await updateOfflineInspection();
+    return { data: { success: true, data: updated, _isOffline: true } };
+  }
+
+  try {
+    const res = await api.delete(`/inspections/${id}/photos`, {
+      data: { photoUrl, type },
+    });
+    if (res?.data?.data) {
+      await offlineStorage.saveInspection(res.data.data).catch(() => {});
+    }
+    return res;
+  } catch (error) {
+    if (isOfflineOrNetworkError(error)) {
+      const updated = await updateOfflineInspection();
+      return { data: { success: true, data: updated, _isOffline: true } };
+    }
+    throw error;
+  }
+};
+
 export const closeViolation = async (id, violationId) => {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     const inspection = await offlineStorage.getInspection(id);

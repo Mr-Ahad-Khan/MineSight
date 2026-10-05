@@ -8,6 +8,7 @@ const {
   createInspection,
   updateInspection,
   deleteInspection,
+  deleteInspectionPhoto,
   closeViolation,
   detectRiskFromPhoto,
 } = require("../controllers/inspectionController");
@@ -91,6 +92,8 @@ router
   .get(getInspectionById)
   .put(handleInspectionUpload, updateInspection)
   .delete(deleteInspection);
+
+router.delete("/:id/photos", deleteInspectionPhoto);
 
 router.patch("/:id/violations/:violationId", closeViolation);
 

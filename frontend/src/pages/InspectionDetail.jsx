@@ -21,6 +21,7 @@ import {
 import toast from "react-hot-toast";
 import {
   deleteInspection,
+  deleteInspectionPhoto,
   getInspection,
   updateInspection,
   closeViolation,
@@ -85,6 +86,7 @@ export default function InspectionDetail() {
     description: "",
     observations: "",
   });
+  const [deletingPhoto, setDeletingPhoto] = useState(null);
   const proofInputRef = useRef(null);
 
   useEffect(() => {
@@ -308,6 +310,48 @@ export default function InspectionDetail() {
       toast.error(error.response?.data?.message || t.failedUpdate);
     } finally {
       setProofUploading(false);
+    }
+  };
+
+  const handleDeletePhoto = async (photoUrl, type = "photo") => {
+    if (!photoUrl) return;
+    if (!window.confirm("Are you sure you want to delete this photo?")) return;
+    setDeletingPhoto(photoUrl);
+    const toastId = toast.loading("Deleting photo...");
+
+    const previousInspection = inspection;
+    const cleanTarget = String(photoUrl).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+    const matchPhoto = (p) => {
+      if (!p) return false;
+      const cleanP = String(p).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+      return cleanP === cleanTarget || String(p) === String(photoUrl);
+    };
+
+    setInspection((prev) => {
+      if (!prev) return prev;
+      if (type === "closurePhoto") {
+        const updated = (prev.closurePhotos || []).filter((p) => !matchPhoto(p));
+        return { ...prev, closurePhotos: updated, proofVerified: updated.length > 0 };
+      }
+      return { ...prev, photos: (prev.photos || []).filter((p) => !matchPhoto(p)) };
+    });
+
+    if (selectedPhoto && matchPhoto(selectedPhoto)) {
+      setSelectedPhoto(null);
+    }
+
+    try {
+      const res = await deleteInspectionPhoto(id, photoUrl, type);
+      if (res?.data?.data) {
+        setInspection(res.data.data);
+      }
+      toast.success("Photo deleted successfully", { id: toastId });
+      fetchAuditTrail().catch(() => {});
+    } catch (err) {
+      setInspection(previousInspection);
+      toast.error(err.response?.data?.message || "Failed to delete photo", { id: toastId });
+    } finally {
+      setDeletingPhoto(null);
     }
   };
 
@@ -737,6 +781,25 @@ export default function InspectionDetail() {
                           Photo {index + 1}
                         </div>
 
+                        {/* Top Right Action: Delete Photo */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeletePhoto(photo, "photo");
+                          }}
+                          disabled={deletingPhoto === photo || deletingPhoto === photoSrc}
+                          title="Delete photo"
+                          aria-label="Delete photo"
+                          className="absolute top-1.5 right-1.5 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600/90 text-white backdrop-blur-xs transition hover:bg-rose-700 active:scale-95 shadow-md disabled:opacity-50 cursor-pointer"
+                        >
+                          {deletingPhoto === photo || deletingPhoto === photoSrc ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+
                         {/* Detect Risk Button on Photo */}
                         <button
                           type="button"
@@ -744,7 +807,7 @@ export default function InspectionDetail() {
                             e.stopPropagation();
                             handleDetectPhotoRisk(photoSrc);
                           }}
-                          disabled={isAnalyzingRisk}
+                          disabled={isAnalyzingRisk || deletingPhoto === photo || deletingPhoto === photoSrc}
                           title="Run AI Hazard Risk Detection on this photo"
                           className="absolute bottom-1 right-1 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-amber-300 backdrop-blur-xs hover:bg-black transition flex items-center gap-1 shadow"
                         >
@@ -901,23 +964,40 @@ export default function InspectionDetail() {
                       <div className="grid grid-cols-3 gap-2 pt-1">
                         {closureProofPhotos.map((photo, idx) => {
                           const url = getMediaUrl(photo);
+                          const isDeleting =
+                            deletingPhoto === photo || deletingPhoto === url;
                           return (
-                            <button
+                            <div
                               key={`closure-${photo}-${idx}`}
-                              type="button"
-                              onClick={() => {
-                                setSelectedPhoto(url);
-                                setPhotoZoom(1);
-                              }}
-                              className="group relative aspect-video overflow-hidden rounded-md border border-emerald-300 bg-slate-100 dark:border-emerald-700 dark:bg-slate-800"
-                              title="Click to view closure proof"
+                              className="group relative aspect-video overflow-hidden rounded-md border border-emerald-300 bg-slate-100 dark:border-emerald-700 dark:bg-slate-800 shadow-xs"
                             >
                               <img
                                 src={url}
                                 alt={`Closure proof ${idx + 1}`}
-                                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                className="h-full w-full object-cover cursor-zoom-in transition-transform duration-200 group-hover:scale-105"
+                                onClick={() => {
+                                  setSelectedPhoto(url);
+                                  setPhotoZoom(1);
+                                }}
                               />
-                            </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeletePhoto(photo, "closurePhoto");
+                                }}
+                                disabled={isDeleting}
+                                title="Delete proof photo"
+                                aria-label="Delete proof photo"
+                                className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded bg-rose-600/90 text-white transition hover:bg-rose-700 active:scale-95 shadow cursor-pointer disabled:opacity-50"
+                              >
+                                {isDeleting ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3 w-3" />
+                                )}
+                              </button>
+                            </div>
                           );
                         })}
                       </div>
@@ -1152,6 +1232,26 @@ export default function InspectionDetail() {
                 Close Inspection
               </button>
             )}
+            <button
+              type="button"
+              onClick={async (e) => {
+                e.stopPropagation();
+                const isClosure = (inspection.closurePhotos || []).some((p) => {
+                  const u = getMediaUrl(p);
+                  return u === selectedPhoto || p === selectedPhoto;
+                });
+                await handleDeletePhoto(
+                  selectedPhoto,
+                  isClosure ? "closurePhoto" : "photo"
+                );
+              }}
+              disabled={deletingPhoto === selectedPhoto}
+              className="ml-2 flex items-center gap-1.5 rounded-md bg-rose-600 px-3 py-1.5 text-xs font-bold text-white shadow hover:bg-rose-700 active:scale-95 transition disabled:opacity-50 cursor-pointer"
+              title="Delete this photo"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete Photo
+            </button>
           </div>
           <button
             type="button"

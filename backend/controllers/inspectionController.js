@@ -6,8 +6,10 @@ const Alert = require("../models/Alert");
 const AuditLog = require("../models/AuditLog");
 const { calculateRiskScore, getRiskLevel, detectPhotoRiskBackend } = require("../utils/riskCalculator");
 const { appendAuditBlock, verifyAuditChain } = require("../utils/auditChain");
+const fs = require("fs");
 const {
   getStoredMediaPath,
+  getUploadFilePath,
   serializeInspectionMedia,
 } = require("../utils/mediaStorage");
 
@@ -363,6 +365,15 @@ const updateInspection = asyncHandler(async (req, res) => {
       : [];
     req.body.closurePhotos = [...currentClosure, ...uploadedPhotos].slice(0, 10);
     req.body.proofVerified = true;
+  } else {
+    const submittedClosurePhotos = parseFormDataValue(req.body.closurePhotos, null);
+    if (submittedClosurePhotos !== null) {
+      req.body.closurePhotos = (Array.isArray(submittedClosurePhotos)
+        ? submittedClosurePhotos
+        : [submittedClosurePhotos]
+      ).filter((photo) => typeof photo === "string" && photo.trim());
+      req.body.proofVerified = req.body.closurePhotos.length > 0;
+    }
   }
 
   if (submittedPhotos !== null || uploadedPhotos.length) {
@@ -524,6 +535,78 @@ const detectRiskFromPhoto = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Delete photo from inspection (site photo or closure photo)
+// @route   DELETE /api/inspections/:id/photos
+// @access  Private
+const deleteInspectionPhoto = asyncHandler(async (req, res) => {
+  const { photoUrl, type = "photo" } = req.body;
+  if (!photoUrl) {
+    res.status(400);
+    throw new Error("photoUrl is required");
+  }
+
+  let inspection = null;
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    inspection = await Inspection.findById(req.params.id);
+  } else {
+    inspection = await Inspection.findOne({ offlineId: req.params.id });
+  }
+
+  if (!inspection) {
+    res.status(404);
+    throw new Error("Inspection not found");
+  }
+
+  const cleanTarget = String(photoUrl).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+
+  const matchPhoto = (p) => {
+    if (!p) return false;
+    const cleanP = String(p).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+    return cleanP === cleanTarget || String(p) === String(photoUrl);
+  };
+
+  const oldValue = toAuditSnapshot(inspection);
+
+  if (type === "closurePhoto") {
+    inspection.closurePhotos = (inspection.closurePhotos || []).filter((p) => !matchPhoto(p));
+    inspection.proofVerified = inspection.closurePhotos.length > 0;
+  } else {
+    inspection.photos = (inspection.photos || []).filter((p) => !matchPhoto(p));
+  }
+
+  try {
+    const uploadFilePath = getUploadFilePath(cleanTarget);
+    if (uploadFilePath && fs.existsSync(uploadFilePath)) {
+      fs.unlinkSync(uploadFilePath);
+    }
+  } catch (err) {
+    console.warn("Could not delete physical upload file:", err.message);
+  }
+
+  await inspection.save();
+
+  await appendAuditBlock({
+    userId: req.user._id,
+    action: "INSPECTION_PHOTO_DELETED",
+    entityType: "Inspection",
+    entityId: inspection._id,
+    oldValue,
+    newValue: toAuditSnapshot(inspection),
+    ip: req.ip,
+  }).catch(() => {});
+
+  await inspection.populate([
+    { path: "mineId", select: "name code" },
+    { path: "inspectorId", select: "name" },
+  ]);
+
+  res.json({
+    success: true,
+    message: "Photo deleted successfully",
+    data: serializeInspectionMedia(inspection),
+  });
+});
+
 module.exports = {
   getInspections,
   getInspectionById,
@@ -531,6 +614,7 @@ module.exports = {
   createInspection,
   updateInspection,
   deleteInspection,
+  deleteInspectionPhoto,
   closeViolation,
   detectRiskFromPhoto,
 };
