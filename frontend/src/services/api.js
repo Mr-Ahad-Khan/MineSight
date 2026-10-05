@@ -854,15 +854,24 @@ export const getInspections = async (params) => {
 
     // Also include any locally pending offline inspections so user never loses visibility
     const localItems = await offlineStorage.getInspections();
-    const pendingOffline = localItems.filter(
+    let pendingOffline = localItems.filter(
       (i) =>
         i._isOffline ||
         i._pendingSync ||
-        String(i._id).startsWith("insp_offline_"),
+        String(i._id).startsWith("insp_") ||
+        String(i._id).startsWith("local_"),
     );
+
+    if (params?.status) {
+      pendingOffline = pendingOffline.filter((i) => i.status === params.status);
+    }
+    if (params?.severity) {
+      pendingOffline = pendingOffline.filter((i) => i.severity === params.severity);
+    }
+
     const combined = [
-      ...pendingOffline,
-      ...serverList.filter((s) => !pendingOffline.some((p) => p._id === s._id)),
+      ...pendingOffline.filter((p) => !serverList.some((s) => s._id === p._id)),
+      ...serverList,
     ];
 
     const finalList =

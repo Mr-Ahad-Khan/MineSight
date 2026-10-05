@@ -64,22 +64,37 @@ const getInspections = asyncHandler(async (req, res) => {
     : 20;
   const skip = (page - 1) * limit;
 
-  let query = {};
+  const andConditions = [];
 
   // Role based filtering
-  if (req.user.role === "mine_official" && req.user.mineId) {
-    query.mineId = req.user.mineId;
+  if (req.user.role === "mine_official") {
+    if (req.query.mineId) {
+      if (!mongoose.Types.ObjectId.isValid(req.query.mineId)) {
+        res.status(400);
+        throw new Error("Invalid mineId");
+      }
+      andConditions.push({ mineId: req.query.mineId });
+    } else if (req.user.mineId) {
+      andConditions.push({
+        $or: [
+          { mineId: req.user.mineId },
+          { inspectorId: req.user._id },
+        ],
+      });
+    }
   } else if (req.query.mineId) {
     if (!mongoose.Types.ObjectId.isValid(req.query.mineId)) {
       res.status(400);
       throw new Error("Invalid mineId");
     }
-    query.mineId = req.query.mineId;
+    andConditions.push({ mineId: req.query.mineId });
   }
 
-  if (req.query.status) query.status = req.query.status;
-  if (req.query.severity) query.severity = req.query.severity;
-  if (req.query.type) query.type = req.query.type;
+  if (req.query.status) andConditions.push({ status: req.query.status });
+  if (req.query.severity) andConditions.push({ severity: req.query.severity });
+  if (req.query.type) andConditions.push({ type: req.query.type });
+
+  const query = andConditions.length > 0 ? { $and: andConditions } : {};
 
   const total = await Inspection.countDocuments(query);
   const inspections = await Inspection.find(query)
@@ -127,7 +142,7 @@ const getInspectionById = asyncHandler(async (req, res) => {
 });
 
 const getInspectionAuditHistory = asyncHandler(async (req, res) => {
-  const inspection = await Inspection.findById(req.params.id).select("mineId");
+  const inspection = await Inspection.findById(req.params.id).select("mineId inspectorId");
   if (!inspection) {
     res.status(404);
     throw new Error("Inspection not found");
@@ -136,7 +151,8 @@ const getInspectionAuditHistory = asyncHandler(async (req, res) => {
   if (
     req.user.role === "mine_official" &&
     req.user.mineId &&
-    String(inspection.mineId) !== String(req.user.mineId)
+    String(inspection.mineId) !== String(req.user.mineId) &&
+    String(inspection.inspectorId) !== String(req.user._id)
   ) {
     res.status(403);
     throw new Error("You are not allowed to view this inspection audit trail");
