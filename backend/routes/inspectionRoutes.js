@@ -74,14 +74,15 @@ const handleInspectionUpload = (req, res, next) => {
   });
 };
 
+// Public/Edge/Field accessible risk detection endpoint (supports landing page camera and offline sync)
+router.post("/detect-risk", handleInspectionUpload, detectRiskFromPhoto);
+
 router.use(protect);
 
 router
   .route("/")
   .get(getInspections)
   .post(handleInspectionUpload, createInspection);
-
-router.post("/detect-risk", handleInspectionUpload, detectRiskFromPhoto);
 
 router.get("/:id/audit", getInspectionAuditHistory);
 

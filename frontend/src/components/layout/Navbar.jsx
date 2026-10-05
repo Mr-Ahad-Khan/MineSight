@@ -304,13 +304,13 @@ export default function Navbar() {
               e.stopPropagation();
               navigate("/app/support");
             }}
-            className="inline-flex shrink-0 items-center justify-center gap-1 rounded-full border border-red-400/90 bg-red-500/20 px-2.5 py-1.5 min-h-[36px] text-xs font-bold text-red-200 transition hover:bg-red-500/30 active:scale-95 touch-manipulation cursor-pointer relative z-20 shadow-xs"
+            className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-red-400/90 bg-red-500/20 px-2 sm:px-2.5 py-1.5 min-h-[34px] text-xs font-bold text-red-200 transition hover:bg-red-500/30 active:scale-95 touch-manipulation cursor-pointer relative z-20 shadow-xs"
             title={t.emergencySupportPanel}
             aria-label={t.emergencySupportPanel || "Emergency SOS Help"}
           >
             <LifeBuoy className="h-4 w-4 text-red-400 shrink-0" />
-            <span className="text-[11px] font-black tracking-tight text-red-300">SOS</span>
-            <span className="hidden sm:inline text-xs font-bold text-red-300">{language === "hi" ? "मदद" : "Help"}</span>
+            <span className="hidden sm:inline text-[11px] font-black tracking-tight text-red-300">SOS</span>
+            <span className="hidden md:inline text-xs font-bold text-red-300">{language === "hi" ? "मदद" : "Help"}</span>
           </button>
 
           {/* Language Switcher */}

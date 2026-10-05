@@ -277,7 +277,7 @@ export default function DisasterManagement() {
   };
 
   return (
-    <div className="mx-auto max-w-screen-2xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 pb-32 sm:pb-16">
+    <div className="mx-auto max-w-screen-2xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 pb-56 sm:pb-24">
       <div className="flex flex-col items-center text-center sm:items-start sm:text-left gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div className="flex items-center justify-center sm:justify-start gap-2 text-rose-600">
@@ -302,7 +302,7 @@ export default function DisasterManagement() {
       </div>
 
       {formOpen && (
-        <form ref={formRef} onSubmit={submitIncident} className="card space-y-4 border-2 border-rose-400 bg-rose-50/40 p-5 dark:border-rose-800 dark:bg-rose-950/20 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 relative z-20">
+        <form ref={formRef} onSubmit={submitIncident} className="card space-y-4 border-2 border-rose-400 bg-rose-50/40 p-5 dark:border-rose-800 dark:bg-rose-950/20 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 relative z-30 pb-6">
           <div className="flex items-center justify-between pb-2 border-b border-rose-200 dark:border-rose-900">
             <div className="flex items-center gap-2">
               <AlertOctagon className="h-5 w-5 text-rose-600" />
@@ -369,11 +369,19 @@ export default function DisasterManagement() {
               required
             />
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-            <button disabled={submitting} className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 font-bold touch-manipulation cursor-pointer active:scale-95 transition" type="submit">
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 pb-2 relative z-30">
+            <button 
+              disabled={submitting} 
+              type="submit"
+              className="btn-primary w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 font-bold touch-manipulation cursor-pointer active:scale-95 transition relative z-30 shadow-md"
+            >
               <Radio className="h-4 w-4" /> {submitting ? t.escalating : t.escalateIncident}
             </button>
-            <button type="button" onClick={() => setFormOpen(false)} className="btn-secondary w-full sm:w-auto min-h-[44px] touch-manipulation cursor-pointer active:scale-95 transition">
+            <button 
+              type="button" 
+              onClick={() => setFormOpen(false)} 
+              className="btn-secondary w-full sm:w-auto min-h-[48px] touch-manipulation cursor-pointer active:scale-95 transition relative z-30"
+            >
               Cancel
             </button>
           </div>

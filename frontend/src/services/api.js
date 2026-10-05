@@ -844,16 +844,14 @@ export const getInspections = async (params) => {
       ...serverList.filter((s) => !pendingOffline.some((p) => p._id === s._id)),
     ];
 
-    return { ...res, data: { ...res.data, data: combined } };
+    const finalList = combined.length > 0 ? combined : (localItems.length > 0 ? localItems : []);
+    return { ...res, data: { ...res.data, data: finalList } };
   } catch (error) {
-    if (isOfflineOrNetworkError(error)) {
-      let list = await offlineStorage.getInspections();
-      if (params?.status) list = list.filter((i) => i.status === params.status);
-      if (params?.severity)
-        list = list.filter((i) => i.severity === params.severity);
-      return { data: { success: true, data: list } };
-    }
-    throw error;
+    let list = await offlineStorage.getInspections();
+    if (params?.status) list = list.filter((i) => i.status === params.status);
+    if (params?.severity)
+      list = list.filter((i) => i.severity === params.severity);
+    return { data: { success: true, data: list } };
   }
 };
 

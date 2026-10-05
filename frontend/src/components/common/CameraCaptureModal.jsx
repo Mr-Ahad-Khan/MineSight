@@ -381,7 +381,7 @@ export default function CameraCaptureModal({
                         </span>
                       </div>
                       <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-[10px] text-slate-300 border border-slate-700">
-                        {detectedRisk.source === "online_ai"
+                        {detectedRisk.source === "online_ai" || (typeof navigator !== "undefined" && navigator.onLine)
                           ? "🟢 Cloud AI"
                           : "⚡ Edge AI Offline"}
                       </span>

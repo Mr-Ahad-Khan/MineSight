@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Camera, CheckCircle, Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
 import { deleteInspection, getInspections, getMediaUrl, getMines } from "../services/api";
+import offlineStorage from "../services/offlineStorage";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { useLanguageStore } from "../store/themeStore";
@@ -81,9 +82,26 @@ export default function Inspections() {
       if (filters.status) params.status = filters.status;
       if (filters.severity) params.severity = filters.severity;
       const res = await getInspections(params);
-      setInspections(res.data.data || []);
+      let list = res?.data?.data || res?.data || [];
+      if (!Array.isArray(list) || list.length === 0) {
+        let localItems = await offlineStorage.getInspections();
+        if (filters.status) localItems = localItems.filter((i) => i.status === filters.status);
+        if (filters.severity) localItems = localItems.filter((i) => i.severity === filters.severity);
+        if (localItems && localItems.length > 0) {
+          list = localItems;
+        }
+      }
+      setInspections(Array.isArray(list) ? list : []);
     } catch (error) {
-      console.error(error);
+      console.warn("fetchInspections error, falling back to offline storage:", error);
+      try {
+        let localList = await offlineStorage.getInspections();
+        if (filters.status) localList = localList.filter((i) => i.status === filters.status);
+        if (filters.severity) localList = localList.filter((i) => i.severity === filters.severity);
+        setInspections(Array.isArray(localList) ? localList : []);
+      } catch (err) {
+        setInspections([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -242,7 +260,10 @@ export default function Inspections() {
                           }
                         }}
                       >
-                        <td className="px-4 py-4 align-middle max-w-sm">
+                        <td 
+                          className="px-4 py-4 align-middle max-w-sm cursor-pointer"
+                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
+                        >
                           <Link
                             to={`/app/inspections/${insp._id}`}
                             className="text-[17px] font-semibold text-[#1f1f1f] hover:text-[#0d3f6d] hover:underline block"
@@ -260,7 +281,10 @@ export default function Inspections() {
                           ) : null}
                         </td>
 
-                        <td className="px-4 py-4 align-middle">
+                        <td 
+                          className="px-4 py-4 align-middle cursor-pointer"
+                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
+                        >
                           <div className="flex items-center gap-3">
                             {audioUrl ? (
                               <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-[#f0f1f3] px-2.5 py-1 text-[10px] font-medium text-[#3a3a3a] shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
@@ -333,11 +357,17 @@ export default function Inspections() {
                           </div>
                         </td>
 
-                        <td className="px-4 py-4 align-middle text-[#2d2d2d]">
+                        <td 
+                          className="px-4 py-4 align-middle text-[#2d2d2d] cursor-pointer"
+                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
+                        >
                           {insp.mineId?.name || (typeof insp.mineId === "string" ? (mines.find((m) => m._id === insp.mineId)?.name || insp.mineId) : "—")}
                         </td>
 
-                        <td className="px-4 py-4 align-middle">
+                        <td 
+                          className="px-4 py-4 align-middle cursor-pointer"
+                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
+                        >
                           <span
                             className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${severityBadge[insp.severity]}`}
                           >
@@ -345,7 +375,10 @@ export default function Inspections() {
                           </span>
                         </td>
 
-                        <td className="px-4 py-4 align-middle">
+                        <td 
+                          className="px-4 py-4 align-middle cursor-pointer"
+                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
+                        >
                           <div className="flex flex-wrap items-center gap-2">
                             <span
                               className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${statusBadge[insp.status]}`}
@@ -370,11 +403,17 @@ export default function Inspections() {
                           </div>
                         </td>
 
-                        <td className="px-4 py-4 align-middle text-center font-semibold text-[#1e1e1e]">
+                        <td 
+                          className="px-4 py-4 align-middle text-center font-semibold text-[#1e1e1e] cursor-pointer"
+                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
+                        >
                           {insp.riskScore}
                         </td>
 
-                        <td className="px-4 py-4 align-middle text-[#474747]">
+                        <td 
+                          className="px-4 py-4 align-middle text-[#474747] cursor-pointer"
+                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
+                        >
                           {safeFormatDate(insp.createdAt)}
                         </td>
 

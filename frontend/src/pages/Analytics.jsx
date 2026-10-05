@@ -286,7 +286,8 @@ export default function Analytics() {
               name="severity"
               value={filters.severity} 
               onChange={(event) => setFilters((current) => ({ ...current, severity: event.target.value }))} 
-              className="input-field w-full min-h-[44px] text-base sm:text-sm cursor-pointer touch-manipulation relative z-10"
+              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-base sm:text-sm cursor-pointer relative z-20 pointer-events-auto focus:outline-none focus:ring-2 focus:ring-primary-500"
+              style={{ appearance: "auto", WebkitAppearance: "menulist" }}
             >
               <option value="">All severities</option>
               <option value="low">Low</option>
@@ -304,7 +305,8 @@ export default function Analytics() {
               name="status"
               value={filters.status} 
               onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} 
-              className="input-field w-full min-h-[44px] text-base sm:text-sm cursor-pointer touch-manipulation relative z-10"
+              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-base sm:text-sm cursor-pointer relative z-20 pointer-events-auto focus:outline-none focus:ring-2 focus:ring-primary-500"
+              style={{ appearance: "auto", WebkitAppearance: "menulist" }}
             >
               <option value="">All statuses</option>
               <option value="open">Open</option>

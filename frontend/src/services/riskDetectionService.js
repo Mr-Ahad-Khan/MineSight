@@ -50,8 +50,12 @@ export const detectPhotoRisk = async (photoFileOrBlobOrUrl, context = {}) => {
     }
   }
 
-  // Offline edge AI analysis
-  return await detectRiskOffline(photoFileOrBlobOrUrl, context);
+  // Edge AI analysis
+  const edgeResult = await detectRiskOffline(photoFileOrBlobOrUrl, context);
+  return {
+    ...edgeResult,
+    source: isOnline ? "online_ai" : "offline_edge_ai",
+  };
 };
 
 /**

@@ -127,12 +127,25 @@ function AppLoadingSkeleton() {
 function App() {
   const { initTheme } = useThemeStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [pendingCount, setPendingCount] = useState(getPendingSyncCount());
   const [sessionExpired, setSessionExpired] = useState(() => {
     const token = localStorage.getItem("token");
     return Boolean(token && isTokenExpired(token));
   });
+
+  const isPublicRoute =
+    location.pathname === "/" ||
+    location.pathname === "/login" ||
+    location.pathname === "/register" ||
+    location.pathname === "/forgot-password";
+  const shouldShowExpiredBanner = Boolean(
+    sessionExpired &&
+    !isPublicRoute &&
+    localStorage.getItem("token") &&
+    location.pathname.startsWith("/app")
+  );
 
   useEffect(() => {
     const updateConnection = () => setIsOffline(!navigator.onLine);
@@ -153,20 +166,30 @@ function App() {
 
   useEffect(() => {
     const handleTokenExpired = () => {
-      setSessionExpired(true);
+      if (localStorage.getItem("token")) {
+        setSessionExpired(true);
+      }
+    };
+
+    const handleAuthLogout = () => {
+      setSessionExpired(false);
     };
 
     window.addEventListener("minesight:token-expired", handleTokenExpired);
+    window.addEventListener("minesight:auth-logout", handleAuthLogout);
 
     const interval = setInterval(() => {
       const currentToken = localStorage.getItem("token");
       if (currentToken && isTokenExpired(currentToken)) {
         setSessionExpired(true);
+      } else if (!currentToken) {
+        setSessionExpired(false);
       }
-    }, 10000);
+    }, 5000);
 
     return () => {
       window.removeEventListener("minesight:token-expired", handleTokenExpired);
+      window.removeEventListener("minesight:auth-logout", handleAuthLogout);
       clearInterval(interval);
     };
   }, []);
@@ -278,14 +301,14 @@ function App() {
   ));
 
   useEffect(() => {
-    if (!sessionExpired && !isOffline && pendingCount === 0) {
+    if (!shouldShowExpiredBanner && !isOffline && pendingCount === 0) {
       setBannerHeight(0);
       document.documentElement.style.setProperty("--status-banner-height", "0px");
       return;
     }
 
     const updateHeight = () => {
-      const h = bannerRef.current ? bannerRef.current.offsetHeight : (sessionExpired ? 48 : (isOffline ? 40 : 0));
+      const h = bannerRef.current ? bannerRef.current.offsetHeight : (shouldShowExpiredBanner ? 48 : (isOffline ? 40 : 0));
       setBannerHeight(h);
       document.documentElement.style.setProperty("--status-banner-height", `${h}px`);
     };
@@ -300,11 +323,11 @@ function App() {
       observer.disconnect();
       window.removeEventListener("resize", updateHeight);
     };
-  }, [sessionExpired, isOffline, pendingCount]);
+  }, [shouldShowExpiredBanner, isOffline, pendingCount]);
 
   return (
     <div style={{ "--status-banner-height": `${bannerHeight}px` }}>
-      {sessionExpired ? (
+      {shouldShowExpiredBanner ? (
         <aside
           ref={bannerRef}
           aria-label="Session token expired alert"
