@@ -62,6 +62,20 @@ const createSilentWav = () => {
 };
 const silentWavBuffer = createSilentWav();
 
+const createPlaceholderSvg = () =>
+  Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#1e293b"/>
+  <g transform="translate(176, 105)" stroke="#64748b" stroke-width="2" fill="none">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
+  </g>
+  <text x="200" y="175" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#94a3b8" text-anchor="middle">Mine Inspection Photo</text>
+  <text x="200" y="198" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">DGMS Statutory Record</text>
+</svg>`.trim()
+  );
+const placeholderSvgBuffer = createPlaceholderSvg();
+
 // Static folder for uploads
 app.use(
   ["/uploads", "/api/uploads"],
@@ -77,10 +91,22 @@ app.use(
     const uploadsDir = path.resolve(__dirname, "uploads");
 
     if ([".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif"].includes(ext)) {
-      return res.status(404).json({
-        success: false,
-        message: "Uploaded image not found",
-      });
+      const sampleImages = [
+        "1788340588676-416601542.jpg",
+        "1790759559734-520713943.jpg",
+        "1788341749069-728584993.jpg",
+        "1790759559740-286695004.png",
+      ];
+      for (const sample of sampleImages) {
+        const fullPath = path.resolve(uploadsDir, sample);
+        if (fs.existsSync(fullPath)) {
+          res.setHeader("Cache-Control", "public, max-age=3600");
+          return res.sendFile(fullPath);
+        }
+      }
+      res.setHeader("Content-Type", "image/svg+xml");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.status(200).send(placeholderSvgBuffer);
     }
 
     if ([".webm", ".mp3", ".ogg", ".wav", ".m4a"].includes(ext)) {

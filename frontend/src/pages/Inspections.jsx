@@ -63,9 +63,11 @@ const resolveInspectionPhoto = async (photo) => {
 
 function InspectionPhotoThumbnail({ photo, onClick }) {
   const [src, setSrc] = useState(null);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     let active = true;
+    setHasError(false);
     resolveInspectionPhoto(photo).then((resolvedSrc) => {
       if (active) setSrc(resolvedSrc);
     });
@@ -81,22 +83,17 @@ function InspectionPhotoThumbnail({ photo, onClick }) {
       className="group relative h-9 w-9 shrink-0 overflow-hidden rounded-md border border-[#d9c7a7] shadow-sm"
       aria-label="Open inspection photos"
     >
-      {src ? (
+      {src && !hasError ? (
         <img
           src={src}
           alt="Inspection preview"
           className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
-          onError={(event) => {
-            event.currentTarget.style.display = "none";
-            if (event.currentTarget.nextElementSibling) {
-              event.currentTarget.nextElementSibling.style.display = "flex";
-            }
-          }}
+          onError={() => setHasError(true)}
         />
       ) : null}
       <span
         className="absolute inset-0 items-center justify-center bg-[#f1e8dc]"
-        style={{ display: src ? "none" : "flex" }}
+        style={{ display: src && !hasError ? "none" : "flex" }}
       >
         <Camera className="h-4 w-4 text-slate-600" />
       </span>

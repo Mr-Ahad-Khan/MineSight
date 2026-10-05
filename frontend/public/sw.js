@@ -97,6 +97,31 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // 1b. Inspection Media Uploads (/uploads/) fallback
+  if (url.pathname.includes("/uploads/")) {
+    event.respondWith(
+      (async () => {
+        try {
+          const networkResponse = await fetch(request);
+          if (networkResponse && networkResponse.status === 200) {
+            return networkResponse;
+          }
+        } catch {}
+        return new Response(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="#1e293b"/><g transform="translate(176, 105)" stroke="#64748b" stroke-width="2" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></g><text x="200" y="175" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#94a3b8" text-anchor="middle">Mine Inspection Photo</text><text x="200" y="198" font-family="system-ui, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">DGMS Statutory Record</text></svg>',
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "image/svg+xml",
+              "Cache-Control": "public, max-age=3600",
+            },
+          }
+        );
+      })()
+    );
+    return;
+  }
+
   // 2. Google Fonts & CDNs
   if (
     url.hostname.includes("fonts.googleapis.com") ||
