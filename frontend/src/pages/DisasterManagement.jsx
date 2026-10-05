@@ -90,9 +90,17 @@ export default function DisasterManagement() {
   }, []);
 
   useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("minesight:form-active", { detail: { active: formOpen } })
+    );
     if (formOpen && formRef.current) {
       formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("minesight:form-active", { detail: { active: false } })
+      );
+    };
   }, [formOpen]);
 
   const activeIncidents = useMemo(
@@ -369,18 +377,18 @@ export default function DisasterManagement() {
               required
             />
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 pb-2 relative z-30">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 pb-4 relative z-50">
             <button 
               disabled={submitting} 
               type="submit"
-              className="btn-primary w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 font-bold touch-manipulation cursor-pointer active:scale-95 transition relative z-30 shadow-md"
+              className="btn-primary w-full sm:w-auto min-h-[50px] inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 font-bold touch-manipulation cursor-pointer active:scale-95 transition relative z-50 shadow-lg text-white"
             >
               <Radio className="h-4 w-4" /> {submitting ? t.escalating : t.escalateIncident}
             </button>
             <button 
               type="button" 
               onClick={() => setFormOpen(false)} 
-              className="btn-secondary w-full sm:w-auto min-h-[48px] touch-manipulation cursor-pointer active:scale-95 transition relative z-30"
+              className="btn-secondary w-full sm:w-auto min-h-[50px] touch-manipulation cursor-pointer active:scale-95 transition relative z-50"
             >
               Cancel
             </button>

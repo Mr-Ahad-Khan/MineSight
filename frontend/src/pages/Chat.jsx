@@ -461,15 +461,6 @@ export default function Chat() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-          <button
-            type="button"
-            onClick={handleCloseBot}
-            className="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 shadow-sm transition hover:bg-red-100 hover:border-red-400 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200"
-            title={language === "hi" ? "चैट बंद करें और पिछले पेज पर जाएँ" : "Close Chat & return to previous page"}
-          >
-            <X className="h-3.5 w-3.5 text-red-600 stroke-[2.5]" />
-            <span>{language === "hi" ? "बंद करें" : "Close (Esc)"}</span>
-          </button>
           <a
             href="tel:+918004197890"
             className="inline-flex items-center gap-1.5 rounded-full border border-orange-200/80 bg-orange-50/80 px-2.5 py-1 text-xs font-bold text-[#17314a] transition-colors hover:text-[#d45b00] dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-200"

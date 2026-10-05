@@ -15,6 +15,7 @@ export default function Layout() {
   const t = translations[language] || translations.en;
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [scanModalOpen, setScanModalOpen] = useState(false);
+  const [formActive, setFormActive] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 320);
@@ -25,12 +26,17 @@ export default function Layout() {
 
   useEffect(() => {
     const handleOpenScan = () => setScanModalOpen(true);
+    const handleFormToggle = (e) => setFormActive(Boolean(e.detail?.active));
     window.addEventListener("minesight:open-camera-scan", handleOpenScan);
-    return () => window.removeEventListener("minesight:open-camera-scan", handleOpenScan);
+    window.addEventListener("minesight:form-active", handleFormToggle);
+    return () => {
+      window.removeEventListener("minesight:open-camera-scan", handleOpenScan);
+      window.removeEventListener("minesight:form-active", handleFormToggle);
+    };
   }, []);
 
   const isInspectionForm = pathname === "/app/inspections/new";
-  const hasLauncher = pathname !== "/app/chat" && !isInspectionForm;
+  const hasLauncher = pathname !== "/app/chat" && !isInspectionForm && !formActive;
 
   return (
     <div className="app-shell flex min-h-screen flex-col bg-[#f5f7fa] text-gray-700 dark:bg-[#0f1720] dark:text-slate-100">

@@ -230,9 +230,16 @@ export default function Analytics() {
             ))}
           </div>
         </div>
-        <div className="mb-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <label htmlFor="analytics-from-date" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+        <div className="mb-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:grid-cols-2 lg:grid-cols-4 relative z-20 pointer-events-auto">
+          <div className="relative z-20 pointer-events-auto">
+            <label 
+              htmlFor="analytics-from-date" 
+              onClick={() => {
+                const el = document.getElementById("analytics-from-date");
+                try { el?.showPicker?.(); } catch (_) { el?.focus(); }
+              }}
+              className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+            >
               From
             </label>
             <input 
@@ -240,16 +247,26 @@ export default function Analytics() {
               name="startDate"
               type="date" 
               value={filters.startDate} 
+              onClick={(e) => {
+                try { e.currentTarget.showPicker?.(); } catch (_) {}
+              }}
               onChange={(event) => { 
                 setPeriod('custom')
                 setFilters((current) => ({ ...current, startDate: event.target.value })) 
               }} 
-              className="input-field w-full min-h-[44px] text-base sm:text-sm touch-manipulation cursor-pointer" 
+              className="w-full min-h-[46px] px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-base sm:text-sm cursor-pointer relative z-30 pointer-events-auto touch-manipulation focus:outline-none focus:ring-2 focus:ring-primary-500" 
             />
           </div>
-          <div>
+          <div className="relative z-20 pointer-events-auto">
             <div className="flex items-center justify-between mb-1">
-              <label htmlFor="analytics-to-date" className="block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+              <label 
+                htmlFor="analytics-to-date" 
+                onClick={() => {
+                  const el = document.getElementById("analytics-to-date");
+                  try { el?.showPicker?.(); } catch (_) { el?.focus(); }
+                }}
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+              >
                 To
               </label>
               {(filters.startDate || filters.endDate) && (
@@ -270,23 +287,36 @@ export default function Analytics() {
               name="endDate"
               type="date" 
               value={filters.endDate} 
+              onClick={(e) => {
+                try { e.currentTarget.showPicker?.(); } catch (_) {}
+              }}
               onChange={(event) => { 
                 setPeriod('custom')
                 setFilters((current) => ({ ...current, endDate: event.target.value })) 
               }} 
-              className="input-field w-full min-h-[44px] text-base sm:text-sm touch-manipulation cursor-pointer" 
+              className="w-full min-h-[46px] px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-base sm:text-sm cursor-pointer relative z-30 pointer-events-auto touch-manipulation focus:outline-none focus:ring-2 focus:ring-primary-500" 
             />
           </div>
-          <div>
-            <label htmlFor="analytics-severity" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+          <div className="relative z-20 pointer-events-auto">
+            <label 
+              htmlFor="analytics-severity" 
+              onClick={() => {
+                const el = document.getElementById("analytics-severity");
+                try { el?.showPicker?.(); } catch (_) { el?.focus(); }
+              }}
+              className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+            >
               Severity
             </label>
             <select 
               id="analytics-severity"
               name="severity"
               value={filters.severity} 
+              onClick={(e) => {
+                try { e.currentTarget.showPicker?.(); } catch (_) {}
+              }}
               onChange={(event) => setFilters((current) => ({ ...current, severity: event.target.value }))} 
-              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-base sm:text-sm cursor-pointer relative z-20 pointer-events-auto focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full min-h-[46px] px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-base sm:text-sm cursor-pointer relative z-30 pointer-events-auto touch-manipulation focus:outline-none focus:ring-2 focus:ring-primary-500"
               style={{ appearance: "auto", WebkitAppearance: "menulist" }}
             >
               <option value="">All severities</option>
@@ -296,16 +326,26 @@ export default function Analytics() {
               <option value="critical">Critical</option>
             </select>
           </div>
-          <div>
-            <label htmlFor="analytics-status" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+          <div className="relative z-20 pointer-events-auto">
+            <label 
+              htmlFor="analytics-status" 
+              onClick={() => {
+                const el = document.getElementById("analytics-status");
+                try { el?.showPicker?.(); } catch (_) { el?.focus(); }
+              }}
+              className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+            >
               Status
             </label>
             <select 
               id="analytics-status"
               name="status"
               value={filters.status} 
+              onClick={(e) => {
+                try { e.currentTarget.showPicker?.(); } catch (_) {}
+              }}
               onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} 
-              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-base sm:text-sm cursor-pointer relative z-20 pointer-events-auto focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full min-h-[46px] px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-base sm:text-sm cursor-pointer relative z-30 pointer-events-auto touch-manipulation focus:outline-none focus:ring-2 focus:ring-primary-500"
               style={{ appearance: "auto", WebkitAppearance: "menulist" }}
             >
               <option value="">All statuses</option>

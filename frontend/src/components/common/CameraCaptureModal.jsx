@@ -312,7 +312,7 @@ export default function CameraCaptureModal({
                   <h4 className="text-base font-semibold text-white">
                     Camera Access Required
                   </h4>
-                  <p className="mt-1 text-xs text-slate-300 max-w-sm mb-4">
+                  <p className="mt-1 text-xs text-white max-w-sm mb-4 font-medium">
                     {cameraError}. You can capture photos directly using your
                     device's native camera.
                   </p>
@@ -335,7 +335,7 @@ export default function CameraCaptureModal({
               {isInitializing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm">
                   <Loader2 className="h-8 w-8 text-sky-400 animate-spin mb-2" />
-                  <p className="text-xs text-slate-300">
+                  <p className="text-xs text-white font-medium">
                     Initializing camera lens...
                   </p>
                 </div>
@@ -423,7 +423,7 @@ export default function CameraCaptureModal({
         <div className="flex items-center justify-between border-t border-slate-800 bg-slate-950 p-4">
           {!capturedBlob ? (
             <div className="w-full space-y-3">
-              <p className="text-center text-[11px] leading-relaxed text-slate-400">
+              <p className="text-center text-xs leading-relaxed text-white font-medium">
                 Please capture or upload clear, relevant mine photos. Better
                 photo evidence helps produce more accurate results.
               </p>

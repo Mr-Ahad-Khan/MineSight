@@ -1912,25 +1912,51 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* Right-side Bot and Camera Controls (Accessible Even Without Login) */}
+      {/* Right-side Bot and Camera Controls */}
       <div className="fixed bottom-5 right-4 z-50 flex items-end gap-3 sm:bottom-6 sm:right-6">
-        {/* Floating Camera Button (Works without login) */}
+        {/* Floating Camera Button (Requires Login) */}
         <button
           type="button"
-          onClick={() => setCameraModalOpen(true)}
+          onClick={() => {
+            if (!token) {
+              toast(
+                language === "hi"
+                  ? "कैमरा AI स्कैनर का उपयोग करने के लिए कृपया पहले लॉगिन करें।"
+                  : "Please log in to use the Camera AI scanner.",
+                { icon: "🔒", duration: 3500 }
+              );
+              navigate("/login?redirect=/app/inspections/new", {
+                state: { message: "Please log in to access the Camera AI Scanner." },
+              });
+              return;
+            }
+            setCameraModalOpen(true);
+          }}
           className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-[#d8f3ff] bg-[#0798d1] text-white shadow-[0_8px_22px_rgba(0,0,0,0.28)] transition-all duration-200 hover:-translate-y-1 hover:scale-105 active:scale-95 hover:bg-[#0788bb] touch-manipulation cursor-pointer sm:h-16 sm:w-16"
-          aria-label="Scan site photo & detect hazards (no login required)"
-          title="Camera AI Scanner — Detect hazards without login"
+          aria-label="Scan site photo & detect hazards (Login required)"
+          title="Camera AI Scanner — Login required"
         >
           <Camera className="h-6 w-6" />
         </button>
 
-        {/* Right Side Bot Assistant */}
+        {/* Right Side Bot Assistant (Requires Login) */}
         <div className="flex flex-col items-end">
           {!assistantOpen ? (
             <button
               type="button"
               onClick={() => {
+                if (!token) {
+                  toast(
+                    language === "hi"
+                      ? "कोल AI सहायक का उपयोग करने के लिए कृपया पहले लॉगिन करें।"
+                      : "Please log in to use the Coal AI Assistant.",
+                    { icon: "🔒", duration: 3500 }
+                  );
+                  navigate("/login?redirect=/app/chat", {
+                    state: { message: "Please log in to access the Coal AI Assistant." },
+                  });
+                  return;
+                }
                 setAssistantOpen(true);
                 setAssistantReady(true);
               }}
