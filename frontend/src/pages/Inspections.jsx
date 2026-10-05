@@ -482,12 +482,10 @@ export default function Inspections() {
                           }
                         }}
                       >
-                        <td 
-                          className="px-4 py-4 align-middle max-w-sm cursor-pointer"
-                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
-                        >
+                        <td className="px-4 py-4 align-middle max-w-sm">
                           <Link
                             to={`/app/inspections/${insp._id}`}
+                            onClick={(event) => event.stopPropagation()}
                             className="text-[17px] font-semibold text-[#1f1f1f] hover:text-[#0d3f6d] hover:underline block"
                           >
                             {insp.title}
@@ -503,10 +501,7 @@ export default function Inspections() {
                           ) : null}
                         </td>
 
-                        <td 
-                          className="px-4 py-4 align-middle cursor-pointer"
-                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
-                        >
+                        <td className="px-4 py-4 align-middle">
                           <div className="flex items-center gap-3">
                             {audioUrl ? (
                               <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-[#f0f1f3] px-2.5 py-1 text-[10px] font-medium text-[#3a3a3a] shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
@@ -579,17 +574,11 @@ export default function Inspections() {
                           </div>
                         </td>
 
-                        <td 
-                          className="px-4 py-4 align-middle text-[#2d2d2d] cursor-pointer"
-                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
-                        >
+                        <td className="px-4 py-4 align-middle text-[#2d2d2d]">
                           {insp.mineId?.name || (typeof insp.mineId === "string" ? (mines.find((m) => m._id === insp.mineId)?.name || insp.mineId) : "—")}
                         </td>
 
-                        <td 
-                          className="px-4 py-4 align-middle cursor-pointer"
-                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
-                        >
+                        <td className="px-4 py-4 align-middle">
                           <span
                             className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${severityBadge[insp.severity]}`}
                           >
@@ -597,10 +586,7 @@ export default function Inspections() {
                           </span>
                         </td>
 
-                        <td 
-                          className="px-4 py-4 align-middle cursor-pointer"
-                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
-                        >
+                        <td className="px-4 py-4 align-middle">
                           <div className="flex flex-wrap items-center gap-2">
                             <span
                               className={`inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium capitalize ${statusBadge[insp.status]}`}
@@ -625,17 +611,11 @@ export default function Inspections() {
                           </div>
                         </td>
 
-                        <td 
-                          className="px-4 py-4 align-middle text-center font-semibold text-[#1e1e1e] cursor-pointer"
-                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
-                        >
+                        <td className="px-4 py-4 align-middle text-center font-semibold text-[#1e1e1e]">
                           {insp.riskScore}
                         </td>
 
-                        <td 
-                          className="px-4 py-4 align-middle text-[#474747] cursor-pointer"
-                          onClick={() => navigate(`/app/inspections/${insp._id}`)}
-                        >
+                        <td className="px-4 py-4 align-middle text-[#474747]">
                           {safeFormatDate(insp.createdAt)}
                         </td>
 

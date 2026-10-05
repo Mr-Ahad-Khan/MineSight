@@ -1560,7 +1560,7 @@ export default function CreateInspection() {
                 } catch {
                   // ignore
                 }
-                navigate(-1);
+                navigate("/app/inspections");
               }}
               className="btn-secondary inline-flex min-h-[48px] w-full sm:w-auto min-w-[120px] touch-manipulation items-center justify-center text-sm font-semibold active:scale-[0.98]"
             >

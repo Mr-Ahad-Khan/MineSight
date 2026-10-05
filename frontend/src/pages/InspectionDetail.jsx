@@ -524,8 +524,10 @@ export default function InspectionDetail() {
       {/* Header */}
       <div className="flex items-start gap-4">
         <button
-          onClick={() => navigate(-1)}
+          type="button"
+          onClick={() => navigate("/app/inspections")}
           className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 mt-1"
+          aria-label="Back to inspection table"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
