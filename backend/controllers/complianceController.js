@@ -11,7 +11,7 @@ const getCompliances = asyncHandler(async (req, res) => {
 
   let query = {};
 
-  if (req.user.role === 'mine_official' && req.user.mineId) {
+  if (['mine_official', 'worker'].includes(req.user.role) && req.user.mineId) {
     query.mineId = req.user.mineId;
   } else if (req.query.mineId) {
     query.mineId = req.query.mineId;
@@ -81,7 +81,7 @@ const getOverdueCompliances = asyncHandler(async (req, res) => {
     status: { $in: ['pending', 'non_compliant'] },
   };
 
-  if (req.user.role === 'mine_official' && req.user.mineId) {
+  if (['mine_official', 'worker'].includes(req.user.role) && req.user.mineId) {
     query.mineId = req.user.mineId;
   }
 

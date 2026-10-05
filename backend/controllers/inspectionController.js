@@ -67,7 +67,7 @@ const getInspections = asyncHandler(async (req, res) => {
   const andConditions = [];
 
   // Role based filtering
-  if (req.user.role === "mine_official") {
+  if (req.user.role === "mine_official" || req.user.role === "worker") {
     if (req.query.mineId) {
       if (!mongoose.Types.ObjectId.isValid(req.query.mineId)) {
         res.status(400);

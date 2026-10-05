@@ -46,16 +46,19 @@ export default function Navbar() {
   const primaryNavigation =
     user?.role === "worker"
       ? [
+          { name: t.dashboard, href: "/app", icon: LayoutDashboard },
           {
             name: t.myWorkAttendance,
             href: "/app/workers",
             icon: ClipboardList,
           },
           {
-            name: t.profile || "Profile",
-            href: "/app/profile",
-            icon: UserCircle,
+            name: t.inspections,
+            href: "/app/inspections",
+            icon: ClipboardList,
           },
+          { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
+          { name: t.alerts, href: "/app/alerts", icon: Bell },
         ]
       : [
           { name: t.dashboard, href: "/app", icon: LayoutDashboard },
@@ -76,7 +79,23 @@ export default function Navbar() {
   // Secondary tabs and specialized modules inside "More ▾" dropdown on desktop
   const secondaryNavigation =
     user?.role === "worker"
-      ? []
+      ? [
+          {
+            name: t.disasterManagement,
+            href: "/app/disaster-management",
+            icon: Siren,
+          },
+          {
+            name: t.support || "Support",
+            href: "/app/support",
+            icon: LifeBuoy,
+          },
+          {
+            name: t.profile || "Profile",
+            href: "/app/profile",
+            icon: UserCircle,
+          },
+        ]
       : [
           { name: t.analytics, href: "/app/analytics", icon: BarChart3 },
           {

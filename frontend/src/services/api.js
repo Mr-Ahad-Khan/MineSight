@@ -39,7 +39,7 @@ if (rawBackendUrl) {
 
 const api = axios.create({
   baseURL: apiBaseUrl,
-  timeout: 10000, // 10 second timeout so offline fallbacks trigger promptly if unreachable
+  timeout: 30000, // 30 second timeout for reliable cloud responses and graceful offline fallback
   headers: {
     "Content-Type": "application/json",
   },
@@ -177,7 +177,10 @@ function isOfflineOrNetworkError(error) {
     status === 408 ||
     status === 0 ||
     error.code === "ERR_NETWORK" ||
+    error.code === "ECONNABORTED" ||
+    error.code === "ETIMEDOUT" ||
     error.message?.includes("Network Error") ||
+    error.message?.includes("timeout") ||
     error.message?.includes("Failed to fetch")
   );
 }

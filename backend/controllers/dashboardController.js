@@ -17,7 +17,7 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
     mineQuery.$or = [{ visibility: 'public' }, { visibility: { $exists: false } }];
   }
 
-  if (req.user.role === 'mine_official' && req.user.mineId) {
+  if (['mine_official', 'worker'].includes(req.user.role) && req.user.mineId) {
     mineFilter = { mineId: req.user.mineId };
     mineQuery._id = req.user.mineId;
   }
@@ -107,7 +107,7 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
 // @access  Private
 const getAnalytics = asyncHandler(async (req, res) => {
   let mineFilter = {};
-  if (req.user.role === 'mine_official' && req.user.mineId) {
+  if (['mine_official', 'worker'].includes(req.user.role) && req.user.mineId) {
     mineFilter.mineId = req.user.mineId;
   }
 

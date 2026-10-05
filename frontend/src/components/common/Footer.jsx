@@ -20,11 +20,18 @@ export default function Footer({ onOpenScan }) {
   const navigation =
     user?.role === "worker"
       ? [
+          { name: t.dashboard, href: "/app", icon: LayoutDashboard },
           {
             name: t.myWorkAttendance,
             href: "/app/workers",
             icon: ClipboardList,
           },
+          {
+            name: t.inspections,
+            href: "/app/inspections",
+            icon: ClipboardList,
+          },
+          { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
         ]
       : [
           { name: t.dashboard, href: "/app", icon: LayoutDashboard },

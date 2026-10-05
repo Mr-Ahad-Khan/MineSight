@@ -24,7 +24,13 @@ export default function Sidebar({ open, setOpen }) {
   const t = translations[language];
 
   const navigation = user?.role === "worker" ? [
+    { name: t.dashboard, href: "/app", icon: LayoutDashboard },
     { name: t.myWorkAttendance, href: "/app/workers", icon: ClipboardList },
+    { name: t.inspections, href: "/app/inspections", icon: ClipboardList },
+    { name: t.compliances, href: "/app/compliances", icon: ShieldCheck },
+    { name: t.alerts, href: "/app/alerts", icon: Bell },
+    { name: t.disasterManagement, href: "/app/disaster-management", icon: Siren },
+    { name: t.support || "Support", href: "/app/support", icon: LifeBuoy },
     { name: t.profile || "Profile", href: "/app/profile", icon: UserCircle },
   ] : [
     { name: t.dashboard, href: "/app", icon: LayoutDashboard },

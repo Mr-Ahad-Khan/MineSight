@@ -79,8 +79,7 @@ function PrivateRoute({ children }) {
 }
 
 function AppIndex() {
-  const { user } = useAuthStore();
-  return user?.role === "worker" ? <Workers /> : <Dashboard />;
+  return <Dashboard />;
 }
 
 function AppLoadingSkeleton() {
