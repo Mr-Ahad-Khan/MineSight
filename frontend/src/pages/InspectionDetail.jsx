@@ -471,10 +471,11 @@ export default function InspectionDetail() {
         <button
           type="button"
           onClick={() => proofInputRef.current?.click()}
+          title="Upload image and close inspection"
           className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95 transition-transform"
         >
           {proofUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          Upload Photo
+          Upload Proof & Close
         </button>
         <button
           type="button"
@@ -750,6 +751,7 @@ export default function InspectionDetail() {
                     type="button"
                     onClick={() => proofInputRef.current?.click()}
                     disabled={proofUploading}
+                    title="Upload proof image and automatically close this inspection"
                     className="flex items-center justify-center gap-1.5 rounded-lg border border-teal-300 bg-teal-50 px-2.5 py-2 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60 dark:border-teal-700 dark:bg-teal-950/40 dark:text-teal-200 touch-manipulation cursor-pointer active:scale-95"
                   >
                     {proofUploading ? (
@@ -757,7 +759,7 @@ export default function InspectionDetail() {
                     ) : (
                       <Upload className="h-3.5 w-3.5" />
                     )}
-                    Upload Proof
+                    Upload Image & Close Inspection
                   </button>
                 </div>
               </>
@@ -1003,6 +1005,21 @@ export default function InspectionDetail() {
             >
               <ZoomIn className="h-5 w-5" />
             </button>
+            {inspection.status !== "closed" && (
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await handleStatusChange("closed");
+                  setSelectedPhoto(null);
+                }}
+                className="ml-2 flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow hover:bg-emerald-700 active:scale-95 transition"
+                title="Mark this inspection as closed"
+              >
+                <CheckCircle className="h-3.5 w-3.5" />
+                Close Inspection
+              </button>
+            )}
           </div>
           <button
             type="button"

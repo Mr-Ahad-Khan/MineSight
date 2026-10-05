@@ -461,6 +461,8 @@ import {
   Sun,
   Mail,
   Send,
+  Camera,
+  LifeBuoy,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
@@ -472,6 +474,7 @@ import {
   sendContactMessage,
 } from "../services/api";
 import BrandLogo from "../components/common/BrandLogo";
+import CameraCaptureModal from "../components/common/CameraCaptureModal";
 
 const slides = [
   {
@@ -555,6 +558,7 @@ export default function HomePage() {
   const [assistantEmail, setAssistantEmail] = useState("");
   const [assistantSending, setAssistantSending] = useState(false);
   const [assistantReady, setAssistantReady] = useState(false);
+  const [cameraModalOpen, setCameraModalOpen] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -930,7 +934,7 @@ export default function HomePage() {
 
   const handleAssistantSend = async () => {
     const trimmed = assistantInput.trim();
-    if (!trimmed || !assistantEmail.trim() || assistantSending) return;
+    if (!trimmed || assistantSending) return;
 
     const reply = getAssistantReply(trimmed);
     setAssistantSending(true);
@@ -945,29 +949,33 @@ export default function HomePage() {
     setAssistantInput("");
 
     try {
-      await saveChatMessage({
-        email: assistantEmail.trim(),
-        message: trimmed,
-        reply,
-      });
-      setAssistantMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          sender: "bot",
-          text: `${reply} Your message has been saved and sent to our team.`,
-        },
-      ]);
+      if (assistantEmail.trim()) {
+        await saveChatMessage({
+          email: assistantEmail.trim(),
+          message: trimmed,
+          reply,
+        }).catch(() => {});
+      }
+      setTimeout(() => {
+        setAssistantMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now() + 1,
+            sender: "bot",
+            text: reply,
+          },
+        ]);
+        setAssistantSending(false);
+      }, 300);
     } catch (error) {
       setAssistantMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           sender: "bot",
-          text: "We could not send your message right now. Please try again.",
+          text: reply,
         },
       ]);
-    } finally {
       setAssistantSending(false);
     }
   };
@@ -1046,6 +1054,25 @@ export default function HomePage() {
               >
                 हिंदी
               </span>
+            </button>
+
+            {/* SOS Help Button on Landing Page Navbar */}
+            <button
+              type="button"
+              onClick={() => {
+                if (token) {
+                  navigate("/app/support");
+                } else {
+                  navigate("/login?redirect=/app/support");
+                }
+              }}
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-red-500/80 bg-red-500/15 px-2.5 py-1 text-xs font-bold text-red-600 dark:text-red-300 transition hover:bg-red-500/25 active:scale-95 touch-manipulation cursor-pointer shadow-xs"
+              title={t.emergencySupportPanel || "Emergency SOS Help"}
+              aria-label="SOS Emergency Help"
+            >
+              <LifeBuoy className="h-4 w-4 text-red-500 dark:text-red-400 shrink-0" />
+              <span className="font-black tracking-tight text-red-600 dark:text-red-300">SOS</span>
+              <span className="hidden sm:inline font-bold">{language === "hi" ? "मदद" : "Help"}</span>
             </button>
 
             <button
@@ -1796,7 +1823,7 @@ export default function HomePage() {
           <div className="grid gap-10 text-center md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-3">
-                <BrandLogo imageClassName="h-16 w-44 rounded" />
+                <BrandLogo darkSurface imageClassName="h-16 w-44 rounded" />
               </div>
               <p className="mx-auto mt-5 max-w-sm text-sm leading-6 text-[#9eafaf]">
                 {t.footerTagline}
@@ -1885,170 +1912,215 @@ export default function HomePage() {
         </div>
       </footer>
 
-      <div className="fixed bottom-5 right-4 z-50 flex flex-col items-end sm:bottom-6 sm:right-6">
-        {!assistantOpen ? (
-          <button
-            type="button"
-            onClick={() => setAssistantOpen(true)}
-            className="relative isolate flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#dfe6ee] bg-[#f7f4ef] text-[#17314a] shadow-[0_8px_22px_rgba(0,0,0,0.25)] transition-transform hover:scale-105"
-            aria-label={t.coalAiAssistant}
-          >
-            <span
-              className="coal-ai-wave coal-ai-wave-one"
-              aria-hidden="true"
-            />
-            <span
-              className="coal-ai-wave coal-ai-wave-two"
-              aria-hidden="true"
-            />
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5a416]">
-              <Bot className="h-6 w-6" />
-            </div>
-          </button>
-        ) : (
-          <div
-            className={`w-[300px] overflow-hidden rounded-2xl border border-[#6d5624] bg-[#101416] text-white shadow-[0_16px_35px_rgba(0,0,0,0.35)] transition-all duration-700 ease-out sm:w-[320px] ${assistantReady ? "translate-x-0 opacity-100" : "translate-x-[140%] opacity-0"}`}
-          >
-            {!assistantChatOpen ? (
-              <div className="px-4 pb-4 pt-4">
-                <h2 className="text-2xl font-semibold leading-tight text-white">
-                  {language === "hi"
-                    ? "क्या हम आपकी सहायता कर सकते हैं?"
-                    : "Can we help you?"}
-                </h2>
-                <p className="mt-2 text-sm text-[#c6c7c1]">
-                  {language === "hi"
-                    ? "निरीक्षण, अनुपालन या खदान सुरक्षा के बारे में पूछें।"
-                    : "Ask about inspections, compliance, or mine safety."}
-                </p>
+      {/* Left-side Bot and Camera Controls (Accessible Even Without Login) */}
+      <div className="fixed bottom-5 left-4 z-50 flex items-end gap-3 sm:bottom-6 sm:left-6">
+        {/* Floating Camera Button (Works without login) */}
+        <button
+          type="button"
+          onClick={() => setCameraModalOpen(true)}
+          className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-[#d8f3ff] bg-[#0798d1] text-white shadow-[0_8px_22px_rgba(0,0,0,0.28)] transition-all duration-200 hover:-translate-y-1 hover:scale-105 active:scale-95 hover:bg-[#0788bb] touch-manipulation cursor-pointer sm:h-16 sm:w-16"
+          aria-label="Scan site photo & detect hazards (no login required)"
+          title="Camera AI Scanner — Detect hazards without login"
+        >
+          <Camera className="h-6 w-6" />
+        </button>
 
-                <div className="mt-5 space-y-2.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (token) {
-                        navigate("/app/chat");
-                      } else {
-                        navigate("/login?redirect=/app/chat");
-                      }
-                    }}
-                    className="w-full rounded-lg border border-[#e5a416] bg-[#e5a416] px-4 py-2.5 text-sm font-bold text-[#151719] transition hover:bg-[#f5b82c]"
-                  >
-                    {language === "hi" ? "अभी चैट करें" : "Chat now"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setAssistantOpen(false)}
-                    className="w-full rounded-lg border border-white/20 bg-transparent px-4 py-2.5 text-sm font-semibold text-[#dfe1dc] transition hover:border-[#e5a416] hover:bg-white/5"
-                  >
-                    {language === "hi" ? "अभी नहीं" : "No thanks"}
-                  </button>
-                </div>
+        {/* Left Side Bot Assistant */}
+        <div className="flex flex-col items-start">
+          {!assistantOpen ? (
+            <button
+              type="button"
+              onClick={() => {
+                setAssistantOpen(true);
+                setAssistantReady(true);
+              }}
+              className="relative isolate flex h-14 w-14 items-center justify-center rounded-full border-4 border-[#dfe6ee] bg-[#f7f4ef] text-[#17314a] shadow-[0_8px_22px_rgba(0,0,0,0.25)] transition-transform hover:scale-105 active:scale-95 sm:h-16 sm:w-16"
+              aria-label={t.coalAiAssistant}
+              title={t.coalAiAssistant}
+            >
+              <span
+                className="coal-ai-wave coal-ai-wave-one"
+                aria-hidden="true"
+              />
+              <span
+                className="coal-ai-wave coal-ai-wave-two"
+                aria-hidden="true"
+              />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5a416] sm:h-12 sm:w-12">
+                <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-            ) : (
-              <div className="flex h-[390px] flex-col bg-[#101416]">
-                <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#dfeaf7] text-xs font-bold text-[#17314a]">
-                      AI
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">
-                        {t.coalAi}
-                      </p>
-                      <p className="text-[10px] text-slate-300">Online</p>
-                    </div>
-                  </div>
+            </button>
+          ) : (
+            <div
+              className={`w-[300px] overflow-hidden rounded-2xl border border-[#6d5624] bg-[#101416] text-white shadow-[0_16px_35px_rgba(0,0,0,0.35)] transition-all duration-500 ease-out sm:w-[320px] origin-bottom-left ${assistantReady ? "translate-x-0 opacity-100" : "-translate-x-12 opacity-0"}`}
+            >
+              {!assistantChatOpen ? (
+                <div className="px-4 pb-4 pt-4">
+                  <h2 className="text-xl font-semibold leading-tight text-white">
+                    {language === "hi"
+                      ? "क्या हम आपकी सहायता कर सकते हैं?"
+                      : "Can we help you?"}
+                  </h2>
+                  <p className="mt-2 text-xs text-[#c6c7c1]">
+                    {language === "hi"
+                      ? "निरीक्षण, अनुपालन या खदान सुरक्षा के बारे में पूछें।"
+                      : "Ask about inspections, compliance, or mine safety."}
+                  </p>
 
-                  <button
-                    type="button"
-                    onClick={() => setAssistantOpen(false)}
-                    className="text-lg text-slate-300 hover:text-white"
-                    aria-label={
-                      language === "hi"
-                        ? "कोल एआई बंद करें"
-                        : "Close AI assistant"
-                    }
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <div className="flex-1 space-y-3 overflow-y-auto bg-[#152227] px-3 py-3">
-                  {assistantMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
-                          message.sender === "user"
-                            ? "bg-[#cfeaf9] text-[#10263d]"
-                            : "bg-white/10 text-white"
-                        }`}
-                      >
-                        {message.text}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="border-t border-white/10 bg-[#101416] p-3">
-                  <input
-                    id="assistant-email"
-                    name="assistantEmail"
-                    type="email"
-                    autoComplete="email"
-                    value={assistantEmail}
-                    onChange={(e) => setAssistantEmail(e.target.value)}
-                    placeholder={
-                      language === "hi"
-                        ? "उत्तर पाने के लिए अपना ईमेल लिखें"
-                        : "Your email to receive a reply"
-                    }
-                    className="mb-2 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs text-white outline-none placeholder:text-slate-500 focus:border-[#e5a416]"
-                    required
-                  />
-                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2">
-                    <input
-                      id="assistant-message"
-                      name="assistantMessage"
-                      type="text"
-                      autoComplete="off"
-                      value={assistantInput}
-                      onChange={(e) => setAssistantInput(e.target.value)}
-                      placeholder={t.askCoalAi}
-                      className="flex-1 bg-transparent text-sm text-white placeholder:text-slate-400 outline-none"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleAssistantSend();
-                      }}
-                    />
+                  <div className="mt-4 space-y-2">
                     <button
                       type="button"
-                      onClick={handleAssistantSend}
-                      disabled={assistantSending || !assistantEmail.trim()}
-                      className="rounded-full bg-[#e5a416] px-3 py-1.5 text-sm font-semibold text-[#151719] disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={() => setAssistantChatOpen(true)}
+                      className="w-full rounded-lg border border-[#e5a416] bg-[#e5a416] px-4 py-2.5 text-xs font-bold text-[#151719] transition hover:bg-[#f5b82c] touch-manipulation cursor-pointer active:scale-95"
                     >
-                      {assistantSending
-                        ? "..."
-                        : language === "hi"
-                          ? "भेजें"
-                          : "Send"}
+                      {language === "hi" ? "अभी चैट करें (बिना लॉगिन)" : "Chat now (Instant AI)"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAssistantOpen(false);
+                        setCameraModalOpen(true);
+                      }}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-sky-400/60 bg-sky-500/15 px-4 py-2 text-xs font-semibold text-sky-200 transition hover:bg-sky-500/25 touch-manipulation cursor-pointer"
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                      {language === "hi" ? "कैमरा स्कैनर खोलें" : "Open Camera Scanner"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setAssistantOpen(false)}
+                      className="w-full rounded-lg border border-white/20 bg-transparent px-4 py-2 text-xs font-semibold text-[#dfe1dc] transition hover:border-[#e5a416] hover:bg-white/5"
+                    >
+                      {language === "hi" ? "अभी नहीं" : "No thanks"}
                     </button>
                   </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="flex h-[390px] flex-col bg-[#101416]">
+                  <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#dfeaf7] text-xs font-bold text-[#17314a]">
+                        AI
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          {t.coalAi}
+                        </p>
+                        <p className="text-[10px] text-emerald-400 font-semibold">● Active (No Login Needed)</p>
+                      </div>
+                    </div>
 
-            <div className="mt-3 flex justify-end pr-1">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-700 bg-amber-600 text-white shadow-md">
-                <Bot className="h-6 w-6" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAssistantChatOpen(false);
+                        setAssistantOpen(false);
+                      }}
+                      className="text-lg text-slate-300 hover:text-white px-2 py-1"
+                      aria-label="Close AI assistant"
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <div className="flex-1 space-y-3 overflow-y-auto bg-[#152227] px-3 py-3">
+                    {assistantMessages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${
+                            message.sender === "user"
+                              ? "bg-[#cfeaf9] text-[#10263d] font-medium"
+                              : "bg-white/10 text-white"
+                          }`}
+                        >
+                          {message.text}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-white/10 bg-[#101416] p-3">
+                    <input
+                      id="assistant-email"
+                      name="assistantEmail"
+                      type="email"
+                      autoComplete="email"
+                      value={assistantEmail}
+                      onChange={(e) => setAssistantEmail(e.target.value)}
+                      placeholder={
+                        language === "hi"
+                          ? "ईमेल (वैकल्पिक)"
+                          : "Email (optional)"
+                      }
+                      className="mb-2 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white outline-none placeholder:text-slate-500 focus:border-[#e5a416]"
+                    />
+                    <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                      <input
+                        id="assistant-message"
+                        name="assistantMessage"
+                        type="text"
+                        autoComplete="off"
+                        value={assistantInput}
+                        onChange={(e) => setAssistantInput(e.target.value)}
+                        placeholder={t.askCoalAi}
+                        className="flex-1 bg-transparent text-xs text-white placeholder:text-slate-400 outline-none"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleAssistantSend();
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAssistantSend}
+                        disabled={assistantSending || !assistantInput.trim()}
+                        className="rounded-full bg-[#e5a416] px-3 py-1 text-xs font-semibold text-[#151719] disabled:cursor-not-allowed disabled:opacity-50 touch-manipulation cursor-pointer active:scale-95"
+                      >
+                        {assistantSending
+                          ? "..."
+                          : language === "hi"
+                            ? "भेजें"
+                            : "Send"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-2 flex justify-start pl-2 pb-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-700 bg-amber-600 text-white shadow-md">
+                  <Bot className="h-5 w-5" />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* Global Camera Scanner Modal (Works without login) */}
+      {cameraModalOpen && (
+        <CameraCaptureModal
+          isOpen={cameraModalOpen}
+          onClose={() => setCameraModalOpen(false)}
+          onOpenInspection={(photoData) => {
+            setCameraModalOpen(false);
+            window.__pendingScannedPhoto = photoData;
+            if (token) {
+              navigate("/app/inspections/new", { state: { scannedPhoto: photoData } });
+            } else {
+              toast.success(
+                language === "hi"
+                  ? "फ़ोटो स्कैन हो गई! आधिकारिक निरीक्षण शुरू करने के लिए कृपया साइन इन करें।"
+                  : "Photo analyzed! Please sign in to create an official inspection record."
+              );
+              navigate("/login?redirect=/app/inspections/new");
+            }
+          }}
+        />
+      )}
 
       {showScrollTop && (
         <button

@@ -40,7 +40,7 @@ export default function Footer({ onOpenScan }) {
       <div className="mx-auto max-w-7xl px-4 py-10 text-center sm:px-6 sm:text-left lg:px-8">
         <div className="grid justify-items-center gap-8 md:grid-cols-[1.5fr_1fr_1fr_1.2fr] md:justify-items-stretch">
           <div className="flex flex-col items-center md:items-start">
-            <BrandLogo imageClassName="h-16 w-44 rounded" />
+            <BrandLogo darkSurface imageClassName="h-16 w-44 rounded" />
             <p className="mt-4 max-w-sm text-sm leading-6 text-[#9eafaf]">
               {t.footerTagline}
             </p>

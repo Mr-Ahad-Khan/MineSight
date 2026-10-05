@@ -231,22 +231,27 @@ export default function Analytics() {
           </div>
         </div>
         <div className="mb-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="text-sm font-medium">
-            <span className="mb-1 block text-slate-700 dark:text-slate-300">From</span>
+          <div>
+            <label htmlFor="analytics-from-date" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+              From
+            </label>
             <input 
               id="analytics-from-date"
+              name="startDate"
               type="date" 
               value={filters.startDate} 
               onChange={(event) => { 
                 setPeriod('custom')
                 setFilters((current) => ({ ...current, startDate: event.target.value })) 
               }} 
-              className="input-field w-full min-h-[44px] text-base sm:text-sm" 
+              className="input-field w-full min-h-[44px] text-base sm:text-sm touch-manipulation cursor-pointer" 
             />
-          </label>
-          <label className="text-sm font-medium">
+          </div>
+          <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="block text-slate-700 dark:text-slate-300">To</span>
+              <label htmlFor="analytics-to-date" className="block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+                To
+              </label>
               {(filters.startDate || filters.endDate) && (
                 <button 
                   type="button" 
@@ -254,7 +259,7 @@ export default function Analytics() {
                     setFilters((f) => ({ ...f, startDate: '', endDate: '' }))
                     setPeriod('monthly')
                   }} 
-                  className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                  className="text-xs text-primary-600 dark:text-primary-400 hover:underline cursor-pointer"
                 >
                   Clear dates
                 </button>
@@ -262,22 +267,26 @@ export default function Analytics() {
             </div>
             <input 
               id="analytics-to-date"
+              name="endDate"
               type="date" 
               value={filters.endDate} 
               onChange={(event) => { 
                 setPeriod('custom')
                 setFilters((current) => ({ ...current, endDate: event.target.value })) 
               }} 
-              className="input-field w-full min-h-[44px] text-base sm:text-sm" 
+              className="input-field w-full min-h-[44px] text-base sm:text-sm touch-manipulation cursor-pointer" 
             />
-          </label>
-          <label className="text-sm font-medium">
-            <span className="mb-1 block text-slate-700 dark:text-slate-300">Severity</span>
+          </div>
+          <div>
+            <label htmlFor="analytics-severity" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+              Severity
+            </label>
             <select 
               id="analytics-severity"
+              name="severity"
               value={filters.severity} 
               onChange={(event) => setFilters((current) => ({ ...current, severity: event.target.value }))} 
-              className="input-field w-full min-h-[44px] text-base sm:text-sm"
+              className="input-field w-full min-h-[44px] text-base sm:text-sm cursor-pointer touch-manipulation relative z-10"
             >
               <option value="">All severities</option>
               <option value="low">Low</option>
@@ -285,21 +294,25 @@ export default function Analytics() {
               <option value="high">High</option>
               <option value="critical">Critical</option>
             </select>
-          </label>
-          <label className="text-sm font-medium">
-            <span className="mb-1 block text-slate-700 dark:text-slate-300">Status</span>
+          </div>
+          <div>
+            <label htmlFor="analytics-status" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+              Status
+            </label>
             <select 
               id="analytics-status"
+              name="status"
               value={filters.status} 
               onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))} 
-              className="input-field w-full min-h-[44px] text-base sm:text-sm"
+              className="input-field w-full min-h-[44px] text-base sm:text-sm cursor-pointer touch-manipulation relative z-10"
             >
               <option value="">All statuses</option>
               <option value="open">Open</option>
               <option value="in_progress">In progress</option>
               <option value="closed">Closed</option>
+              <option value="escalated">Escalated</option>
             </select>
-          </label>
+          </div>
         </div>
         {isUpdating && (
           <div className="mb-3 text-xs text-primary-600 dark:text-primary-400 flex items-center gap-1.5 animate-pulse">

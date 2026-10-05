@@ -177,7 +177,7 @@
 
 
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   ClipboardList,
   ShieldAlert,
@@ -202,6 +202,7 @@ import { translations } from '../i18n/translations'
 const Analytics = lazy(() => import('./Analytics'))
 
 export default function Dashboard() {
+  const navigate = useNavigate()
 
   const [summary, setSummary] = useState(null)
   const [analytics, setAnalytics] = useState(null)
@@ -610,10 +611,14 @@ export default function Dashboard() {
         </div>
 
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 relative z-20">
           <Link
             to="/app/attendance"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-500/40 bg-emerald-50/80 hover:bg-emerald-100 text-emerald-900 text-sm font-semibold transition shadow-sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/app/attendance");
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl border border-emerald-500/40 bg-emerald-50/90 hover:bg-emerald-100 text-emerald-900 text-sm font-semibold transition shadow-sm touch-manipulation cursor-pointer active:scale-95"
           >
             <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
@@ -627,7 +632,11 @@ export default function Dashboard() {
 
           <Link
             to="/app/support"
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-red-300/80 bg-red-50/90 hover:bg-red-100 text-red-800 text-sm font-semibold transition shadow-sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/app/support");
+            }}
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-xl border border-red-300/80 bg-red-50/95 hover:bg-red-100 text-red-800 text-sm font-semibold transition shadow-sm touch-manipulation cursor-pointer active:scale-95"
           >
             <LifeBuoy className="w-4 h-4 text-red-600" />
             <span>{t.supportPanel}</span>
@@ -635,6 +644,10 @@ export default function Dashboard() {
 
           <Link
             to="/app/inspections/new"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/app/inspections/new");
+            }}
             className="
               self-start
               inline-flex
@@ -642,14 +655,18 @@ export default function Dashboard() {
               gap-2
               px-5
               py-2.5
+              min-h-[44px]
               rounded-xl
               bg-[#ff6f00]
               hover:bg-[#e65100]
               text-white
               text-[15px]
-              font-medium
+              font-bold
               transition-all
               shadow-sm
+              touch-manipulation
+              cursor-pointer
+              active:scale-95
             "
           >
             <span className="text-xl leading-none">
