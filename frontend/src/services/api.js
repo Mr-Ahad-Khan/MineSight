@@ -176,8 +176,6 @@ function isOfflineOrNetworkError(error) {
     !error.response ||
     status >= 500 ||
     status === 408 ||
-    status === 401 ||
-    status === 403 ||
     status === 0 ||
     error.code === "ERR_NETWORK" ||
     error.code === "ECONNABORTED" ||
