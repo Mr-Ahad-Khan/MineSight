@@ -2149,10 +2149,10 @@ export const updateSupportTicket = async (id, data) => {
   const ticket = await offlineStorage.getSupportTicket(id);
   const optimistic = ticket
     ? { ...ticket, ...data, updatedAt: new Date().toISOString() }
-    : null;
+    : { _id: id, ...data, updatedAt: new Date().toISOString() };
 
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    if (optimistic) await offlineStorage.saveSupportTicket(optimistic);
+    await offlineStorage.saveSupportTicket(optimistic);
     await enqueueMutation({
       type: "UPDATE_SUPPORT_TICKET",
       method: "PATCH",
@@ -2171,7 +2171,7 @@ export const updateSupportTicket = async (id, data) => {
     return res;
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
-      if (optimistic) await offlineStorage.saveSupportTicket(optimistic);
+      await offlineStorage.saveSupportTicket(optimistic);
       await enqueueMutation({
         type: "UPDATE_SUPPORT_TICKET",
         method: "PATCH",
@@ -2188,6 +2188,7 @@ export const updateSupportTicket = async (id, data) => {
 };
 
 export const deleteSupportTicket = async (id) => {
+  await offlineStorage.deleteSupportTicket(id);
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     await enqueueMutation({
       type: "DELETE_SUPPORT_TICKET",
@@ -2201,7 +2202,8 @@ export const deleteSupportTicket = async (id) => {
   }
 
   try {
-    return await api.delete(`/support/tickets/${id}`);
+    const res = await api.delete(`/support/tickets/${id}`);
+    return res;
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
       await enqueueMutation({

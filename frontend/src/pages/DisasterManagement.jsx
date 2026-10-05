@@ -97,14 +97,64 @@ export default function DisasterManagement() {
     loadData();
   }, []);
 
+  const scrollToForm = () => {
+    const doScroll = () => {
+      if (formRef.current) {
+        const bannerEl = document.querySelector(
+          ".offline-status-banner, .session-expired-banner, .pending-status-banner"
+        );
+        const bannerH = bannerEl ? bannerEl.offsetHeight : (typeof navigator !== "undefined" && !navigator.onLine ? 40 : 0);
+        const navH = 64;
+        const totalOffset = bannerH + navH + 16;
+        const rect = formRef.current.getBoundingClientRect();
+        const targetY = window.pageYOffset + rect.top - totalOffset;
+
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          behavior: "smooth",
+        });
+
+        setTimeout(() => {
+          const input = document.getElementById("incident-title");
+          if (input) {
+            try {
+              input.focus({ preventScroll: true });
+            } catch (_) {}
+          }
+        }, 320);
+      }
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(doScroll);
+    });
+    setTimeout(doScroll, 80);
+  };
+
+  const openNewIncidentForm = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setEditingIncidentId(null);
+    setForm({
+      subject: "",
+      mineId: mines[0]?._id || initialMines[0]?._id || "",
+      priority: "critical",
+      description: "",
+    });
+    setFormOpen(true);
+    scrollToForm();
+  };
+
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent("minesight:form-active", {
         detail: { active: formOpen },
       }),
     );
-    if (formOpen && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (formOpen) {
+      scrollToForm();
     }
     return () => {
       window.dispatchEvent(
@@ -121,7 +171,10 @@ export default function DisasterManagement() {
     [incidents],
   );
   const closedIncidents = useMemo(
-    () => incidents.filter((incident) => ["resolved", "closed"].includes(incident.status)),
+    () =>
+      incidents.filter((incident) =>
+        ["resolved", "closed"].includes(incident.status),
+      ),
     [incidents],
   );
 
@@ -168,7 +221,11 @@ export default function DisasterManagement() {
     }
   };
 
-  const editIncident = (incident) => {
+  const editIncident = (incident, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setEditingIncidentId(incident._id);
     setForm({
       subject: incident.subject.replace(/^\[DISASTER\]\s*/i, ""),
@@ -177,6 +234,7 @@ export default function DisasterManagement() {
       description: incident.description || "",
     });
     setFormOpen(true);
+    scrollToForm();
   };
 
   const closeIncident = async (incident) => {
@@ -445,11 +503,17 @@ export default function DisasterManagement() {
           </button>
           <button
             type="button"
-            onClick={() => {
-              setFormOpen((open) => !open);
-              if (formOpen) setEditingIncidentId(null);
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (formOpen) {
+                setFormOpen(false);
+                setEditingIncidentId(null);
+              } else {
+                openNewIncidentForm(e);
+              }
             }}
-            className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 active:scale-95 transition touch-manipulation cursor-pointer relative z-10"
+            className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 active:scale-95 transition touch-manipulation cursor-pointer relative z-20 pointer-events-auto"
           >
             {formOpen ? (
               <X className="h-4 w-4" />
@@ -468,8 +532,10 @@ export default function DisasterManagement() {
       {formOpen && (
         <form
           ref={formRef}
+          id="disaster-incident-form"
           onSubmit={submitIncident}
-          className="card space-y-4 border-2 border-rose-400 bg-rose-50/40 p-5 dark:border-rose-800 dark:bg-rose-950/20 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 relative z-30 pb-6"
+          style={{ scrollMarginTop: "calc(var(--status-banner-height, 0px) + 5.5rem)" }}
+          className="card scroll-mt-[calc(var(--status-banner-height,0px)+5.5rem)] space-y-4 border-2 border-rose-400 bg-rose-50/40 p-5 dark:border-rose-800 dark:bg-rose-950/20 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 relative z-30 pb-6 pointer-events-auto"
         >
           <div className="flex items-center justify-between pb-2 border-b border-rose-200 dark:border-rose-900">
             <div className="flex items-center gap-2">
@@ -641,8 +707,8 @@ export default function DisasterManagement() {
             {!formOpen && (
               <button
                 type="button"
-                onClick={() => setFormOpen(true)}
-                className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 touch-manipulation cursor-pointer"
+                onClick={(e) => openNewIncidentForm(e)}
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 min-h-[36px] px-2 py-1 rounded-md touch-manipulation cursor-pointer relative z-20 pointer-events-auto active:scale-95 transition"
               >
                 <Plus className="h-3.5 w-3.5" />
                 {t.reportIncident}
@@ -654,15 +720,15 @@ export default function DisasterManagement() {
               {t.loadingIncidents}
             </p>
           ) : activeIncidents.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center space-y-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/20 dark:border-rose-900/50 dark:bg-rose-950/10 p-6">
+            <div className="flex flex-col items-center justify-center py-8 text-center space-y-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/20 dark:border-rose-900/50 dark:bg-rose-950/10 p-6 relative z-10">
               <AlertOctagon className="h-8 w-8 text-rose-400/80 mx-auto" />
               <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                 {t.noActiveIncidents}
               </p>
               <button
                 type="button"
-                onClick={() => setFormOpen(true)}
-                className="btn-primary inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 min-h-[44px] bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm touch-manipulation cursor-pointer active:scale-95 transition"
+                onClick={(e) => openNewIncidentForm(e)}
+                className="btn-primary inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 min-h-[44px] bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm touch-manipulation cursor-pointer active:scale-95 transition relative z-20 pointer-events-auto"
               >
                 <Plus className="h-4 w-4" />
                 {t.reportIncident}
@@ -691,25 +757,25 @@ export default function DisasterManagement() {
                   <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
                     {incident.description}
                   </p>
-                  <div className="mt-4 flex flex-wrap gap-2 border-t border-rose-100 pt-3 dark:border-rose-900">
+                  <div className="mt-4 flex flex-wrap gap-2 border-t border-rose-100 pt-3 dark:border-rose-900 relative z-20 pointer-events-auto">
                     <button
                       type="button"
                       onClick={() => closeIncident(incident)}
-                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-700"
+                      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-xs font-semibold text-white hover:bg-emerald-700 active:scale-95 touch-manipulation cursor-pointer relative z-20 pointer-events-auto transition shadow-xs"
                     >
                       <CheckCircle2 className="h-4 w-4" /> Close
                     </button>
                     <button
                       type="button"
-                      onClick={() => editIncident(incident)}
-                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                      onClick={(e) => editIncident(incident, e)}
+                      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 text-xs font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 active:scale-95 touch-manipulation cursor-pointer relative z-20 pointer-events-auto transition shadow-xs"
                     >
                       <Edit3 className="h-4 w-4" /> Edit
                     </button>
                     <button
                       type="button"
                       onClick={() => removeIncident(incident)}
-                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-rose-200 px-3 text-xs font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:text-rose-300"
+                      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-rose-200 px-3.5 text-xs font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:text-rose-300 active:scale-95 touch-manipulation cursor-pointer relative z-20 pointer-events-auto transition shadow-xs"
                     >
                       <Trash2 className="h-4 w-4" /> Delete
                     </button>
@@ -796,13 +862,18 @@ export default function DisasterManagement() {
                   {incident.description}
                 </p>
                 <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                  Closed {new Date(incident.resolvedAt || incident.updatedAt || incident.createdAt).toLocaleString()}
+                  Closed{" "}
+                  {new Date(
+                    incident.resolvedAt ||
+                      incident.updatedAt ||
+                      incident.createdAt,
+                  ).toLocaleString()}
                 </p>
-                <div className="mt-4 border-t border-emerald-100 pt-3 dark:border-emerald-900">
+                <div className="mt-4 border-t border-emerald-100 pt-3 dark:border-emerald-900 relative z-20 pointer-events-auto">
                   <button
                     type="button"
-                    onClick={() => editIncident(incident)}
-                    className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                    onClick={(e) => editIncident(incident, e)}
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 text-xs font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 active:scale-95 touch-manipulation cursor-pointer relative z-20 pointer-events-auto transition shadow-xs"
                   >
                     <Edit3 className="h-4 w-4" /> Edit
                   </button>

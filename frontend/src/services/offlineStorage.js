@@ -803,6 +803,9 @@ export const offlineStorage = {
   async saveSupportTicket(ticket) {
     return dbPut("supportTickets", ticket);
   },
+  async deleteSupportTicket(id) {
+    return dbDelete("supportTickets", id);
+  },
 
   // Computed Dashboard & Analytics
   async getDashboardSummary() {
