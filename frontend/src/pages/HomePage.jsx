@@ -1045,7 +1045,7 @@ export default function HomePage() {
             >
               <Languages className="mx-0.5 h-3.5 w-3.5 text-[#e5a416] sm:mx-1" />
               <span
-                className={`hidden rounded-full px-2 py-1 lg:inline ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
+                className={`inline rounded-full px-2 py-1 ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
               >
                 EN
               </span>
