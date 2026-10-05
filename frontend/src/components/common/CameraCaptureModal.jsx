@@ -424,6 +424,8 @@ export default function CameraCaptureModal({
                     <Camera className="h-4 w-4" />
                     Open Native Camera
                     <input
+                      id="camera-native-capture"
+                      name="camera-native-capture"
                       ref={fallbackInputRef}
                       type="file"
                       accept="image/*"
@@ -538,6 +540,8 @@ export default function CameraCaptureModal({
                   <Upload className="h-3.5 w-3.5" />
                   Upload / Device
                   <input
+                    id="camera-device-upload"
+                    name="camera-device-upload"
                     type="file"
                     accept="image/*"
                     capture="environment"

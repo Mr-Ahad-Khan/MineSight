@@ -782,7 +782,9 @@ export default function HomePage() {
       const easedProgress = 1 - (1 - progress) ** 3;
 
       const nextProd = Math.round(targets.production * easedProgress);
-      const nextAvail = Number((targets.availability * easedProgress).toFixed(1));
+      const nextAvail = Number(
+        (targets.availability * easedProgress).toFixed(1),
+      );
       const nextExp = Math.round(targets.experience * easedProgress);
 
       setMetricValues((prev) => {
@@ -862,9 +864,7 @@ export default function HomePage() {
         message: "",
       });
     } catch (error) {
-      toast.error(
-          t.contactSendError,
-      );
+      toast.error(t.contactSendError);
     } finally {
       setContactSending(false);
     }
@@ -1044,7 +1044,7 @@ export default function HomePage() {
               title="Change language"
             >
               <Languages className="mx-0.5 h-3.5 w-3.5 text-[#e5a416] sm:mx-1" />
-                <span
+              <span
                 className={`hidden rounded-full px-2 py-1 lg:inline ${language === "en" ? "bg-[#e5a416] text-[#151719]" : ""}`}
               >
                 EN
@@ -1071,8 +1071,12 @@ export default function HomePage() {
               aria-label="SOS Emergency Help"
             >
               <LifeBuoy className="h-4 w-4 text-red-500 dark:text-red-400 shrink-0" />
-              <span className="font-black tracking-tight text-red-600 dark:text-red-300">SOS</span>
-              <span className="hidden sm:inline font-bold">{language === "hi" ? "मदद" : "Help"}</span>
+              <span className="font-black tracking-tight text-red-600 dark:text-red-300">
+                SOS
+              </span>
+              <span className="hidden sm:inline font-bold">
+                {language === "hi" ? "मदद" : "Help"}
+              </span>
             </button>
 
             <button
@@ -1140,7 +1144,9 @@ export default function HomePage() {
                     href="#demo-video"
                     onClick={(event) => {
                       event.preventDefault();
-                      document.getElementById("demo-video")?.scrollIntoView({ behavior: "smooth" });
+                      document
+                        .getElementById("demo-video")
+                        ?.scrollIntoView({ behavior: "smooth" });
                     }}
                     className="inline-flex items-center justify-center gap-3 rounded-md border border-white/70 bg-black/25 px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/10"
                   >
@@ -1233,7 +1239,9 @@ export default function HomePage() {
                   >
                     <div
                       className="h-full rounded-full bg-[#e5a416] transition-[width] duration-700"
-                      style={{ width: `${Math.min(Math.max(item.progress, 0), 100)}%` }}
+                      style={{
+                        width: `${Math.min(Math.max(item.progress, 0), 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -1278,15 +1286,24 @@ export default function HomePage() {
             </div>
             <div className="grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2 lg:grid-cols-3 md:col-span-2">
               <div className="flex items-center gap-3 rounded-lg border border-[#39c7b0]/25 bg-[#102b32] px-4 py-3 text-sm font-semibold text-[#b8f3e7]">
-                <Bot className="h-5 w-5 shrink-0 text-[#61dfca]" aria-hidden="true" />
+                <Bot
+                  className="h-5 w-5 shrink-0 text-[#61dfca]"
+                  aria-hidden="true"
+                />
                 {t.aiPowered}
               </div>
               <div className="flex items-center gap-3 rounded-lg border border-[#e5a416]/25 bg-[#2b2513] px-4 py-3 text-sm font-semibold text-[#f6d98d]">
-                <ShieldCheck className="h-5 w-5 shrink-0 text-[#f3b323]" aria-hidden="true" />
+                <ShieldCheck
+                  className="h-5 w-5 shrink-0 text-[#f3b323]"
+                  aria-hidden="true"
+                />
                 {t.blockchainAudit}
               </div>
               <div className="flex items-center gap-3 rounded-lg border border-[#7aa7d9]/25 bg-[#152a3d] px-4 py-3 text-sm font-semibold text-[#c5ddf5]">
-                <Cloud className="h-5 w-5 shrink-0 text-[#8fc5f4]" aria-hidden="true" />
+                <Cloud
+                  className="h-5 w-5 shrink-0 text-[#8fc5f4]"
+                  aria-hidden="true"
+                />
                 {t.cloudComputing}
               </div>
             </div>
@@ -1470,7 +1487,9 @@ export default function HomePage() {
                 {language === "en" ? "Live Demonstration" : "लाइव प्रदर्शन"}
               </span>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-[#17314a] dark:text-white sm:text-4xl">
-                {language === "en" ? "Watch MineSight in Action" : "माइनसाइट को क्रियान्वित देखें"}
+                {language === "en"
+                  ? "Watch MineSight in Action"
+                  : "माइनसाइट को क्रियान्वित देखें"}
               </h2>
               <p className="mx-auto mt-2 max-w-2xl text-sm text-[#52636a] dark:text-[#aaa69e] sm:text-base">
                 {language === "en"
@@ -1537,7 +1556,9 @@ export default function HomePage() {
                         className="audit-feature-item group flex items-start gap-3 rounded-xl border border-slate-700/60 bg-slate-900/60 p-4 transition-all duration-200 hover:translate-x-1.5 hover:border-teal-500/50 hover:bg-teal-500/5 cursor-pointer"
                       >
                         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal-400 transition-transform duration-200 group-hover:scale-110" />
-                        <span className="text-slate-200 font-medium">{item}</span>
+                        <span className="text-slate-200 font-medium">
+                          {item}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1590,7 +1611,8 @@ export default function HomePage() {
                       label: language === "en" ? "Reports" : "रिपोर्ट्स",
                       value: homeStats?.totalReports ?? 0,
                       icon: BarChart3,
-                      iconBg: "bg-indigo-950 text-indigo-300 border-indigo-800/60",
+                      iconBg:
+                        "bg-indigo-950 text-indigo-300 border-indigo-800/60",
                     },
                   ].map(({ label, value, icon: Icon, iconBg }) => (
                     <div
@@ -1605,7 +1627,9 @@ export default function HomePage() {
                       <div className="text-2xl font-bold text-white tracking-tight transition-transform duration-300 group-hover:scale-105">
                         {value}
                       </div>
-                      <div className="mt-1 text-sm font-medium text-slate-300">{label}</div>
+                      <div className="mt-1 text-sm font-medium text-slate-300">
+                        {label}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1764,10 +1788,18 @@ export default function HomePage() {
                       required
                     >
                       <option value="">{t.chooseArea}</option>
-                      <option value="Platform access">{t.platformAccess}</option>
-                      <option value="Mine onboarding">{t.mineOnboarding}</option>
-                      <option value="Compliance support">{t.complianceSupport}</option>
-                      <option value="General inquiry">{t.generalInquiry}</option>
+                      <option value="Platform access">
+                        {t.platformAccess}
+                      </option>
+                      <option value="Mine onboarding">
+                        {t.mineOnboarding}
+                      </option>
+                      <option value="Compliance support">
+                        {t.complianceSupport}
+                      </option>
+                      <option value="General inquiry">
+                        {t.generalInquiry}
+                      </option>
                     </select>
                   </div>
 
@@ -1799,12 +1831,18 @@ export default function HomePage() {
                     type="submit"
                     disabled={contactSending}
                     className="group relative w-full overflow-hidden rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-3.5 font-bold !text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.98]"
-                    style={{ color: '#ffffff' }}
+                    style={{ color: "#ffffff" }}
                   >
-                    <span className="relative z-10 flex items-center justify-center gap-2 !text-white" style={{ color: '#ffffff' }}>
+                    <span
+                      className="relative z-10 flex items-center justify-center gap-2 !text-white"
+                      style={{ color: "#ffffff" }}
+                    >
                       {contactSending ? t.sending : t.sendMessage}
                       {!contactSending && (
-                        <Send className="h-4 w-4 !text-white transition-transform group-hover:translate-x-1" style={{ color: '#ffffff' }} />
+                        <Send
+                          className="h-4 w-4 !text-white transition-transform group-hover:translate-x-1"
+                          style={{ color: "#ffffff" }}
+                        />
                       )}
                     </span>
                   </button>
@@ -1923,10 +1961,12 @@ export default function HomePage() {
                 language === "hi"
                   ? "कैमरा AI स्कैनर का उपयोग करने के लिए कृपया पहले लॉगिन करें।"
                   : "Please log in to use the Camera AI scanner.",
-                { icon: "🔒", duration: 3500 }
+                { icon: "🔒", duration: 3500 },
               );
               navigate("/login?redirect=/app/inspections/new", {
-                state: { message: "Please log in to access the Camera AI Scanner." },
+                state: {
+                  message: "Please log in to access the Camera AI Scanner.",
+                },
               });
               return;
             }
@@ -1950,10 +1990,12 @@ export default function HomePage() {
                     language === "hi"
                       ? "कोल AI सहायक का उपयोग करने के लिए कृपया पहले लॉगिन करें।"
                       : "Please log in to use the Coal AI Assistant.",
-                    { icon: "🔒", duration: 3500 }
+                    { icon: "🔒", duration: 3500 },
                   );
                   navigate("/login?redirect=/app/chat", {
-                    state: { message: "Please log in to access the Coal AI Assistant." },
+                    state: {
+                      message: "Please log in to access the Coal AI Assistant.",
+                    },
                   });
                   return;
                 }
@@ -1999,7 +2041,9 @@ export default function HomePage() {
                       onClick={() => setAssistantChatOpen(true)}
                       className="w-full rounded-lg border border-[#e5a416] bg-[#e5a416] px-4 py-2.5 text-xs font-bold text-[#151719] transition hover:bg-[#f5b82c] touch-manipulation cursor-pointer active:scale-95"
                     >
-                      {language === "hi" ? "अभी चैट करें (बिना लॉगिन)" : "Chat now (Instant AI)"}
+                      {language === "hi"
+                        ? "अभी चैट करें (बिना लॉगिन)"
+                        : "Chat now (Instant AI)"}
                     </button>
 
                     <button
@@ -2011,7 +2055,9 @@ export default function HomePage() {
                       className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-sky-400/60 bg-sky-500/15 px-4 py-2 text-xs font-semibold text-sky-200 transition hover:bg-sky-500/25 touch-manipulation cursor-pointer"
                     >
                       <Camera className="h-3.5 w-3.5" />
-                      {language === "hi" ? "कैमरा स्कैनर खोलें" : "Open Camera Scanner"}
+                      {language === "hi"
+                        ? "कैमरा स्कैनर खोलें"
+                        : "Open Camera Scanner"}
                     </button>
 
                     <button
@@ -2034,7 +2080,9 @@ export default function HomePage() {
                         <p className="text-sm font-semibold text-white">
                           {t.coalAi}
                         </p>
-                        <p className="text-[10px] text-emerald-400 font-semibold">● Active (No Login Needed)</p>
+                        <p className="text-[10px] text-emerald-400 font-semibold">
+                          ● Active (No Login Needed)
+                        </p>
                       </div>
                     </div>
 
@@ -2135,12 +2183,14 @@ export default function HomePage() {
             setCameraModalOpen(false);
             window.__pendingScannedPhoto = photoData;
             if (token) {
-              navigate("/app/inspections/new", { state: { scannedPhoto: photoData } });
+              navigate("/app/inspections/new", {
+                state: { scannedPhoto: photoData },
+              });
             } else {
               toast.success(
                 language === "hi"
                   ? "फ़ोटो स्कैन हो गई! आधिकारिक निरीक्षण शुरू करने के लिए कृपया साइन इन करें।"
-                  : "Photo analyzed! Please sign in to create an official inspection record."
+                  : "Photo analyzed! Please sign in to create an official inspection record.",
               );
               navigate("/login?redirect=/app/inspections/new");
             }

@@ -3,12 +3,16 @@
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
 
-let currentIsOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+let currentIsOnline =
+  typeof navigator !== "undefined" ? navigator.onLine : true;
 let isVerifying = false;
 let statusListeners = [];
 
 export function getNetworkStatus() {
-  if (typeof window !== "undefined" && window.AndroidBridge?.isNetworkConnected) {
+  if (
+    typeof window !== "undefined" &&
+    window.AndroidBridge?.isNetworkConnected
+  ) {
     try {
       return Boolean(window.AndroidBridge.isNetworkConnected());
     } catch (e) {
@@ -42,7 +46,7 @@ function notifyStatus(isOnline) {
     window.dispatchEvent(
       new CustomEvent("minesight:network-status", {
         detail: { isOnline },
-      })
+      }),
     );
   }
 }
@@ -53,7 +57,10 @@ export async function verifyRealConnectivity() {
 
   try {
     // 1. Android Native ConnectivityManager Check
-    if (typeof window !== "undefined" && window.AndroidBridge?.isNetworkConnected) {
+    if (
+      typeof window !== "undefined" &&
+      window.AndroidBridge?.isNetworkConnected
+    ) {
       const isConnected = Boolean(window.AndroidBridge.isNetworkConnected());
       if (!isConnected) {
         notifyStatus(false);
@@ -163,7 +170,10 @@ export function initNetworkManager() {
   window.addEventListener("focus", handleResumeOrFocus);
 
   // Native Capacitor App Resume listener
-  if (Capacitor.isNativePlatform?.() || Boolean(window.Capacitor?.isNativePlatform?.())) {
+  if (
+    Capacitor.isNativePlatform?.() ||
+    Boolean(window.Capacitor?.isNativePlatform?.())
+  ) {
     try {
       CapApp.addListener("appStateChange", (state) => {
         if (state.isActive) {
