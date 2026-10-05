@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { downloadOrExportFile } from "../utils/fileDownloader";
 import {
   AlertOctagon,
   CheckCircle2,
@@ -251,17 +252,13 @@ export default function DisasterManagement() {
       : "",
   }));
 
-  const downloadFile = (content, fileName, type) => {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const downloadFile = async (content, fileName, type) => {
+    try {
+      await downloadOrExportFile(content, fileName, type);
+    } catch (err) {
+      console.error("Export download failed:", err);
+      toast.error("Failed to download file");
+    }
   };
 
   const exportJson = () => {
@@ -317,7 +314,7 @@ export default function DisasterManagement() {
     );
   };
 
-  const exportPdf = () => {
+  const exportPdf = async () => {
     try {
       const pdf = new jsPDF({
         orientation: "landscape",
@@ -424,7 +421,8 @@ export default function DisasterManagement() {
         },
       });
 
-      pdf.save("disaster-management-report.pdf");
+      const pdfBlob = pdf.output("blob");
+      await downloadOrExportFile(pdfBlob, "disaster-management-report.pdf", "application/pdf");
       toast.success("PDF report downloaded");
     } catch {
       toast.error("Unable to generate the PDF report");

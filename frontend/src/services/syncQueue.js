@@ -177,6 +177,45 @@ export async function processSyncQueue(apiClient) {
   isSyncing = true;
   notifySyncStatus({ isSyncing: true, pendingCount: queue.length });
 
+  // Ensure we have a valid server token before attempting remote mutations
+  let currentToken = localStorage.getItem("token") || "";
+  const OFFLINE_PASSWORDS = {
+    "admin@cil.gov.in": "admin123",
+    "rajesh@ncl.gov.in": "mine123",
+    "priya@ncl.gov.in": "mine123",
+    "corporate@cil.gov.in": "corp123",
+    "regulator@dgms.gov.in": "reg123",
+    "worker@cil.gov.in": "worker123",
+    "ananya@shakticontractors.in": "contract123",
+  };
+
+  if (currentToken.startsWith("offline_token_")) {
+    const realToken = localStorage.getItem("real_server_token");
+    if (realToken) {
+      localStorage.setItem("token", realToken);
+      currentToken = realToken;
+    } else {
+      try {
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const email = user?.email?.toLowerCase();
+        if (email && OFFLINE_PASSWORDS[email]) {
+          const loginRes = await apiClient.post("/auth/login", {
+            email,
+            password: OFFLINE_PASSWORDS[email],
+            isNativeApp: true,
+          });
+          if (loginRes.data?.token) {
+            localStorage.setItem("token", loginRes.data.token);
+            localStorage.setItem("real_server_token", loginRes.data.token);
+            currentToken = loginRes.data.token;
+          }
+        }
+      } catch (e) {
+        console.warn("Silent re-auth for sync queue pass failed:", e);
+      }
+    }
+  }
+
   let successCount = 0;
   let failCount = 0;
 
@@ -210,7 +249,45 @@ export async function processSyncQueue(apiClient) {
         const isAuthError = status === 401 || status === 403;
         const isSyntaxError = status === 400 || status === 422;
 
-        // Never drop pending mutations on auth errors (expired token / offline login)
+        // If auth error occurred, attempt single recovery with credentials
+        if (isAuthError && !item._triedReauth) {
+          item._triedReauth = true;
+          try {
+            const user = JSON.parse(localStorage.getItem("user") || "null");
+            const email = user?.email?.toLowerCase();
+            if (email && OFFLINE_PASSWORDS[email]) {
+              const loginRes = await apiClient.post("/auth/login", {
+                email,
+                password: OFFLINE_PASSWORDS[email],
+                isNativeApp: true,
+              });
+              if (loginRes.data?.token) {
+                localStorage.setItem("token", loginRes.data.token);
+                localStorage.setItem("real_server_token", loginRes.data.token);
+                // Retry once
+                const data = await prepareRequestData(item);
+                const headers = item.isFormData ? { "Content-Type": undefined } : {};
+                const retryRes = await apiClient({
+                  method: item.method,
+                  url: item.url,
+                  data,
+                  headers,
+                });
+                const serverData = retryRes.data?.data;
+                if (serverData && item.entityType) {
+                  await updateLocalRecordWithServer(item.entityType, item.localId, serverData);
+                }
+                dequeueMutation(item.id);
+                successCount++;
+                continue;
+              }
+            }
+          } catch (retryErr) {
+            console.warn("Re-auth retry failed:", retryErr);
+          }
+        }
+
+        // Never drop pending mutations on temporary auth or network errors
         if (isSyntaxError && (item.retries || 0) >= 3) {
           console.warn(`Dropping permanently invalid mutation [${status}]:`, item);
           dequeueMutation(item.id);

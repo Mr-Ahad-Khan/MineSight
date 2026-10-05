@@ -11,6 +11,7 @@ import {
   processSyncQueue,
   initAutoSync,
 } from "./syncQueue";
+import { reportNetworkError, reportNetworkSuccess } from "./networkManager";
 import toast from "react-hot-toast";
 
 // 1. Resolve and sanitize the base URL to prevent double slashes or broken paths
@@ -75,8 +76,14 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    reportNetworkSuccess();
+    return response;
+  },
   (error) => {
+    if (isOfflineOrNetworkError(error)) {
+      reportNetworkError();
+    }
     const requestUrl = error.config?.url || "";
     const storedToken = localStorage.getItem("token") || "";
     let isOfflineSession = storedToken.startsWith("offline_token_");
@@ -363,7 +370,11 @@ export const login = async (data) => {
   const payload = isNative
     ? { ...data, isNativeApp: true, client: "native" }
     : data;
-  return api.post("/auth/login", payload);
+  const res = await api.post("/auth/login", payload);
+  if (res.data?.token) {
+    localStorage.setItem("real_server_token", res.data.token);
+  }
+  return res;
 };
 
 export const register = (data) => {

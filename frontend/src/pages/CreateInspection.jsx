@@ -46,6 +46,7 @@ import { compressImage } from "../utils/imageCompressor";
 import CameraCaptureModal from "../components/common/CameraCaptureModal";
 import RiskAnalysisModal from "../components/common/RiskAnalysisModal";
 import { detectPhotoRisk, detectBatchRisk } from "../services/riskDetectionService";
+import { speakText, stopSpeaking } from "../utils/speechUtils";
 
 function LocationPicker({ position, setPosition }) {
   useMapEvents({
@@ -97,13 +98,11 @@ function VoiceTextField({
   );
 
   const speakInstructions = () => {
-    if (!voiceEnabled || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(
-      `You are editing ${props["aria-label"] || placeholder || "this field"}. You can type or select the microphone to dictate.`,
-    );
-    utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
-    window.speechSynthesis.speak(utterance);
+    if (!voiceEnabled) return;
+    const text = language === "hi"
+      ? `${props["aria-label"] || placeholder || "यह फ़ील्ड"} संपादित कर रहे हैं। आप टाइप कर सकते हैं या माइक से बोल सकते हैं।`
+      : `You are editing ${props["aria-label"] || placeholder || "this field"}. You can type or select the microphone to dictate.`;
+    speakText(text, language === "hi" ? "hi-IN" : "en-IN");
   };
 
   const toggleListening = (e) => {
@@ -894,7 +893,20 @@ export default function CreateInspection() {
 
           <button
             type="button"
-            onClick={() => setVoiceEnabled((enabled) => !enabled)}
+            onClick={() => {
+              setVoiceEnabled((prev) => {
+                const next = !prev;
+                if (next) {
+                  speakText(
+                    language === "hi" ? "वॉयस गाइड सक्रिय है। फ़ील्ड चुनने पर निर्देश सुने।" : "Voice guide enabled. Select any field to hear instructions.",
+                    language === "hi" ? "hi-IN" : "en-IN"
+                  );
+                } else {
+                  stopSpeaking();
+                }
+                return next;
+              });
+            }}
             className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition touch-manipulation min-h-[40px] ${
               voiceEnabled
                 ? "border-sky-500 bg-sky-50 text-sky-800 dark:bg-sky-950/60 dark:border-sky-700 dark:text-sky-200 shadow-xs"

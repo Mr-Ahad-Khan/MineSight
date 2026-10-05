@@ -69,8 +69,21 @@ export default function CameraCaptureModal({
   // Stop camera tracks cleanly
   const stopStream = useCallback(() => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      try {
+        streamRef.current.getTracks().forEach((track) => {
+          track.stop();
+          track.enabled = false;
+        });
+      } catch (e) {
+        console.warn("Error stopping camera tracks:", e);
+      }
       streamRef.current = null;
+    }
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+        videoRef.current.srcObject = null;
+      } catch (e) {}
     }
   }, []);
 
@@ -112,13 +125,46 @@ export default function CameraCaptureModal({
   }, [facingMode, stopStream]);
 
   useEffect(() => {
-    if (isOpen && !capturedBlob) {
+    if (isOpen && !capturedBlob && !document.hidden) {
       startCamera();
     } else {
       stopStream();
     }
 
+    const handleVisibility = () => {
+      if (document.hidden) {
+        stopStream();
+      } else if (isOpen && !capturedBlob) {
+        startCamera();
+      }
+    };
+
+    const handleAppPause = () => {
+      stopStream();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pagehide", handleAppPause);
+
+    let capListener = null;
+    try {
+      import("@capacitor/app").then(({ App: CapApp }) => {
+        CapApp.addListener("appStateChange", (state) => {
+          if (!state.isActive) {
+            stopStream();
+          } else if (isOpen && !capturedBlob && !document.hidden) {
+            startCamera();
+          }
+        }).then((handle) => {
+          capListener = handle;
+        });
+      }).catch(() => {});
+    } catch (e) {}
+
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", handleAppPause);
+      if (capListener) capListener.remove();
       stopStream();
     };
   }, [isOpen, capturedBlob, startCamera, stopStream]);

@@ -2,20 +2,24 @@ import { useEffect, useState } from "react";
 import { Wifi, WifiOff, RefreshCw, CheckCircle2 } from "lucide-react";
 import { triggerSyncNow, getPendingSyncCount } from "../../services/api";
 import { subscribeToSyncStatus } from "../../services/syncQueue";
+import { subscribeNetworkStatus, getNetworkStatus } from "../../services/networkManager";
 
 export default function OfflineSyncBadge({ compact = false }) {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
+  const [isOnline, setIsOnline] = useState(() => getNetworkStatus());
   const [pendingCount, setPendingCount] = useState(getPendingSyncCount());
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const unsubNetwork = subscribeNetworkStatus((online) => {
+      setIsOnline(online);
+    });
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
+    const handleNetworkEvent = (e) => {
+      if (typeof e.detail?.isOnline === "boolean") {
+        setIsOnline(e.detail.isOnline);
+      }
+    };
+    window.addEventListener("minesight:network-status", handleNetworkEvent);
 
     const handleQueueChange = (e) => {
       setPendingCount(e.detail?.pendingCount ?? getPendingSyncCount());
@@ -28,8 +32,8 @@ export default function OfflineSyncBadge({ compact = false }) {
     });
 
     return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
+      unsubNetwork();
+      window.removeEventListener("minesight:network-status", handleNetworkEvent);
       window.removeEventListener("minesight:queue-updated", handleQueueChange);
       unsubscribe();
     };

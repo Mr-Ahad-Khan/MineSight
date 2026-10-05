@@ -1823,7 +1823,7 @@ export default function HomePage() {
           <div className="grid gap-10 text-center md:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-3">
-                <BrandLogo darkSurface imageClassName="h-16 w-44 rounded" />
+                <BrandLogo imageClassName="h-16 w-44 rounded" />
               </div>
               <p className="mx-auto mt-5 max-w-sm text-sm leading-6 text-[#9eafaf]">
                 {t.footerTagline}

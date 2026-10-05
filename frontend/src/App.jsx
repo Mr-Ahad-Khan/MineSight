@@ -8,6 +8,11 @@ import useAuthStore from "./store/authStore";
 import useThemeStore from "./store/themeStore";
 import { triggerSyncNow, getPendingSyncCount } from "./services/api";
 import { isTokenExpired } from "./utils/authUtils";
+import {
+  initNetworkManager,
+  subscribeNetworkStatus,
+  getNetworkStatus,
+} from "./services/networkManager";
 
 function PublicHomeRoute() {
   const { token } = useAuthStore();
@@ -128,7 +133,7 @@ function App() {
   const { initTheme } = useThemeStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isOffline, setIsOffline] = useState(() => !getNetworkStatus());
   const [pendingCount, setPendingCount] = useState(getPendingSyncCount());
   const [sessionExpired, setSessionExpired] = useState(() => {
     const token = localStorage.getItem("token");
@@ -148,18 +153,28 @@ function App() {
   );
 
   useEffect(() => {
-    const updateConnection = () => setIsOffline(!navigator.onLine);
+    initNetworkManager();
+
+    const unsubNetwork = subscribeNetworkStatus((online) => {
+      setIsOffline(!online);
+    });
+
+    const handleCustomNetwork = (e) => {
+      if (typeof e.detail?.isOnline === "boolean") {
+        setIsOffline(!e.detail.isOnline);
+      }
+    };
+
     const handleQueueChange = (e) => {
       setPendingCount(e.detail?.pendingCount ?? getPendingSyncCount());
     };
 
-    window.addEventListener("online", updateConnection);
-    window.addEventListener("offline", updateConnection);
+    window.addEventListener("minesight:network-status", handleCustomNetwork);
     window.addEventListener("minesight:queue-updated", handleQueueChange);
 
     return () => {
-      window.removeEventListener("online", updateConnection);
-      window.removeEventListener("offline", updateConnection);
+      unsubNetwork();
+      window.removeEventListener("minesight:network-status", handleCustomNetwork);
       window.removeEventListener("minesight:queue-updated", handleQueueChange);
     };
   }, []);

@@ -55,35 +55,44 @@ export default function Mines() {
     : [24.12, 82.45]
   const selectedMine = mines.find((mine) => mine._id === selectedMineId)
 
-  useEffect(() => {
-    if (showCreateForm && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }, [showCreateForm])
-
   const handleGetCurrentLocation = () => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser')
-      return
+      toast.error('Geolocation is not supported on this device');
+      return;
     }
-    setGeoLocating(true)
+    setGeoLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setForm((prev) => ({
           ...prev,
           latitude: pos.coords.latitude.toFixed(6),
           longitude: pos.coords.longitude.toFixed(6),
-        }))
-        setGeoLocating(false)
-        toast.success('GPS coordinates retrieved!')
+        }));
+        setGeoLocating(false);
+        toast.success('GPS coordinates retrieved!');
       },
       (err) => {
-        setGeoLocating(false)
-        toast.error('Could not get GPS position: ' + (err.message || 'Permission denied'))
+        setGeoLocating(false);
+        if (err.code === 1) {
+          toast.error('Location permission was denied. Please allow location access in your device settings.');
+        } else {
+          toast.error('Could not get GPS position: ' + (err.message || 'Position unavailable'));
+        }
       },
-      { timeout: 10000, enableHighAccuracy: true }
-    )
-  }
+      { timeout: 12000, enableHighAccuracy: true, maximumAge: 60000 }
+    );
+  };
+
+  useEffect(() => {
+    if (showCreateForm) {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      if (!form.latitude || !form.longitude) {
+        handleGetCurrentLocation();
+      }
+    }
+  }, [showCreateForm]);
 
   const handleSetDefaultLocation = () => {
     setForm((prev) => ({

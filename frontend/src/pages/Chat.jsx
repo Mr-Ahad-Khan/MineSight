@@ -21,6 +21,7 @@ import useAuthStore from "../store/authStore";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
 import { saveChatMessage } from "../services/api";
+import { speakText, stopSpeaking } from "../utils/speechUtils";
 
 const getAssistantReply = (message, language = "en") => {
   const lower = message.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ");
@@ -325,11 +326,8 @@ export default function Chat() {
   );
 
   const speakReply = (text) => {
-    if (!speechEnabled || !speechSupported) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
-    window.speechSynthesis.speak(utterance);
+    if (!speechEnabled) return;
+    speakText(text, language === "hi" ? "hi-IN" : "en-IN");
   };
 
   const toggleVoiceInput = () => {
