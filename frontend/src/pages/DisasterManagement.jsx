@@ -798,6 +798,15 @@ export default function DisasterManagement() {
                 <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
                   Closed {new Date(incident.resolvedAt || incident.updatedAt || incident.createdAt).toLocaleString()}
                 </p>
+                <div className="mt-4 border-t border-emerald-100 pt-3 dark:border-emerald-900">
+                  <button
+                    type="button"
+                    onClick={() => editIncident(incident)}
+                    className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    <Edit3 className="h-4 w-4" /> Edit
+                  </button>
+                </div>
               </article>
             ))}
           </div>
