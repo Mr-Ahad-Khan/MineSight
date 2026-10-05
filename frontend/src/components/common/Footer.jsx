@@ -69,8 +69,8 @@ export default function Footer({ onOpenScan }) {
     >
       {!isChat && (
         <div className="mx-auto max-w-7xl px-4 py-10 text-center sm:px-6 sm:text-left lg:px-8">
-          <div className="grid justify-items-center gap-8 md:grid-cols-2 md:justify-items-stretch xl:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
-            <div className="flex flex-col items-center md:items-start">
+          <div className="grid justify-items-center gap-8 md:grid-cols-2 md:justify-items-center xl:grid-cols-[1.5fr_1fr_1fr_1.2fr] xl:justify-items-stretch">
+            <div className="flex flex-col items-center xl:items-start">
               <BrandLogo
                 darkSurface
                 forceLogo="minesight-logo.svg"
@@ -81,11 +81,11 @@ export default function Footer({ onOpenScan }) {
               </p>
             </div>
 
-            <div className="w-full">
+            <div className="w-full text-center xl:text-left">
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
                 {t.platform}
               </h3>
-              <div className="mt-4 flex flex-col items-center gap-2.5 text-sm text-[#b5c2c1] md:items-start">
+              <div className="mt-4 flex flex-col items-center gap-2.5 text-sm text-[#b5c2c1] xl:items-start">
                 <span>{t.riskSafety}</span>
                 <span>{t.complianceRecords}</span>
                 <span>{t.fieldInspections}</span>
@@ -93,11 +93,11 @@ export default function Footer({ onOpenScan }) {
               </div>
             </div>
 
-            <div className="w-full">
+            <div className="w-full text-center xl:text-left">
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
                 {t.support}
               </h3>
-              <div className="mt-4 flex flex-col items-center gap-2.5 text-sm text-[#b5c2c1] md:items-start">
+              <div className="mt-4 flex flex-col items-center gap-2.5 text-sm text-[#b5c2c1] xl:items-start">
                 <a
                   href="mailto:support@coalgovernance.in"
                   className="transition-colors hover:text-white"
@@ -110,7 +110,7 @@ export default function Footer({ onOpenScan }) {
               </div>
             </div>
 
-            <div className="w-full">
+            <div className="w-full text-center xl:text-left">
               <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[#e5a416]">
                 {t.systemStatus}
               </h3>
