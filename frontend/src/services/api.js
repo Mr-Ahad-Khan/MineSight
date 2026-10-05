@@ -1038,7 +1038,7 @@ export const createInspection = async (data) => {
   // Build optimistic inspection
   const photoPreviews = files
     .filter((f) => f.fieldName === "photos")
-    .map((f) => ({ url: f.dataUrl, name: f.fileName }));
+    .map((f) => ({ url: f.dataUrl, mediaKey: f.mediaKey, name: f.fileName }));
 
   const audioFile = files.find((f) => f.fieldName === "audio");
 

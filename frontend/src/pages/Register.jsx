@@ -128,6 +128,11 @@ export default function Register() {
       return;
     }
 
+    if (form.password.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+
     const result = await register(payload);
 
     if (result.success) {
@@ -419,6 +424,8 @@ export default function Register() {
                       onChange={handleChange}
                       className="input-field pr-10"
                       placeholder="Create a strong password"
+                      minLength={6}
+                      aria-describedby="register-password-requirement"
                       required
                     />
                     <button
@@ -434,6 +441,13 @@ export default function Register() {
                     </button>
                   </div>
                 </div>
+
+                <p
+                    id="register-password-requirement"
+                    className="mt-1 text-xs text-slate-500 dark:text-slate-400"
+                  >
+                    At least 6 characters ({form.password.length}/6)
+                  </p>
 
                 {!isNativeApp && recaptchaSiteKey ? (
                   <ReCAPTCHA

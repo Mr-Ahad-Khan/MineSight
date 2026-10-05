@@ -139,10 +139,13 @@ async function dbPut(storeName, item) {
       const itemToMirror = storeName === "inspections" && Array.isArray(item.photos)
         ? {
             ...item,
-            photos: item.photos.map((p) => ({
-              ...p,
-              url: (typeof p?.url === "string" && p.url.startsWith("data:")) ? (p.mediaKey || "stored_offline_media") : p?.url,
-            })),
+            photos: item.photos.map((p) => {
+              if (typeof p === "string") return p;
+              return {
+                ...p,
+                url: (typeof p?.url === "string" && p.url.startsWith("data:")) ? (p.mediaKey || "stored_offline_media") : p?.url,
+              };
+            }),
             audio: (typeof item.audio === "string" && item.audio.startsWith("data:")) ? "stored_offline_audio" : item.audio,
             audioUrl: (typeof item.audioUrl === "string" && item.audioUrl.startsWith("data:")) ? "stored_offline_audio" : item.audioUrl,
           }

@@ -94,14 +94,24 @@ export default function Inspections() {
           list = localItems;
         }
       }
-      setInspections(Array.isArray(list) ? list : []);
+      const newestFirst = Array.isArray(list)
+        ? [...list].sort(
+            (a, b) => new Date(b.createdAt || b.inspectionDate || 0).getTime() - new Date(a.createdAt || a.inspectionDate || 0).getTime(),
+          )
+        : [];
+      setInspections(newestFirst);
     } catch (error) {
       console.warn("fetchInspections error, falling back to offline storage:", error);
       try {
         let localList = await offlineStorage.getInspections();
         if (filters.status) localList = localList.filter((i) => i.status === filters.status);
         if (filters.severity) localList = localList.filter((i) => i.severity === filters.severity);
-        setInspections(Array.isArray(localList) ? localList : []);
+        const newestFirst = Array.isArray(localList)
+          ? [...localList].sort(
+              (a, b) => new Date(b.createdAt || b.inspectionDate || 0).getTime() - new Date(a.createdAt || a.inspectionDate || 0).getTime(),
+            )
+          : [];
+        setInspections(newestFirst);
       } catch (err) {
         setInspections([]);
       }
