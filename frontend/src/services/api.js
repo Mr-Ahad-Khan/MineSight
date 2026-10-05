@@ -82,7 +82,9 @@ api.interceptors.response.use(
     let isOfflineSession = storedToken.startsWith("offline_token_");
     if (!isOfflineSession) {
       try {
-        isOfflineSession = JSON.parse(localStorage.getItem("user") || "null")?._isOffline === true;
+        isOfflineSession =
+          JSON.parse(localStorage.getItem("user") || "null")?._isOffline ===
+          true;
       } catch {
         isOfflineSession = false;
       }
@@ -104,7 +106,7 @@ api.interceptors.response.use(
                 "Your session has expired. Please log out and log in again to continue.",
               status: 401,
             },
-          })
+          }),
         );
       }
     }
@@ -358,7 +360,9 @@ export const login = async (data) => {
       (Boolean(window.Capacitor?.isNativePlatform?.()) ||
         window.location.protocol === "capacitor:" ||
         window.location.protocol === "ionic:"));
-  const payload = isNative ? { ...data, isNativeApp: true, client: "native" } : data;
+  const payload = isNative
+    ? { ...data, isNativeApp: true, client: "native" }
+    : data;
   return api.post("/auth/login", payload);
 };
 
@@ -369,7 +373,9 @@ export const register = (data) => {
       (Boolean(window.Capacitor?.isNativePlatform?.()) ||
         window.location.protocol === "capacitor:" ||
         window.location.protocol === "ionic:"));
-  const payload = isNative ? { ...data, isNativeApp: true, client: "native" } : data;
+  const payload = isNative
+    ? { ...data, isNativeApp: true, client: "native" }
+    : data;
   return api.post("/auth/register", payload);
 };
 
@@ -837,14 +843,18 @@ export const getInspections = async (params) => {
     // Also include any locally pending offline inspections so user never loses visibility
     const localItems = await offlineStorage.getInspections();
     const pendingOffline = localItems.filter(
-      (i) => i._isOffline || i._pendingSync || String(i._id).startsWith("insp_offline_")
+      (i) =>
+        i._isOffline ||
+        i._pendingSync ||
+        String(i._id).startsWith("insp_offline_"),
     );
     const combined = [
       ...pendingOffline,
       ...serverList.filter((s) => !pendingOffline.some((p) => p._id === s._id)),
     ];
 
-    const finalList = combined.length > 0 ? combined : (localItems.length > 0 ? localItems : []);
+    const finalList =
+      combined.length > 0 ? combined : localItems.length > 0 ? localItems : [];
     return { ...res, data: { ...res.data, data: finalList } };
   } catch (error) {
     let list = await offlineStorage.getInspections();
@@ -857,7 +867,10 @@ export const getInspections = async (params) => {
 
 export const getInspection = async (id) => {
   // If it's a local offline id, retrieve directly from local offline storage first
-  if (id && (String(id).startsWith("insp_offline_") || String(id).includes("offline"))) {
+  if (
+    id &&
+    (String(id).startsWith("insp_offline_") || String(id).includes("offline"))
+  ) {
     const item = await offlineStorage.getInspection(id);
     if (item) {
       return { data: { success: true, data: item, _isOffline: true } };
@@ -885,7 +898,9 @@ export const getInspection = async (id) => {
 export const getInspectionAuditHistory = async (id) => {
   if (
     (typeof navigator !== "undefined" && !navigator.onLine) ||
-    (id && (String(id).startsWith("insp_offline_") || String(id).includes("offline")))
+    (id &&
+      (String(id).startsWith("insp_offline_") ||
+        String(id).includes("offline")))
   ) {
     return {
       data: {
@@ -979,11 +994,14 @@ export const createInspection = async (data) => {
   let mineInfo = await offlineStorage.getMine(payload.mineId);
   if (!mineInfo) {
     const allMines = await offlineStorage.getMines();
-    mineInfo = allMines.find((m) => m._id === payload.mineId || m.code === payload.mineId) || allMines[0] || {
-      _id: payload.mineId || "mine_001",
-      name: "Selected Mine",
-      code: "MINE-01",
-    };
+    mineInfo = allMines.find(
+      (m) => m._id === payload.mineId || m.code === payload.mineId,
+    ) ||
+      allMines[0] || {
+        _id: payload.mineId || "mine_001",
+        name: "Selected Mine",
+        code: "MINE-01",
+      };
   }
 
   // Build optimistic inspection
@@ -1024,7 +1042,9 @@ export const createInspection = async (data) => {
     violations: Array.isArray(payload.violations)
       ? payload.violations
       : payload.violations
-        ? (typeof payload.violations === "string" ? JSON.parse(payload.violations) : [])
+        ? typeof payload.violations === "string"
+          ? JSON.parse(payload.violations)
+          : []
         : [],
     createdAt: new Date().toISOString(),
     _isOffline: true,
@@ -2127,7 +2147,9 @@ export const createSupportTicket = async (data) => {
 
 export const updateSupportTicket = async (id, data) => {
   const ticket = await offlineStorage.getSupportTicket(id);
-  const optimistic = ticket ? { ...ticket, ...data, updatedAt: new Date().toISOString() } : null;
+  const optimistic = ticket
+    ? { ...ticket, ...data, updatedAt: new Date().toISOString() }
+    : null;
 
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     if (optimistic) await offlineStorage.saveSupportTicket(optimistic);

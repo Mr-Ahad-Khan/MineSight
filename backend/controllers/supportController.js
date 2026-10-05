@@ -124,7 +124,7 @@ const createTicket = asyncHandler(async (req, res) => {
 
   const populated = await SupportTicket.findById(ticket._id).populate(
     "mineId",
-    "name code subsidiary"
+    "name code subsidiary",
   );
 
   res.status(201).json({
@@ -140,7 +140,7 @@ const createTicket = asyncHandler(async (req, res) => {
 const getTicketById = asyncHandler(async (req, res) => {
   const ticket = await SupportTicket.findById(req.params.id).populate(
     "mineId",
-    "name code subsidiary"
+    "name code subsidiary",
   );
 
   if (!ticket) {
@@ -188,13 +188,15 @@ const updateTicket = asyncHandler(async (req, res) => {
   if (mineId !== undefined) ticket.mineId = mineId || undefined;
   if (status !== undefined) {
     ticket.status = status;
-    ticket.resolvedAt = ["resolved", "closed"].includes(status) ? new Date() : undefined;
+    ticket.resolvedAt = ["resolved", "closed"].includes(status)
+      ? new Date()
+      : undefined;
   }
 
   await ticket.save();
   const populated = await SupportTicket.findById(ticket._id).populate(
     "mineId",
-    "name code subsidiary"
+    "name code subsidiary",
   );
 
   res.json({ success: true, data: populated });
@@ -250,7 +252,7 @@ const addTicketResponse = asyncHandler(async (req, res) => {
 
   const populated = await SupportTicket.findById(ticket._id).populate(
     "mineId",
-    "name code subsidiary"
+    "name code subsidiary",
   );
 
   res.json({

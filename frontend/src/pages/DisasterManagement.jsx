@@ -63,7 +63,8 @@ export default function DisasterManagement() {
       }
     };
     window.addEventListener("minesight:back-button", handleBackButton);
-    return () => window.removeEventListener("minesight:back-button", handleBackButton);
+    return () =>
+      window.removeEventListener("minesight:back-button", handleBackButton);
   }, [formOpen]);
   const formRef = useRef(null);
   const [form, setForm] = useState({
@@ -76,7 +77,9 @@ export default function DisasterManagement() {
   const loadData = async () => {
     try {
       const [ticketRes, mineRes, directoryRes] = await Promise.all([
-        getSupportTickets({ category: "emergency" }).catch(() => ({ data: { data: [] } })),
+        getSupportTickets({ category: "emergency" }).catch(() => ({
+          data: { data: [] },
+        })),
         getMines().catch(() => ({ data: { data: initialMines } })),
         getSupportDirectory().catch(() => ({ data: { data: [] } })),
       ]);
@@ -96,24 +99,34 @@ export default function DisasterManagement() {
 
   useEffect(() => {
     window.dispatchEvent(
-      new CustomEvent("minesight:form-active", { detail: { active: formOpen } })
+      new CustomEvent("minesight:form-active", {
+        detail: { active: formOpen },
+      }),
     );
     if (formOpen && formRef.current) {
       formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
     return () => {
       window.dispatchEvent(
-        new CustomEvent("minesight:form-active", { detail: { active: false } })
+        new CustomEvent("minesight:form-active", { detail: { active: false } }),
       );
     };
   }, [formOpen]);
 
   const activeIncidents = useMemo(
-    () => incidents.filter((incident) => !["resolved", "closed"].includes(incident.status)),
+    () =>
+      incidents.filter(
+        (incident) => !["resolved", "closed"].includes(incident.status),
+      ),
+    [incidents],
+  );
+  const closedIncidents = useMemo(
+    () => incidents.filter((incident) => ["resolved", "closed"].includes(incident.status)),
     [incidents],
   );
 
-  const updateForm = (field, value) => setForm((previous) => ({ ...previous, [field]: value }));
+  const updateForm = (field, value) =>
+    setForm((previous) => ({ ...previous, [field]: value }));
 
   const submitIncident = async (event) => {
     event.preventDefault();
@@ -137,12 +150,19 @@ export default function DisasterManagement() {
         });
         toast.success("Emergency incident escalated");
       }
-      setForm({ subject: "", mineId: "", priority: "critical", description: "" });
+      setForm({
+        subject: "",
+        mineId: "",
+        priority: "critical",
+        description: "",
+      });
       setEditingIncidentId(null);
       setFormOpen(false);
       await loadData();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Could not escalate incident");
+      toast.error(
+        error.response?.data?.message || "Could not escalate incident",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -182,11 +202,15 @@ export default function DisasterManagement() {
 
   const toggleChecklist = (index) => {
     setCheckedItems((items) =>
-      items.includes(index) ? items.filter((item) => item !== index) : [...items, index],
+      items.includes(index)
+        ? items.filter((item) => item !== index)
+        : [...items, index],
     );
   };
 
-  const emergencyContacts = directory.flatMap((group) => group.contacts || []).slice(0, 3);
+  const emergencyContacts = directory
+    .flatMap((group) => group.contacts || [])
+    .slice(0, 3);
 
   const exportRows = incidents.map((incident) => ({
     incident: incident.subject,
@@ -195,7 +219,9 @@ export default function DisasterManagement() {
     priority: incident.priority,
     status: incident.status,
     description: incident.description,
-    reportedAt: incident.createdAt ? new Date(incident.createdAt).toLocaleString() : "",
+    reportedAt: incident.createdAt
+      ? new Date(incident.createdAt).toLocaleString()
+      : "",
   }));
 
   const downloadFile = (content, fileName, type) => {
@@ -213,11 +239,15 @@ export default function DisasterManagement() {
 
   const exportJson = () => {
     downloadFile(
-      JSON.stringify({
-        exportedAt: new Date().toISOString(),
-        responseReadiness: `${Math.round((checkedItems.length / checklistItems.length) * 100)}%`,
-        incidents: exportRows,
-      }, null, 2),
+      JSON.stringify(
+        {
+          exportedAt: new Date().toISOString(),
+          responseReadiness: `${Math.round((checkedItems.length / checklistItems.length) * 100)}%`,
+          incidents: exportRows,
+        },
+        null,
+        2,
+      ),
       "disaster-management-report.json",
       "application/json",
     );
@@ -225,11 +255,15 @@ export default function DisasterManagement() {
 
   const exportCsv = () => {
     if (loading) {
-      toast.error("Wait for emergency incidents to finish loading before exporting");
+      toast.error(
+        "Wait for emergency incidents to finish loading before exporting",
+      );
       return;
     }
     if (exportRows.length === 0) {
-      toast.error("No emergency incidents are available to export. Report an incident first.");
+      toast.error(
+        "No emergency incidents are available to export. Report an incident first.",
+      );
       return;
     }
 
@@ -242,23 +276,50 @@ export default function DisasterManagement() {
       ["Description", "description"],
       ["Reported At", "reportedAt"],
     ];
-    const rows = exportRows.map((row) => columns.map(([, key]) => escapeCsv(row[key])).join(","));
-    const csv = [columns.map(([label]) => escapeCsv(label)).join(","), ...rows].join("\r\n");
-    downloadFile(`\uFEFF${csv}`, "disaster-management-report.csv", "text/csv;charset=utf-8");
+    const rows = exportRows.map((row) =>
+      columns.map(([, key]) => escapeCsv(row[key])).join(","),
+    );
+    const csv = [
+      columns.map(([label]) => escapeCsv(label)).join(","),
+      ...rows,
+    ].join("\r\n");
+    downloadFile(
+      `\uFEFF${csv}`,
+      "disaster-management-report.csv",
+      "text/csv;charset=utf-8",
+    );
   };
 
   const exportPdf = () => {
     try {
-      const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-      const readiness = Math.round((checkedItems.length / checklistItems.length) * 100);
-      const columns = ["Incident", "Ticket", "Mine", "Priority", "Status", "Description", "Reported At"];
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: "a4",
+      });
+      const readiness = Math.round(
+        (checkedItems.length / checklistItems.length) * 100,
+      );
+      const columns = [
+        "Incident",
+        "Ticket",
+        "Mine",
+        "Priority",
+        "Status",
+        "Description",
+        "Reported At",
+      ];
 
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(18);
       pdf.text("Disaster Management Report", 36, 40);
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(9);
-      pdf.text(`Generated: ${new Date().toLocaleString()}  |  Response readiness: ${readiness}%  |  Incidents: ${exportRows.length}`, 36, 58);
+      pdf.text(
+        `Generated: ${new Date().toLocaleString()}  |  Response readiness: ${readiness}%  |  Incidents: ${exportRows.length}`,
+        36,
+        58,
+      );
 
       autoTable(pdf, {
         head: [columns],
@@ -273,7 +334,12 @@ export default function DisasterManagement() {
         ]),
         startY: 72,
         margin: { left: 36, right: 36 },
-        styles: { font: "helvetica", fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+        styles: {
+          font: "helvetica",
+          fontSize: 8,
+          cellPadding: 5,
+          overflow: "linebreak",
+        },
         headStyles: { fillColor: [190, 35, 55] },
         columnStyles: {
           0: { cellWidth: 90 },
@@ -315,12 +381,20 @@ export default function DisasterManagement() {
       pdf.text("Emergency contacts", 36, sectionY);
       autoTable(pdf, {
         head: [["Contact", "Phone", "Timing"]],
-        body: emergencyContacts.map((contact) => [contact.title, contact.number, contact.timing]),
+        body: emergencyContacts.map((contact) => [
+          contact.title,
+          contact.number,
+          contact.timing,
+        ]),
         startY: sectionY + 8,
         margin: { left: 36, right: 36 },
         styles: { font: "helvetica", fontSize: 9, cellPadding: 4 },
         headStyles: { fillColor: [14, 116, 144] },
-        columnStyles: { 0: { cellWidth: 180 }, 1: { cellWidth: 120 }, 2: { cellWidth: 220 } },
+        columnStyles: {
+          0: { cellWidth: 180 },
+          1: { cellWidth: 120 },
+          2: { cellWidth: 220 },
+        },
       });
 
       pdf.save("disaster-management-report.pdf");
@@ -336,38 +410,82 @@ export default function DisasterManagement() {
         <div>
           <div className="flex items-center justify-center sm:justify-start gap-2 text-rose-600">
             <Siren className="h-5 w-5" />
-            <span className="text-sm font-semibold uppercase tracking-wide">{t.emergencyOperations}</span>
+            <span className="text-sm font-semibold uppercase tracking-wide">
+              {t.emergencyOperations}
+            </span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{t.disasterManagement}</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t.disasterSubtitle}</p>
+          <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+            {t.disasterManagement}
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            {t.disasterSubtitle}
+          </p>
         </div>
         <div className="flex flex-wrap justify-center sm:justify-start gap-2 w-full sm:w-auto">
-          <button type="button" onClick={exportCsv} className="btn-secondary flex-1 sm:flex-none min-h-[44px] touch-manipulation cursor-pointer">{t.exportCsv}</button>
-          <button type="button" onClick={exportJson} className="btn-secondary flex-1 sm:flex-none min-h-[44px] touch-manipulation cursor-pointer">{t.exportJson}</button>
-          <button type="button" onClick={exportPdf} className="btn-secondary flex-1 sm:flex-none min-h-[44px] touch-manipulation cursor-pointer">{t.exportPdf}</button>
-          <button 
-            type="button" 
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="btn-secondary flex-1 sm:flex-none min-h-[44px] touch-manipulation cursor-pointer"
+          >
+            {t.exportCsv}
+          </button>
+          <button
+            type="button"
+            onClick={exportJson}
+            className="btn-secondary flex-1 sm:flex-none min-h-[44px] touch-manipulation cursor-pointer"
+          >
+            {t.exportJson}
+          </button>
+          <button
+            type="button"
+            onClick={exportPdf}
+            className="btn-secondary flex-1 sm:flex-none min-h-[44px] touch-manipulation cursor-pointer"
+          >
+            {t.exportPdf}
+          </button>
+          <button
+            type="button"
             onClick={() => {
               setFormOpen((open) => !open);
               if (formOpen) setEditingIncidentId(null);
-            }} 
+            }}
             className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 active:scale-95 transition touch-manipulation cursor-pointer relative z-10"
           >
-            {formOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {formOpen ? (language === 'hi' ? "फॉर्म बंद करें" : "Close Form") : t.reportIncident}
+            {formOpen ? (
+              <X className="h-4 w-4" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}{" "}
+            {formOpen
+              ? language === "hi"
+                ? "फॉर्म बंद करें"
+                : "Close Form"
+              : t.reportIncident}
           </button>
         </div>
       </div>
 
       {formOpen && (
-        <form ref={formRef} onSubmit={submitIncident} className="card space-y-4 border-2 border-rose-400 bg-rose-50/40 p-5 dark:border-rose-800 dark:bg-rose-950/20 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 relative z-30 pb-6">
+        <form
+          ref={formRef}
+          onSubmit={submitIncident}
+          className="card space-y-4 border-2 border-rose-400 bg-rose-50/40 p-5 dark:border-rose-800 dark:bg-rose-950/20 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 relative z-30 pb-6"
+        >
           <div className="flex items-center justify-between pb-2 border-b border-rose-200 dark:border-rose-900">
             <div className="flex items-center gap-2">
               <AlertOctagon className="h-5 w-5 text-rose-600" />
-              <h2 className="font-semibold text-slate-900 dark:text-white">{editingIncidentId ? "Edit incident" : t.escalateEmergencyIncident}</h2>
+              <h2 className="font-semibold text-slate-900 dark:text-white">
+                {editingIncidentId
+                  ? "Edit incident"
+                  : t.escalateEmergencyIncident}
+              </h2>
             </div>
-            <button 
-              type="button" 
-              onClick={() => { setFormOpen(false); setEditingIncidentId(null); }}
+            <button
+              type="button"
+              onClick={() => {
+                setFormOpen(false);
+                setEditingIncidentId(null);
+              }}
               aria-label="Close"
               className="p-1 rounded-lg hover:bg-rose-200 dark:hover:bg-rose-900 text-slate-600 dark:text-slate-300 min-h-[36px] min-w-[36px] flex items-center justify-center touch-manipulation cursor-pointer"
             >
@@ -376,38 +494,57 @@ export default function DisasterManagement() {
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label htmlFor="incident-title" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 cursor-pointer">{t.incidentTitle} *</label>
-              <input 
+              <label
+                htmlFor="incident-title"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 cursor-pointer"
+              >
+                {t.incidentTitle} *
+              </label>
+              <input
                 id="incident-title"
                 name="subject"
-                className="input-field min-h-[44px] text-base sm:text-sm w-full touch-manipulation cursor-text relative z-10" 
-                placeholder={t.incidentTitle} 
-                value={form.subject} 
-                onChange={(event) => updateForm("subject", event.target.value)} 
+                className="input-field min-h-[44px] text-base sm:text-sm w-full touch-manipulation cursor-text relative z-10"
+                placeholder={t.incidentTitle}
+                value={form.subject}
+                onChange={(event) => updateForm("subject", event.target.value)}
                 required
               />
             </div>
             <div>
-              <label htmlFor="incident-mine" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 cursor-pointer">{t.selectAffectedMine} *</label>
-              <select 
+              <label
+                htmlFor="incident-mine"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 cursor-pointer"
+              >
+                {t.selectAffectedMine} *
+              </label>
+              <select
                 id="incident-mine"
                 name="mineId"
-                className="input-field min-h-[44px] text-base sm:text-sm w-full touch-manipulation cursor-pointer relative z-10" 
-                value={form.mineId} 
+                className="input-field min-h-[44px] text-base sm:text-sm w-full touch-manipulation cursor-pointer relative z-10"
+                value={form.mineId}
                 onChange={(event) => updateForm("mineId", event.target.value)}
               >
                 <option value="">{t.selectAffectedMine}</option>
-                {mines.map((mine) => <option key={mine._id} value={mine._id}>{mine.name} {mine.code ? `(${mine.code})` : ""}</option>)}
+                {mines.map((mine) => (
+                  <option key={mine._id} value={mine._id}>
+                    {mine.name} {mine.code ? `(${mine.code})` : ""}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
           <div>
-            <label htmlFor="incident-priority" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 cursor-pointer">Severity / Priority</label>
-            <select 
+            <label
+              htmlFor="incident-priority"
+              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 cursor-pointer"
+            >
+              Severity / Priority
+            </label>
+            <select
               id="incident-priority"
               name="priority"
-              className="input-field min-h-[44px] text-base sm:text-sm w-full md:w-1/2 touch-manipulation cursor-pointer relative z-10" 
-              value={form.priority} 
+              className="input-field min-h-[44px] text-base sm:text-sm w-full md:w-1/2 touch-manipulation cursor-pointer relative z-10"
+              value={form.priority}
               onChange={(event) => updateForm("priority", event.target.value)}
             >
               <option value="critical">{t.criticalImmediateResponse}</option>
@@ -415,28 +552,39 @@ export default function DisasterManagement() {
             </select>
           </div>
           <div>
-            <label htmlFor="incident-description" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 cursor-pointer">{t.incidentDescriptionPlaceholder} *</label>
-            <textarea 
+            <label
+              htmlFor="incident-description"
+              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 cursor-pointer"
+            >
+              {t.incidentDescriptionPlaceholder} *
+            </label>
+            <textarea
               id="incident-description"
               name="description"
-              className="input-field min-h-28 text-base sm:text-sm w-full touch-manipulation cursor-text relative z-10 resize-y" 
-              placeholder={t.incidentDescriptionPlaceholder} 
-              value={form.description} 
-              onChange={(event) => updateForm("description", event.target.value)} 
+              className="input-field min-h-28 text-base sm:text-sm w-full touch-manipulation cursor-text relative z-10 resize-y"
+              placeholder={t.incidentDescriptionPlaceholder}
+              value={form.description}
+              onChange={(event) =>
+                updateForm("description", event.target.value)
+              }
               required
             />
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 pb-4 relative z-50">
-            <button 
-              disabled={submitting} 
+            <button
+              disabled={submitting}
               type="submit"
               className="btn-primary w-full sm:w-auto min-h-[50px] inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 font-bold touch-manipulation cursor-pointer active:scale-95 transition relative z-50 shadow-lg text-white"
             >
-              <Radio className="h-4 w-4" /> {submitting ? t.escalating : t.escalateIncident}
+              <Radio className="h-4 w-4" />{" "}
+              {submitting ? t.escalating : t.escalateIncident}
             </button>
-            <button 
-              type="button" 
-              onClick={() => { setFormOpen(false); setEditingIncidentId(null); }} 
+            <button
+              type="button"
+              onClick={() => {
+                setFormOpen(false);
+                setEditingIncidentId(null);
+              }}
               className="btn-secondary w-full sm:w-auto min-h-[50px] touch-manipulation cursor-pointer active:scale-95 transition relative z-50"
             >
               Cancel
@@ -448,24 +596,36 @@ export default function DisasterManagement() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 max-w-md mx-auto sm:max-w-none w-full">
         <div className="card border-t-4 border-t-rose-500 p-5 flex flex-col items-center text-center sm:items-stretch sm:text-left">
           <div className="flex w-full items-center justify-between">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{t.activeIncidents}</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              {t.activeIncidents}
+            </p>
             <AlertOctagon className="h-5 w-5 text-rose-600" />
           </div>
-          <p className="mt-3 text-3xl font-bold text-rose-600">{activeIncidents.length}</p>
+          <p className="mt-3 text-3xl font-bold text-rose-600">
+            {activeIncidents.length}
+          </p>
         </div>
         <div className="card border-t-4 border-t-amber-500 p-5 flex flex-col items-center text-center sm:items-stretch sm:text-left">
           <div className="flex w-full items-center justify-between">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{t.responseReadiness}</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              {t.responseReadiness}
+            </p>
             <CheckCircle2 className="h-5 w-5 text-amber-600" />
           </div>
-          <p className="mt-3 text-3xl font-bold text-amber-600">{Math.round((checkedItems.length / checklistItems.length) * 100)}%</p>
+          <p className="mt-3 text-3xl font-bold text-amber-600">
+            {Math.round((checkedItems.length / checklistItems.length) * 100)}%
+          </p>
         </div>
         <div className="card border-t-4 border-t-emerald-500 p-5 flex flex-col items-center text-center sm:items-stretch sm:text-left">
           <div className="flex w-full items-center justify-between">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{t.emergencyChannels}</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              {t.emergencyChannels}
+            </p>
             <PhoneCall className="h-5 w-5 text-emerald-600" />
           </div>
-          <p className="mt-3 text-3xl font-bold text-emerald-600">{emergencyContacts.length}</p>
+          <p className="mt-3 text-3xl font-bold text-emerald-600">
+            {emergencyContacts.length}
+          </p>
         </div>
       </div>
 
@@ -474,7 +634,9 @@ export default function DisasterManagement() {
           <div className="mb-4 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-rose-600" />
-              <h2 className="font-semibold text-slate-900 dark:text-white">{t.activeIncidentRegister}</h2>
+              <h2 className="font-semibold text-slate-900 dark:text-white">
+                {t.activeIncidentRegister}
+              </h2>
             </div>
             {!formOpen && (
               <button
@@ -488,11 +650,15 @@ export default function DisasterManagement() {
             )}
           </div>
           {loading ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">{t.loadingIncidents}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {t.loadingIncidents}
+            </p>
           ) : activeIncidents.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center space-y-3 rounded-xl border border-dashed border-rose-200 bg-rose-50/20 dark:border-rose-900/50 dark:bg-rose-950/10 p-6">
               <AlertOctagon className="h-8 w-8 text-rose-400/80 mx-auto" />
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-300">{t.noActiveIncidents}</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                {t.noActiveIncidents}
+              </p>
               <button
                 type="button"
                 onClick={() => setFormOpen(true)}
@@ -503,17 +669,171 @@ export default function DisasterManagement() {
               </button>
             </div>
           ) : (
-            <div className="space-y-3">{activeIncidents.map((incident) => <article key={incident._id} className="rounded-lg border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900 dark:bg-rose-950/20"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold text-slate-900 dark:text-white">{incident.subject}</h3><p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{incident.mineId?.name || t.mineNotSpecified}</p></div><span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold uppercase text-rose-700">{incident.status}</span></div><p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{incident.description}</p><div className="mt-4 flex flex-wrap gap-2 border-t border-rose-100 pt-3 dark:border-rose-900"><button type="button" onClick={() => closeIncident(incident)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-700"><CheckCircle2 className="h-4 w-4" /> Close</button><button type="button" onClick={() => editIncident(incident)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"><Edit3 className="h-4 w-4" /> Edit</button><button type="button" onClick={() => removeIncident(incident)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-rose-200 px-3 text-xs font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:text-rose-300"><Trash2 className="h-4 w-4" /> Delete</button></div></article>)}</div>
+            <div className="space-y-3">
+              {activeIncidents.map((incident) => (
+                <article
+                  key={incident._id}
+                  className="rounded-lg border border-rose-100 bg-rose-50/50 p-4 dark:border-rose-900 dark:bg-rose-950/20"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-semibold text-slate-900 dark:text-white">
+                        {incident.subject}
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        {incident.mineId?.name || t.mineNotSpecified}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold uppercase text-rose-700">
+                      {incident.status}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                    {incident.description}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2 border-t border-rose-100 pt-3 dark:border-rose-900">
+                    <button
+                      type="button"
+                      onClick={() => closeIncident(incident)}
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-700"
+                    >
+                      <CheckCircle2 className="h-4 w-4" /> Close
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => editIncident(incident)}
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-slate-300 px-3 text-xs font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      <Edit3 className="h-4 w-4" /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeIncident(incident)}
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-rose-200 px-3 text-xs font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:text-rose-300"
+                    >
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
           )}
         </section>
 
         <section className="card p-5">
-          <div className="mb-4 flex items-center gap-2"><ClipboardCheck className="h-5 w-5 text-amber-600" /><h2 className="font-semibold text-slate-900 dark:text-white">{t.responseChecklist}</h2></div>
-          <div className="space-y-3">{translatedChecklistItems.map((item, index) => <label key={item} className="flex cursor-pointer items-start gap-3 text-sm"><input type="checkbox" checked={checkedItems.includes(index)} onChange={() => toggleChecklist(index)} className="mt-0.5 h-4 w-4 accent-amber-600" /><span className={checkedItems.includes(index) ? "text-slate-400 line-through dark:text-slate-500" : "text-slate-700 dark:text-slate-200"}>{item}</span></label>)}</div>
+          <div className="mb-4 flex items-center gap-2">
+            <ClipboardCheck className="h-5 w-5 text-amber-600" />
+            <h2 className="font-semibold text-slate-900 dark:text-white">
+              {t.responseChecklist}
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {translatedChecklistItems.map((item, index) => (
+              <label
+                key={item}
+                className="flex cursor-pointer items-start gap-3 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={checkedItems.includes(index)}
+                  onChange={() => toggleChecklist(index)}
+                  className="mt-0.5 h-4 w-4 accent-amber-600"
+                />
+                <span
+                  className={
+                    checkedItems.includes(index)
+                      ? "text-slate-400 line-through dark:text-slate-500"
+                      : "text-slate-700 dark:text-slate-200"
+                  }
+                >
+                  {item}
+                </span>
+              </label>
+            ))}
+          </div>
         </section>
       </div>
 
-      <section className="card p-5 max-w-md mx-auto sm:max-w-none w-full"><div className="mb-4 flex items-center gap-2"><LifeBuoy className="h-5 w-5 text-sky-600" /><h2 className="font-semibold text-slate-900 dark:text-white">{t.emergencyContacts}</h2></div><div className="grid grid-cols-1 gap-3 md:grid-cols-3">{emergencyContacts.map((contact) => <a key={contact.title} href={`tel:${contact.number}`} className="rounded-lg border border-slate-200 p-4 transition hover:border-sky-400 dark:border-slate-700"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold text-slate-900 dark:text-white">{contact.title}</p><PhoneCall className="h-4 w-4 shrink-0 text-sky-600" /></div><p className="mt-2 font-mono text-sm text-sky-700 dark:text-sky-300">{contact.number}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{contact.timing}</p></a>)}</div></section>
+      <section className="card p-5 max-w-md mx-auto sm:max-w-none w-full">
+        <div className="mb-4 flex items-center gap-2">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          <h2 className="font-semibold text-slate-900 dark:text-white">
+            Closed incidents
+          </h2>
+          <span className="ml-auto rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+            {closedIncidents.length}
+          </span>
+        </div>
+        {loading ? (
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {t.loadingIncidents}
+          </p>
+        ) : closedIncidents.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-slate-200 p-5 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            No closed incidents yet.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {closedIncidents.map((incident) => (
+              <article
+                key={incident._id}
+                className="rounded-lg border border-emerald-100 bg-emerald-50/40 p-4 dark:border-emerald-900 dark:bg-emerald-950/20"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">
+                      {incident.subject}
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      {incident.mineId?.name || t.mineNotSpecified}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold uppercase text-emerald-700">
+                    {incident.status}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                  {incident.description}
+                </p>
+                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                  Closed {new Date(incident.resolvedAt || incident.updatedAt || incident.createdAt).toLocaleString()}
+                </p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="card p-5 max-w-md mx-auto sm:max-w-none w-full">
+        <div className="mb-4 flex items-center gap-2">
+          <LifeBuoy className="h-5 w-5 text-sky-600" />
+          <h2 className="font-semibold text-slate-900 dark:text-white">
+            {t.emergencyContacts}
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {emergencyContacts.map((contact) => (
+            <a
+              key={contact.title}
+              href={`tel:${contact.number}`}
+              className="rounded-lg border border-slate-200 p-4 transition hover:border-sky-400 dark:border-slate-700"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                  {contact.title}
+                </p>
+                <PhoneCall className="h-4 w-4 shrink-0 text-sky-600" />
+              </div>
+              <p className="mt-2 font-mono text-sm text-sky-700 dark:text-sky-300">
+                {contact.number}
+              </p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                {contact.timing}
+              </p>
+            </a>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
