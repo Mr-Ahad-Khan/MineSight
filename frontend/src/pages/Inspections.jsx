@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Camera, CheckCircle, Mic, Plus, Search, Trash2, X, ZoomIn, ZoomOut } from "lucide-react";
 import { deleteInspection, getInspections, getMediaUrl, getMines } from "../services/api";
-import offlineStorage from "../services/offlineStorage";
+import { offlineStorage } from "../services/offlineStorage";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { useLanguageStore } from "../store/themeStore";

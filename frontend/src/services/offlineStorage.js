@@ -1281,3 +1281,5 @@ export const offlineStorage = {
 if (typeof window !== "undefined") {
   seedStorageIfEmpty().catch(console.warn);
 }
+
+export default offlineStorage;
