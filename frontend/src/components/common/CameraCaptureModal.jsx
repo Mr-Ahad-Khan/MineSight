@@ -16,6 +16,8 @@ import {
 import toast from "react-hot-toast";
 import { compressImage } from "../../utils/imageCompressor";
 import { detectPhotoRisk } from "../../services/riskDetectionService";
+import { useLanguageStore } from "../../store/themeStore";
+import { translations } from "../../i18n/translations";
 
 /**
  * Synthesizes a subtle camera shutter click sound using Web Audio API.
@@ -53,6 +55,8 @@ export default function CameraCaptureModal({
   onOpenInspection,
   inspectionContext = {},
 }) {
+  const { language } = useLanguageStore();
+  const t = translations[language] || translations.en;
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const fallbackInputRef = useRef(null);
@@ -149,7 +153,10 @@ export default function CameraCaptureModal({
                   .then(() => resolve())
                   .catch((err) => {
                     // Safe to ignore AbortError/interrupted errors caused by new load
-                    if (err.name !== "AbortError" && !err.message?.includes("interrupted")) {
+                    if (
+                      err.name !== "AbortError" &&
+                      !err.message?.includes("interrupted")
+                    ) {
                       console.warn("Video play warning:", err);
                     }
                     resolve();
@@ -206,17 +213,19 @@ export default function CameraCaptureModal({
 
     let capListener = null;
     try {
-      import("@capacitor/app").then(({ App: CapApp }) => {
-        CapApp.addListener("appStateChange", (state) => {
-          if (!state.isActive) {
-            stopStream();
-          } else if (isOpen && !capturedBlob && !document.hidden) {
-            startCamera();
-          }
-        }).then((handle) => {
-          capListener = handle;
-        });
-      }).catch(() => {});
+      import("@capacitor/app")
+        .then(({ App: CapApp }) => {
+          CapApp.addListener("appStateChange", (state) => {
+            if (!state.isActive) {
+              stopStream();
+            } else if (isOpen && !capturedBlob && !document.hidden) {
+              startCamera();
+            }
+          }).then((handle) => {
+            capListener = handle;
+          });
+        })
+        .catch(() => {});
     } catch (e) {}
 
     return () => {
@@ -346,9 +355,7 @@ export default function CameraCaptureModal({
           <div className="flex items-center gap-2">
             <Camera className="h-5 w-5 text-sky-400" />
             <h3 className="text-base font-semibold">
-              {capturedBlob
-                ? "Review Captured Photo"
-                : "Capture Inspection Photo"}
+              {capturedBlob ? t.reviewCapturedPhoto : t.captureInspectionPhoto}
             </h3>
           </div>
           <button
@@ -396,14 +403,14 @@ export default function CameraCaptureModal({
               {/* Status Banner */}
               <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-emerald-400 backdrop-blur-md">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                Live Camera Feed
+                {t.liveCameraFeed}
               </div>
 
               {/* Camera flip button */}
               <button
                 type="button"
                 onClick={toggleCamera}
-                title="Switch Camera (Front/Rear)"
+                title={t.switchCamera}
                 className="absolute top-3 right-3 z-10 rounded-full bg-black/60 p-2.5 text-white backdrop-blur-md hover:bg-black/80 transition"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -414,15 +421,14 @@ export default function CameraCaptureModal({
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/95 p-6 text-center">
                   <AlertTriangle className="h-12 w-12 text-amber-400 mb-3" />
                   <h4 className="text-base font-semibold text-white">
-                    Camera Access Required
+                    {t.cameraAccessRequired}
                   </h4>
                   <p className="mt-1 text-xs text-white max-w-sm mb-4 font-medium">
-                    {cameraError}. You can capture photos directly using your
-                    device's native camera.
+                    {cameraError}. {t.cameraFallbackMessage}
                   </p>
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-sky-600 transition shadow-lg">
                     <Camera className="h-4 w-4" />
-                    Open Native Camera
+                    {t.openNativeCamera}
                     <input
                       id="camera-native-capture"
                       name="camera-native-capture"
@@ -442,7 +448,7 @@ export default function CameraCaptureModal({
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm">
                   <Loader2 className="h-8 w-8 text-sky-400 animate-spin mb-2" />
                   <p className="text-xs text-white font-medium">
-                    Initializing camera lens...
+                    {t.initializingCamera}
                   </p>
                 </div>
               )}
@@ -461,7 +467,7 @@ export default function CameraCaptureModal({
                 {analyzingRisk ? (
                   <div className="flex items-center gap-2 rounded-xl bg-slate-900/95 p-3 text-xs text-sky-300 backdrop-blur-md border border-slate-700 shadow-xl">
                     <Loader2 className="h-4 w-4 animate-spin text-sky-400" />
-                    <span>Analyzing photo for mining safety hazards...</span>
+                    <span>{t.analyzingPhoto}</span>
                   </div>
                 ) : detectedRisk ? (
                   <div className="rounded-xl bg-slate-900/95 p-3.5 text-xs text-white backdrop-blur-md border border-slate-700 shadow-2xl space-y-2">
@@ -469,7 +475,7 @@ export default function CameraCaptureModal({
                       <div className="flex items-center gap-1.5">
                         <Shield className="h-4 w-4 text-amber-400" />
                         <span className="font-semibold text-slate-200">
-                          Scan Risk Score:{" "}
+                          {t.scanRiskScore}:{" "}
                           <span
                             className={
                               detectedRisk.riskLevel === "critical"
@@ -487,9 +493,10 @@ export default function CameraCaptureModal({
                         </span>
                       </div>
                       <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-[10px] text-slate-300 border border-slate-700">
-                        {detectedRisk.source === "online_ai" || (typeof navigator !== "undefined" && navigator.onLine)
-                          ? "🟢 Cloud AI"
-                          : "⚡ Edge AI Offline"}
+                        {detectedRisk.source === "online_ai" ||
+                        (typeof navigator !== "undefined" && navigator.onLine)
+                          ? `🟢 ${t.cloudAi}`
+                          : `⚡ ${t.edgeAiOffline}`}
                       </span>
                     </div>
 
@@ -497,7 +504,7 @@ export default function CameraCaptureModal({
                       detectedRisk.hazards.length > 0 && (
                         <div className="space-y-1">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            Detected Safety Hazards:
+                            {t.detectedSafetyHazards}
                           </span>
                           <div className="flex flex-wrap gap-1.5">
                             {detectedRisk.hazards.map((h, i) => (
@@ -514,7 +521,7 @@ export default function CameraCaptureModal({
 
                     {detectedRisk.observations && (
                       <p className="text-[11px] text-slate-300 line-clamp-2">
-                        <strong>Observations:</strong>{" "}
+                        <strong>{t.observations}</strong>{" "}
                         {detectedRisk.observations}
                       </p>
                     )}
@@ -530,15 +537,14 @@ export default function CameraCaptureModal({
           {!capturedBlob ? (
             <div className="w-full space-y-3">
               <p className="text-center text-xs leading-relaxed text-white font-medium">
-                Please capture or upload clear, relevant mine photos. Better
-                photo evidence helps produce more accurate results.
+                {t.capturePhotoGuidance}
               </p>
 
               <div className="flex items-center justify-between">
                 {/* Fallback button */}
                 <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700 transition">
                   <Upload className="h-3.5 w-3.5" />
-                  Upload / Device
+                  {t.uploadDevice}
                   <input
                     id="camera-device-upload"
                     name="camera-device-upload"
@@ -566,7 +572,7 @@ export default function CameraCaptureModal({
                   onClick={onClose}
                   className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-medium text-slate-400 hover:text-white transition"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
               </div>
             </div>
@@ -578,7 +584,7 @@ export default function CameraCaptureModal({
                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition"
               >
                 <RotateCcw className="h-4 w-4" />
-                Retake
+                {t.retake}
               </button>
 
               <div className="flex items-center gap-2">
@@ -589,7 +595,7 @@ export default function CameraCaptureModal({
                       onClick={onClose}
                       className="rounded-xl border border-slate-700 px-3.5 py-2.5 text-xs font-medium text-slate-400 hover:text-white transition"
                     >
-                      Done / Close
+                      {t.doneClose}
                     </button>
                     <button
                       type="button"
@@ -604,7 +610,7 @@ export default function CameraCaptureModal({
                       className="inline-flex items-center gap-2 rounded-xl bg-[#ff6f00] hover:bg-[#e65100] px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition"
                     >
                       <Plus className="h-4 w-4" />
-                      <span>Open New Inspection Form (Optional)</span>
+                      <span>{t.openNewInspectionOptional}</span>
                     </button>
                   </>
                 ) : (
@@ -614,7 +620,7 @@ export default function CameraCaptureModal({
                     className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-2.5 text-xs font-semibold text-white hover:bg-sky-400 transition shadow-lg"
                   >
                     <Check className="h-4 w-4" />
-                    Use Photo {detectedRisk ? "& Apply Risk" : ""}
+                    {detectedRisk ? t.usePhotoApplyRisk : t.usePhoto}
                   </button>
                 )}
               </div>
