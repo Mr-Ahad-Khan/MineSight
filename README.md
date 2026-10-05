@@ -26,16 +26,19 @@ Field inspection + geo-tagged evidence
 
 ## Core Capabilities
 
-| Area                       | What the platform provides                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Evidence-first inspections | Capture inspection type, location, observations, violations, corrective actions, photos, and audio notes in one workflow. |
-| Explainable risk scoring   | Uses a deterministic rule-based engine so prioritisation is inspectable and auditable.                                    |
-| Role-aware governance      | Mine officials work in a mine-scoped view; corporate, admin, and regulator roles see broader portfolio data.              |
-| Alerts and escalation      | High-risk and escalated inspections surface through alert workflows.                                                      |
-| Compliance tracking        | Track due dates, statutory references, status, and overdue items.                                                         |
-| Contractor oversight       | Register and monitor contractor records, contact details, safety ratings, and compliance status.                          |
-| Analytics                  | Review KPIs, recurring violation categories, high-risk inspections, trends, and risk distribution.                        |
-| Field-ready foundation     | Supports media uploads, geo-coordinates, responsive UI, and idempotent `offlineId` inspection creation.                   |
+| Area                       | What the platform provides                                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Evidence-first inspections | Capture inspection type, location, observations, violations, corrective actions, photos, and audio notes in one workflow.       |
+| Explainable risk scoring   | Uses a deterministic rule-based engine so prioritisation is inspectable and auditable.                                          |
+| Role-aware governance      | Mine officials work in a mine-scoped view; corporate, admin, and regulator roles see broader portfolio data.                    |
+| Alerts and escalation      | High-risk and escalated inspections surface through alert workflows.                                                            |
+| Compliance tracking        | Track due dates, statutory references, status, and overdue items.                                                               |
+| Contractor oversight       | Register and monitor contractor records, contact details, safety ratings, and compliance status.                                |
+| Workforce operations       | Track worker tasks, geofenced attendance, live status, and check-in/check-out activity.                                         |
+| Mineral resources          | Browse mineral-resource records and supporting mine data through the dedicated API and dashboard.                               |
+| Support workflows          | Provide the support directory and public contact/chat intake used by the application.                                           |
+| Analytics                  | Review KPIs, recurring violation categories, high-risk inspections, trends, and risk distribution.                              |
+| Field-ready foundation     | Supports media uploads, geo-coordinates, responsive UI, service-worker caching, and idempotent `offlineId` inspection creation. |
 
 Responsible AI note: the current risk engine is deterministic and explainable, not a black-box ML model. Its inputs and thresholds are inspectable, and the architecture can later support a validated ML model without replacing the core workflow.
 
@@ -80,15 +83,16 @@ MineSight/
 |   |-- models/           Governance data models
 |   |-- routes/           REST endpoint definitions
 |   |-- uploads/          Local development media uploads
-|   `-- utils/            Token generation and risk scoring
+|   |-- utils/            Token generation, risk scoring, audit chains, and media storage
 |-- frontend/             React/Vite web app and Vercel config
 |   |-- api/              Vercel serverless API proxy
 |   |-- public/           Static assets
 |   `-- src/
 |       |-- components/   Layout, common UI, and dashboard widgets
 |       |-- pages/        Home, auth, dashboard, operations, analytics
-|       |-- services/     Axios API client
-|       `-- store/        Auth and theme state
+|       |-- services/     API client, offline storage, sync, and risk detection
+|       |-- store/        Auth and theme state
+|       `-- i18n/         Translations
 `-- mobile/               Capacitor Android wrapper
     |-- android/          Native Android project
     `-- capacitor.config.json
@@ -263,15 +267,20 @@ Authorization: Bearer <JWT>
 ```
 
 | Domain                  | Key endpoints                                                                                                                                                                                | Purpose                                                                               |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----- | --------------------------------------------------------------------------- | ------------------------------------------------ |
 | Authentication          | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/profile`, `POST /api/auth/email/request-otp`, `POST /api/auth/email/verify-otp`                        | Verified onboarding, profile updates, and sessions.                                   |
 | Mines                   | `GET /api/mines`, `POST /api/mines`, `GET /api/mines/:id`, `PUT /api/mines/:id`                                                                                                              | Mine portfolio and GIS-ready location records.                                        |
 | Inspections             | `GET /api/inspections`, `POST /api/inspections`, `GET /api/inspections/:id`, `PUT /api/inspections/:id`, `DELETE /api/inspections/:id`, `PATCH /api/inspections/:id/violations/:violationId` | Evidence capture, risk scoring, escalation, updates, deletion, and violation closure. |
+| Inspection intelligence | `POST /api/inspections/detect-risk`, `GET /api/inspections/:id/audit`                                                                                                                        | Photo-based risk detection and inspection audit history.                              |
 | Compliance              | `GET /api/compliances`, `POST /api/compliances`, `GET /api/compliances/overdue`, `PUT /api/compliances/:id`                                                                                  | Statutory task tracking and overdue visibility.                                       |
+| Mineral resources       | `GET /api/mineral-resources`, `GET /api/mineral-resources/records`                                                                                                                           | Mineral-resource records and dashboard data.                                          |
 | Dashboard and analytics | `GET /api/dashboard/summary`, `GET /api/dashboard/analytics`                                                                                                                                 | KPIs, trends, recurring violations, and risk distribution.                            |
 | Alerts                  | `GET /api/alerts`, `PATCH /api/alerts/read-all`, `PATCH /api/alerts/:id/read`                                                                                                                | Risk and escalation follow-up.                                                        |
 | Contractors             | `GET /api/contractors`, `POST /api/contractors`, `PUT /api/contractors/:id`                                                                                                                  | Contractor registration and monitoring.                                               |
-| Public                  | `GET /api/public/home-stats`, `POST /api/public/chat-messages`, `GET /api/public/chat-messages`                                                                                              | Landing page metrics and chat-message capture.                                        |
+| Workforce               | `GET /api/workers/summary`, `POST /api/workers/attendance`, `POST /api/workers/tasks`, `PATCH /api/workers/tasks/:id`, `POST /api/workers/:workerId/reassign-pending`                        | Worker summaries, attendance, tasks, and reassignment.                                |
+| Attendance              | `GET /api/attendance`, `GET /api/attendance/realtime`, `POST /api/attendance/check-in`, `POST /api/attendance/:id/check-out`, `PATCH /api/attendance/:id/live-status`                        | Geofenced attendance and live workforce monitoring.                                   |
+| Support                 | `GET /api/support/directory`, `GET                                                                                                                                                           | POST /api/support/tickets`, `GET                                                      | PATCH | DELETE /api/support/tickets/:id`, `POST /api/support/tickets/:id/responses` | Support contacts, tickets, and ticket responses. |
+| Public                  | `GET /api/public/home-stats`, `POST /api/public/chat-messages`, `POST /api/public/contact`, `GET /api/public/chat-messages`                                                                  | Landing-page metrics and public contact/chat intake.                                  |
 
 ## Deployment Notes
 
