@@ -287,6 +287,20 @@ export const translations = {
     chatSubtitle:
       "Clear guidance for inspections, compliance follow-up, contractor oversight, and risk escalation.",
     secureSession: "Secure session",
+    sessionTokenExpired: "Session Token Expired:",
+    sessionExpiredDescription:
+      "Your session has expired. Please log out and log in again to continue accessing live services.",
+    logInAgain: "Log In Again",
+    offlineModeActive: "Offline Mode Active:",
+    offlineModeDescription:
+      "All features, inspections, attendance, and forms work offline. Changes are saved locally and will auto-sync when online.",
+    dismissOfflineBanner: "Dismiss offline status",
+    pendingSync: "pending sync",
+    pendingSyncPlural: "pending sync",
+    onlineOfflineUpdate: "offline update",
+    onlineOfflineUpdates: "offline updates",
+    queued: "queued.",
+    syncNow: "Sync Now",
     coalAiAssistant: "Coal AI assistant",
     readyToHelp: "Ready to help with your operations",
     openCoalAi: "Open Coal AI",
@@ -850,6 +864,20 @@ export const translations = {
     chatSubtitle:
       "निरीक्षण, अनुपालन फॉलो-अप, ठेकेदार निगरानी और जोखिम बढ़ाने के लिए स्पष्ट मार्गदर्शन।",
     secureSession: "सुरक्षित सत्र",
+    sessionTokenExpired: "सत्र टोकन समाप्त हो गया:",
+    sessionExpiredDescription:
+      "आपका सत्र समाप्त हो गया है। लाइव सेवाओं का उपयोग जारी रखने के लिए कृपया लॉग आउट करके फिर से लॉग इन करें।",
+    logInAgain: "फिर से लॉग इन करें",
+    offlineModeActive: "ऑफ़लाइन मोड सक्रिय:",
+    offlineModeDescription:
+      "सभी सुविधाएँ, निरीक्षण, उपस्थिति और फ़ॉर्म ऑफ़लाइन काम करते हैं। परिवर्तन स्थानीय रूप से सहेजे जाते हैं और ऑनलाइन होने पर अपने आप सिंक हो जाते हैं।",
+    dismissOfflineBanner: "ऑफ़लाइन स्थिति बंद करें",
+    pendingSync: "सिंक लंबित",
+    pendingSyncPlural: "सिंक लंबित",
+    onlineOfflineUpdate: "ऑफ़लाइन अपडेट",
+    onlineOfflineUpdates: "ऑफ़लाइन अपडेट",
+    queued: "कतार में हैं।",
+    syncNow: "अभी सिंक करें",
     coalAiAssistant: "कोल एआई सहायक",
     readyToHelp: "आपके संचालन में सहायता के लिए तैयार",
     openCoalAi: "कोल एआई खोलें",

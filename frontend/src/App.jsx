@@ -1,11 +1,25 @@
 import { lazy, Suspense, useEffect, useState, useRef } from "react";
-import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import { WifiOff, RefreshCw, AlertTriangle, LogIn, LogOut } from "lucide-react";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import {
+  WifiOff,
+  RefreshCw,
+  AlertTriangle,
+  LogIn,
+  LogOut,
+  X,
+} from "lucide-react";
 import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import toast from "react-hot-toast";
 import useAuthStore from "./store/authStore";
-import useThemeStore from "./store/themeStore";
+import useThemeStore, { useLanguageStore } from "./store/themeStore";
+import { translations } from "./i18n/translations";
 import { triggerSyncNow, getPendingSyncCount } from "./services/api";
 import { isTokenExpired } from "./utils/authUtils";
 import {
@@ -46,7 +60,9 @@ const CreateInspection = lazy(() => import("./pages/CreateInspection"));
 const InspectionDetail = lazy(() => import("./pages/InspectionDetail"));
 const Compliances = lazy(() => import("./pages/Compliances"));
 const Mines = lazy(() => import("./pages/Mines"));
-const MineralResourcesDashboard = lazy(() => import("./pages/MineralResourcesDashboard"));
+const MineralResourcesDashboard = lazy(
+  () => import("./pages/MineralResourcesDashboard"),
+);
 const Contractors = lazy(() => import("./pages/Contractors"));
 const Alerts = lazy(() => import("./pages/Alerts"));
 const Analytics = lazy(() => import("./pages/Analytics"));
@@ -131,9 +147,12 @@ function AppLoadingSkeleton() {
 
 function App() {
   const { initTheme } = useThemeStore();
+  const { language } = useLanguageStore();
+  const t = translations[language] || translations.en;
   const navigate = useNavigate();
   const location = useLocation();
   const [isOffline, setIsOffline] = useState(() => !getNetworkStatus());
+  const [offlineBannerDismissed, setOfflineBannerDismissed] = useState(false);
   const [pendingCount, setPendingCount] = useState(getPendingSyncCount());
   const [sessionExpired, setSessionExpired] = useState(() => {
     const token = localStorage.getItem("token");
@@ -149,8 +168,23 @@ function App() {
     sessionExpired &&
     !isPublicRoute &&
     localStorage.getItem("token") &&
-    location.pathname.startsWith("/app")
+    location.pathname.startsWith("/app"),
   );
+  const showOfflineBanner = isOffline && !offlineBannerDismissed;
+
+  useEffect(() => {
+    if (!isOffline) {
+      setOfflineBannerDismissed(false);
+      return undefined;
+    }
+
+    setOfflineBannerDismissed(false);
+    const timeoutId = window.setTimeout(() => {
+      setOfflineBannerDismissed(true);
+    }, 5000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isOffline]);
 
   useEffect(() => {
     initNetworkManager();
@@ -174,7 +208,10 @@ function App() {
 
     return () => {
       unsubNetwork();
-      window.removeEventListener("minesight:network-status", handleCustomNetwork);
+      window.removeEventListener(
+        "minesight:network-status",
+        handleCustomNetwork,
+      );
       window.removeEventListener("minesight:queue-updated", handleQueueChange);
     };
   }, []);
@@ -236,7 +273,7 @@ function App() {
 
           // 2. Dismiss any active modal/drawer with standard close buttons
           const openModalCloseBtn = document.querySelector(
-            "[data-modal-open='true'] button[aria-label='Close'], [role='dialog'] button[aria-label='Close'], [role='dialog'] button[aria-label='close'], .modal-active button[aria-label='Close']"
+            "[data-modal-open='true'] button[aria-label='Close'], [role='dialog'] button[aria-label='Close'], [role='dialog'] button[aria-label='close'], .modal-active button[aria-label='Close']",
           );
           if (openModalCloseBtn) {
             openModalCloseBtn.click();
@@ -245,7 +282,8 @@ function App() {
 
           // 3. Navigate backwards if not on top-level root
           const pathname = window.location.pathname;
-          const isRootPath = pathname === "/app" || pathname === "/" || pathname === "/login";
+          const isRootPath =
+            pathname === "/app" || pathname === "/" || pathname === "/login";
           const historyIdx = window.history.state?.idx ?? 0;
 
           if (!isRootPath) {
@@ -265,7 +303,10 @@ function App() {
                 CapApp.exitApp();
               } else {
                 lastBackPressRef.current = now;
-                toast("Press back again to exit", { id: "mobile-exit-app", duration: 2000 });
+                toast("Press back again to exit", {
+                  id: "mobile-exit-app",
+                  duration: 2000,
+                });
               }
             }
           }
@@ -289,7 +330,7 @@ function App() {
     localStorage.removeItem("user");
     setSessionExpired(false);
     useAuthStore.getState().logout();
-    navigate("/login", { state: { message: "Session expired. Please log in with your credentials to continue." } });
+    navigate("/login", { state: { message: t.sessionExpiredDescription } });
   };
 
   const handleLogout = () => {
@@ -307,25 +348,42 @@ function App() {
       window.location.reload();
     };
     window.addEventListener("vite:preloadError", handlePreloadError);
-    return () => window.removeEventListener("vite:preloadError", handlePreloadError);
+    return () =>
+      window.removeEventListener("vite:preloadError", handlePreloadError);
   }, []);
 
   const bannerRef = useRef(null);
-  const [bannerHeight, setBannerHeight] = useState(() => (
-    typeof navigator !== "undefined" && !navigator.onLine ? 36 : 0
-  ));
+  const [bannerHeight, setBannerHeight] = useState(() =>
+    typeof navigator !== "undefined" && !navigator.onLine ? 36 : 0,
+  );
 
   useEffect(() => {
-    if (!shouldShowExpiredBanner && !isOffline && pendingCount === 0) {
+    if (
+      !shouldShowExpiredBanner &&
+      !showOfflineBanner &&
+      (!isOffline || pendingCount === 0)
+    ) {
       setBannerHeight(0);
-      document.documentElement.style.setProperty("--status-banner-height", "0px");
+      document.documentElement.style.setProperty(
+        "--status-banner-height",
+        "0px",
+      );
       return;
     }
 
     const updateHeight = () => {
-      const h = bannerRef.current ? bannerRef.current.offsetHeight : (shouldShowExpiredBanner ? 48 : (isOffline ? 40 : 0));
+      const h = bannerRef.current
+        ? bannerRef.current.offsetHeight
+        : shouldShowExpiredBanner
+          ? 48
+          : showOfflineBanner
+            ? 40
+            : 0;
       setBannerHeight(h);
-      document.documentElement.style.setProperty("--status-banner-height", `${h}px`);
+      document.documentElement.style.setProperty(
+        "--status-banner-height",
+        `${h}px`,
+      );
     };
 
     updateHeight();
@@ -338,7 +396,7 @@ function App() {
       observer.disconnect();
       window.removeEventListener("resize", updateHeight);
     };
-  }, [shouldShowExpiredBanner, isOffline, pendingCount]);
+  }, [shouldShowExpiredBanner, showOfflineBanner, isOffline, pendingCount]);
 
   return (
     <div style={{ "--status-banner-height": `${bannerHeight}px` }}>
@@ -355,11 +413,9 @@ function App() {
             </span>
             <div className="leading-snug">
               <strong className="font-extrabold text-red-800 dark:text-red-300">
-                Session Token Expired:
+                {t.sessionTokenExpired}
               </strong>{" "}
-              <span>
-                Your session has expired. Please <strong>Log Out</strong> and <strong>Log In again</strong> to continue accessing live services.
-              </span>
+              <span>{t.sessionExpiredDescription}</span>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -369,7 +425,7 @@ function App() {
               className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3.5 py-1.5 text-xs font-bold text-white shadow hover:bg-red-700 active:scale-95 transition"
             >
               <LogIn className="h-3.5 w-3.5" />
-              Log In Again
+              {t.logInAgain}
             </button>
             <button
               type="button"
@@ -377,48 +433,69 @@ function App() {
               className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-xs font-bold text-red-900 hover:bg-red-50 dark:border-red-800 dark:bg-red-950/80 dark:text-red-200 dark:hover:bg-red-900 active:scale-95 transition"
             >
               <LogOut className="h-3.5 w-3.5" />
-              Log Out
+              {t.logout}
             </button>
           </div>
         </aside>
-      ) : isOffline ? (
+      ) : showOfflineBanner ? (
         <aside
           ref={bannerRef}
           aria-label="Offline status"
           className="offline-status-banner fixed inset-x-0 top-0 z-[45] flex flex-wrap items-center justify-center gap-2 border-b border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-950 shadow-sm backdrop-blur-md dark:border-amber-700/60 dark:bg-amber-950/90 dark:text-amber-100 sm:text-sm"
           role="status"
         >
-          <WifiOff className="h-4 w-4 shrink-0 text-[#78350f] dark:text-amber-300" strokeWidth={2.25} aria-hidden="true" />
+          <WifiOff
+            className="h-4 w-4 shrink-0 text-[#78350f] dark:text-amber-300"
+            strokeWidth={2.25}
+            aria-hidden="true"
+          />
           <span>
-            <strong className="font-semibold">Offline Mode Active:</strong> All features, inspections, attendance, and forms work offline. Changes are saved locally and will auto-sync when online.
+            <strong className="font-semibold">{t.offlineModeActive}</strong>{" "}
+            {t.offlineModeDescription}
           </span>
           {pendingCount > 0 && (
             <span className="inline-flex items-center rounded-full bg-amber-500/30 px-2 py-0.5 text-xs font-bold text-amber-900 dark:text-amber-200">
-              {pendingCount} change{pendingCount > 1 ? "s" : ""} pending sync
+              {pendingCount}{" "}
+              {pendingCount > 1 ? t.pendingSyncPlural : t.pendingSync}
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => setOfflineBannerDismissed(true)}
+            className="rounded-md p-1 text-amber-900 transition hover:bg-amber-500/20 dark:text-amber-200"
+            aria-label={t.dismissOfflineBanner}
+            title={t.dismissOfflineBanner}
+          >
+            <X className="h-4 w-4" />
+          </button>
         </aside>
-      ) : pendingCount > 0 ? (
+      ) : !isOffline && pendingCount > 0 ? (
         <aside
           ref={bannerRef}
           aria-label="Pending sync status"
           className="pending-status-banner fixed inset-x-0 top-0 z-[45] flex items-center justify-center gap-2 border-b border-sky-400/40 bg-sky-500/15 px-4 py-1.5 text-center text-xs font-medium text-sky-950 shadow-sm backdrop-blur-md dark:border-sky-700/60 dark:bg-sky-950/90 dark:text-sky-100 sm:text-sm"
           role="status"
         >
-          <RefreshCw className="h-3.5 w-3.5 shrink-0 text-sky-600 dark:text-sky-400" aria-hidden="true" />
-          <span>You are online with {pendingCount} offline update{pendingCount > 1 ? "s" : ""} queued.</span>
+          <RefreshCw
+            className="h-3.5 w-3.5 shrink-0 text-sky-600 dark:text-sky-400"
+            aria-hidden="true"
+          />
+          <span>
+            {language === "hi" ? "आप ऑनलाइन हैं और " : "You are online with "}
+            {pendingCount}{" "}
+            {pendingCount > 1 ? t.onlineOfflineUpdates : t.onlineOfflineUpdate}{" "}
+            {t.queued}
+          </span>
           <button
             type="button"
             onClick={() => triggerSyncNow()}
             className="ml-2 rounded-md bg-sky-600 px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 transition"
           >
-            Sync Now
+            {t.syncNow}
           </button>
         </aside>
       ) : null}
-      <Suspense
-        fallback={<AppLoadingSkeleton />}
-      >
+      <Suspense fallback={<AppLoadingSkeleton />}>
         <Routes>
           <Route path="/" element={<PublicHomeRoute />} />
           <Route path="/login" element={<Login />} />
@@ -438,13 +515,19 @@ function App() {
             <Route path="inspections/:id" element={<InspectionDetail />} />
             <Route path="compliances" element={<Compliances />} />
             <Route path="mines" element={<Mines />} />
-            <Route path="mineral-resources" element={<MineralResourcesDashboard />} />
+            <Route
+              path="mineral-resources"
+              element={<MineralResourcesDashboard />}
+            />
             <Route path="contractors" element={<Contractors />} />
             <Route path="alerts" element={<Alerts />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="support" element={<Support />} />
-            <Route path="disaster-management" element={<DisasterManagement />} />
+            <Route
+              path="disaster-management"
+              element={<DisasterManagement />}
+            />
             <Route path="chat" element={<Chat />} />
             <Route path="profile" element={<Profile />} />
             <Route path="workers" element={<Workers />} />

@@ -14,6 +14,8 @@ import {
 } from "./syncQueue";
 import { reportNetworkError, reportNetworkSuccess } from "./networkManager";
 import toast from "react-hot-toast";
+import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
 
 // 1. Resolve and sanitize the base URL to prevent double slashes or broken paths
 const rawBackendUrl =
@@ -105,13 +107,16 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/request-otp");
 
     if (error.response?.status === 401 && !isAuthRoute && !isOfflineSession) {
+      const currentLanguage = useLanguageStore.getState().language;
+      const currentTranslations =
+        translations[currentLanguage] || translations.en;
       if (typeof window !== "undefined") {
         window.dispatchEvent(
           new CustomEvent("minesight:token-expired", {
             detail: {
               message:
                 error.response?.data?.message ||
-                "Your session has expired. Please log out and log in again to continue.",
+                currentTranslations.sessionExpiredDescription,
               status: 401,
             },
           }),
@@ -1111,7 +1116,11 @@ export const createInspection = async (data) => {
           window.location.protocol === "capacitor:" ||
           window.location.protocol === "ionic:"));
 
-    if (isOfflineIssue || isNative || (typeof navigator !== "undefined" && !navigator.onLine)) {
+    if (
+      isOfflineIssue ||
+      isNative ||
+      (typeof navigator !== "undefined" && !navigator.onLine)
+    ) {
       await offlineStorage.saveInspection(optimisticInspection);
       await enqueueMutation({
         type: "CREATE_INSPECTION",
@@ -1250,7 +1259,9 @@ export const deleteInspection = async (id) => {
     if (status === 404 || (isOfflineId && (status === 400 || status === 500))) {
       await offlineStorage.deleteInspection(id);
       removeQueuedMutationsByLocalId(id);
-      return { data: { success: true, message: "Inspection deleted successfully" } };
+      return {
+        data: { success: true, message: "Inspection deleted successfully" },
+      };
     }
 
     if (isOfflineOrNetworkError(error)) {
