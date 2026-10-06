@@ -12,7 +12,11 @@ import {
   initAutoSync,
   removeQueuedMutationsByLocalId,
 } from "./syncQueue";
-import { reportNetworkError, reportNetworkSuccess, getNetworkStatus } from "./networkManager";
+import {
+  reportNetworkError,
+  reportNetworkSuccess,
+  getNetworkStatus,
+} from "./networkManager";
 import { isNativeMobileApp } from "../utils/platform";
 import toast from "react-hot-toast";
 import { useLanguageStore } from "../store/themeStore";
@@ -108,6 +112,24 @@ api.interceptors.response.use(
       requestUrl.includes("/auth/email/") ||
       requestUrl.includes("/auth/verify-otp") ||
       requestUrl.includes("/auth/request-otp");
+
+    const isGuestRequest =
+      !localStorage.getItem("token") && !isOfflineSession && !isAuthRoute;
+
+    if ([401, 404].includes(error.response?.status) && isGuestRequest) {
+      const method = error.config?.method?.toLowerCase?.() || "get";
+      const emptyResponse = {
+        data:
+          method === "get"
+            ? []
+            : { success: false, message: "Authentication required" },
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: error.config,
+      };
+      return Promise.resolve(emptyResponse);
+    }
 
     if (error.response?.status === 401 && !isAuthRoute && !isOfflineSession) {
       const currentLanguage = useLanguageStore.getState().language;
@@ -356,7 +378,7 @@ export const login = async (data) => {
     try {
       localStorage.setItem(
         "offline_login_credentials",
-        JSON.stringify({ email, password })
+        JSON.stringify({ email, password }),
       );
     } catch {}
     localStorage.setItem("user", JSON.stringify(userPayload));
@@ -387,14 +409,17 @@ export const login = async (data) => {
           JSON.stringify({
             email: data.email?.toLowerCase()?.trim(),
             password: data.password,
-          })
+          }),
         );
       } catch {}
     }
     return res;
   } catch (error) {
     if (isOfflineOrNetworkError(error)) {
-      return login({ ...data, recaptchaToken: data.recaptchaToken || "offline_network_fallback" });
+      return login({
+        ...data,
+        recaptchaToken: data.recaptchaToken || "offline_network_fallback",
+      });
     }
     throw error;
   }
@@ -883,7 +908,9 @@ export const getInspections = async (params) => {
       pendingOffline = pendingOffline.filter((i) => i.status === params.status);
     }
     if (params?.severity) {
-      pendingOffline = pendingOffline.filter((i) => i.severity === params.severity);
+      pendingOffline = pendingOffline.filter(
+        (i) => i.severity === params.severity,
+      );
     }
 
     const combined = [
@@ -1314,7 +1341,9 @@ export const deleteInspectionPhoto = async (id, photoUrl, type = "photo") => {
     .split("?")[0];
   const matchPhoto = (p) => {
     if (!p) return false;
-    const cleanP = String(p).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+    const cleanP = String(p)
+      .replace(/^https?:\/\/[^\/]+/, "")
+      .split("?")[0];
     return cleanP === cleanTarget || String(p) === String(photoUrl);
   };
 
