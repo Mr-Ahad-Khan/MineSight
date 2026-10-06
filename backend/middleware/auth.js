@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 
 // Protect routes
@@ -12,12 +13,25 @@ const protect = asyncHandler(async (req, res, next) => {
 
       // Support offline sync mutations from field mobile app
       if (token && token.startsWith('offline_token_')) {
-        let fieldUser = await User.findOne({ role: 'mine_official', isActive: true });
-        if (!fieldUser) {
-          fieldUser = await User.findOne({ isActive: true });
+        const userEmail = req.headers['x-user-email'];
+        const userId = req.headers['x-user-id'];
+        let matchedUser = null;
+
+        if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+          matchedUser = await User.findById(userId).select('-password');
         }
-        if (fieldUser) {
-          req.user = fieldUser;
+        if (!matchedUser && userEmail) {
+          matchedUser = await User.findOne({ email: String(userEmail).toLowerCase().trim() }).select('-password');
+        }
+        if (!matchedUser) {
+          matchedUser = await User.findOne({ role: 'mine_official', isActive: true }).select('-password');
+        }
+        if (!matchedUser) {
+          matchedUser = await User.findOne({ isActive: true }).select('-password');
+        }
+
+        if (matchedUser && matchedUser.isActive) {
+          req.user = matchedUser;
           return next();
         }
       }

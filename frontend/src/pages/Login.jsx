@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
+import { isNativeMobileApp } from "../utils/platform";
+import { getNetworkStatus, subscribeNetworkStatus } from "../services/networkManager";
 import ReCAPTCHA from "../components/common/ReCAPTCHA";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -13,6 +15,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Users,
+  WifiOff,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authStore";
@@ -34,12 +37,13 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const t = translations[language];
-  const isNativeApp =
-    Capacitor.isNativePlatform() ||
-    (typeof window !== "undefined" &&
-      (Boolean(window.Capacitor?.isNativePlatform?.()) ||
-        window.location.protocol === "capacitor:" ||
-        window.location.protocol === "ionic:"));
+  const isNativeApp = isNativeMobileApp();
+  const [isOffline, setIsOffline] = useState(() => !getNetworkStatus());
+
+  useEffect(() => {
+    return subscribeNetworkStatus((online) => setIsOffline(!online));
+  }, []);
+
   const recaptchaSiteKey =
     !isNativeApp &&
     (import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
@@ -301,7 +305,17 @@ export default function Login() {
                   </div>
                 </div>
 
-                {recaptchaSiteKey ? (
+                {isOffline && (
+                  <div
+                    role="status"
+                    className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 p-2.5 text-xs font-semibold text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200"
+                  >
+                    <WifiOff className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <span>Offline Access Mode Active: Sign in with your field accounts.</span>
+                  </div>
+                )}
+
+                {!isNativeApp && recaptchaSiteKey ? (
                   <div
                     ref={recaptchaContainerRef}
                     className="w-full overflow-hidden"

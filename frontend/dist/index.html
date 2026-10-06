@@ -11,24 +11,23 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Coal Governance | Smart Compliance Platform</title>
     <link rel="icon" type="image/svg+xml" href="/minesight-logo.svg" />
-    <!-- High-priority reCAPTCHA preconnects and script preload -->
-    <link rel="preconnect" href="https://www.google.com" crossorigin />
-    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://www.recaptcha.net" crossorigin />
-    <link rel="dns-prefetch" href="https://www.google.com" />
-    <link rel="dns-prefetch" href="https://www.gstatic.com" />
-    <link rel="dns-prefetch" href="https://www.recaptcha.net" />
-    <link
-      rel="preload"
-      href="https://www.google.com/recaptcha/api.js?render=explicit"
-      as="script"
-      fetchpriority="high"
-    />
-    <script
-      src="https://www.google.com/recaptcha/api.js?render=explicit"
-      async
-      fetchpriority="high"
-    ></script>
+    <!-- Conditional reCAPTCHA loader: skipped entirely in native mobile app (Capacitor/Android) -->
+    <script>
+      (function() {
+        var isNative =
+          window.location.protocol === "capacitor:" ||
+          window.location.protocol === "ionic:" ||
+          typeof window.AndroidBridge !== "undefined" ||
+          (typeof window.Capacitor !== "undefined" && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
+          (window.location.hostname === "localhost" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+        if (!isNative) {
+          var script = document.createElement("script");
+          script.src = "https://www.google.com/recaptcha/api.js?render=explicit";
+          script.async = true;
+          document.head.appendChild(script);
+        }
+      })();
+    </script>
 
     <!-- App & Font resources -->
     <link rel="dns-prefetch" href="https://images.unsplash.com" />
@@ -40,8 +39,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/assets/index-DNaxuQed.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CkumFqtx.css">
+    <script type="module" crossorigin src="/assets/index-D6TKsq_d.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DpMt-smS.css">
   </head>
   <body class="bg-slate-50 dark:bg-slate-950">
     <div id="root"></div>

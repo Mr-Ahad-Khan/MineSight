@@ -12,7 +12,8 @@ import {
   initAutoSync,
   removeQueuedMutationsByLocalId,
 } from "./syncQueue";
-import { reportNetworkError, reportNetworkSuccess } from "./networkManager";
+import { reportNetworkError, reportNetworkSuccess, getNetworkStatus } from "./networkManager";
+import { isNativeMobileApp } from "../utils/platform";
 import toast from "react-hot-toast";
 import { useLanguageStore } from "../store/themeStore";
 import { translations } from "../i18n/translations";
@@ -53,13 +54,15 @@ api.interceptors.request.use(
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      if (token.startsWith("offline_token_")) {
+        try {
+          const user = JSON.parse(localStorage.getItem("user") || "null");
+          if (user?.email) config.headers["X-User-Email"] = user.email;
+          if (user?._id) config.headers["X-User-Id"] = user._id;
+        } catch {}
+      }
     }
-    const isNative =
-      Capacitor.isNativePlatform() ||
-      (typeof window !== "undefined" &&
-        (Boolean(window.Capacitor?.isNativePlatform?.()) ||
-          window.location.protocol === "capacitor:" ||
-          window.location.protocol === "ionic:"));
+    const isNative = isNativeMobileApp();
     if (isNative) {
       config.headers["X-MineSight-Client"] = "native";
     }
@@ -226,13 +229,11 @@ async function extractFormData(formData) {
 // AUTHENTICATION
 // ==========================================
 export const login = async (data) => {
-  if (typeof navigator !== "undefined" && !navigator.onLine) {
-    const isNativeApp =
-      Capacitor.isNativePlatform() ||
-      (typeof window !== "undefined" &&
-        (Boolean(window.Capacitor?.isNativePlatform?.()) ||
-          window.location.protocol === "capacitor:" ||
-          window.location.protocol === "ionic:"));
+  const isOfflineMode =
+    !getNetworkStatus() ||
+    (typeof navigator !== "undefined" && !navigator.onLine);
+  if (isOfflineMode) {
+    const isNativeApp = isNativeMobileApp();
     // In offline mode, verify reCAPTCHA challenge was completed only for web
     if (!isNativeApp && !data.recaptchaToken) {
       const err = new Error("Please complete the reCAPTCHA verification.");
@@ -352,6 +353,12 @@ export const login = async (data) => {
       _isOffline: true,
     };
 
+    try {
+      localStorage.setItem(
+        "offline_login_credentials",
+        JSON.stringify({ email, password })
+      );
+    } catch {}
     localStorage.setItem("user", JSON.stringify(userPayload));
     localStorage.setItem("token", offlineToken);
 
@@ -365,29 +372,36 @@ export const login = async (data) => {
     };
   }
 
-  const isNative =
-    Capacitor.isNativePlatform() ||
-    (typeof window !== "undefined" &&
-      (Boolean(window.Capacitor?.isNativePlatform?.()) ||
-        window.location.protocol === "capacitor:" ||
-        window.location.protocol === "ionic:"));
+  const isNative = isNativeMobileApp();
   const payload = isNative
     ? { ...data, isNativeApp: true, client: "native" }
     : data;
-  const res = await api.post("/auth/login", payload);
-  if (res.data?.token) {
-    localStorage.setItem("real_server_token", res.data.token);
+
+  try {
+    const res = await api.post("/auth/login", payload);
+    if (res.data?.token) {
+      localStorage.setItem("real_server_token", res.data.token);
+      try {
+        localStorage.setItem(
+          "offline_login_credentials",
+          JSON.stringify({
+            email: data.email?.toLowerCase()?.trim(),
+            password: data.password,
+          })
+        );
+      } catch {}
+    }
+    return res;
+  } catch (error) {
+    if (isOfflineOrNetworkError(error)) {
+      return login({ ...data, recaptchaToken: data.recaptchaToken || "offline_network_fallback" });
+    }
+    throw error;
   }
-  return res;
 };
 
 export const register = (data) => {
-  const isNative =
-    Capacitor.isNativePlatform() ||
-    (typeof window !== "undefined" &&
-      (Boolean(window.Capacitor?.isNativePlatform?.()) ||
-        window.location.protocol === "capacitor:" ||
-        window.location.protocol === "ionic:"));
+  const isNative = isNativeMobileApp();
   const payload = isNative
     ? { ...data, isNativeApp: true, client: "native" }
     : data;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
+import { isNativeMobileApp } from "../utils/platform";
 import ReCAPTCHA from "../components/common/ReCAPTCHA";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -34,6 +35,7 @@ export default function Register() {
   const navigate = useNavigate();
   const t = translations[language];
   const isNativeApp =
+    isNativeMobileApp() ||
     Capacitor.isNativePlatform() ||
     (typeof window !== "undefined" &&
       (Boolean(window.Capacitor?.isNativePlatform?.()) ||

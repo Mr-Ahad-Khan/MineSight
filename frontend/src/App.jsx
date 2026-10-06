@@ -174,15 +174,7 @@ function App() {
   useEffect(() => {
     if (!isOffline) {
       setOfflineBannerDismissed(false);
-      return undefined;
     }
-
-    setOfflineBannerDismissed(false);
-    const timeoutId = window.setTimeout(() => {
-      setOfflineBannerDismissed(true);
-    }, 5000);
-
-    return () => window.clearTimeout(timeoutId);
   }, [isOffline]);
 
   useEffect(() => {
@@ -440,7 +432,7 @@ function App() {
         <aside
           ref={bannerRef}
           aria-label="Offline status"
-          className="offline-status-banner fixed inset-x-0 top-0 z-[45] flex flex-wrap items-center justify-center gap-2 border-b border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-950 shadow-sm backdrop-blur-md dark:border-amber-700/60 dark:bg-amber-950/90 dark:text-amber-100 sm:text-sm"
+          className="offline-status-banner fixed inset-x-0 top-0 z-[70] flex flex-wrap items-center justify-center gap-2 border-b border-amber-500/50 bg-amber-500/20 px-4 py-2 text-center text-xs font-semibold text-amber-950 shadow-md backdrop-blur-md dark:border-amber-600/80 dark:bg-amber-950/95 dark:text-amber-100 sm:text-sm"
           role="status"
         >
           <WifiOff
@@ -449,11 +441,11 @@ function App() {
             aria-hidden="true"
           />
           <span>
-            <strong className="font-semibold">{t.offlineModeActive}</strong>{" "}
+            <strong className="font-bold">{t.offlineModeActive}</strong>{" "}
             {t.offlineModeDescription}
           </span>
           {pendingCount > 0 && (
-            <span className="inline-flex items-center rounded-full bg-amber-500/30 px-2 py-0.5 text-xs font-bold text-amber-900 dark:text-amber-200">
+            <span className="inline-flex items-center rounded-full bg-amber-500/30 px-2.5 py-0.5 text-xs font-black text-amber-950 dark:text-amber-200">
               {pendingCount}{" "}
               {pendingCount > 1 ? t.pendingSyncPlural : t.pendingSync}
             </span>
@@ -461,7 +453,7 @@ function App() {
           <button
             type="button"
             onClick={() => setOfflineBannerDismissed(true)}
-            className="rounded-md p-1 text-amber-900 transition hover:bg-amber-500/20 dark:text-amber-200"
+            className="rounded-md p-1 text-amber-900 transition hover:bg-amber-500/30 dark:text-amber-200"
             aria-label={t.dismissOfflineBanner}
             title={t.dismissOfflineBanner}
           >
@@ -472,7 +464,7 @@ function App() {
         <aside
           ref={bannerRef}
           aria-label="Pending sync status"
-          className="pending-status-banner fixed inset-x-0 top-0 z-[45] flex items-center justify-center gap-2 border-b border-sky-400/40 bg-sky-500/15 px-4 py-1.5 text-center text-xs font-medium text-sky-950 shadow-sm backdrop-blur-md dark:border-sky-700/60 dark:bg-sky-950/90 dark:text-sky-100 sm:text-sm"
+          className="pending-status-banner fixed inset-x-0 top-0 z-[70] flex items-center justify-center gap-2 border-b border-sky-400/50 bg-sky-500/20 px-4 py-2 text-center text-xs font-semibold text-sky-950 shadow-md backdrop-blur-md dark:border-sky-700/80 dark:bg-sky-950/95 dark:text-sky-100 sm:text-sm"
           role="status"
         >
           <RefreshCw
@@ -488,12 +480,23 @@ function App() {
           <button
             type="button"
             onClick={() => triggerSyncNow()}
-            className="ml-2 rounded-md bg-sky-600 px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 transition"
+            className="ml-2 rounded-md bg-sky-600 px-2.5 py-0.5 text-xs font-bold text-white shadow-sm hover:bg-sky-700 transition"
           >
             {t.syncNow}
           </button>
         </aside>
       ) : null}
+      {isOffline && offlineBannerDismissed && (
+        <button
+          type="button"
+          onClick={() => setOfflineBannerDismissed(false)}
+          className="fixed bottom-4 left-4 z-[70] inline-flex items-center gap-2 rounded-full border border-amber-500 bg-amber-900/90 px-3 py-1.5 text-xs font-bold text-amber-100 shadow-xl backdrop-blur-md transition hover:scale-105 active:scale-95"
+          title="Click to view offline banner"
+        >
+          <WifiOff className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
+          <span>Offline Mode{pendingCount > 0 ? ` (${pendingCount})` : ""}</span>
+        </button>
+      )}
       <Suspense fallback={<AppLoadingSkeleton />}>
         <Routes>
           <Route path="/" element={<PublicHomeRoute />} />

@@ -37,6 +37,7 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
 	private TextToSpeech tts;
 	private boolean ttsReady = false;
+	private ConnectivityManager.NetworkCallback networkCallback;
 
 	public class AndroidBridge {
 		@JavascriptInterface
@@ -241,11 +242,55 @@ public class MainActivity extends BridgeActivity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		// Register real-time network connectivity callback to push instant online/offline events into WebView
+		try {
+			ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+			if (cm != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				networkCallback = new ConnectivityManager.NetworkCallback() {
+					@Override
+					public void onAvailable(android.net.Network network) {
+						runOnUiThread(() -> {
+							try {
+								WebView wv = bridge != null ? bridge.getWebView() : null;
+								if (wv != null) {
+									wv.evaluateJavascript("window.dispatchEvent(new CustomEvent('minesight:network-status', { detail: { isOnline: true } })); window.dispatchEvent(new Event('online'));", null);
+								}
+							} catch (Exception ignored) {}
+						});
+					}
+
+					@Override
+					public void onLost(android.net.Network network) {
+						runOnUiThread(() -> {
+							try {
+								WebView wv = bridge != null ? bridge.getWebView() : null;
+								if (wv != null) {
+									wv.evaluateJavascript("window.dispatchEvent(new CustomEvent('minesight:network-status', { detail: { isOnline: false } })); window.dispatchEvent(new Event('offline'));", null);
+								}
+							} catch (Exception ignored) {}
+						});
+					}
+				};
+				cm.registerDefaultNetworkCallback(networkCallback);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		if (networkCallback != null) {
+			try {
+				ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+				if (cm != null) {
+					cm.unregisterNetworkCallback(networkCallback);
+				}
+			} catch (Exception ignored) {}
+			networkCallback = null;
+		}
 		if (tts != null) {
 			try {
 				tts.stop();

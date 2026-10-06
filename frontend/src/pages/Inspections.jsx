@@ -131,6 +131,18 @@ export default function Inspections() {
   }, [filters]);
 
   useEffect(() => {
+    const handleSyncUpdate = () => {
+      fetchInspections();
+    };
+    window.addEventListener("minesight:sync-completed", handleSyncUpdate);
+    window.addEventListener("minesight:queue-updated", handleSyncUpdate);
+    return () => {
+      window.removeEventListener("minesight:sync-completed", handleSyncUpdate);
+      window.removeEventListener("minesight:queue-updated", handleSyncUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
     if (selectedPhotos.length === 0) return undefined;
 
     const handleKeyDown = (event) => {

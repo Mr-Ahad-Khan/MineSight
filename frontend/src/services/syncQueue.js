@@ -4,6 +4,7 @@ import { offlineStorage, saveOfflineMedia, getOfflineMedia } from "./offlineStor
 import toast from "react-hot-toast";
 import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
+import { getNetworkStatus, subscribeNetworkStatus } from "./networkManager";
 
 const QUEUE_STORAGE_KEY = "minesight_offline_sync_queue";
 
@@ -129,6 +130,27 @@ export function removeQueuedMutationsByLocalId(localId) {
   setStoredQueue(nextQueue);
 }
 
+// Helper: convert Data URI to Blob directly without external network fetch
+function dataURItoBlob(dataURI) {
+  if (!dataURI) return null;
+  if (dataURI instanceof Blob) return dataURI;
+  try {
+    const parts = dataURI.split(",");
+    if (parts.length < 2) return null;
+    const mimeMatch = parts[0].match(/:(.*?);/);
+    const mimeType = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+    const binary = atob(parts[1]);
+    const array = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      array[i] = binary.charCodeAt(i);
+    }
+    return new Blob([array], { type: mimeType });
+  } catch (err) {
+    console.warn("dataURItoBlob fallback error:", err);
+    return null;
+  }
+}
+
 // Reconstitute payload and files if needed (e.g. for FormData multipart uploads)
 async function prepareRequestData(item) {
   if (!item.isFormData) {
@@ -154,17 +176,28 @@ async function prepareRequestData(item) {
     for (const fileDef of item.files) {
       const mediaData = await getOfflineMedia(fileDef.mediaKey);
       if (mediaData) {
-        let blob = mediaData;
+        let blob = null;
         if (typeof mediaData === "string" && mediaData.startsWith("data:")) {
-          // Convert data URI back to Blob
-          const res = await fetch(mediaData);
-          blob = await res.blob();
+          blob = dataURItoBlob(mediaData);
+          if (!blob) {
+            try {
+              const res = await fetch(mediaData);
+              blob = await res.blob();
+            } catch (err) {
+              console.warn("Fetch data URI error:", err);
+            }
+          }
+        } else if (mediaData instanceof Blob) {
+          blob = mediaData;
         }
-        formData.append(
-          fileDef.fieldName,
-          blob,
-          fileDef.fileName || `${fileDef.fieldName}-${Date.now()}.bin`
-        );
+
+        if (blob) {
+          formData.append(
+            fileDef.fieldName,
+            blob,
+            fileDef.fileName || `${fileDef.fieldName}-${Date.now()}.bin`
+          );
+        }
       }
     }
   }
@@ -175,7 +208,8 @@ async function prepareRequestData(item) {
 // Process all pending queued mutations sequentially
 export async function processSyncQueue(apiClient) {
   if (isSyncing) return { success: false, message: "Sync already in progress" };
-  if (typeof navigator !== "undefined" && !navigator.onLine) {
+  const isOnline = getNetworkStatus();
+  if (!isOnline && typeof navigator !== "undefined" && !navigator.onLine) {
     return { success: false, message: "Device is offline" };
   }
 
@@ -207,12 +241,17 @@ export async function processSyncQueue(apiClient) {
       currentToken = realToken;
     } else {
       try {
+        let savedCreds = null;
+        try {
+          savedCreds = JSON.parse(localStorage.getItem("offline_login_credentials") || "null");
+        } catch {}
         const user = JSON.parse(localStorage.getItem("user") || "null");
-        const email = user?.email?.toLowerCase();
-        if (email && OFFLINE_PASSWORDS[email]) {
+        const email = savedCreds?.email || user?.email?.toLowerCase();
+        const password = savedCreds?.password || (email && OFFLINE_PASSWORDS[email]);
+        if (email && password) {
           const loginRes = await apiClient.post("/auth/login", {
             email,
-            password: OFFLINE_PASSWORDS[email],
+            password,
             isNativeApp: true,
           });
           if (loginRes.data?.token) {
@@ -419,7 +458,8 @@ export function initAutoSync(apiClient) {
   if (typeof window === "undefined") return;
 
   const triggerBackgroundSync = async () => {
-    if (typeof navigator !== "undefined" && !navigator.onLine) return;
+    const isOnline = getNetworkStatus();
+    if (!isOnline && typeof navigator !== "undefined" && !navigator.onLine) return;
     if (getStoredQueue().length === 0) return;
     try {
       await processSyncQueue(apiClient);
@@ -431,7 +471,6 @@ export function initAutoSync(apiClient) {
   let wasOffline = false;
 
   const handleOffline = () => {
-    // Only mark offline if really not in background
     if (typeof document !== "undefined" && (document.hidden || document.visibilityState === "hidden")) {
       return;
     }
@@ -460,7 +499,8 @@ export function initAutoSync(apiClient) {
         });
       }
 
-      if (!navigator.onLine) return;
+      const isOnline = getNetworkStatus();
+      if (!isOnline && typeof navigator !== "undefined" && !navigator.onLine) return;
 
       if (getStoredQueue().length > 0) {
         const result = await processSyncQueue(apiClient);
@@ -480,6 +520,14 @@ export function initAutoSync(apiClient) {
     syncAfterReconnect();
   };
 
+  const handleNetworkEvent = (e) => {
+    if (e.detail?.isOnline) {
+      handleOnline();
+    } else {
+      handleOffline();
+    }
+  };
+
   const handleVisibilityOrFocus = () => {
     if (document.visibilityState === "visible" || document.hasFocus()) {
       triggerBackgroundSync();
@@ -488,12 +536,17 @@ export function initAutoSync(apiClient) {
 
   window.addEventListener("online", handleOnline);
   window.addEventListener("offline", handleOffline);
+  window.addEventListener("minesight:network-status", handleNetworkEvent);
   window.addEventListener("visibilitychange", handleVisibilityOrFocus);
   window.addEventListener("focus", handleVisibilityOrFocus);
 
-  // Native app resume listener - sync quietly in background WITHOUT spurious 'Internet restored' toast
+  const unsubNetwork = subscribeNetworkStatus((isOnline) => {
+    if (isOnline) handleOnline();
+  });
+
+  // Native app resume listener - sync quietly in background
   let appStateListener = null;
-  if (Capacitor.isNativePlatform()) {
+  if (Capacitor.isNativePlatform() || window.AndroidBridge) {
     CapApp.addListener("appStateChange", (state) => {
       if (state.isActive) {
         triggerBackgroundSync();
@@ -503,15 +556,16 @@ export function initAutoSync(apiClient) {
     });
   }
 
-  // Periodic polling sync check every 15 seconds if items are queued and online
+  // Periodic polling sync check every 10 seconds if items are queued and online
   const periodicSyncInterval = setInterval(() => {
-    if (navigator.onLine && getStoredQueue().length > 0 && !isSyncing) {
+    const isOnline = getNetworkStatus();
+    if (isOnline && getStoredQueue().length > 0 && !isSyncing) {
       processSyncQueue(apiClient);
     }
-  }, 15000);
+  }, 10000);
 
   // If already online and queue has items, attempt sync after 1.5 seconds
-  if (navigator.onLine && getStoredQueue().length > 0) {
+  if (getNetworkStatus() && getStoredQueue().length > 0) {
     setTimeout(() => {
       processSyncQueue(apiClient);
     }, 1500);
@@ -520,8 +574,10 @@ export function initAutoSync(apiClient) {
   return () => {
     window.removeEventListener("online", handleOnline);
     window.removeEventListener("offline", handleOffline);
+    window.removeEventListener("minesight:network-status", handleNetworkEvent);
     window.removeEventListener("visibilitychange", handleVisibilityOrFocus);
     window.removeEventListener("focus", handleVisibilityOrFocus);
+    unsubNetwork();
     clearInterval(periodicSyncInterval);
     if (appStateListener) appStateListener.remove();
     if (retryTimer) window.clearTimeout(retryTimer);

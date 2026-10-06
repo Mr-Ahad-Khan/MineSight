@@ -3,8 +3,7 @@
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
 
-let currentIsOnline =
-  typeof navigator !== "undefined" ? navigator.onLine : true;
+let currentIsOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 let isVerifying = false;
 let statusListeners = [];
 
@@ -125,40 +124,37 @@ export function reportNetworkSuccess() {
   notifyStatus(true);
 }
 
+let initialized = false;
+
 // Initialize system-wide network listeners
 export function initNetworkManager() {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || initialized) return;
+  initialized = true;
 
   const handleOnline = () => {
-    // Device reports online; confirm and notify
     notifyStatus(true);
     verifyRealConnectivity();
   };
 
   const handleOffline = () => {
-    // CRITICAL FIX: If app is hidden / in background / in recent apps, ignore the spurious pause offline event!
     if (document.hidden || document.visibilityState === "hidden") {
       return;
     }
-
-    // Double check with Android native bridge or verification before marking offline
-    if (window.AndroidBridge?.isNetworkConnected) {
-      if (window.AndroidBridge.isNetworkConnected()) {
-        return;
-      }
-    }
-
     notifyStatus(false);
   };
 
+  const handleNativeBridgeEvent = (e) => {
+    if (typeof e.detail?.isOnline === "boolean") {
+      notifyStatus(e.detail.isOnline);
+    }
+  };
+
   const handleResumeOrFocus = () => {
-    // When returning from another app or recent apps tab:
     if (document.visibilityState === "visible") {
-      // Check real connectivity immediately
       if (window.AndroidBridge?.isNetworkConnected) {
         notifyStatus(window.AndroidBridge.isNetworkConnected());
-      } else if (navigator.onLine) {
-        notifyStatus(true);
+      } else if (typeof navigator !== "undefined") {
+        notifyStatus(navigator.onLine);
       }
       setTimeout(verifyRealConnectivity, 500);
     }
@@ -166,13 +162,15 @@ export function initNetworkManager() {
 
   window.addEventListener("online", handleOnline);
   window.addEventListener("offline", handleOffline);
+  window.addEventListener("minesight:network-status", handleNativeBridgeEvent);
   document.addEventListener("visibilitychange", handleResumeOrFocus);
   window.addEventListener("focus", handleResumeOrFocus);
 
   // Native Capacitor App Resume listener
   if (
     Capacitor.isNativePlatform?.() ||
-    Boolean(window.Capacitor?.isNativePlatform?.())
+    Boolean(window.Capacitor?.isNativePlatform?.()) ||
+    Boolean(window.AndroidBridge)
   ) {
     try {
       CapApp.addListener("appStateChange", (state) => {
@@ -184,6 +182,16 @@ export function initNetworkManager() {
       console.warn("CapApp listener error:", e);
     }
   }
+
+  // Periodic connectivity verification (every 15s) when window is active
+  setInterval(() => {
+    if (typeof document !== "undefined" && document.visibilityState === "visible") {
+      const status = getNetworkStatus();
+      if (status !== currentIsOnline) {
+        notifyStatus(status);
+      }
+    }
+  }, 15000);
 
   // Initial check
   currentIsOnline = getNetworkStatus();

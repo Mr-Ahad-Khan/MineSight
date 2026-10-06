@@ -30,6 +30,7 @@ import {
   WifiOff,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { getNetworkStatus, subscribeNetworkStatus } from "../services/networkManager";
 import { createInspection, getMines } from "../services/api";
 import { initialMines } from "../services/offlineStorage";
 import {
@@ -203,9 +204,7 @@ export default function CreateInspection() {
   const { language } = useLanguageStore();
   const t = translations[language];
 
-  const [isOffline, setIsOffline] = useState(() => (
-    typeof navigator !== "undefined" ? !navigator.onLine : false
-  ));
+  const [isOffline, setIsOffline] = useState(() => !getNetworkStatus());
   const [mines, setMines] = useState(initialMines);
   const [mineSearchFilter, setMineSearchFilter] = useState("");
   const [loading, setLoading] = useState(false);
@@ -264,14 +263,7 @@ export default function CreateInspection() {
 
   // Sync online/offline status
   useEffect(() => {
-    const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
+    return subscribeNetworkStatus((online) => setIsOffline(!online));
   }, []);
 
   // Handle mobile hardware back button for active modals / full preview

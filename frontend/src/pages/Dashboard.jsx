@@ -334,6 +334,16 @@ export default function Dashboard() {
 
   }, [refreshKey])
 
+  useEffect(() => {
+    const handleSyncCompleted = () => {
+      setRefreshKey((k) => k + 1);
+    };
+    window.addEventListener("minesight:sync-completed", handleSyncCompleted);
+    return () => {
+      window.removeEventListener("minesight:sync-completed", handleSyncCompleted);
+    };
+  }, [])
+
 
 
 
