@@ -93,13 +93,13 @@ export default function OfflineSyncBadge({ compact = false }) {
   if (!isOnline) {
     return (
       <div
-        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-amber-400 bg-amber-100/95 px-2.5 text-xs font-bold text-amber-950 shadow-sm transition hover:bg-amber-200 dark:border-amber-600/70 dark:bg-amber-950/90 dark:text-amber-200"
+        className="inline-flex h-8 w-8 shrink-0 items-center justify-center gap-0 rounded-full border border-amber-400 bg-amber-100/95 px-0 text-xs font-bold text-amber-950 shadow-sm transition hover:bg-amber-200 dark:border-amber-600/70 dark:bg-amber-950/90 dark:text-amber-200 sm:w-auto sm:justify-start sm:gap-1.5 sm:px-2.5"
         role="status"
         aria-label={`Offline${pendingCount > 0 ? `, ${pendingCount} pending updates` : ""}`}
         title="Operating in offline mode. Changes are saved locally and will auto-sync when online."
       >
         <WifiOff className="h-3.5 w-3.5 shrink-0 text-[#78350f] dark:text-amber-300" strokeWidth={2.5} />
-        <span className="text-[11px] font-extrabold tracking-tight">Offline{pendingCount > 0 ? ` (${pendingCount})` : ""}</span>
+        <span className="hidden text-[11px] font-extrabold tracking-tight sm:inline">Offline{pendingCount > 0 ? ` (${pendingCount})` : ""}</span>
       </div>
     );
   }
