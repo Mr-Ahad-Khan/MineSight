@@ -486,17 +486,6 @@ function App() {
           </button>
         </aside>
       ) : null}
-      {isOffline && offlineBannerDismissed && (
-        <button
-          type="button"
-          onClick={() => setOfflineBannerDismissed(false)}
-          className="fixed bottom-4 left-4 z-[70] inline-flex items-center gap-2 rounded-full border border-amber-500 bg-amber-900/90 px-3 py-1.5 text-xs font-bold text-amber-100 shadow-xl backdrop-blur-md transition hover:scale-105 active:scale-95"
-          title="Click to view offline banner"
-        >
-          <WifiOff className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
-          <span>Offline Mode{pendingCount > 0 ? ` (${pendingCount})` : ""}</span>
-        </button>
-      )}
       <Suspense fallback={<AppLoadingSkeleton />}>
         <Routes>
           <Route path="/" element={<PublicHomeRoute />} />
