@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { isNativeMobileApp } from "../utils/platform";
-import { getNetworkStatus, subscribeNetworkStatus } from "../services/networkManager";
+import {
+  getNetworkStatus,
+  subscribeNetworkStatus,
+} from "../services/networkManager";
 import ReCAPTCHA from "../components/common/ReCAPTCHA";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -311,7 +314,10 @@ export default function Login() {
                     className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 p-2.5 text-xs font-semibold text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200"
                   >
                     <WifiOff className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                    <span>Offline Access Mode Active: Sign in with your field accounts.</span>
+                    <span>
+                      Offline Access Mode Active: Sign in with your field
+                      accounts.
+                    </span>
                   </div>
                 )}
 
@@ -345,7 +351,10 @@ export default function Login() {
 
                 <button
                   type="submit"
-                  disabled={isLoading || (!isNativeApp && recaptchaSiteKey && !recaptchaToken)}
+                  disabled={
+                    isLoading ||
+                    (!isNativeApp && recaptchaSiteKey && !recaptchaToken)
+                  }
                   className="btn-primary w-full flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
@@ -364,13 +373,11 @@ export default function Login() {
               </p>
 
               <p className="mt-3 text-center text-xs font-semibold text-red-600 dark:text-red-400">
-                Login with below demo admin to access all functionalities.
+                {t.demoAdminMessage}
               </p>
 
               {/* Optional seeded demo accounts */}
-              <details
-                className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-700"
-              >
+              <details className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-700">
                 <summary className="cursor-pointer rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-center text-xs font-semibold text-primary-800 transition hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-950/40 dark:text-primary-200 dark:hover:bg-primary-950/70">
                   {t.quickDemo} ({t.optional})
                 </summary>

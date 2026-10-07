@@ -1,1 +1,0 @@
-import{ao as n}from"./index-scu2ukY9.js";class e extends n{constructor(){super(),this._lastWindow=null}async open(s){this._lastWindow=window.open(s.url,s.windowName||"_blank")}async close(){return new Promise((s,o)=>{this._lastWindow!=null?(this._lastWindow.close(),this._lastWindow=null,s()):o("No active window to close!")})}}const i=new e;export{i as Browser,e as BrowserWeb};

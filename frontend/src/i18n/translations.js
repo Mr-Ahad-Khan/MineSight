@@ -30,6 +30,8 @@ export const translations = {
     worker: "Worker",
     contractor: "Contractor",
     workerDemo: "Worker demo — Amit Yadav, Mining Operations",
+    demoAdminMessage:
+      "Login with below demo admin to access all functionalities.",
     demoNotice:
       "Demo accounts are added for a limited time for review purposes only.",
     openDashboard: "Open dashboard",
@@ -607,6 +609,8 @@ export const translations = {
     worker: "श्रमिक",
     contractor: "ठेकेदार",
     workerDemo: "श्रमिक डेमो — अमित यादव, खनन संचालन",
+    demoAdminMessage:
+      "सभी सुविधाओं का उपयोग करने के लिए नीचे दिए गए डेमो एडमिन से लॉगिन करें।",
     demoNotice:
       "डेमो अकाउंट केवल समीक्षा उद्देश्य के लिए सीमित समय के लिए जोड़े गए हैं।",
     openDashboard: "डैशबोर्ड खोलें",
