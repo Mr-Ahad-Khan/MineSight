@@ -363,9 +363,13 @@ export default function Login() {
                 {t.signInHint}
               </p>
 
+              <p className="mt-3 text-center text-xs font-semibold text-red-600 dark:text-red-400">
+                Login with below demo admin to access all functionalities.
+              </p>
+
               {/* Optional seeded demo accounts */}
               <details
-                className="mt-3.5 border-t border-slate-200 pt-3 dark:border-slate-700"
+                className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-700"
               >
                 <summary className="cursor-pointer rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-center text-xs font-semibold text-primary-800 transition hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-950/40 dark:text-primary-200 dark:hover:bg-primary-950/70">
                   {t.quickDemo} ({t.optional})
@@ -398,9 +402,9 @@ export default function Login() {
                     onClick={() =>
                       quickLogin("admin@cil.gov.in", "admin123", t.admin)
                     }
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-center transition hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    className="rounded-lg border border-amber-400 bg-amber-500 px-2.5 py-1.5 text-center shadow-sm shadow-amber-500/30 transition hover:border-amber-500 hover:bg-amber-400 dark:border-amber-300 dark:bg-amber-400 dark:text-slate-950 dark:hover:border-amber-200 dark:hover:bg-amber-300"
                   >
-                    <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">
+                    <span className="block text-xs font-bold text-white dark:text-slate-950">
                       {t.admin}
                     </span>
                   </button>
