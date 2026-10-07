@@ -1,7 +1,7 @@
 // import { useEffect, useState } from 'react'
 // import { Link } from 'react-router-dom'
-// import { 
-//   ClipboardList, ShieldAlert, AlertTriangle, Bell, 
+// import {
+//   ClipboardList, ShieldAlert, AlertTriangle, Bell,
 //   TrendingUp, Building2, Users, ArrowRight
 // } from 'lucide-react'
 // import { getDashboardSummary, getAnalytics } from '../services/api'
@@ -161,23 +161,8 @@
 //   )
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ClipboardList,
   ShieldAlert,
@@ -190,149 +175,259 @@ import {
   FileCheck2,
   UserCheck,
   LifeBuoy,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { getDashboardSummary, getAnalytics, getRealtimeAttendance, getMineralResourceSummary } from '../services/api'
-import { offlineStorage } from '../services/offlineStorage'
-import HighRiskList from '../components/dashboard/HighRiskList'
-import RecentAlerts from '../components/dashboard/RecentAlerts'
-import { useLanguageStore } from '../store/themeStore'
-import { translations } from '../i18n/translations'
+import {
+  getDashboardSummary,
+  getAnalytics,
+  getRealtimeAttendance,
+  getMineralResourceSummary,
+  getInspections,
+} from "../services/api";
+import { offlineStorage } from "../services/offlineStorage";
+import useAuthStore from "../store/authStore";
+import HighRiskList from "../components/dashboard/HighRiskList";
+import RecentAlerts from "../components/dashboard/RecentAlerts";
+import { useLanguageStore } from "../store/themeStore";
+import { translations } from "../i18n/translations";
 
-const Analytics = lazy(() => import('./Analytics'))
+const Analytics = lazy(() => import("./Analytics"));
 
 export default function Dashboard() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
 
-  const [summary, setSummary] = useState(null)
-  const [analytics, setAnalytics] = useState(null)
-  const [realtimeAttendance, setRealtimeAttendance] = useState(null)
-  const [datasetMineCount, setDatasetMineCount] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [summaryUnavailable, setSummaryUnavailable] = useState(false)
-  const [showAnalytics, setShowAnalytics] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const openInspections = Number(summary?.openInspections) || 0
-  const complianceScore = Number(summary?.avgComplianceScore) || 0
+  const [summary, setSummary] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [realtimeAttendance, setRealtimeAttendance] = useState(null);
+  const [datasetMineCount, setDatasetMineCount] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [summaryUnavailable, setSummaryUnavailable] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const openInspections = Number(summary?.openInspections) || 0;
+  const complianceScore = Number(summary?.avgComplianceScore) || 0;
 
-  const { language } = useLanguageStore()
-  const t = translations[language]
-  const analyticsSectionRef = useRef(null)
+  const { language } = useLanguageStore();
+  const t = translations[language];
+  const analyticsSectionRef = useRef(null);
 
   useEffect(() => {
     if (showAnalytics) {
-      analyticsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      analyticsSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
-  }, [showAnalytics])
+  }, [showAnalytics]);
 
   useEffect(() => {
     let t1, t2;
-    const refreshDashboard = () => setRefreshKey((current) => current + 1)
+    const refreshDashboard = () => setRefreshKey((current) => current + 1);
     const handleSyncStatus = (event) => {
-      if (!event.detail?.isSyncing) refreshDashboard()
-    }
+      if (!event.detail?.isSyncing) refreshDashboard();
+    };
     const handleOnline = () => {
-      refreshDashboard()
-      t1 = setTimeout(refreshDashboard, 800)
-      t2 = setTimeout(refreshDashboard, 2500)
-    }
+      refreshDashboard();
+      t1 = setTimeout(refreshDashboard, 800);
+      t2 = setTimeout(refreshDashboard, 2500);
+    };
 
-    window.addEventListener('focus', refreshDashboard)
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('minesight:sync-status', handleSyncStatus)
-    window.addEventListener('minesight:sync-completed', refreshDashboard)
-    window.addEventListener('minesight:queue-updated', refreshDashboard)
+    window.addEventListener("focus", refreshDashboard);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("minesight:sync-status", handleSyncStatus);
+    window.addEventListener("minesight:sync-completed", refreshDashboard);
+    window.addEventListener("minesight:queue-updated", refreshDashboard);
 
     return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
-      window.removeEventListener('focus', refreshDashboard)
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('minesight:sync-status', handleSyncStatus)
-      window.removeEventListener('minesight:sync-completed', refreshDashboard)
-      window.removeEventListener('minesight:queue-updated', refreshDashboard)
-    }
-  }, [])
-
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener("focus", refreshDashboard);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("minesight:sync-status", handleSyncStatus);
+      window.removeEventListener("minesight:sync-completed", refreshDashboard);
+      window.removeEventListener("minesight:queue-updated", refreshDashboard);
+    };
+  }, []);
 
   // ============================================================
   // SAME API LOGIC
   // ============================================================
 
   useEffect(() => {
-
     const fetchData = async () => {
-
       try {
-
         const results = await Promise.allSettled([
           getDashboardSummary(),
           getAnalytics(),
           getRealtimeAttendance(),
           getMineralResourceSummary(),
-        ])
+        ]);
 
-        const [summaryResult, analyticsResult, attendanceResult, resourceResult] = results
+        const [
+          summaryResult,
+          analyticsResult,
+          attendanceResult,
+          resourceResult,
+        ] = results;
 
-        if (summaryResult.status === 'fulfilled' && summaryResult.value?.data?.data) {
-          setSummary(summaryResult.value.data.data)
-          setSummaryUnavailable(false)
+        if (
+          summaryResult.status === "fulfilled" &&
+          summaryResult.value?.data?.data
+        ) {
+          setSummary(summaryResult.value.data.data);
+          setSummaryUnavailable(false);
         } else {
           try {
-            const fallback = await offlineStorage.getDashboardSummary()
+            const fallback = await offlineStorage.getDashboardSummary();
             if (fallback && fallback.totalMines > 0) {
-              setSummary(fallback)
-              setSummaryUnavailable(false)
+              setSummary(fallback);
+              setSummaryUnavailable(false);
             } else {
-              setSummaryUnavailable(true)
+              setSummaryUnavailable(true);
             }
           } catch {
-            setSummaryUnavailable(true)
+            setSummaryUnavailable(true);
           }
-          console.error('Failed to load dashboard summary:', summaryResult.reason)
+          console.error(
+            "Failed to load dashboard summary:",
+            summaryResult.reason,
+          );
         }
 
-        if (analyticsResult.status === 'fulfilled' && analyticsResult.value?.data?.data) {
-          setAnalytics(analyticsResult.value.data.data)
+        if (
+          analyticsResult.status === "fulfilled" &&
+          analyticsResult.value?.data?.data
+        ) {
+          setAnalytics(analyticsResult.value.data.data);
         } else {
           try {
-            const fallback = await offlineStorage.getAnalytics()
-            if (fallback) setAnalytics(fallback)
+            const fallback = await offlineStorage.getAnalytics();
+            if (fallback) setAnalytics(fallback);
           } catch {
             // ignore
           }
-          console.error('Failed to load dashboard analytics:', analyticsResult.reason)
+          console.error(
+            "Failed to load dashboard analytics:",
+            analyticsResult.reason,
+          );
         }
 
-        if (attendanceResult.status === 'fulfilled' && attendanceResult.value?.data?.data) {
-          setRealtimeAttendance(attendanceResult.value.data.data)
+        if (
+          attendanceResult.status === "fulfilled" &&
+          attendanceResult.value?.data?.data
+        ) {
+          setRealtimeAttendance(attendanceResult.value.data.data);
         } else {
           try {
-            const fallback = await offlineStorage.getRealtimeAttendance()
-            if (fallback) setRealtimeAttendance(fallback)
+            const fallback = await offlineStorage.getRealtimeAttendance();
+            if (fallback) setRealtimeAttendance(fallback);
           } catch {
             // ignore
           }
-          console.error('Failed to load realtime attendance:', attendanceResult.reason)
+          console.error(
+            "Failed to load realtime attendance:",
+            attendanceResult.reason,
+          );
         }
 
-        if (resourceResult.status === 'fulfilled') {
-          setDatasetMineCount(resourceResult.value.data.data.totalRecords)
+        if (resourceResult.status === "fulfilled") {
+          setDatasetMineCount(resourceResult.value.data.data.totalRecords);
         } else {
-          console.error('Failed to load mineral resource dataset summary:', resourceResult.reason)
+          console.error(
+            "Failed to load mineral resource dataset summary:",
+            resourceResult.reason,
+          );
         }
 
+        // Sync open inspections and graph for worker and mine_official roles
+        if (["worker", "mine_official"].includes(user?.role)) {
+          try {
+            const inspectionParams = user?.mineId
+              ? { mineId: user.mineId }
+              : undefined;
+            let list = [];
+            try {
+              const inspRes = await getInspections(inspectionParams);
+              list = inspRes?.data?.data || inspRes?.data || [];
+            } catch {
+              // fallback to offline
+            }
+            if (!Array.isArray(list) || list.length === 0) {
+              const localItems = await offlineStorage.getInspections();
+              const scopedItems = inspectionParams
+                ? localItems.filter(
+                    (i) =>
+                      String(i.mineId) === String(inspectionParams.mineId) ||
+                      String(i.inspectorId) === String(user?._id),
+                  )
+                : localItems;
+              if (Array.isArray(scopedItems) && scopedItems.length > 0) {
+                list = scopedItems;
+              }
+            } else {
+              try {
+                const localItems = await offlineStorage.getInspections();
+                if (Array.isArray(localItems)) {
+                  const existingIds = new Set(list.map((i) => String(i._id)));
+                  const offlineOnly = localItems.filter(
+                    (i) =>
+                      !existingIds.has(String(i._id)) &&
+                      (!inspectionParams ||
+                        String(i.mineId) === String(inspectionParams.mineId) ||
+                        String(i.inspectorId) === String(user?._id)),
+                  );
+                  if (offlineOnly.length > 0) {
+                    list = [...list, ...offlineOnly];
+                  }
+                }
+              } catch {}
+            }
+
+            if (Array.isArray(list) && list.length > 0) {
+              const userOpen = list.filter(
+                (i) => i.status === "open" || i.status === "in_progress",
+              ).length;
+              const userCritical = list.filter(
+                (i) =>
+                  (i.severity === "critical" || Number(i.riskScore) >= 80) &&
+                  i.status !== "closed",
+              ).length;
+              const userTotal = list.length;
+              const userRiskDist = {
+                low: list.filter(
+                  (i) => (i.severity || "").toLowerCase() === "low",
+                ).length,
+                medium: list.filter(
+                  (i) => (i.severity || "").toLowerCase() === "medium",
+                ).length,
+                high: list.filter(
+                  (i) => (i.severity || "").toLowerCase() === "high",
+                ).length,
+                critical: list.filter(
+                  (i) => (i.severity || "").toLowerCase() === "critical",
+                ).length,
+              };
+
+              setSummary((current) => ({
+                ...(current || {}),
+                openInspections: userOpen,
+                criticalInspections: userCritical,
+                totalInspections: userTotal,
+                riskDistribution: userRiskDist,
+              }));
+            }
+          } catch (syncErr) {
+            console.warn("Worker/Official dashboard sync error:", syncErr);
+          }
+        }
       } finally {
-
-        setLoading(false)
-
+        setLoading(false);
       }
+    };
 
-    }
-
-    fetchData()
-
-  }, [refreshKey])
+    fetchData();
+  }, [refreshKey, user?.role, user?.mineId]);
 
   useEffect(() => {
     const handleSyncCompleted = () => {
@@ -340,143 +435,103 @@ export default function Dashboard() {
     };
     window.addEventListener("minesight:sync-completed", handleSyncCompleted);
     return () => {
-      window.removeEventListener("minesight:sync-completed", handleSyncCompleted);
+      window.removeEventListener(
+        "minesight:sync-completed",
+        handleSyncCompleted,
+      );
     };
-  }, [])
-
-
-
+  }, []);
 
   // ============================================================
   // RISK DATA
   // ============================================================
 
   const riskData = useMemo(() => {
-
-    const data = summary?.riskDistribution
+    const data = summary?.riskDistribution;
 
     const result = {
       low: 0,
       medium: 0,
       high: 0,
-      critical: 0
-    }
+      critical: 0,
+    };
 
     if (!data) {
-      return result
+      return result;
     }
-
 
     // If backend returns array
     if (Array.isArray(data)) {
-
       data.forEach((item) => {
-
         const type = String(
-          item.risk ||
-          item.severity ||
-          item.level ||
-          item.name ||
-          ''
-        ).toLowerCase()
+          item.risk || item.severity || item.level || item.name || "",
+        ).toLowerCase();
 
-        const count = Number(
-          item.count ??
-          item.value ??
-          item.total ??
-          0
-        )
+        const count = Number(item.count ?? item.value ?? item.total ?? 0);
 
-        if (type.includes('low')) {
-          result.low = count
+        if (type.includes("low")) {
+          result.low = count;
         }
 
-        if (type.includes('medium')) {
-          result.medium = count
+        if (type.includes("medium")) {
+          result.medium = count;
         }
 
-        if (type.includes('high')) {
-          result.high = count
+        if (type.includes("high")) {
+          result.high = count;
         }
 
-        if (type.includes('critical')) {
-          result.critical = count
+        if (type.includes("critical")) {
+          result.critical = count;
         }
-
-      })
-
+      });
     }
 
     // If backend returns object
     else {
-
       result.low = Number(
-        data.low ??
-        data.Low ??
-        data.lowRisk ??
-        data.lowRiskMines ??
-        0
-      )
+        data.low ?? data.Low ?? data.lowRisk ?? data.lowRiskMines ?? 0,
+      );
 
       result.medium = Number(
         data.medium ??
-        data.Medium ??
-        data.mediumRisk ??
-        data.mediumRiskMines ??
-        0
-      )
+          data.Medium ??
+          data.mediumRisk ??
+          data.mediumRiskMines ??
+          0,
+      );
 
       result.high = Number(
-        data.high ??
-        data.High ??
-        data.highRisk ??
-        data.highRiskMines ??
-        0
-      )
+        data.high ?? data.High ?? data.highRisk ?? data.highRiskMines ?? 0,
+      );
 
       result.critical = Number(
         data.critical ??
-        data.Critical ??
-        data.criticalRisk ??
-        data.criticalRiskMines ??
-        0
-      )
-
+          data.Critical ??
+          data.criticalRisk ??
+          data.criticalRiskMines ??
+          0,
+      );
     }
 
-    return result
-
-  }, [summary])
+    return result;
+  }, [summary]);
 
   const totalRisk =
-    riskData.low +
-    riskData.medium +
-    riskData.high +
-    riskData.critical
+    riskData.low + riskData.medium + riskData.high + riskData.critical;
 
-  const lowPercent =
-    totalRisk > 0
-      ? (riskData.low / totalRisk) * 100
-      : 0
+  const lowPercent = totalRisk > 0 ? (riskData.low / totalRisk) * 100 : 0;
 
-  const mediumPercent =
-    totalRisk > 0
-      ? (riskData.medium / totalRisk) * 100
-      : 0
+  const mediumPercent = totalRisk > 0 ? (riskData.medium / totalRisk) * 100 : 0;
 
-  const highPercent =
-    totalRisk > 0
-      ? (riskData.high / totalRisk) * 100
-      : 0
+  const highPercent = totalRisk > 0 ? (riskData.high / totalRisk) * 100 : 0;
 
   const criticalPercent =
-    totalRisk > 0
-      ? (riskData.critical / totalRisk) * 100
-      : 0
+    totalRisk > 0 ? (riskData.critical / totalRisk) * 100 : 0;
 
-  const mediumStart = lowPercent
-  const highStart = lowPercent + mediumPercent
-  const criticalStart = lowPercent + mediumPercent + highPercent
+  const mediumStart = lowPercent;
+  const highStart = lowPercent + mediumPercent;
+  const criticalStart = lowPercent + mediumPercent + highPercent;
 
   const donutBackground =
     totalRisk > 0
@@ -487,17 +542,14 @@ export default function Dashboard() {
           #d33c3c ${criticalStart}% ${criticalStart + criticalPercent}%,
           #e9dfcf ${criticalStart + criticalPercent}% 100%
         )`
-      : `conic-gradient(#e9dfcf 0% 100%)`
-
+      : `conic-gradient(#e9dfcf 0% 100%)`;
 
   // ============================================================
   // LOADING
   // ============================================================
 
   if (loading) {
-
     return (
-
       <div
         className="
           min-h-[calc(100vh-64px)]
@@ -507,9 +559,7 @@ export default function Dashboard() {
           justify-center
         "
       >
-
         <div className="text-center">
-
           <div
             className="
               w-9
@@ -523,25 +573,17 @@ export default function Dashboard() {
             "
           />
 
-          <p className="mt-3 text-sm text-[#756b5e]">
-            {t.loadingDashboard}
-          </p>
-
+          <p className="mt-3 text-sm text-[#756b5e]">{t.loadingDashboard}</p>
         </div>
-
       </div>
-
-    )
-
+    );
   }
-
 
   // ============================================================
   // DASHBOARD
   // ============================================================
 
   return (
-
     <div
       className="
         min-h-[calc(100vh-64px)]
@@ -555,7 +597,6 @@ export default function Dashboard() {
         py-7
       "
     >
-
       <section
         className="relative mb-6 flex min-h-[280px] w-full items-center justify-center overflow-hidden rounded-xl bg-cover bg-center px-4 py-8 text-center text-white shadow-md sm:min-h-[360px] sm:px-6 sm:py-10"
         style={{
@@ -570,10 +611,16 @@ export default function Dashboard() {
             {t.undergroundOverviewTitle}
           </h2>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link to="/app/inspections" className="btn-primary relative z-10 inline-flex min-h-11 touch-manipulation items-center gap-2">
+            <Link
+              to="/app/inspections"
+              className="btn-primary relative z-10 inline-flex min-h-11 touch-manipulation items-center gap-2"
+            >
               {t.viewInspections} <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/app/analytics" className="relative z-10 inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-lg border border-white/70 bg-white/10 px-4 py-2.5 font-medium text-white transition hover:bg-white/20">
+            <Link
+              to="/app/analytics"
+              className="relative z-10 inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-lg border border-white/70 bg-white/10 px-4 py-2.5 font-medium text-white transition hover:bg-white/20"
+            >
               {t.exploreAnalytics}
             </Link>
           </div>
@@ -595,7 +642,6 @@ export default function Dashboard() {
           mb-6
         "
       >
-
         <div>
           <h1
             className="
@@ -617,9 +663,7 @@ export default function Dashboard() {
           >
             {t.dashboardSubtitle}
           </p>
-
         </div>
-
 
         <div className="flex flex-wrap items-center gap-3 relative z-20">
           <Link
@@ -636,7 +680,13 @@ export default function Dashboard() {
             </span>
             <UserCheck className="w-4 h-4 text-emerald-600" />
             <span>
-              {t.liveAttendance}: <strong>{realtimeAttendance?.insideMineCount ?? realtimeAttendance?.activeWorkersInsideMine ?? 4}</strong> {t.inside}
+              {t.liveAttendance}:{" "}
+              <strong>
+                {realtimeAttendance?.insideMineCount ??
+                  realtimeAttendance?.activeWorkersInsideMine ??
+                  4}
+              </strong>{" "}
+              {t.inside}
             </span>
           </Link>
 
@@ -679,18 +729,17 @@ export default function Dashboard() {
               active:scale-95
             "
           >
-            <span className="text-xl leading-none">
-              +
-            </span>
+            <span className="text-xl leading-none">+</span>
             {t.newInspection}
           </Link>
         </div>
-
       </div>
 
-
       {summaryUnavailable && (
-        <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/60 dark:text-amber-200">
+        <div
+          role="alert"
+          className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/60 dark:text-amber-200"
+        >
           <span>{t.dashboardSummaryLoadError}</span>
           <button
             type="button"
@@ -716,8 +765,6 @@ export default function Dashboard() {
           items-stretch
         "
       >
-
-
         {/* ====================================================
             LEFT STAT CARDS
         ==================================================== */}
@@ -733,18 +780,20 @@ export default function Dashboard() {
             gap-6
           "
         >
-
           {/* TOTAL MINES */}
 
           <StatCard
             title={t.totalMines}
             value={summary?.totalMines ?? 0}
             subtitle={`${summary?.totalMines ?? 0} ${t.activeManagedMines}`}
-            secondary={datasetMineCount ? `${datasetMineCount} ${t.geologicalDatasetRecords}` : null}
+            secondary={
+              datasetMineCount
+                ? `${datasetMineCount} ${t.geologicalDatasetRecords}`
+                : null
+            }
             icon={Building2}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
-
 
           {/* OPEN INSPECTIONS */}
 
@@ -752,11 +801,14 @@ export default function Dashboard() {
             title={t.openInspections}
             value={openInspections}
             subtitle={`${summary?.criticalInspections || 0} ${t.critical}`}
-            secondary={summary?.totalInspections ? `${summary.totalInspections} ${t.totalLogged}` : null}
+            secondary={
+              summary?.totalInspections
+                ? `${summary.totalInspections} ${t.totalLogged}`
+                : null
+            }
             icon={ClipboardList}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
-
 
           {/* OVERDUE */}
 
@@ -767,7 +819,6 @@ export default function Dashboard() {
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
 
-
           {/* SCORE */}
 
           <StatCard
@@ -776,9 +827,7 @@ export default function Dashboard() {
             icon={TrendingUp}
             iconClass="bg-[#eff6ff] text-[#ff6f00]"
           />
-
         </div>
-
 
         {/* ====================================================
             MINE RISK DISTRIBUTION
@@ -799,7 +848,6 @@ export default function Dashboard() {
             flex-col
           "
         >
-
           <div
             className="
               flex
@@ -811,7 +859,6 @@ export default function Dashboard() {
               sm:justify-between
             "
           >
-
             <h2
               className="
                 text-[20px]
@@ -821,22 +868,19 @@ export default function Dashboard() {
               {t.mineRiskDistribution}
             </h2>
 
-
             <button
               type="button"
               aria-expanded={showAnalytics}
               onClick={() => setShowAnalytics((isOpen) => !isOpen)}
               className="inline-flex min-h-10 max-w-full items-center gap-1 rounded-lg border border-[#d97706]/60 bg-[#fff7ed] px-3 py-2 text-left text-sm font-semibold text-[#92400e] shadow-sm transition hover:border-[#c2410c] hover:bg-[#ffedd5] hover:text-[#7c2d12] dark:border-[#f59e0b]/60 dark:bg-[#3a2818] dark:text-[#ffd08a] dark:hover:bg-[#51331a] dark:hover:text-[#ffe2b5]"
             >
-
               {t.viewAnalytics}
 
-              <ArrowRight className={`w-4 h-4 transition-transform ${showAnalytics ? 'rotate-90' : ''}`} />
-
+              <ArrowRight
+                className={`w-4 h-4 transition-transform ${showAnalytics ? "rotate-90" : ""}`}
+              />
             </button>
-
           </div>
-
 
           {/* DONUT */}
 
@@ -850,7 +894,6 @@ export default function Dashboard() {
               mt-8
             "
           >
-
             <div
               key={`${riskData.low}-${riskData.medium}-${riskData.high}-${riskData.critical}`}
               className="relative
@@ -859,7 +902,6 @@ export default function Dashboard() {
                 aspect-square
               "
             >
-
               {/* OUTER RING */}
 
               <div
@@ -869,10 +911,9 @@ export default function Dashboard() {
                   p-[40px]
                 "
                 style={{
-                  background: donutBackground
+                  background: donutBackground,
                 }}
               >
-
                 <div
                   className="
                     w-full
@@ -881,9 +922,7 @@ export default function Dashboard() {
                     bg-[#fffdf8]
                   "
                 />
-
               </div>
-
 
               {/* INNER RING */}
 
@@ -894,55 +933,43 @@ export default function Dashboard() {
                   p-[10px]
                 "
                 style={{
-                  background: donutBackground
+                  background: donutBackground,
                 }}
               >
-
                 <div
                   className="
                     w-full
                     h-full
                     rounded-full
                     bg-[#fffdf8]
-                    flex
-                    items-center
-                    justify-center
-                    text-center
                   "
-                >
-
-                  <div>
-
-                    <p
-                      className="
-                        text-[21px]
-                        font-semibold
-                        leading-tight
-                      "
-                    >
-                      {t.mineRiskDistribution}
-                    </p>
-
-                    <p
-                      className="
-                        text-[21px]
-                        font-semibold
-                        leading-tight
-                      "
-                    >
-                      {t.distribution}
-                    </p>
-
-                  </div>
-
-                </div>
-
+                />
               </div>
 
+              <div
+                className="
+                  absolute
+                  inset-[42px]
+                  flex
+                  flex-col
+                  items-center
+                  justify-center
+                  text-center
+                  pointer-events-none
+                "
+              >
+                <span className="text-[12px] font-semibold uppercase tracking-wide text-[#7a6657] dark:text-[#f4d9b6]">
+                  Risk Distribution
+                </span>
+                <span className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-[#8b6f5a] dark:text-[#f7e4c3]">
+                  Total Inspections
+                </span>
+                <span className="mt-1 text-[28px] font-bold text-[#1f2937] dark:text-[#fff7ed]">
+                  {totalRisk}
+                </span>
+              </div>
             </div>
-
           </div>
-
 
           {/* LEGEND */}
 
@@ -955,7 +982,6 @@ export default function Dashboard() {
               mt-5
             "
           >
-
             <RiskLegend
               color="#28a66f"
               label={t.low}
@@ -983,11 +1009,8 @@ export default function Dashboard() {
               value={riskData.critical}
               textColor="#a42e2e"
             />
-
           </div>
-
         </div>
-
 
         {/* ====================================================
             HIGH RISK INSPECTIONS
@@ -1008,7 +1031,6 @@ export default function Dashboard() {
             flex-col
           "
         >
-
           <div
             className="
               flex
@@ -1017,7 +1039,6 @@ export default function Dashboard() {
               mb-5
             "
           >
-
             <h2
               className="
                 text-[20px]
@@ -1026,7 +1047,6 @@ export default function Dashboard() {
             >
               {t.highRiskInspections}
             </h2>
-
 
             <Link
               to="/app/inspections?severity=high"
@@ -1038,22 +1058,14 @@ export default function Dashboard() {
             >
               {t.viewAll}
             </Link>
-
           </div>
-
 
           {/* EXISTING COMPONENT - LOGIC PRESERVED */}
 
           <div className="flex flex-1 items-start w-full">
-            <HighRiskList
-              inspections={
-                analytics?.highRiskInspections || []
-              }
-            />
+            <HighRiskList inspections={analytics?.highRiskInspections || []} />
           </div>
-
         </div>
-
 
         {/* ====================================================
             RIGHT COLUMN
@@ -1065,8 +1077,6 @@ export default function Dashboard() {
             space-y-5
           "
         >
-
-
           {/* ==================================================
               DASHBOARD INSIGHTS
           ================================================== */}
@@ -1082,7 +1092,6 @@ export default function Dashboard() {
               p-5
             "
           >
-
             <h2
               className="
                 text-[20px]
@@ -1092,7 +1101,6 @@ export default function Dashboard() {
             >
               {t.dashboardInsights}
             </h2>
-
 
             <h3
               className="
@@ -1104,10 +1112,7 @@ export default function Dashboard() {
               {t.quickStats}
             </h3>
 
-
             <div className="space-y-3">
-
-
               {/* ACTIVE CONTRACTORS */}
 
               <QuickStat
@@ -1116,7 +1121,6 @@ export default function Dashboard() {
                 title={t.activeContractors}
                 value={summary?.activeContractors || 0}
               />
-
 
               {/* UNREAD ALERTS */}
 
@@ -1127,7 +1131,6 @@ export default function Dashboard() {
                 value={summary?.unreadAlerts || 0}
               />
 
-
               {/* CRITICAL INSPECTIONS */}
 
               <QuickStat
@@ -1136,11 +1139,8 @@ export default function Dashboard() {
                 title={t.criticalInspections}
                 value={summary?.criticalInspections || 0}
               />
-
             </div>
-
           </div>
-
 
           {/* ==================================================
               RECENT ALERTS
@@ -1158,7 +1158,6 @@ export default function Dashboard() {
               min-h-[190px]
             "
           >
-
             <div
               className="
                 flex
@@ -1167,7 +1166,6 @@ export default function Dashboard() {
                 mb-4
               "
             >
-
               <h2
                 className="
                   text-[20px]
@@ -1176,7 +1174,6 @@ export default function Dashboard() {
               >
                 {t.recentAlerts}
               </h2>
-
 
               <Link
                 to="/app/alerts"
@@ -1188,35 +1185,36 @@ export default function Dashboard() {
               >
                 {t.viewAll}
               </Link>
-
             </div>
-
 
             {/* EXISTING ALERT LOGIC PRESERVED */}
 
             <div className="dashboard-alert-wrapper">
               <RecentAlerts />
             </div>
-
           </div>
-
         </div>
-
       </div>
 
       {showAnalytics && (
-        <section ref={analyticsSectionRef} className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-md">
-          <Suspense fallback={<div className="py-12 text-center text-slate-500">Loading analytics...</div>}>
+        <section
+          ref={analyticsSectionRef}
+          className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-md"
+        >
+          <Suspense
+            fallback={
+              <div className="py-12 text-center text-slate-500">
+                Loading analytics...
+              </div>
+            }
+          >
             <Analytics />
           </Suspense>
         </section>
       )}
-
     </div>
-
-  )
+  );
 }
-
 
 /* ==============================================================
    STAT CARD
@@ -1228,11 +1226,9 @@ function StatCard({
   subtitle,
   secondary,
   icon: Icon,
-  iconClass
+  iconClass,
 }) {
-
   return (
-
     <div
       className="
         dashboard-panel
@@ -1248,7 +1244,6 @@ function StatCard({
         py-4
       "
     >
-
       <div
         className="
           flex
@@ -1256,9 +1251,7 @@ function StatCard({
           justify-between
         "
       >
-
         <div>
-
           <p
             className="
               text-[15px]
@@ -1268,7 +1261,6 @@ function StatCard({
           >
             {title}
           </p>
-
 
           <p
             className="
@@ -1281,9 +1273,7 @@ function StatCard({
             {value}
           </p>
 
-
           {subtitle && (
-
             <p
               className="
                 text-[13px]
@@ -1293,7 +1283,6 @@ function StatCard({
             >
               {subtitle}
             </p>
-
           )}
 
           {secondary && (
@@ -1301,9 +1290,7 @@ function StatCard({
               {secondary}
             </p>
           )}
-
         </div>
-
 
         <div
           className={`
@@ -1316,32 +1303,19 @@ function StatCard({
             ${iconClass}
           `}
         >
-
           <Icon className="w-5 h-5" />
-
         </div>
-
       </div>
-
     </div>
-
-  )
+  );
 }
-
 
 /* ==============================================================
    QUICK STAT
 ============================================================== */
 
-function QuickStat({
-  icon: Icon,
-  iconColor,
-  title,
-  value
-}) {
-
+function QuickStat({ icon: Icon, iconColor, title, value }) {
   return (
-
     <div
       className="
         dashboard-subcard
@@ -1354,7 +1328,6 @@ function QuickStat({
         bg-[#eee5d5]
       "
     >
-
       <div
         className="
           flex
@@ -1362,20 +1335,15 @@ function QuickStat({
           gap-3
         "
       >
-
         <Icon
           className="w-5 h-5"
           style={{
-            color: iconColor
+            color: iconColor,
           }}
         />
 
-        <span className="text-[15px]">
-          {title}
-        </span>
-
+        <span className="text-[15px]">{title}</span>
       </div>
-
 
       <span
         className="
@@ -1385,28 +1353,17 @@ function QuickStat({
       >
         {value}
       </span>
-
     </div>
-
-  )
+  );
 }
-
 
 /* ==============================================================
    RISK LEGEND
 ============================================================== */
 
-function RiskLegend({
-  color,
-  label,
-  value,
-  textColor
-}) {
-
+function RiskLegend({ color, label, value, textColor }) {
   return (
-
     <div className="text-center min-w-0">
-
       <div
         className="
           flex
@@ -1415,7 +1372,6 @@ function RiskLegend({
           gap-1.5
         "
       >
-
         <span
           className="
             w-3
@@ -1423,7 +1379,7 @@ function RiskLegend({
             rounded-full
           "
           style={{
-            backgroundColor: color
+            backgroundColor: color,
           }}
         />
 
@@ -1435,9 +1391,7 @@ function RiskLegend({
         >
           {label}
         </span>
-
       </div>
-
 
       <p
         className="
@@ -1446,13 +1400,11 @@ function RiskLegend({
           mt-1
         "
         style={{
-          color: textColor
+          color: textColor,
         }}
       >
         {value}
       </p>
-
     </div>
-
-  )
+  );
 }

@@ -26,6 +26,7 @@ import { downloadOrExportFile } from "../utils/fileDownloader";
 import TableScrollContainer from "../components/common/TableScrollContainer";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import useAuthStore from "../store/authStore";
 
 const safeFormatDate = (dateVal, formatStr = "dd MMM yyyy") => {
   if (!dateVal) return "—";
@@ -112,6 +113,7 @@ export default function Inspections() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [photoZoom, setPhotoZoom] = useState(1);
   const { language } = useLanguageStore();
+  const { user } = useAuthStore();
   const navigate = useNavigate();
   const t = translations[language];
   const adjustPhotoZoom = (amount) => {
@@ -128,7 +130,7 @@ export default function Inspections() {
     getMines()
       .then((res) => setMines(res.data?.data || []))
       .catch(() => {});
-  }, [filters]);
+  }, [filters, user?.role, user?.mineId]);
 
   useEffect(() => {
     const handleSyncUpdate = () => {
@@ -162,10 +164,20 @@ export default function Inspections() {
       const params = {};
       if (filters.status) params.status = filters.status;
       if (filters.severity) params.severity = filters.severity;
+      if (["worker", "mine_official"].includes(user?.role) && user?.mineId) {
+        params.mineId = user.mineId;
+      }
       const res = await getInspections(params);
       let list = res?.data?.data || res?.data || [];
       if (!Array.isArray(list) || list.length === 0) {
         let localItems = await offlineStorage.getInspections();
+        if (["worker", "mine_official"].includes(user?.role) && user?.mineId) {
+          localItems = localItems.filter(
+            (i) =>
+              String(i.mineId) === String(user.mineId) ||
+              String(i.inspectorId) === String(user?._id),
+          );
+        }
         if (filters.status)
           localItems = localItems.filter((i) => i.status === filters.status);
         if (filters.severity)
@@ -191,6 +203,13 @@ export default function Inspections() {
       );
       try {
         let localList = await offlineStorage.getInspections();
+        if (["worker", "mine_official"].includes(user?.role) && user?.mineId) {
+          localList = localList.filter(
+            (i) =>
+              String(i.mineId) === String(user.mineId) ||
+              String(i.inspectorId) === String(user?._id),
+          );
+        }
         if (filters.status)
           localList = localList.filter((i) => i.status === filters.status);
         if (filters.severity)

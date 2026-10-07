@@ -17,22 +17,37 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
     mineQuery.$or = [{ visibility: 'public' }, { visibility: { $exists: false } }];
   }
 
-  if (['mine_official', 'worker'].includes(req.user.role) && req.user.mineId) {
-    mineFilter = { mineId: req.user.mineId };
-    mineQuery._id = req.user.mineId;
+  const isWorkerOrOfficial = ['mine_official', 'worker'].includes(req.user.role);
+
+  let inspectionFilter = {};
+  if (isWorkerOrOfficial) {
+    if (req.user.mineId) {
+      inspectionFilter = {
+        $or: [
+          { mineId: req.user.mineId },
+          { inspectorId: req.user._id },
+        ],
+      };
+      mineFilter = { mineId: req.user.mineId };
+      mineQuery._id = req.user.mineId;
+    } else {
+      inspectionFilter = { inspectorId: req.user._id };
+    }
+  } else if (mineFilter.mineId) {
+    inspectionFilter = { mineId: mineFilter.mineId };
   }
 
   const totalMines = await Mine.countDocuments(mineQuery);
 
-  const totalInspections = await Inspection.countDocuments(mineFilter);
+  const totalInspections = await Inspection.countDocuments(inspectionFilter);
 
   const openInspections = await Inspection.countDocuments({
-    ...mineFilter,
+    ...inspectionFilter,
     status: { $in: ['open', 'in_progress'] },
   });
 
   const criticalInspections = await Inspection.countDocuments({
-    ...mineFilter,
+    ...inspectionFilter,
     severity: 'critical',
     status: { $ne: 'closed' },
   });
@@ -79,12 +94,23 @@ const getDashboardSummary = asyncHandler(async (req, res) => {
       : 100;
 
   // Risk distribution
-  const riskDistribution = {
-    low: mines.filter((m) => m.riskLevel === 'low').length,
-    medium: mines.filter((m) => m.riskLevel === 'medium').length,
-    high: mines.filter((m) => m.riskLevel === 'high').length,
-    critical: mines.filter((m) => m.riskLevel === 'critical').length,
-  };
+  let riskDistribution;
+  if (isWorkerOrOfficial) {
+    const userInspections = await Inspection.find(inspectionFilter).select('severity status riskScore');
+    riskDistribution = {
+      low: userInspections.filter((i) => (i.severity || '').toLowerCase() === 'low').length,
+      medium: userInspections.filter((i) => (i.severity || '').toLowerCase() === 'medium').length,
+      high: userInspections.filter((i) => (i.severity || '').toLowerCase() === 'high').length,
+      critical: userInspections.filter((i) => (i.severity || '').toLowerCase() === 'critical').length,
+    };
+  } else {
+    riskDistribution = {
+      low: mines.filter((m) => m.riskLevel === 'low').length,
+      medium: mines.filter((m) => m.riskLevel === 'medium').length,
+      high: mines.filter((m) => m.riskLevel === 'high').length,
+      critical: mines.filter((m) => m.riskLevel === 'critical').length,
+    };
+  }
 
   res.json({
     success: true,

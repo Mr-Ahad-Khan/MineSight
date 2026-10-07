@@ -821,25 +821,65 @@ export const offlineStorage = {
       dbGetAll("alerts"),
     ]);
 
-    const openInspections = inspections.filter((i) => i.status === "open" || i.status === "in_progress").length;
-    const criticalInspections = inspections.filter((i) => i.severity === "critical").length;
+    let user = null;
+    try {
+      const stored = typeof localStorage !== "undefined" ? localStorage.getItem("user") : null;
+      if (stored) user = JSON.parse(stored);
+    } catch {}
+
+    const isWorkerOrOfficial = user && ["worker", "mine_official"].includes(user.role);
+
+    let filteredInspections = inspections;
+    let filteredMines = mines;
+    if (isWorkerOrOfficial) {
+      if (user.mineId) {
+        const uMineId = typeof user.mineId === "object" ? user.mineId?._id || user.mineId?.code : user.mineId;
+        const matched = inspections.filter((i) => {
+          const iMineId = typeof i.mineId === "object" ? i.mineId?._id || i.mineId?.code : i.mineId;
+          const iInspectorId = typeof i.inspectorId === "object" ? i.inspectorId?._id : i.inspectorId;
+          return iMineId === uMineId || iInspectorId === user._id;
+        });
+        filteredInspections = matched.length > 0 ? matched : inspections;
+
+        const mineMatched = mines.filter((m) => m._id === uMineId || m.code === uMineId);
+        if (mineMatched.length > 0) filteredMines = mineMatched;
+      } else {
+        const matched = inspections.filter((i) => {
+          const iInspectorId = typeof i.inspectorId === "object" ? i.inspectorId?._id : i.inspectorId;
+          return iInspectorId === user._id;
+        });
+        filteredInspections = matched.length > 0 ? matched : inspections;
+      }
+    }
+
+    const openInspections = filteredInspections.filter((i) => i.status === "open" || i.status === "in_progress").length;
+    const criticalInspections = filteredInspections.filter((i) => (i.severity === "critical" || Number(i.riskScore) >= 80) && i.status !== "closed").length;
+    const totalInspections = filteredInspections.length;
     const overdueCompliances = compliances.filter((c) => c.status === "overdue").length;
     const unreadAlerts = alerts.filter((a) => !a.isRead).length;
 
-    const complianceScores = mines.map((m) => m.complianceScore || 80);
+    const complianceScores = filteredMines.map((m) => m.complianceScore || 80);
     const avgComplianceScore = complianceScores.length
       ? Math.round(complianceScores.reduce((a, b) => a + b, 0) / complianceScores.length)
       : 82;
 
-    const riskDistribution = {
-      low: mines.filter((m) => m.riskLevel === "low").length,
-      medium: mines.filter((m) => m.riskLevel === "medium").length,
-      high: mines.filter((m) => m.riskLevel === "high").length,
-      critical: mines.filter((m) => m.riskLevel === "critical").length,
-    };
+    const riskDistribution = isWorkerOrOfficial
+      ? {
+          low: filteredInspections.filter((i) => (i.severity || "").toLowerCase() === "low").length,
+          medium: filteredInspections.filter((i) => (i.severity || "").toLowerCase() === "medium").length,
+          high: filteredInspections.filter((i) => (i.severity || "").toLowerCase() === "high").length,
+          critical: filteredInspections.filter((i) => (i.severity || "").toLowerCase() === "critical").length,
+        }
+      : {
+          low: mines.filter((m) => m.riskLevel === "low").length,
+          medium: mines.filter((m) => m.riskLevel === "medium").length,
+          high: mines.filter((m) => m.riskLevel === "high").length,
+          critical: mines.filter((m) => m.riskLevel === "critical").length,
+        };
 
     return {
-      totalMines: mines.length,
+      totalMines: filteredMines.length,
+      totalInspections,
       openInspections,
       criticalInspections,
       overdueCompliances,

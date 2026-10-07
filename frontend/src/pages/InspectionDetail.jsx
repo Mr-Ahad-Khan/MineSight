@@ -87,7 +87,22 @@ export default function InspectionDetail() {
     observations: "",
   });
   const [deletingPhoto, setDeletingPhoto] = useState(null);
+  const [photoActionModal, setPhotoActionModal] = useState(null);
+  const [pendingUploadClosure, setPendingUploadClosure] = useState(false);
   const proofInputRef = useRef(null);
+
+  const handlePhotoAction = (shouldClose) => {
+    if (photoActionModal?.source === "upload") {
+      setPendingUploadClosure(shouldClose);
+      setPhotoActionModal(null);
+      setTimeout(() => proofInputRef.current?.click(), 0);
+      return;
+    }
+
+    setCameraForClosure(shouldClose);
+    setPhotoActionModal(null);
+    setIsCameraOpen(true);
+  };
 
   useEffect(() => {
     const handleBackButton = (e) => {
@@ -113,7 +128,8 @@ export default function InspectionDetail() {
       }
     };
     window.addEventListener("minesight:back-button", handleBackButton);
-    return () => window.removeEventListener("minesight:back-button", handleBackButton);
+    return () =>
+      window.removeEventListener("minesight:back-button", handleBackButton);
   }, [selectedPhoto, isCameraOpen, riskModalOpen, isEditing]);
 
   const handleOpenEdit = () => {
@@ -195,7 +211,8 @@ export default function InspectionDetail() {
 
   const handleStatusChange = async (status) => {
     const previousInspection = inspection;
-    const optimisticClosedAt = status === "closed" ? new Date().toISOString() : null;
+    const optimisticClosedAt =
+      status === "closed" ? new Date().toISOString() : null;
 
     // Instant UI feedback - 0ms
     setInspection((prev) => ({
@@ -235,15 +252,21 @@ export default function InspectionDetail() {
       ...prev,
       status: shouldClose ? "closed" : prev.status,
       closedAt: shouldClose ? new Date().toISOString() : prev.closedAt,
-      closurePhotos: shouldClose ? [...(prev.closurePhotos || []), ...tempPreviews] : prev.closurePhotos,
-      photos: !shouldClose ? [...(prev.photos || []), ...tempPreviews] : prev.photos,
+      closurePhotos: shouldClose
+        ? [...(prev.closurePhotos || []), ...tempPreviews]
+        : prev.closurePhotos,
+      photos: !shouldClose
+        ? [...(prev.photos || []), ...tempPreviews]
+        : prev.photos,
       proofVerified: shouldClose ? true : prev.proofVerified,
     }));
-    toast.success(shouldClose ? "Closure proof registered!" : "Photo proof attached!");
+    toast.success(
+      shouldClose ? "Closure proof registered!" : "Photo proof attached!",
+    );
 
     try {
       const files = await Promise.all(
-        rawFiles.map((file) => compressImage(file))
+        rawFiles.map((file) => compressImage(file)),
       );
       const payload = new FormData();
       if (shouldClose || inspection.status === "closed") {
@@ -261,13 +284,17 @@ export default function InspectionDetail() {
       toast.error(error.response?.data?.message || t.failedUpdate);
     } finally {
       setProofUploading(false);
+      setPendingUploadClosure(false);
     }
   };
 
   const handlePhotoCaptured = async (file, previewUrl, initialRisk) => {
     setProofUploading(true);
-    const tempUrl = previewUrl || (file instanceof Blob ? URL.createObjectURL(file) : null);
-    const shouldClose = Boolean(cameraForClosure || inspection.status === "closed");
+    const tempUrl =
+      previewUrl || (file instanceof Blob ? URL.createObjectURL(file) : null);
+    const shouldClose = Boolean(
+      cameraForClosure || inspection.status === "closed",
+    );
 
     // Instant UI feedback - 0ms
     if (tempUrl) {
@@ -275,7 +302,9 @@ export default function InspectionDetail() {
         ...prev,
         status: shouldClose ? "closed" : prev.status,
         closedAt: shouldClose ? new Date().toISOString() : prev.closedAt,
-        closurePhotos: shouldClose ? [...(prev.closurePhotos || []), tempUrl] : prev.closurePhotos,
+        closurePhotos: shouldClose
+          ? [...(prev.closurePhotos || []), tempUrl]
+          : prev.closurePhotos,
         photos: !shouldClose ? [...(prev.photos || []), tempUrl] : prev.photos,
         proofVerified: shouldClose ? true : prev.proofVerified,
       }));
@@ -284,7 +313,7 @@ export default function InspectionDetail() {
     toast.success(
       cameraForClosure
         ? "Inspection closed with photo proof!"
-        : "Photo captured and attached successfully"
+        : "Photo captured and attached successfully",
     );
 
     if (initialRisk) {
@@ -310,6 +339,7 @@ export default function InspectionDetail() {
       toast.error(error.response?.data?.message || t.failedUpdate);
     } finally {
       setProofUploading(false);
+      setCameraForClosure(false);
     }
   };
 
@@ -320,20 +350,33 @@ export default function InspectionDetail() {
     const toastId = toast.loading("Deleting photo...");
 
     const previousInspection = inspection;
-    const cleanTarget = String(photoUrl).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+    const cleanTarget = String(photoUrl)
+      .replace(/^https?:\/\/[^\/]+/, "")
+      .split("?")[0];
     const matchPhoto = (p) => {
       if (!p) return false;
-      const cleanP = String(p).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+      const cleanP = String(p)
+        .replace(/^https?:\/\/[^\/]+/, "")
+        .split("?")[0];
       return cleanP === cleanTarget || String(p) === String(photoUrl);
     };
 
     setInspection((prev) => {
       if (!prev) return prev;
       if (type === "closurePhoto") {
-        const updated = (prev.closurePhotos || []).filter((p) => !matchPhoto(p));
-        return { ...prev, closurePhotos: updated, proofVerified: updated.length > 0 };
+        const updated = (prev.closurePhotos || []).filter(
+          (p) => !matchPhoto(p),
+        );
+        return {
+          ...prev,
+          closurePhotos: updated,
+          proofVerified: updated.length > 0,
+        };
       }
-      return { ...prev, photos: (prev.photos || []).filter((p) => !matchPhoto(p)) };
+      return {
+        ...prev,
+        photos: (prev.photos || []).filter((p) => !matchPhoto(p)),
+      };
     });
 
     if (selectedPhoto && matchPhoto(selectedPhoto)) {
@@ -349,7 +392,9 @@ export default function InspectionDetail() {
       fetchAuditTrail().catch(() => {});
     } catch (err) {
       setInspection(previousInspection);
-      toast.error(err.response?.data?.message || "Failed to delete photo", { id: toastId });
+      toast.error(err.response?.data?.message || "Failed to delete photo", {
+        id: toastId,
+      });
     } finally {
       setDeletingPhoto(null);
     }
@@ -372,7 +417,7 @@ export default function InspectionDetail() {
       setRiskModalOpen(true);
       toast.dismiss(toastId);
       toast.success(
-        `${result.source === "online_ai" ? "Cloud AI" : "Edge AI (Offline)"} Risk: ${result.riskScore}/100 (${result.riskLevel})`
+        `${result.source === "online_ai" ? "Cloud AI" : "Edge AI (Offline)"} Risk: ${result.riskScore}/100 (${result.riskLevel})`,
       );
     } catch (err) {
       toast.dismiss(toastId);
@@ -388,7 +433,9 @@ export default function InspectionDetail() {
     setInspection((prev) => ({
       ...prev,
       violations: (prev.violations || []).map((v) =>
-        v._id === violationId ? { ...v, status: "closed", closedAt: new Date().toISOString() } : v
+        v._id === violationId
+          ? { ...v, status: "closed", closedAt: new Date().toISOString() }
+          : v,
       ),
     }));
     toast.success(t.violationClosed || "Violation marked as closed");
@@ -424,20 +471,22 @@ export default function InspectionDetail() {
       pdf.text(
         `Generated: ${new Date().toLocaleString()} | ID: ${inspection._id || id}`,
         36,
-        60
+        60,
       );
 
       const mineName =
         inspection.mineId?.name || inspection.mineId?.code || "N/A";
-      const inspectorName =
-        inspection.inspectorId?.name || "Field Officer";
+      const inspectorName = inspection.inspectorId?.name || "Field Officer";
 
       const overviewRows = [
         ["Title", inspection.title || "Untitled"],
         ["Mine Site", mineName],
         ["Type", (inspection.type || "scheduled").toUpperCase()],
         ["Severity", (inspection.severity || "medium").toUpperCase()],
-        ["Status", (inspection.status || "open").replace("_", " ").toUpperCase()],
+        [
+          "Status",
+          (inspection.status || "open").replace("_", " ").toUpperCase(),
+        ],
         ["Risk Score", String(inspection.riskScore ?? "—")],
         ["Inspector", inspectorName],
         ["Created Date", safeFormatDate(inspection.createdAt)],
@@ -450,7 +499,10 @@ export default function InspectionDetail() {
         margin: { left: 36, right: 36 },
         styles: { font: "helvetica", fontSize: 9, cellPadding: 5 },
         headStyles: { fillColor: [13, 63, 109] },
-        columnStyles: { 0: { cellWidth: 140, fontStyle: "bold" }, 1: { cellWidth: 380 } },
+        columnStyles: {
+          0: { cellWidth: 140, fontStyle: "bold" },
+          1: { cellWidth: 380 },
+        },
       });
 
       let nextY = pdf.lastAutoTable.finalY + 20;
@@ -477,7 +529,10 @@ export default function InspectionDetail() {
         nextY += 20 + splitObs.length * 10;
       }
 
-      if (Array.isArray(inspection.violations) && inspection.violations.length > 0) {
+      if (
+        Array.isArray(inspection.violations) &&
+        inspection.violations.length > 0
+      ) {
         pdf.setFont("helvetica", "bold");
         pdf.setFontSize(11);
         pdf.text("Violations Recorded", 36, nextY);
@@ -491,19 +546,28 @@ export default function InspectionDetail() {
           ]),
           startY: nextY + 8,
           margin: { left: 36, right: 36 },
-          styles: { font: "helvetica", fontSize: 8, cellPadding: 4, overflow: "linebreak" },
+          styles: {
+            font: "helvetica",
+            fontSize: 8,
+            cellPadding: 4,
+            overflow: "linebreak",
+          },
           headStyles: { fillColor: [180, 40, 40] },
         });
       }
 
       const pdfBlob = pdf.output("blob");
       const fileName = `inspection-${inspection._id || id || Date.now()}.pdf`;
-      const ok = await downloadOrExportFile(pdfBlob, fileName, "application/pdf");
+      const ok = await downloadOrExportFile(
+        pdfBlob,
+        fileName,
+        "application/pdf",
+      );
       if (ok) {
         toast.success(
           language === "hi"
             ? "निरीक्षण PDF रिपोर्ट डाउनलोड हो गई!"
-            : "Inspection PDF report downloaded!"
+            : "Inspection PDF report downloaded!",
         );
       }
     } catch (err) {
@@ -511,7 +575,7 @@ export default function InspectionDetail() {
       toast.error(
         language === "hi"
           ? "पीडीएफ रिपोर्ट तैयार करने में असमर्थ"
-          : "Unable to generate the PDF report"
+          : "Unable to generate the PDF report",
       );
     }
   };
@@ -529,7 +593,7 @@ export default function InspectionDetail() {
       t.inspectionDeletedSuccess ||
         (language === "hi"
           ? "निरीक्षण सफलतापूर्वक हटा दिया गया"
-          : "Inspection deleted successfully")
+          : "Inspection deleted successfully"),
     );
     navigate("/app/inspections");
 
@@ -559,7 +623,7 @@ export default function InspectionDetail() {
     ? inspection.closurePhotos
     : [];
   const hasProof = Boolean(
-    inspection.proofVerified || closureProofPhotos.length > 0
+    inspection.proofVerified || closureProofPhotos.length > 0,
   );
   const proofCount = closureProofPhotos.length;
 
@@ -583,8 +647,11 @@ export default function InspectionDetail() {
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            {inspection.mineId?.name || (typeof inspection.mineId === "string" ? inspection.mineId : "Selected Mine")} •{" "}
-            {safeFormatDate(inspection.createdAt)}
+            {inspection.mineId?.name ||
+              (typeof inspection.mineId === "string"
+                ? inspection.mineId
+                : "Selected Mine")}{" "}
+            • {safeFormatDate(inspection.createdAt)}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -599,8 +666,12 @@ export default function InspectionDetail() {
                     : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-100"
             }`}
           >
-            <p className="text-xs font-semibold uppercase tracking-wide">{t.riskScore}</p>
-            <p className="text-2xl font-extrabold tabular-nums">{inspection.riskScore}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide">
+              {t.riskScore}
+            </p>
+            <p className="text-2xl font-extrabold tabular-nums">
+              {inspection.riskScore}
+            </p>
           </div>
         </div>
       </div>
@@ -637,23 +708,24 @@ export default function InspectionDetail() {
         </button>
         <button
           type="button"
-          onClick={() => proofInputRef.current?.click()}
-          title="Upload image and close inspection"
+          onClick={() => setPhotoActionModal({ source: "upload" })}
+          title="Upload photo and choose whether to update progress or close inspection"
           className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95 transition-transform"
         >
-          {proofUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          Upload Proof & Close
+          {proofUploading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Upload className="w-4 h-4" />
+          )}
+          Upload Photo
         </button>
         <button
           type="button"
-          onClick={() => {
-            setCameraForClosure(false);
-            setIsCameraOpen(true);
-          }}
+          onClick={() => setPhotoActionModal({ source: "camera" })}
           className="btn-secondary min-h-[44px] py-2 px-3 text-xs font-semibold text-sky-700 dark:text-sky-300 flex items-center justify-center gap-1.5 touch-manipulation cursor-pointer active:scale-95 transition-transform"
         >
           <Camera className="w-4 h-4" />
-          Capture
+          Capture Photo
         </button>
       </div>
 
@@ -726,15 +798,14 @@ export default function InspectionDetail() {
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-slate-500 text-sm font-medium">
-                  Site Photos {inspection.photos?.length > 0 && `(${inspection.photos.length})`}
+                  Site Photos{" "}
+                  {inspection.photos?.length > 0 &&
+                    `(${inspection.photos.length})`}
                 </p>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setCameraForClosure(false);
-                      setIsCameraOpen(true);
-                    }}
+                    onClick={() => setPhotoActionModal({ source: "camera" })}
                     disabled={updating || proofUploading}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-sky-600 hover:text-sky-700 dark:text-sky-400"
                   >
@@ -742,7 +813,7 @@ export default function InspectionDetail() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => proofInputRef.current?.click()}
+                    onClick={() => setPhotoActionModal({ source: "upload" })}
                     disabled={updating || proofUploading}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400"
                   >
@@ -769,7 +840,8 @@ export default function InspectionDetail() {
                           }}
                           onError={(event) => {
                             event.currentTarget.style.display = "none";
-                            const fallback = event.currentTarget.nextElementSibling;
+                            const fallback =
+                              event.currentTarget.nextElementSibling;
                             if (fallback) fallback.style.display = "flex";
                           }}
                         />
@@ -788,12 +860,16 @@ export default function InspectionDetail() {
                             e.stopPropagation();
                             handleDeletePhoto(photo, "photo");
                           }}
-                          disabled={deletingPhoto === photo || deletingPhoto === photoSrc}
+                          disabled={
+                            deletingPhoto === photo ||
+                            deletingPhoto === photoSrc
+                          }
                           title="Delete photo"
                           aria-label="Delete photo"
                           className="absolute top-1.5 right-1.5 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-rose-600/90 text-white backdrop-blur-xs transition hover:bg-rose-700 active:scale-95 shadow-md disabled:opacity-50 cursor-pointer"
                         >
-                          {deletingPhoto === photo || deletingPhoto === photoSrc ? (
+                          {deletingPhoto === photo ||
+                          deletingPhoto === photoSrc ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
                             <Trash2 className="h-3.5 w-3.5" />
@@ -807,7 +883,11 @@ export default function InspectionDetail() {
                             e.stopPropagation();
                             handleDetectPhotoRisk(photoSrc);
                           }}
-                          disabled={isAnalyzingRisk || deletingPhoto === photo || deletingPhoto === photoSrc}
+                          disabled={
+                            isAnalyzingRisk ||
+                            deletingPhoto === photo ||
+                            deletingPhoto === photoSrc
+                          }
                           title="Run AI Hazard Risk Detection on this photo"
                           className="absolute bottom-1 right-1 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-amber-300 backdrop-blur-xs hover:bg-black transition flex items-center gap-1 shadow"
                         >
@@ -819,7 +899,9 @@ export default function InspectionDetail() {
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 italic">No site photos attached yet.</p>
+                <p className="text-xs text-slate-400 italic">
+                  No site photos attached yet.
+                </p>
               )}
             </div>
           </div>
@@ -911,7 +993,7 @@ export default function InspectionDetail() {
                   accept="image/*"
                   multiple
                   className="hidden"
-                  onChange={(e) => handleUploadPhotos(e, true)}
+                  onChange={(e) => handleUploadPhotos(e, pendingUploadClosure)}
                 />
                 <button
                   type="button"
@@ -924,20 +1006,17 @@ export default function InspectionDetail() {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setCameraForClosure(true);
-                      setIsCameraOpen(true);
-                    }}
+                    onClick={() => setPhotoActionModal({ source: "camera" })}
                     className="flex items-center justify-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-2.5 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-100 dark:border-sky-700 dark:bg-sky-950/40 dark:text-sky-200 touch-manipulation cursor-pointer active:scale-95"
                   >
                     <Camera className="h-3.5 w-3.5" />
-                    Capture Proof
+                    Capture Photo
                   </button>
                   <button
                     type="button"
-                    onClick={() => proofInputRef.current?.click()}
+                    onClick={() => setPhotoActionModal({ source: "upload" })}
                     disabled={proofUploading}
-                    title="Upload proof image and automatically close this inspection"
+                    title="Upload a photo and choose whether to update progress or close the inspection"
                     className="flex items-center justify-center gap-1.5 rounded-lg border border-teal-300 bg-teal-50 px-2.5 py-2 text-xs font-semibold text-teal-800 transition hover:bg-teal-100 disabled:opacity-60 dark:border-teal-700 dark:bg-teal-950/40 dark:text-teal-200 touch-manipulation cursor-pointer active:scale-95"
                   >
                     {proofUploading ? (
@@ -945,7 +1024,7 @@ export default function InspectionDetail() {
                     ) : (
                       <Upload className="h-3.5 w-3.5" />
                     )}
-                    Upload Image & Close Inspection
+                    Upload Photo
                   </button>
                 </div>
               </>
@@ -958,7 +1037,8 @@ export default function InspectionDetail() {
                 {hasProof ? (
                   <div className="space-y-2">
                     <p className="flex items-center gap-2 font-medium text-emerald-700 dark:text-emerald-300">
-                      <ShieldCheck className="h-4 w-4" /> Proof verified ({proofCount} photo{proofCount !== 1 ? "s" : ""})
+                      <ShieldCheck className="h-4 w-4" /> Proof verified (
+                      {proofCount} photo{proofCount !== 1 ? "s" : ""})
                     </p>
                     {closureProofPhotos.length > 0 && (
                       <div className="grid grid-cols-3 gap-2 pt-1">
@@ -1049,7 +1129,9 @@ export default function InspectionDetail() {
               className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#bca98e] bg-[#f8f4ed] px-3 py-2.5 text-sm font-semibold text-[#1f1f1f] shadow-xs hover:bg-[#ece2d0] transition touch-manipulation cursor-pointer active:scale-98"
             >
               <FileText className="h-4 w-4 text-[#0d3f6d]" />
-              {language === "hi" ? "PDF रिपोर्ट डाउनलोड करें" : "Download PDF Report"}
+              {language === "hi"
+                ? "PDF रिपोर्ट डाउनलोड करें"
+                : "Download PDF Report"}
             </button>
 
             <button
@@ -1102,8 +1184,8 @@ export default function InspectionDetail() {
                     : `Integrity issue at block ${auditTrail?.integrity?.brokenAt ?? "unknown"}`}
                 </div>
                 <p className="text-xs text-slate-500">
-                  {auditTrail?.integrity?.checkedBlocks ?? 1} blocks checked. This hash
-                  chain is stored in this app's database; it is not a
+                  {auditTrail?.integrity?.checkedBlocks ?? 1} blocks checked.
+                  This hash chain is stored in this app's database; it is not a
                   decentralized public blockchain.
                 </p>
                 <div className="max-h-80 space-y-3 overflow-y-auto border-t border-slate-200 pt-3 dark:border-slate-700">
@@ -1178,6 +1260,48 @@ export default function InspectionDetail() {
         </div>
       </div>
 
+      {photoActionModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Choose what to do after uploading this inspection photo"
+        >
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              What would you like to do?
+            </h3>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              The photo will be attached either way. Choose whether to keep the
+              inspection in progress or close it.
+            </p>
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => handlePhotoAction(false)}
+                className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-800 transition hover:bg-sky-100 dark:border-sky-700 dark:bg-sky-950/40 dark:text-sky-200"
+              >
+                Update progress
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePhotoAction(true)}
+                className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200"
+              >
+                Close inspection
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPhotoActionModal(null)}
+              className="mt-4 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {selectedPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-slate-950/85 p-4 sm:p-8"
@@ -1242,7 +1366,7 @@ export default function InspectionDetail() {
                 });
                 await handleDeletePhoto(
                   selectedPhoto,
-                  isClosure ? "closurePhoto" : "photo"
+                  isClosure ? "closurePhoto" : "photo",
                 );
               }}
               disabled={deletingPhoto === selectedPhoto}
@@ -1324,7 +1448,9 @@ export default function InspectionDetail() {
                   id="edit-title"
                   type="text"
                   value={editForm.title}
-                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, title: e.target.value })
+                  }
                   className="input-field"
                   required
                 />
@@ -1338,7 +1464,9 @@ export default function InspectionDetail() {
                   <select
                     id="edit-type"
                     value={editForm.type}
-                    onChange={(e) => setEditForm({ ...editForm, type: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, type: e.target.value })
+                    }
                     className="input-field"
                   >
                     <option value="safety">Safety</option>
@@ -1356,7 +1484,9 @@ export default function InspectionDetail() {
                   <select
                     id="edit-severity"
                     value={editForm.severity}
-                    onChange={(e) => setEditForm({ ...editForm, severity: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, severity: e.target.value })
+                    }
                     className="input-field"
                   >
                     <option value="low">Low</option>
@@ -1375,7 +1505,9 @@ export default function InspectionDetail() {
                   id="edit-description"
                   rows={3}
                   value={editForm.description}
-                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
                   className="input-field resize-y"
                   placeholder="Inspection description..."
                 />
@@ -1389,7 +1521,9 @@ export default function InspectionDetail() {
                   id="edit-observations"
                   rows={3}
                   value={editForm.observations}
-                  onChange={(e) => setEditForm({ ...editForm, observations: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, observations: e.target.value })
+                  }
                   className="input-field resize-y"
                   placeholder="Key field observations..."
                 />
