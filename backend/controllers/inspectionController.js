@@ -4,7 +4,11 @@ const Inspection = require("../models/Inspection");
 const Mine = require("../models/Mine");
 const Alert = require("../models/Alert");
 const AuditLog = require("../models/AuditLog");
-const { calculateRiskScore, getRiskLevel, detectPhotoRiskBackend } = require("../utils/riskCalculator");
+const {
+  calculateRiskScore,
+  getRiskLevel,
+  detectPhotoRiskBackend,
+} = require("../utils/riskCalculator");
 const { appendAuditBlock, verifyAuditChain } = require("../utils/auditChain");
 const fs = require("fs");
 const {
@@ -47,11 +51,19 @@ const toAuditSnapshot = (inspection) => ({
     severity: violation.severity,
     status: violation.status,
     correctiveAction: violation.correctiveAction,
-    dueDate: violation.dueDate ? new Date(violation.dueDate).toISOString() : null,
-    closedAt: violation.closedAt ? new Date(violation.closedAt).toISOString() : null,
+    dueDate: violation.dueDate
+      ? new Date(violation.dueDate).toISOString()
+      : null,
+    closedAt: violation.closedAt
+      ? new Date(violation.closedAt).toISOString()
+      : null,
   })),
-  createdAt: inspection.createdAt ? new Date(inspection.createdAt).toISOString() : null,
-  closedAt: inspection.closedAt ? new Date(inspection.closedAt).toISOString() : null,
+  createdAt: inspection.createdAt
+    ? new Date(inspection.createdAt).toISOString()
+    : null,
+  closedAt: inspection.closedAt
+    ? new Date(inspection.closedAt).toISOString()
+    : null,
 });
 
 // @desc    Get all inspections
@@ -60,7 +72,8 @@ const toAuditSnapshot = (inspection) => ({
 const getInspections = asyncHandler(async (req, res) => {
   const requestedPage = Number.parseInt(req.query.page, 10);
   const requestedLimit = Number.parseInt(req.query.limit, 10);
-  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const page =
+    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const limit = Number.isFinite(requestedLimit)
     ? Math.min(Math.max(requestedLimit, 1), 100)
     : 20;
@@ -78,10 +91,7 @@ const getInspections = asyncHandler(async (req, res) => {
       andConditions.push({ mineId: req.query.mineId });
     } else if (req.user.mineId) {
       andConditions.push({
-        $or: [
-          { mineId: req.user.mineId },
-          { inspectorId: req.user._id },
-        ],
+        $or: [{ mineId: req.user.mineId }, { inspectorId: req.user._id }],
       });
     }
   } else if (req.query.mineId) {
@@ -144,7 +154,9 @@ const getInspectionById = asyncHandler(async (req, res) => {
 });
 
 const getInspectionAuditHistory = asyncHandler(async (req, res) => {
-  const inspection = await Inspection.findById(req.params.id).select("mineId inspectorId");
+  const inspection = await Inspection.findById(req.params.id).select(
+    "mineId inspectorId",
+  );
   if (!inspection) {
     res.status(404);
     throw new Error("Inspection not found");
@@ -196,9 +208,10 @@ const createInspection = asyncHandler(async (req, res) => {
   const severity = parsedBody.severity;
   const violations = parseFormDataValue(parsedBody.violations, []) || [];
   const existingPhotosValue = parseFormDataValue(parsedBody.photos, []);
-  const existingPhotos = (Array.isArray(existingPhotosValue)
-    ? existingPhotosValue
-    : [existingPhotosValue]
+  const existingPhotos = (
+    Array.isArray(existingPhotosValue)
+      ? existingPhotosValue
+      : [existingPhotosValue]
   ).filter((photo) => typeof photo === "string" && photo.trim());
   const offlineId = parsedBody.offlineId;
   const uploadedPhotos = (req.files?.photos || []).map(getStoredMediaPath);
@@ -214,14 +227,15 @@ const createInspection = asyncHandler(async (req, res) => {
 
   let resolvedMineId = mineId;
   if (!mongoose.Types.ObjectId.isValid(mineId)) {
-    const foundMine = (await Mine.findOne({
-      $or: [
-        { code: mineId },
-        { name: mineId },
-        { code: "NCL-JYT-01" },
-        { name: /Jayant/i },
-      ],
-    })) || (await Mine.findOne());
+    const foundMine =
+      (await Mine.findOne({
+        $or: [
+          { code: mineId },
+          { name: mineId },
+          { code: "NCL-JYT-01" },
+          { name: /Jayant/i },
+        ],
+      })) || (await Mine.findOne());
 
     if (foundMine) {
       resolvedMineId = foundMine._id;
@@ -352,25 +366,50 @@ const updateInspection = asyncHandler(async (req, res) => {
   }
 
   const uploadedPhotos = (req.files?.photos || []).map(getStoredMediaPath);
+  const uploadedAudio = req.files?.audio?.[0]
+    ? getStoredMediaPath(req.files.audio[0])
+    : null;
   const submittedPhotos = parseFormDataValue(req.body.photos, null);
+  const submittedAudio = parseFormDataValue(req.body.audio, null);
   const isClosureProof =
     req.body.isClosureProof === "true" ||
     req.body.isClosureProof === true ||
     (uploadedPhotos.length > 0 &&
       (req.body.status === "closed" || inspection.status === "closed"));
 
+  if (uploadedAudio) {
+    const currentAudio =
+      typeof inspection.audio === "string" ? inspection.audio : "";
+    if (currentAudio && currentAudio !== uploadedAudio) {
+      const oldAudioPath = getUploadFilePath(currentAudio);
+      if (oldAudioPath && fs.existsSync(oldAudioPath)) {
+        fs.unlinkSync(oldAudioPath);
+      }
+    }
+    req.body.audio = uploadedAudio;
+  } else if (submittedAudio !== null) {
+    req.body.audio = submittedAudio;
+  }
+
   if (isClosureProof && uploadedPhotos.length > 0) {
     const currentClosure = Array.isArray(inspection.closurePhotos)
       ? inspection.closurePhotos
       : [];
-    req.body.closurePhotos = [...currentClosure, ...uploadedPhotos].slice(0, 10);
+    req.body.closurePhotos = [...currentClosure, ...uploadedPhotos].slice(
+      0,
+      10,
+    );
     req.body.proofVerified = true;
   } else {
-    const submittedClosurePhotos = parseFormDataValue(req.body.closurePhotos, null);
+    const submittedClosurePhotos = parseFormDataValue(
+      req.body.closurePhotos,
+      null,
+    );
     if (submittedClosurePhotos !== null) {
-      req.body.closurePhotos = (Array.isArray(submittedClosurePhotos)
-        ? submittedClosurePhotos
-        : [submittedClosurePhotos]
+      req.body.closurePhotos = (
+        Array.isArray(submittedClosurePhotos)
+          ? submittedClosurePhotos
+          : [submittedClosurePhotos]
       ).filter((photo) => typeof photo === "string" && photo.trim());
       req.body.proofVerified = req.body.closurePhotos.length > 0;
     }
@@ -380,9 +419,8 @@ const updateInspection = asyncHandler(async (req, res) => {
     const existingPhotos = (inspection.photos || []).filter(
       (photo) => typeof photo === "string" && photo.trim(),
     );
-    const requestedPhotos = (Array.isArray(submittedPhotos)
-      ? submittedPhotos
-      : [submittedPhotos]
+    const requestedPhotos = (
+      Array.isArray(submittedPhotos) ? submittedPhotos : [submittedPhotos]
     ).filter((photo) => typeof photo === "string" && photo.trim());
     req.body.photos = [
       ...(submittedPhotos === null ? existingPhotos : requestedPhotos),
@@ -557,18 +595,24 @@ const deleteInspectionPhoto = asyncHandler(async (req, res) => {
     throw new Error("Inspection not found");
   }
 
-  const cleanTarget = String(photoUrl).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+  const cleanTarget = String(photoUrl)
+    .replace(/^https?:\/\/[^\/]+/, "")
+    .split("?")[0];
 
   const matchPhoto = (p) => {
     if (!p) return false;
-    const cleanP = String(p).replace(/^https?:\/\/[^\/]+/, "").split("?")[0];
+    const cleanP = String(p)
+      .replace(/^https?:\/\/[^\/]+/, "")
+      .split("?")[0];
     return cleanP === cleanTarget || String(p) === String(photoUrl);
   };
 
   const oldValue = toAuditSnapshot(inspection);
 
   if (type === "closurePhoto") {
-    inspection.closurePhotos = (inspection.closurePhotos || []).filter((p) => !matchPhoto(p));
+    inspection.closurePhotos = (inspection.closurePhotos || []).filter(
+      (p) => !matchPhoto(p),
+    );
     inspection.proofVerified = inspection.closurePhotos.length > 0;
   } else {
     inspection.photos = (inspection.photos || []).filter((p) => !matchPhoto(p));
@@ -607,6 +651,54 @@ const deleteInspectionPhoto = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Delete audio recording from inspection
+// @route   DELETE /api/inspections/:id/audio
+// @access  Private
+const deleteInspectionAudio = asyncHandler(async (req, res) => {
+  let inspection = null;
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    inspection = await Inspection.findById(req.params.id);
+  } else {
+    inspection = await Inspection.findOne({ offlineId: req.params.id });
+  }
+
+  if (!inspection) {
+    res.status(404);
+    throw new Error("Inspection not found");
+  }
+
+  const oldValue = toAuditSnapshot(inspection);
+  const currentAudio =
+    typeof inspection.audio === "string" ? inspection.audio : "";
+  inspection.audio = "";
+
+  try {
+    const uploadFilePath = getUploadFilePath(currentAudio);
+    if (uploadFilePath && fs.existsSync(uploadFilePath)) {
+      fs.unlinkSync(uploadFilePath);
+    }
+  } catch (err) {
+    console.warn("Could not delete physical audio file:", err.message);
+  }
+
+  await inspection.save();
+  await appendAuditBlock({
+    userId: req.user._id,
+    action: "INSPECTION_AUDIO_DELETED",
+    entityType: "Inspection",
+    entityId: inspection._id,
+    oldValue,
+    newValue: toAuditSnapshot(inspection),
+    ip: req.ip,
+  }).catch(() => {});
+
+  res.json({
+    success: true,
+    message: "Audio recording deleted successfully",
+    data: serializeInspectionMedia(inspection),
+  });
+});
+
 module.exports = {
   getInspections,
   getInspectionById,
@@ -615,6 +707,7 @@ module.exports = {
   updateInspection,
   deleteInspection,
   deleteInspectionPhoto,
+  deleteInspectionAudio,
   closeViolation,
   detectRiskFromPhoto,
 };

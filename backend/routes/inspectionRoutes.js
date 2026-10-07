@@ -9,6 +9,7 @@ const {
   updateInspection,
   deleteInspection,
   deleteInspectionPhoto,
+  deleteInspectionAudio,
   closeViolation,
   detectRiskFromPhoto,
 } = require("../controllers/inspectionController");
@@ -94,6 +95,7 @@ router
   .delete(deleteInspection);
 
 router.delete("/:id/photos", deleteInspectionPhoto);
+router.delete("/:id/audio", deleteInspectionAudio);
 
 router.patch("/:id/violations/:violationId", closeViolation);
 

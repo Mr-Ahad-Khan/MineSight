@@ -17,10 +17,13 @@ import {
   Upload,
   Camera,
   Sparkles,
+  Mic,
+  Square,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   deleteInspection,
+  deleteInspectionAudio,
   deleteInspectionPhoto,
   getInspection,
   updateInspection,
@@ -86,10 +89,17 @@ export default function InspectionDetail() {
     description: "",
     observations: "",
   });
+  const [audioFile, setAudioFile] = useState(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingError, setRecordingError] = useState("");
   const [deletingPhoto, setDeletingPhoto] = useState(null);
   const [photoActionModal, setPhotoActionModal] = useState(null);
   const [pendingUploadClosure, setPendingUploadClosure] = useState(false);
   const proofInputRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioStreamRef = useRef(null);
+  const audioInputRef = useRef(null);
 
   const handlePhotoAction = (shouldClose) => {
     if (photoActionModal?.source === "upload") {
@@ -140,6 +150,10 @@ export default function InspectionDetail() {
       description: inspection?.description || "",
       observations: inspection?.observations || "",
     });
+    setAudioFile(null);
+    setAudioPreviewUrl(inspection?.audio ? getMediaUrl(inspection.audio) : "");
+    setIsRecording(false);
+    setRecordingError("");
     setIsEditing(true);
   };
 
@@ -148,13 +162,27 @@ export default function InspectionDetail() {
     const previousInspection = inspection;
     const updatedData = { ...inspection, ...editForm };
 
-    // Instant UI feedback - 0ms
+    if (audioFile) {
+      updatedData.audio = URL.createObjectURL(audioFile);
+    }
+
     setInspection(updatedData);
     setIsEditing(false);
     toast.success(t.inspectionUpdated || "Inspection updated successfully");
 
     try {
-      const res = await updateInspection(id, editForm);
+      const payload = new FormData();
+      Object.entries(editForm).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) payload.append(key, value);
+      });
+      if (audioFile) {
+        payload.append(
+          "audio",
+          audioFile,
+          `inspection-audio-${Date.now()}.webm`,
+        );
+      }
+      const res = await updateInspection(id, payload);
       if (res?.data?.data) {
         setInspection(res.data.data);
       }
@@ -341,6 +369,104 @@ export default function InspectionDetail() {
       setProofUploading(false);
       setCameraForClosure(false);
     }
+  };
+
+  const handleRecordingFileChange = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (!file.type.startsWith("audio/")) {
+      toast.error("Please select an audio file");
+      return;
+    }
+
+    setAudioFile(file);
+    setRecordingError("");
+    setAudioPreviewUrl((previous) => {
+      if (previous?.startsWith("blob:")) URL.revokeObjectURL(previous);
+      return URL.createObjectURL(file);
+    });
+  };
+
+  const handleDeleteRecording = async () => {
+    if (audioFile) {
+      setAudioFile(null);
+      setAudioPreviewUrl((previous) => {
+        if (previous?.startsWith("blob:")) URL.revokeObjectURL(previous);
+        return "";
+      });
+      return;
+    }
+    if (!inspection?.audio) return;
+    if (!window.confirm("Are you sure you want to delete this recording?"))
+      return;
+
+    setInspection((prev) => ({ ...prev, audio: "" }));
+    toast.success("Recording deleted");
+
+    try {
+      const res = await deleteInspectionAudio(id);
+      if (res?.data?.data) setInspection(res.data.data);
+      fetchAuditTrail().catch(() => {});
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to delete recording",
+      );
+      fetchInspection().catch(() => {});
+    }
+  };
+
+  const startVoiceRecording = async () => {
+    if (
+      !navigator.mediaDevices?.getUserMedia ||
+      typeof MediaRecorder === "undefined"
+    ) {
+      setRecordingError("Voice recording is not supported in this browser");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus"
+          : "audio/webm",
+      });
+      const chunks = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data?.size) chunks.push(event.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, {
+          type: recorder.mimeType || "audio/webm",
+        });
+        const nextUrl = URL.createObjectURL(blob);
+        setAudioFile(blob);
+        setAudioPreviewUrl(nextUrl);
+        setRecordingError("");
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorderRef.current = recorder;
+      audioStreamRef.current = stream;
+      setIsRecording(true);
+      recorder.start();
+    } catch (error) {
+      console.error("Voice recording error:", error);
+      setRecordingError("Allow microphone access to record audio");
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (
+      !mediaRecorderRef.current ||
+      mediaRecorderRef.current.state === "inactive"
+    )
+      return;
+    mediaRecorderRef.current.stop();
+    setIsRecording(false);
   };
 
   const handleDeletePhoto = async (photoUrl, type = "photo") => {
@@ -1527,6 +1653,69 @@ export default function InspectionDetail() {
                   className="input-field resize-y"
                   placeholder="Key field observations..."
                 />
+              </div>
+
+              <div>
+                <label className="label">Voice Note</label>
+                <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={
+                        isRecording ? stopVoiceRecording : startVoiceRecording
+                      }
+                      className="btn-secondary inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold"
+                    >
+                      {isRecording ? (
+                        <Square className="h-4 w-4 text-red-600" />
+                      ) : (
+                        <Mic className="h-4 w-4" />
+                      )}
+                      {isRecording ? "Stop Recording" : "Record Audio"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => audioInputRef.current?.click()}
+                      className="btn-secondary inline-flex items-center gap-2 px-3 py-2 text-sm font-semibold"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Upload Audio
+                    </button>
+                    {(audioPreviewUrl || inspection?.audio) && (
+                      <button
+                        type="button"
+                        onClick={handleDeleteRecording}
+                        className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/40"
+                      >
+                        <Trash2 className="h-4 w-4" /> Delete
+                      </button>
+                    )}
+                  </div>
+
+                  <input
+                    ref={audioInputRef}
+                    type="file"
+                    accept="audio/*"
+                    className="hidden"
+                    onChange={handleRecordingFileChange}
+                  />
+
+                  {audioPreviewUrl && (
+                    <div className="space-y-2">
+                      <audio
+                        controls
+                        src={audioPreviewUrl}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+
+                  {recordingError && (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {recordingError}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">

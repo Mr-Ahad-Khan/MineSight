@@ -1335,6 +1335,55 @@ export const deleteInspection = async (id) => {
   }
 };
 
+export const deleteInspectionAudio = async (id) => {
+  const current = (await offlineStorage.getInspection(id)) || {};
+
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    await offlineStorage.saveInspection({
+      ...current,
+      audio: "",
+      audioUrl: "",
+      _pendingSync: true,
+      updatedAt: new Date().toISOString(),
+    });
+    await enqueueMutation({
+      type: "DELETE_INSPECTION_AUDIO",
+      method: "DELETE",
+      url: `/inspections/${id}/audio`,
+      entityType: "inspections",
+      localId: id,
+      label: `Delete Inspection Audio: ${id}`,
+    });
+    return { data: { success: true, data: { audio: "" } } };
+  }
+
+  try {
+    const res = await api.delete(`/inspections/${id}/audio`);
+    if (res.data?.data) await offlineStorage.saveInspection(res.data.data);
+    return res;
+  } catch (error) {
+    if (isOfflineOrNetworkError(error)) {
+      await offlineStorage.saveInspection({
+        ...current,
+        audio: "",
+        audioUrl: "",
+        _pendingSync: true,
+        updatedAt: new Date().toISOString(),
+      });
+      await enqueueMutation({
+        type: "DELETE_INSPECTION_AUDIO",
+        method: "DELETE",
+        url: `/inspections/${id}/audio`,
+        entityType: "inspections",
+        localId: id,
+        label: `Delete Inspection Audio: ${id}`,
+      });
+      return { data: { success: true, data: { audio: "" } } };
+    }
+    throw error;
+  }
+};
+
 export const deleteInspectionPhoto = async (id, photoUrl, type = "photo") => {
   const cleanTarget = String(photoUrl || "")
     .replace(/^https?:\/\/[^\/]+/, "")
